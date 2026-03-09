@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/AndrewDonato444/market-intelligence-report#readme",
   "dependencies": {
+    "@clerk/nextjs": "^7.0.1",
     "@types/node": "^25.3.5",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
