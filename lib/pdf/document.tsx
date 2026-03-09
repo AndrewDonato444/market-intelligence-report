@@ -11,10 +11,21 @@ import { SectionPage } from "./templates/section-page";
 import { MetadataPage } from "./templates/metadata-page";
 import type { ReportData } from "@/lib/agents/schema";
 
+export interface BrandColors {
+  primary?: string;
+  secondary?: string;
+  accent?: string;
+}
+
 export interface AgentBranding {
   name: string;
   company?: string;
   logoUrl?: string;
+  brandColors?: BrandColors;
+  phone?: string;
+  email?: string;
+  title?: string;
+  disclaimer?: string;
 }
 
 export interface ReportDocumentProps {
@@ -43,6 +54,10 @@ export function ReportDocument({
         company={branding.company}
         generatedAt={reportData.metadata.generatedAt}
         logoUrl={branding.logoUrl}
+        phone={branding.phone}
+        email={branding.email}
+        agentTitle={branding.title}
+        brandColors={branding.brandColors}
       />
       <TableOfContents sections={reportData.sections} />
       <InsightsIndex
@@ -54,12 +69,14 @@ export function ReportDocument({
           key={section.sectionType}
           section={section}
           reportTitle={title}
+          companyName={branding.company}
         />
       ))}
       <MetadataPage
         metadata={reportData.metadata}
         pullQuotes={reportData.pullQuotes}
         reportTitle={title}
+        disclaimer={branding.disclaimer}
       />
     </Document>
   );

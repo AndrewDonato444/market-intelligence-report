@@ -25,6 +25,25 @@ export const COLORS = {
   ratingC: "#B91C1C",
 };
 
+/**
+ * Create a color palette that respects agent brand colors, falling back to defaults.
+ */
+export function createBrandedColors(brandColors?: {
+  primary?: string;
+  secondary?: string;
+  accent?: string;
+}): typeof COLORS {
+  if (!brandColors) return { ...COLORS };
+  return {
+    ...COLORS,
+    primary: brandColors.primary ?? COLORS.primary,
+    accent: brandColors.accent ?? COLORS.accent,
+    textPrimary: brandColors.primary ?? COLORS.textPrimary,
+    reportAccentLine: brandColors.accent ?? COLORS.reportAccentLine,
+    reportPullquoteBg: brandColors.primary ?? COLORS.reportPullquoteBg,
+  };
+}
+
 export const styles = StyleSheet.create({
   page: {
     width: 612,

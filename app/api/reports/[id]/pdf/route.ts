@@ -42,12 +42,16 @@ export async function POST(
     );
   }
 
-  // Load user branding
+  // Load user branding (full profile for PDF injection)
   const [user] = await db
     .select({
       name: schema.users.name,
       company: schema.users.company,
       logoUrl: schema.users.logoUrl,
+      brandColors: schema.users.brandColors,
+      phone: schema.users.phone,
+      email: schema.users.email,
+      title: schema.users.title,
     })
     .from(schema.users)
     .where(eq(schema.users.authId, userId))
@@ -85,6 +89,10 @@ export async function POST(
       name: user?.name ?? "Agent",
       company: user?.company ?? undefined,
       logoUrl: user?.logoUrl ?? undefined,
+      brandColors: user?.brandColors ?? undefined,
+      phone: user?.phone ?? undefined,
+      email: user?.email ?? undefined,
+      title: user?.title ?? undefined,
     },
     title: report.title,
     marketName: report.marketName,

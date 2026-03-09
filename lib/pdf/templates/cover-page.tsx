@@ -13,6 +13,10 @@ interface CoverPageProps {
   company?: string;
   generatedAt: string;
   logoUrl?: string;
+  phone?: string;
+  email?: string;
+  agentTitle?: string;
+  brandColors?: { primary?: string; secondary?: string; accent?: string };
 }
 
 export function CoverPage({
@@ -22,6 +26,10 @@ export function CoverPage({
   company,
   generatedAt,
   logoUrl,
+  phone,
+  email,
+  agentTitle,
+  brandColors,
 }: CoverPageProps) {
   const date = new Date(generatedAt);
   const formattedDate = date.toLocaleDateString("en-US", {
@@ -29,12 +37,18 @@ export function CoverPage({
     year: "numeric",
   });
 
+  const accentColor = brandColors?.accent ?? "#CA8A04";
+  const bgColor = brandColors?.primary ?? undefined;
+
   return (
-    <Page size="LETTER" style={styles.coverPage}>
+    <Page
+      size="LETTER"
+      style={bgColor ? { ...styles.coverPage, backgroundColor: bgColor } : styles.coverPage}
+    >
       <View>
         <Text style={styles.coverSubtitle}>Market Intelligence Report</Text>
         <Text style={styles.coverTitle}>{title}</Text>
-        <View style={{ ...styles.accentLine, backgroundColor: "#CA8A04" }} />
+        <View style={{ ...styles.accentLine, backgroundColor: accentColor }} />
         <Text style={{ ...styles.coverSubtitle, marginBottom: 0 }}>
           {marketName}
         </Text>
@@ -48,8 +62,16 @@ export function CoverPage({
         )}
         <Text style={styles.coverBranding}>
           Prepared by {agentName}
-          {company ? ` — ${company}` : ""}
+          {agentTitle ? `, ${agentTitle}` : ""}
         </Text>
+        {company && (
+          <Text style={styles.coverBranding}>{company}</Text>
+        )}
+        {(phone || email) && (
+          <Text style={{ ...styles.coverBranding, marginTop: 4 }}>
+            {[phone, email].filter(Boolean).join(" | ")}
+          </Text>
+        )}
         <Text style={styles.coverDate}>{formattedDate}</Text>
       </View>
     </Page>

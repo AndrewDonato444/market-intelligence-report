@@ -16,10 +16,14 @@ interface SectionContent {
 interface SectionPageProps {
   section: SectionContent;
   reportTitle: string;
+  companyName?: string;
 }
 
-export function SectionPage({ section, reportTitle }: SectionPageProps) {
+export function SectionPage({ section, reportTitle, companyName }: SectionPageProps) {
   const Renderer = getSectionRenderer(section.sectionType);
+  const footerLeft = companyName
+    ? `${reportTitle} — ${companyName}`
+    : reportTitle;
 
   return (
     <Page size="LETTER" style={styles.page}>
@@ -29,7 +33,7 @@ export function SectionPage({ section, reportTitle }: SectionPageProps) {
         <Renderer section={section} />
       </View>
       <View style={styles.pageFooter} fixed>
-        <Text style={styles.pageNumber}>{reportTitle}</Text>
+        <Text style={styles.pageNumber}>{footerLeft}</Text>
         <Text
           style={styles.pageNumber}
           render={({ pageNumber, totalPages }) =>

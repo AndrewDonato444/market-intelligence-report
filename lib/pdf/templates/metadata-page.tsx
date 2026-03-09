@@ -12,12 +12,14 @@ interface MetadataPageProps {
   metadata: ReportMetadata;
   pullQuotes: Array<{ text: string; source: string }>;
   reportTitle: string;
+  disclaimer?: string;
 }
 
 export function MetadataPage({
   metadata,
   pullQuotes,
   reportTitle,
+  disclaimer,
 }: MetadataPageProps) {
   const generatedDate = new Date(metadata.generatedAt).toLocaleDateString(
     "en-US",
@@ -74,6 +76,13 @@ export function MetadataPage({
             </>
           )}
         </View>
+
+        {/* Disclaimer */}
+        {disclaimer && (
+          <View style={{ marginTop: 24, paddingTop: 16, borderTopWidth: 1, borderTopColor: COLORS.border }}>
+            <Text style={styles.bodySmall}>{disclaimer}</Text>
+          </View>
+        )}
       </View>
 
       <View style={styles.pageFooter} fixed>
