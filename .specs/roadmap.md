@@ -22,8 +22,8 @@
 | Status | Count |
 |--------|-------|
 | ✅ Completed | 37 |
-| 🔄 In Progress | 0 |
-| ⬜ Pending | 1 |
+| 🔄 In Progress | 1 |
+| ⬜ Pending | 0 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -150,7 +150,7 @@
 |---|---------|--------|------------|------|--------|
 | 70 | Account settings page | vision | S | 3, 4 | ✅ |
 | 71 | Subscription management + Stripe integration | vision | M | 70 | ✅ |
-| 72 | Usage dashboard — API costs, report count, billing summary | vision | M | 23, 71 | ⬜ |
+| 72 | Usage dashboard — API costs, report count, billing summary | vision | M | 23, 71 | 🔄 |
 
 **Goal**: Agents can manage their subscription, see how many reports they've generated, and understand their API cost consumption.
 
