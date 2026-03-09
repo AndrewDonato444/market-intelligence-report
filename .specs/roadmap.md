@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 32 |
+| ✅ Completed | 33 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 4 |
+| ⬜ Pending | 3 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -134,7 +134,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 60 | Report editor — adjust narratives, refine insights post-generation | vision | L | 42, 57 | 🔄 |
+| 60 | Report editor — adjust narratives, refine insights post-generation | vision | L | 42, 57 | ✅ |
 | 61 | Report history + versioning | vision | M | 2, 57 | ⬜ |
 | 62 | Report templates — save/reuse market configurations | vision | M | 40, 61 | ⬜ |
 
