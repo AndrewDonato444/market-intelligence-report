@@ -353,6 +353,75 @@ export const CompetitiveAnalysisPdf: SectionRenderer = ({ section }) => {
   );
 };
 
+// --- Polished Report (pull quotes + methodology) ---
+
+interface PolishedReportContent {
+  pullQuotes?: Array<{ text: string; source: string }>;
+  methodology?: string;
+  narrative?: string;
+}
+
+export const PolishedReportPdf: SectionRenderer = ({ section }) => {
+  const content = section.content as PolishedReportContent;
+  return (
+    <View>
+      {content.narrative && <Text style={styles.body}>{content.narrative}</Text>}
+      {content.pullQuotes && content.pullQuotes.length > 0 && (
+        <View style={{ marginTop: 16 }}>
+          {content.pullQuotes.map((quote, i) => (
+            <View key={i} style={styles.pullQuote}>
+              <Text style={styles.pullQuoteText}>
+                &ldquo;{quote.text}&rdquo;
+              </Text>
+              <Text style={styles.pullQuoteSource}>— {quote.source}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+      {content.methodology && (
+        <View style={{ marginTop: 16 }}>
+          <Text style={styles.subheading}>Methodology</Text>
+          <Text style={styles.body}>{content.methodology}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+// --- Methodology Section ---
+
+interface MethodologyContent {
+  narrative?: string;
+  dataSources?: string[];
+  confidenceNotes?: string;
+}
+
+export const MethodologySectionPdf: SectionRenderer = ({ section }) => {
+  const content = section.content as MethodologyContent;
+  return (
+    <View>
+      {content.narrative && <Text style={styles.body}>{content.narrative}</Text>}
+      {content.dataSources && content.dataSources.length > 0 && (
+        <View style={{ marginTop: 12 }}>
+          <Text style={styles.subheading}>Data Sources</Text>
+          {content.dataSources.map((source, i) => (
+            <Text key={i} style={styles.bulletItem}>
+              {"•  "}
+              {source}
+            </Text>
+          ))}
+        </View>
+      )}
+      {content.confidenceNotes && (
+        <View style={{ marginTop: 12 }}>
+          <Text style={styles.subheading}>Confidence Notes</Text>
+          <Text style={styles.body}>{content.confidenceNotes}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
 // --- Generic Section (fallback) ---
 
 export const GenericSectionPdf: SectionRenderer = ({ section }) => {
@@ -376,6 +445,8 @@ const RENDERER_MAP: Record<string, SectionRenderer> = {
   executive_summary: ExecutiveSummaryPdf,
   strategic_summary: NarrativeSectionPdf,
   competitive_market_analysis: CompetitiveAnalysisPdf,
+  polished_report: PolishedReportPdf,
+  methodology: MethodologySectionPdf,
 };
 
 export function getSectionRenderer(sectionType: string): SectionRenderer {
