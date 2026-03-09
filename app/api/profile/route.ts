@@ -1,4 +1,4 @@
-import { auth, currentUser } from "@clerk/nextjs/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { NextResponse } from "next/server";
 import {
   getProfile,
@@ -7,33 +7,30 @@ import {
 } from "@/lib/services/profile";
 
 export async function GET() {
-  const { userId } = await auth();
-  if (!userId) {
+  const authUser = await getAuthUser();
+  if (!authUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const profile = await getProfile(userId);
+  const profile = await getProfile(authUser.id);
 
   if (profile) {
     return NextResponse.json({ profile });
   }
 
-  // No profile yet — return Clerk defaults for pre-population
-  const clerkUser = await currentUser();
+  // No profile yet — return defaults for pre-population
   return NextResponse.json({
     profile: null,
     defaults: {
-      name:
-        [clerkUser?.firstName, clerkUser?.lastName].filter(Boolean).join(" ") ||
-        "",
-      email: clerkUser?.emailAddresses?.[0]?.emailAddress || "",
+      name: "",
+      email: authUser.email,
     },
   });
 }
 
 export async function PUT(request: Request) {
-  const { userId } = await auth();
-  if (!userId) {
+  const authUser = await getAuthUser();
+  if (!authUser) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
@@ -55,9 +52,6 @@ export async function PUT(request: Request) {
     );
   }
 
-  const clerkUser = await currentUser();
-  const email = clerkUser?.emailAddresses?.[0]?.emailAddress || "";
-
-  const profile = await upsertProfile(userId, email, validation.data!);
+  const profile = await upsertProfile(authUser.id, authUser.email, validation.data!);
   return NextResponse.json({ profile });
 }

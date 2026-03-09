@@ -17,16 +17,13 @@ describe("Environment Config", () => {
   });
 
   describe("env module exports", () => {
-    // We need to test the module in isolation to avoid side effects
     let envModule: typeof import("@/lib/config/env");
 
     beforeAll(() => {
-      // Set all required env vars for testing
       process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
-      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_123";
-      process.env.CLERK_SECRET_KEY = "sk_test_123";
+      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
       process.env.ANTHROPIC_API_KEY = "sk-ant-test-123";
-      process.env.FRED_API_KEY = "test-fred-key";
       process.env.REALESTATEAPI_KEY = "test-reapi-key";
       process.env.SCRAPINGDOG_API_KEY = "test-scrapingdog-key";
     });
@@ -57,15 +54,9 @@ describe("Environment Config", () => {
       expect(envModule.env.ANTHROPIC_API_KEY).toBe("sk-ant-test-123");
     });
 
-    it("returns FRED_API_KEY when set", async () => {
+    it("returns NEXT_PUBLIC_SUPABASE_URL when set", async () => {
       envModule = await import("@/lib/config/env");
-      expect(envModule.env.FRED_API_KEY).toBe("test-fred-key");
-    });
-
-    it("returns default for optional vars", async () => {
-      envModule = await import("@/lib/config/env");
-      expect(envModule.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL).toBe("/sign-in");
-      expect(envModule.env.NODE_ENV).toBe("test"); // jest sets this
+      expect(envModule.env.NEXT_PUBLIC_SUPABASE_URL).toBe("https://test.supabase.co");
     });
 
     it("returns default S3_REGION", async () => {
@@ -81,10 +72,9 @@ describe("Environment Config", () => {
 
     it("passes when all required vars are set", async () => {
       process.env.DATABASE_URL = "postgresql://test:test@localhost:5432/test";
-      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY = "pk_test_123";
-      process.env.CLERK_SECRET_KEY = "sk_test_123";
+      process.env.NEXT_PUBLIC_SUPABASE_URL = "https://test.supabase.co";
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
       process.env.ANTHROPIC_API_KEY = "sk-ant-test-123";
-      process.env.FRED_API_KEY = "test-fred-key";
       process.env.REALESTATEAPI_KEY = "test-reapi-key";
       process.env.SCRAPINGDOG_API_KEY = "test-scrapingdog-key";
 
@@ -100,19 +90,6 @@ describe("Environment Config", () => {
       expect(() => validateEnv()).toThrow("ANTHROPIC_API_KEY");
 
       process.env.ANTHROPIC_API_KEY = saved;
-    });
-
-    it("lists all missing vars in error message", async () => {
-      const savedAnth = process.env.ANTHROPIC_API_KEY;
-      const savedFred = process.env.FRED_API_KEY;
-      delete process.env.ANTHROPIC_API_KEY;
-      delete process.env.FRED_API_KEY;
-
-      const { validateEnv } = await import("@/lib/config/env");
-      expect(() => validateEnv()).toThrow("ANTHROPIC_API_KEY");
-
-      process.env.ANTHROPIC_API_KEY = savedAnth;
-      process.env.FRED_API_KEY = savedFred;
     });
   });
 
@@ -130,17 +107,18 @@ describe("Environment Config", () => {
       expect(exampleContent).toContain("DATABASE_URL");
     });
 
-    it("documents CLERK keys", () => {
-      expect(exampleContent).toContain("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY");
-      expect(exampleContent).toContain("CLERK_SECRET_KEY");
+    it("documents Supabase auth keys", () => {
+      expect(exampleContent).toContain("NEXT_PUBLIC_SUPABASE_URL");
+      expect(exampleContent).toContain("NEXT_PUBLIC_SUPABASE_ANON_KEY");
     });
 
     it("documents ANTHROPIC_API_KEY", () => {
       expect(exampleContent).toContain("ANTHROPIC_API_KEY");
     });
 
-    it("documents FRED_API_KEY", () => {
-      expect(exampleContent).toContain("FRED_API_KEY");
+    it("documents data API keys", () => {
+      expect(exampleContent).toContain("REALESTATEAPI_KEY");
+      expect(exampleContent).toContain("SCRAPINGDOG_API_KEY");
     });
 
     it("documents S3 config", () => {
@@ -150,12 +128,6 @@ describe("Environment Config", () => {
 
     it("marks required variables", () => {
       expect(exampleContent).toContain("[REQUIRED]");
-    });
-
-    it("includes setup URLs for API keys", () => {
-      expect(exampleContent).toContain("dashboard.clerk.com");
-      expect(exampleContent).toContain("console.anthropic.com");
-      expect(exampleContent).toContain("fred.stlouisfed.org");
     });
   });
 });

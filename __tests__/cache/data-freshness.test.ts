@@ -38,11 +38,11 @@ describe("Data Freshness Service", () => {
   describe("checkFreshness", () => {
     it("returns 'fresh' for non-expired entry", async () => {
       const mockEntry = {
-        key: "fred:series:MORTGAGE30US",
-        source: "fred",
-        ttlSeconds: 43200,
+        key: "reapi:property-search:naples",
+        source: "realestateapi",
+        ttlSeconds: 86400,
         createdAt: new Date("2026-03-09T06:00:00Z"), // 6h ago
-        expiresAt: new Date("2026-03-09T18:00:00Z"), // 6h from now
+        expiresAt: new Date("2026-03-10T06:00:00Z"), // 18h from now
       };
 
       (db.select as jest.Mock).mockReturnValue({
@@ -53,21 +53,20 @@ describe("Data Freshness Service", () => {
         }),
       });
 
-      const result = await checkFreshness("fred:series:MORTGAGE30US");
+      const result = await checkFreshness("reapi:property-search:naples");
 
       expect(result.status).toBe("fresh");
       expect(result.ageSeconds).toBe(21600); // 6h
-      expect(result.ttlRemainingSeconds).toBe(21600); // 6h
-      expect(result.source).toBe("fred");
+      expect(result.source).toBe("realestateapi");
     });
 
     it("returns 'stale' for expired entry", async () => {
       const mockEntry = {
-        key: "fred:series:GDP",
-        source: "fred",
-        ttlSeconds: 43200,
-        createdAt: new Date("2026-03-08T12:00:00Z"), // 24h ago
-        expiresAt: new Date("2026-03-09T00:00:00Z"), // expired 12h ago
+        key: "reapi:property-detail:expired",
+        source: "realestateapi",
+        ttlSeconds: 86400,
+        createdAt: new Date("2026-03-07T12:00:00Z"), // 48h ago
+        expiresAt: new Date("2026-03-08T12:00:00Z"), // expired 24h ago
       };
 
       (db.select as jest.Mock).mockReturnValue({
@@ -78,7 +77,7 @@ describe("Data Freshness Service", () => {
         }),
       });
 
-      const result = await checkFreshness("fred:series:GDP");
+      const result = await checkFreshness("reapi:property-detail:expired");
 
       expect(result.status).toBe("stale");
       expect(result.ttlRemainingSeconds).toBeLessThan(0);
@@ -104,25 +103,25 @@ describe("Data Freshness Service", () => {
   describe("checkMultiple", () => {
     it("returns 'high' confidence when all entries are fresh", async () => {
       const freshEntry = {
-        source: "fred",
-        ttlSeconds: 43200,
+        source: "realestateapi",
+        ttlSeconds: 86400,
         createdAt: new Date("2026-03-09T06:00:00Z"),
-        expiresAt: new Date("2026-03-09T18:00:00Z"),
+        expiresAt: new Date("2026-03-10T06:00:00Z"),
       };
 
       (db.select as jest.Mock).mockReturnValue({
         from: jest.fn().mockReturnValue({
           where: jest.fn().mockReturnValue({
             limit: jest.fn()
-              .mockResolvedValueOnce([{ ...freshEntry, key: "fred:series:MORTGAGE30US" }])
-              .mockResolvedValueOnce([{ ...freshEntry, key: "fred:series:UNRATE", source: "fred" }]),
+              .mockResolvedValueOnce([{ ...freshEntry, key: "reapi:property-search:naples" }])
+              .mockResolvedValueOnce([{ ...freshEntry, key: "reapi:property-comps:naples" }]),
           }),
         }),
       });
 
       const result = await checkMultiple([
-        "fred:series:MORTGAGE30US",
-        "fred:series:UNRATE",
+        "reapi:property-search:naples",
+        "reapi:property-comps:naples",
       ]);
 
       expect(result.confidence).toBe("high");
@@ -133,18 +132,18 @@ describe("Data Freshness Service", () => {
 
     it("returns 'medium' confidence when some data is stale", async () => {
       const freshEntry = {
-        key: "fred:series:MORTGAGE30US",
-        source: "fred",
-        ttlSeconds: 43200,
-        createdAt: new Date("2026-03-09T06:00:00Z"),
-        expiresAt: new Date("2026-03-09T18:00:00Z"),
-      };
-      const staleEntry = {
         key: "reapi:property-search:naples",
         source: "realestateapi",
         ttlSeconds: 86400,
-        createdAt: new Date("2026-03-07T12:00:00Z"),
-        expiresAt: new Date("2026-03-08T12:00:00Z"),
+        createdAt: new Date("2026-03-09T06:00:00Z"),
+        expiresAt: new Date("2026-03-10T06:00:00Z"),
+      };
+      const staleEntry = {
+        key: "scrapingdog:local:naples",
+        source: "scrapingdog",
+        ttlSeconds: 604800,
+        createdAt: new Date("2026-02-20T12:00:00Z"),
+        expiresAt: new Date("2026-02-27T12:00:00Z"),
       };
 
       (db.select as jest.Mock).mockReturnValue({
@@ -158,8 +157,8 @@ describe("Data Freshness Service", () => {
       });
 
       const result = await checkMultiple([
-        "fred:series:MORTGAGE30US",
         "reapi:property-search:naples",
+        "scrapingdog:local:naples",
       ]);
 
       expect(result.confidence).toBe("medium");
@@ -177,8 +176,8 @@ describe("Data Freshness Service", () => {
       });
 
       const result = await checkMultiple([
-        "fred:series:MORTGAGE30US",
         "reapi:property-search:naples",
+        "scrapingdog:local:naples",
       ]);
 
       expect(result.confidence).toBe("low");
@@ -190,18 +189,18 @@ describe("Data Freshness Service", () => {
     it("checks all entries for a given source", async () => {
       const entries = [
         {
-          key: "fred:series:MORTGAGE30US",
-          source: "fred",
-          ttlSeconds: 43200,
+          key: "reapi:property-search:naples",
+          source: "realestateapi",
+          ttlSeconds: 86400,
           createdAt: new Date("2026-03-09T06:00:00Z"),
-          expiresAt: new Date("2026-03-09T18:00:00Z"),
+          expiresAt: new Date("2026-03-10T06:00:00Z"),
         },
         {
-          key: "fred:series:UNRATE",
-          source: "fred",
-          ttlSeconds: 43200,
+          key: "reapi:property-comps:naples",
+          source: "realestateapi",
+          ttlSeconds: 86400,
           createdAt: new Date("2026-03-09T08:00:00Z"),
-          expiresAt: new Date("2026-03-09T20:00:00Z"),
+          expiresAt: new Date("2026-03-10T08:00:00Z"),
         },
       ];
 
@@ -211,7 +210,7 @@ describe("Data Freshness Service", () => {
         }),
       });
 
-      const result = await checkSourceFreshness("fred");
+      const result = await checkSourceFreshness("realestateapi");
 
       expect(result.entries).toHaveLength(2);
       expect(result.freshCount).toBe(2);

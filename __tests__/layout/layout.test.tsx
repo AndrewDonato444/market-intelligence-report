@@ -6,11 +6,14 @@ import path from "path";
 // Mock next/navigation
 jest.mock("next/navigation", () => ({
   usePathname: () => "/dashboard",
+  useRouter: () => ({ push: jest.fn() }),
 }));
 
-// Mock @clerk/nextjs
-jest.mock("@clerk/nextjs", () => ({
-  UserButton: () => <div data-testid="user-button">UserButton</div>,
+// Mock @/lib/supabase/client
+jest.mock("@/lib/supabase/client", () => ({
+  createClient: () => ({
+    auth: { signOut: jest.fn().mockResolvedValue({}) },
+  }),
 }));
 
 import { TopNav } from "@/components/layout/top-nav";
@@ -77,9 +80,9 @@ describe("Base App Layout", () => {
       ).toBeInTheDocument();
     });
 
-    it("renders the UserButton", () => {
+    it("renders the Sign Out button", () => {
       render(<TopNav />);
-      expect(screen.getByTestId("user-button")).toBeInTheDocument();
+      expect(screen.getByText("Sign Out")).toBeInTheDocument();
     });
   });
 

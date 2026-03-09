@@ -6,7 +6,6 @@ import { eq, lt } from "drizzle-orm";
  * Each external API has a different data freshness profile.
  */
 export const SOURCE_TTLS: Record<string, number> = {
-  fred: 43200, // 12h — economic indicators update daily at most
   realestateapi: 86400, // 24h — transaction data is stable within a day
   scrapingdog: 604800, // 7d — neighborhood context changes slowly
   anthropic: 0, // never cache — AI outputs should always be fresh

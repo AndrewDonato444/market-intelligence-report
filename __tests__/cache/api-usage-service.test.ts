@@ -71,8 +71,8 @@ describe("API Usage Service", () => {
 
       await apiUsageService.logApiCall({
         userId: "user-uuid-1",
-        provider: "fred",
-        endpoint: "/series/observations",
+        provider: "realestateapi",
+        endpoint: "/v2/PropertySearch",
         cached: true,
       });
 

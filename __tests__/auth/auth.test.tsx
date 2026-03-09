@@ -1,7 +1,7 @@
 import fs from "fs";
 import path from "path";
 
-describe("Authentication with Clerk", () => {
+describe("Authentication with Supabase", () => {
   describe("File structure", () => {
     it("has middleware.ts for route protection", () => {
       expect(
@@ -55,6 +55,24 @@ describe("Authentication with Clerk", () => {
         )
       ).toBe(true);
     });
+
+    it("has Supabase server client helper", () => {
+      expect(
+        fs.existsSync(path.join(process.cwd(), "lib/supabase/server.ts"))
+      ).toBe(true);
+    });
+
+    it("has Supabase browser client helper", () => {
+      expect(
+        fs.existsSync(path.join(process.cwd(), "lib/supabase/client.ts"))
+      ).toBe(true);
+    });
+
+    it("has Supabase middleware helper", () => {
+      expect(
+        fs.existsSync(path.join(process.cwd(), "lib/supabase/middleware.ts"))
+      ).toBe(true);
+    });
   });
 
   describe("Middleware configuration", () => {
@@ -67,32 +85,8 @@ describe("Authentication with Clerk", () => {
       );
     });
 
-    it("imports clerkMiddleware", () => {
-      expect(middlewareContent).toContain("clerkMiddleware");
-    });
-
-    it("imports createRouteMatcher", () => {
-      expect(middlewareContent).toContain("createRouteMatcher");
-    });
-
-    it("defines public routes including landing page", () => {
-      expect(middlewareContent).toContain('"/",');
-    });
-
-    it("defines sign-in as public route", () => {
-      expect(middlewareContent).toContain("sign-in");
-    });
-
-    it("defines sign-up as public route", () => {
-      expect(middlewareContent).toContain("sign-up");
-    });
-
-    it("defines webhook routes as public", () => {
-      expect(middlewareContent).toContain("webhooks");
-    });
-
-    it("calls auth.protect() for non-public routes", () => {
-      expect(middlewareContent).toContain("auth.protect()");
+    it("imports Supabase middleware helper", () => {
+      expect(middlewareContent).toContain("updateSession");
     });
 
     it("exports matcher config", () => {
@@ -101,7 +95,7 @@ describe("Authentication with Clerk", () => {
     });
   });
 
-  describe("Root layout includes ClerkProvider", () => {
+  describe("Root layout does not use Clerk", () => {
     let layoutContent: string;
 
     beforeAll(() => {
@@ -111,16 +105,16 @@ describe("Authentication with Clerk", () => {
       );
     });
 
-    it("imports ClerkProvider", () => {
-      expect(layoutContent).toContain("ClerkProvider");
+    it("does not import ClerkProvider", () => {
+      expect(layoutContent).not.toContain("ClerkProvider");
     });
 
-    it("wraps app with ClerkProvider", () => {
-      expect(layoutContent).toContain("<ClerkProvider>");
+    it("does not import from @clerk", () => {
+      expect(layoutContent).not.toContain("@clerk");
     });
   });
 
-  describe("Sign-in page", () => {
+  describe("Sign-in page uses Supabase", () => {
     let signInContent: string;
 
     beforeAll(() => {
@@ -133,17 +127,16 @@ describe("Authentication with Clerk", () => {
       );
     });
 
-    it("imports SignIn component from Clerk", () => {
-      expect(signInContent).toContain("SignIn");
-      expect(signInContent).toContain("@clerk/nextjs");
+    it("imports Supabase client", () => {
+      expect(signInContent).toContain("@/lib/supabase/client");
     });
 
-    it("renders the SignIn component", () => {
-      expect(signInContent).toContain("<SignIn");
+    it("uses signInWithPassword", () => {
+      expect(signInContent).toContain("signInWithPassword");
     });
   });
 
-  describe("Sign-up page", () => {
+  describe("Sign-up page uses Supabase", () => {
     let signUpContent: string;
 
     beforeAll(() => {
@@ -156,40 +149,12 @@ describe("Authentication with Clerk", () => {
       );
     });
 
-    it("imports SignUp component from Clerk", () => {
-      expect(signUpContent).toContain("SignUp");
-      expect(signUpContent).toContain("@clerk/nextjs");
+    it("imports Supabase client", () => {
+      expect(signUpContent).toContain("@/lib/supabase/client");
     });
 
-    it("renders the SignUp component", () => {
-      expect(signUpContent).toContain("<SignUp");
-    });
-  });
-
-  describe("Dashboard page", () => {
-    let dashboardContent: string;
-
-    beforeAll(() => {
-      dashboardContent = fs.readFileSync(
-        path.join(
-          process.cwd(),
-          "app/(protected)/dashboard/page.tsx"
-        ),
-        "utf8"
-      );
-    });
-
-    it("imports currentUser for server-side auth", () => {
-      expect(dashboardContent).toContain("currentUser");
-    });
-
-    it("redirects to sign-in if no user", () => {
-      expect(dashboardContent).toContain('redirect("/sign-in")');
-    });
-
-    it("uses design tokens for styling", () => {
-      expect(dashboardContent).toContain("var(--color-primary)");
-      expect(dashboardContent).toContain("var(--color-accent)");
+    it("uses signUp", () => {
+      expect(signUpContent).toContain("auth.signUp");
     });
   });
 
@@ -205,8 +170,16 @@ describe("Authentication with Clerk", () => {
       );
     });
 
-    it("has @clerk/nextjs as dependency", () => {
-      expect(packageJson.dependencies["@clerk/nextjs"]).toBeDefined();
+    it("has @supabase/ssr as dependency", () => {
+      expect(packageJson.dependencies["@supabase/ssr"]).toBeDefined();
+    });
+
+    it("has @supabase/supabase-js as dependency", () => {
+      expect(packageJson.dependencies["@supabase/supabase-js"]).toBeDefined();
+    });
+
+    it("does not have @clerk/nextjs as dependency", () => {
+      expect(packageJson.dependencies["@clerk/nextjs"]).toBeUndefined();
     });
   });
 });

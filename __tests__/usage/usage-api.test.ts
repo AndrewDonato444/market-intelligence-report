@@ -51,7 +51,7 @@ describe("API Usage Tracking", () => {
       );
       expect(routeContent).toContain("export async function GET");
       expect(routeContent).toContain("getUsageSummary");
-      expect(routeContent).toContain("auth()");
+      expect(routeContent).toContain("getAuthUserId");
     });
 
     it("checks authentication", () => {
@@ -80,7 +80,7 @@ describe("API Usage Tracking", () => {
       );
       expect(routeContent).toContain("export async function GET");
       expect(routeContent).toContain("getUsageLog");
-      expect(routeContent).toContain("auth()");
+      expect(routeContent).toContain("getAuthUserId");
     });
 
     it("supports pagination parameters", () => {

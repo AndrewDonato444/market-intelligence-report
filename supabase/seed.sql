@@ -2,7 +2,7 @@
 -- Runs automatically after `npm run db:reset`
 
 -- Test user
-INSERT INTO users (id, clerk_id, email, name, company, title, brand_colors) VALUES
+INSERT INTO users (id, auth_id, email, name, company, title, brand_colors) VALUES
   ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'user_test_001', 'agent@luxuryrealty.com', 'Victoria Ashford', 'Ashford & Associates', 'Principal Broker',
    '{"primary": "#0F172A", "secondary": "#CA8A04", "accent": "#1E3A5F"}'),
   ('b2c3d4e5-f6a7-8901-bcde-f12345678901', 'user_test_002', 'demo@modernsignal.com', 'James Whitfield', 'Whitfield Luxury Group', 'Senior Advisor',
@@ -51,11 +51,8 @@ INSERT INTO report_sections (report_id, section_type, title, content, sort_order
 
 -- Test cache entries
 INSERT INTO cache (key, source, data, ttl_seconds, expires_at) VALUES
-  ('fred:mortgage_rate:30yr', 'fred', '{"value": 6.25, "date": "2026-03-01"}', 86400, now() + interval '1 day'),
   ('census:population:palm_beach', 'census', '{"population": 45780, "growth_rate": 0.032}', 604800, now() + interval '7 days');
 
 -- Test API usage
 INSERT INTO api_usage (user_id, provider, endpoint, cost, tokens_used, response_time_ms, status_code, cached) VALUES
-  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'anthropic', '/v1/messages', 0.045000, 3200, 2150, 200, 0),
-  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'fred', '/series/observations', 0.000000, NULL, 340, 200, 0),
-  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'fred', '/series/observations', 0.000000, NULL, 12, 200, 1);
+  ('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'anthropic', '/v1/messages', 0.045000, 3200, 2150, 200, 0);

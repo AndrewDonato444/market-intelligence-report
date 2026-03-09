@@ -158,13 +158,13 @@ describe("Market Configuration Persistence + Edit", () => {
       expect(routeContent).toContain("export async function PUT");
     });
 
-    it("route uses Clerk auth", () => {
+    it("route uses Supabase auth", () => {
       const routeContent = fs.readFileSync(
         path.join(process.cwd(), "app/api/markets/[id]/route.ts"),
         "utf8"
       );
-      expect(routeContent).toContain("@clerk/nextjs/server");
-      expect(routeContent).toContain("auth()");
+      expect(routeContent).toContain("@/lib/supabase/auth");
+      expect(routeContent).toContain("getAuthUserId");
     });
 
     it("route returns 401 for unauthenticated requests", () => {

@@ -7,18 +7,18 @@ export { validateProfileData } from "./profile-validation";
 
 // --- Database operations ---
 
-export async function getProfile(clerkId: string) {
+export async function getProfile(authId: string) {
   const [user] = await db
     .select()
     .from(schema.users)
-    .where(eq(schema.users.clerkId, clerkId))
+    .where(eq(schema.users.authId, authId))
     .limit(1);
 
   return user || null;
 }
 
 export async function upsertProfile(
-  clerkId: string,
+  authId: string,
   email: string,
   data: {
     name: string;
@@ -30,7 +30,7 @@ export async function upsertProfile(
     brandColors?: { primary?: string; secondary?: string; accent?: string } | null;
   }
 ) {
-  const existing = await getProfile(clerkId);
+  const existing = await getProfile(authId);
 
   if (existing) {
     const [updated] = await db
@@ -45,7 +45,7 @@ export async function upsertProfile(
         brandColors: data.brandColors || null,
         updatedAt: new Date(),
       })
-      .where(eq(schema.users.clerkId, clerkId))
+      .where(eq(schema.users.authId, authId))
       .returning();
     return updated;
   }
@@ -53,7 +53,7 @@ export async function upsertProfile(
   const [created] = await db
     .insert(schema.users)
     .values({
-      clerkId,
+      authId,
       email,
       name: data.name,
       company: data.company || null,

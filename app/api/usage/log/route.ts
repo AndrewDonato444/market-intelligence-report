@@ -1,10 +1,10 @@
-import { auth } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/supabase/auth";
 import { NextResponse } from "next/server";
 import { getProfile } from "@/lib/services/profile";
 import { getUsageLog } from "@/lib/services/api-usage";
 
 export async function GET(request: Request) {
-  const { userId } = await auth();
+  const userId = await getAuthUserId();
   if (!userId) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

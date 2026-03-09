@@ -74,10 +74,10 @@ The example Naples Intelligence Report is stored at `.specs/reference/naples-int
 | Styling | Tailwind CSS |
 | Backend | Next.js API Routes + serverless functions |
 | Database | PostgreSQL (Supabase or Neon) |
-| Auth | NextAuth.js or Clerk |
+| Auth | Supabase Auth |
 | PDF Generation | React-PDF / Puppeteer for high-fidelity output |
 | AI/Agents | Anthropic Claude API (data analysis, insight generation, narrative writing, polishing) |
-| Data APIs | RealEstateAPI (property search, detail, comps, valuations), FRED (Federal Reserve Economic Data), ScrapingDog (neighborhood intelligence, local amenities) |
+| Data APIs | RealEstateAPI (property search, detail, comps, valuations), ScrapingDog (neighborhood intelligence, local amenities) |
 | Caching | Redis or database-backed cache with TTL management |
 | File Storage | S3-compatible (report PDFs, images) |
 | Hosting | Vercel (frontend) + serverless backend |

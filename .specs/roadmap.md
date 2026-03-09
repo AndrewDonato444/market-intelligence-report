@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 16 |
+| ✅ Completed | 15 |
 | 🔄 In Progress | 1 |
 | ⬜ Pending | 20 |
 | ⏸️ Blocked | 0 |
@@ -68,13 +68,12 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 20 | Cache layer — DB-backed with TTL by data type | vision | M | 2 | ✅ |
-| 21 | FRED API connector (economic indicators, rate data) | vision | M | 20 | ✅ |
 | 22 | RealEstateAPI connector (property search, detail, comps, valuations) | vision | L | 20 | ✅ |
 | 23 | API cost tracking + usage logging | vision | S | 20 | ✅ |
-| 24 | Data freshness indicators + staleness fallback | vision | S | 20, 21, 22 | ✅ |
+| 24 | Data freshness indicators + staleness fallback | vision | S | 20, 22 | ✅ |
 | 25 | ScrapingDog connector (neighborhood intelligence, local amenities, area context) | vision | M | 20 | ✅ |
 
-**Goal**: The system can fetch real economic and market data, cache it intelligently, and track costs per API call.
+**Goal**: The system can fetch real market data, cache it intelligently, and track costs per API call.
 
 ---
 
@@ -88,7 +87,7 @@
 | 31 | Data Analyst agent (segment metrics, YoY calculations, ratios, ratings) | vision | L | 30, 22 | 🔄 |
 | 32 | Insight Generator agent (strategic narratives from structured analysis) | vision | M | 30, 31 | ⬜ |
 | 33 | Competitive Analyst agent (market vs. peer luxury markets) | vision | M | 30, 31, 12 | ⬜ |
-| 34 | Forecast Modeler agent (projections, confidence ratings, base cases) | vision | M | 30, 31, 21 | ⬜ |
+| 34 | Forecast Modeler agent (projections, confidence ratings, base cases) | vision | M | 30, 31 | ⬜ |
 | 35 | Polish Agent (consistency, editorial tone, pull quotes, final pass) | vision | M | 30, 32 | ⬜ |
 | 36 | Agent output schema + validation (structured JSON for report assembly) | vision | M | 30 | ⬜ |
 

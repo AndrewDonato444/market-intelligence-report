@@ -33,7 +33,7 @@ describe("Database Schema", () => {
     it("has required columns", () => {
       const columns = Object.keys(schema.users);
       expect(columns).toContain("id");
-      expect(columns).toContain("clerkId");
+      expect(columns).toContain("authId");
       expect(columns).toContain("email");
       expect(columns).toContain("name");
       expect(columns).toContain("company");

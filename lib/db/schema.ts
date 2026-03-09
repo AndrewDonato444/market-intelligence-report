@@ -42,7 +42,7 @@ export const luxuryTierEnum = pgEnum("luxury_tier", [
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
-  clerkId: varchar("clerk_id", { length: 255 }).unique().notNull(),
+  authId: varchar("auth_id", { length: 255 }).unique().notNull(),
   email: varchar("email", { length: 255 }).unique().notNull(),
   name: varchar("name", { length: 255 }).notNull(),
   company: varchar("company", { length: 255 }),

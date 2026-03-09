@@ -330,13 +330,13 @@ describe("Agent Profile + Branding", () => {
       expect(routeContent).toContain("export async function PUT");
     });
 
-    it("route uses Clerk auth", () => {
+    it("route uses Supabase auth", () => {
       const routeContent = fs.readFileSync(
         path.join(process.cwd(), "app/api/profile/route.ts"),
         "utf8"
       );
-      expect(routeContent).toContain("@clerk/nextjs/server");
-      expect(routeContent).toContain("auth()");
+      expect(routeContent).toContain("@/lib/supabase/auth");
+      expect(routeContent).toContain("getAuthUser");
     });
 
     it("route validates input with validateProfileData", () => {

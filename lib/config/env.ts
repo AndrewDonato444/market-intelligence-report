@@ -24,24 +24,15 @@ export const env = {
     return requiredEnv("DATABASE_URL");
   },
 
-  // --- Authentication (Clerk) ---
-  get NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY() {
-    return requiredEnv("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY");
+  // --- Authentication (Supabase) ---
+  get NEXT_PUBLIC_SUPABASE_URL() {
+    return requiredEnv("NEXT_PUBLIC_SUPABASE_URL");
   },
-  get CLERK_SECRET_KEY() {
-    return requiredEnv("CLERK_SECRET_KEY");
+  get NEXT_PUBLIC_SUPABASE_ANON_KEY() {
+    return requiredEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY");
   },
-  get NEXT_PUBLIC_CLERK_SIGN_IN_URL() {
-    return optionalEnv("NEXT_PUBLIC_CLERK_SIGN_IN_URL", "/sign-in");
-  },
-  get NEXT_PUBLIC_CLERK_SIGN_UP_URL() {
-    return optionalEnv("NEXT_PUBLIC_CLERK_SIGN_UP_URL", "/sign-up");
-  },
-  get NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL() {
-    return optionalEnv("NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL", "/dashboard");
-  },
-  get NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL() {
-    return optionalEnv("NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL", "/dashboard");
+  get SUPABASE_SERVICE_ROLE_KEY() {
+    return optionalEnv("SUPABASE_SERVICE_ROLE_KEY");
   },
 
   // --- AI / Anthropic ---
@@ -50,9 +41,6 @@ export const env = {
   },
 
   // --- Data APIs ---
-  get FRED_API_KEY() {
-    return requiredEnv("FRED_API_KEY");
-  },
   get REALESTATEAPI_KEY() {
     return requiredEnv("REALESTATEAPI_KEY");
   },
@@ -90,10 +78,9 @@ export const env = {
 export function validateEnv(): void {
   const required = [
     "DATABASE_URL",
-    "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY",
-    "CLERK_SECRET_KEY",
+    "NEXT_PUBLIC_SUPABASE_URL",
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY",
     "ANTHROPIC_API_KEY",
-    "FRED_API_KEY",
     "REALESTATEAPI_KEY",
     "SCRAPINGDOG_API_KEY",
   ];

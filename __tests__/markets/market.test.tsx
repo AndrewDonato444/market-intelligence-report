@@ -309,13 +309,13 @@ describe("Market Definition Wizard", () => {
       expect(routeContent).toContain("export async function POST");
     });
 
-    it("route uses Clerk auth", () => {
+    it("route uses Supabase auth", () => {
       const routeContent = fs.readFileSync(
         path.join(process.cwd(), "app/api/markets/route.ts"),
         "utf8"
       );
-      expect(routeContent).toContain("@clerk/nextjs/server");
-      expect(routeContent).toContain("auth()");
+      expect(routeContent).toContain("@/lib/supabase/auth");
+      expect(routeContent).toContain("getAuthUserId");
     });
 
     it("route validates input with validateMarketData", () => {

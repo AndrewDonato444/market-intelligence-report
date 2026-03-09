@@ -61,7 +61,7 @@ And agents wait for their dependencies to complete before starting
 Given a pipeline is started for a specific report and market
 When each agent executes
 Then it receives the market definition, report config, and outputs from upstream agents
-And it has access to the data connectors (FRED, RealEstateAPI, ScrapingDog)
+And it has access to the data connectors (RealEstateAPI, ScrapingDog)
 
 ### Scenario: Cancel a running pipeline
 Given a pipeline is in progress

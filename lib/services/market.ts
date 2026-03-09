@@ -4,12 +4,12 @@ import { eq, and } from "drizzle-orm";
 export type { MarketData, MarketValidationResult } from "./market-validation";
 export { validateMarketData, AVAILABLE_SEGMENTS, AVAILABLE_PROPERTY_TYPES } from "./market-validation";
 
-export async function getMarkets(clerkId: string) {
+export async function getMarkets(authId: string) {
   // First get the user's internal ID
   const [user] = await db
     .select({ id: schema.users.id })
     .from(schema.users)
-    .where(eq(schema.users.clerkId, clerkId))
+    .where(eq(schema.users.authId, authId))
     .limit(1);
 
   if (!user) return [];
@@ -22,7 +22,7 @@ export async function getMarkets(clerkId: string) {
 }
 
 export async function createMarket(
-  clerkId: string,
+  authId: string,
   data: {
     name: string;
     geography: { city: string; state: string; county?: string; region?: string; zipCodes?: string[] };
@@ -38,7 +38,7 @@ export async function createMarket(
   const [user] = await db
     .select({ id: schema.users.id })
     .from(schema.users)
-    .where(eq(schema.users.clerkId, clerkId))
+    .where(eq(schema.users.authId, authId))
     .limit(1);
 
   if (!user) {
@@ -73,11 +73,11 @@ export async function createMarket(
   return market;
 }
 
-export async function getMarket(clerkId: string, marketId: string) {
+export async function getMarket(authId: string, marketId: string) {
   const [user] = await db
     .select({ id: schema.users.id })
     .from(schema.users)
-    .where(eq(schema.users.clerkId, clerkId))
+    .where(eq(schema.users.authId, authId))
     .limit(1);
 
   if (!user) return null;
@@ -94,7 +94,7 @@ export async function getMarket(clerkId: string, marketId: string) {
 }
 
 export async function updateMarket(
-  clerkId: string,
+  authId: string,
   marketId: string,
   data: {
     name: string;
@@ -110,7 +110,7 @@ export async function updateMarket(
   const [user] = await db
     .select({ id: schema.users.id })
     .from(schema.users)
-    .where(eq(schema.users.clerkId, clerkId))
+    .where(eq(schema.users.authId, authId))
     .limit(1);
 
   if (!user) throw new Error("User not found");
@@ -138,14 +138,14 @@ export async function updateMarket(
 }
 
 export async function updateMarketPeers(
-  clerkId: string,
+  authId: string,
   marketId: string,
   peerMarkets: Array<{ name: string; geography: { city: string; state: string } }>
 ) {
   const [user] = await db
     .select({ id: schema.users.id })
     .from(schema.users)
-    .where(eq(schema.users.clerkId, clerkId))
+    .where(eq(schema.users.authId, authId))
     .limit(1);
 
   if (!user) throw new Error("User not found");

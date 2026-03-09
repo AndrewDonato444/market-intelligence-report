@@ -1,5 +1,5 @@
 ---
-feature: Authentication with Clerk
+feature: Authentication with Supabase
 domain: foundation
 source: middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx
 tests:
@@ -13,15 +13,15 @@ created: 2026-03-09
 updated: 2026-03-09
 ---
 
-# Authentication with Clerk
+# Authentication with Supabase
 
-**Source Files**: `middleware.ts`, `app/(auth)/`, `app/(protected)/`
+**Source Files**: `middleware.ts`, `app/(auth)/`, `app/(protected)/`, `lib/supabase/`
 **Design System**: `.specs/design-system/tokens.md`
 **Personas**: Rising Star (quick signup), Legacy Agent (simple flow)
 
 ## Feature: Authentication
 
-Clerk-based authentication that protects all app routes. Agents sign up, sign in, and access the protected application. Public routes include landing page and auth pages only.
+Supabase Auth-based authentication that protects all app routes. Agents sign up, sign in, and access the protected application. Public routes include landing page and auth pages only.
 
 ### Scenario: Unauthenticated user is redirected to sign-in
 Given a user is not signed in
@@ -30,14 +30,14 @@ Then they are redirected to /sign-in
 
 ### Scenario: User can sign up
 Given a user is on the sign-up page
-When they complete the Clerk sign-up flow
-Then their account is created
+When they complete the sign-up form with email and password
+Then their account is created via Supabase Auth
 And they are redirected to /dashboard
 
 ### Scenario: User can sign in
 Given a user has an account
 When they enter valid credentials on /sign-in
-Then they are authenticated
+Then they are authenticated via Supabase Auth
 And redirected to /dashboard
 
 ### Scenario: Authenticated user can access protected routes
@@ -59,7 +59,9 @@ Then the page renders without redirect
 
 ## Technical Notes
 
-- Clerk middleware protects all routes except public ones
+- Supabase middleware refreshes sessions and protects routes
 - Route groups: (auth) for sign-in/sign-up, (protected) for app routes
-- ClerkProvider wraps the app in layout.tsx
-- User sync to database happens on first sign-in (webhook or on-demand)
+- Server client: `lib/supabase/server.ts` for API routes and server components
+- Browser client: `lib/supabase/client.ts` for client-side auth operations
+- Auth helper: `lib/supabase/auth.ts` exports `getAuthUserId()` and `getAuthUser()`
+- User sync to database uses `auth_id` column (Supabase user UUID)

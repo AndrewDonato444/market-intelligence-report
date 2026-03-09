@@ -49,13 +49,13 @@ describe("Cache Service", () => {
 
   describe("get", () => {
     it("returns data for a valid, non-expired cache entry", async () => {
-      const mockData = { rate: 6.5, date: "2026-03-09" };
+      const mockData = { price: 8750000, date: "2026-03-09" };
       const mockEntry = {
         id: "uuid-1",
-        key: "fred:mortgage-rate-30yr",
-        source: "fred",
+        key: "reapi:property-search:naples",
+        source: "realestateapi",
         data: mockData,
-        ttlSeconds: 43200,
+        ttlSeconds: 86400,
         expiresAt: new Date("2026-03-10T00:00:00Z"), // future
         createdAt: new Date("2026-03-09T00:00:00Z"),
         updatedAt: new Date("2026-03-09T00:00:00Z"),
@@ -69,7 +69,7 @@ describe("Cache Service", () => {
         }),
       });
 
-      const result = await cacheService.get("fred:mortgage-rate-30yr");
+      const result = await cacheService.get("reapi:property-search:naples");
       expect(result).toEqual(mockData);
     });
 
@@ -89,10 +89,10 @@ describe("Cache Service", () => {
     it("returns null for expired entries", async () => {
       const mockEntry = {
         id: "uuid-2",
-        key: "fred:gdp-growth",
-        source: "fred",
-        data: { growth: 2.1 },
-        ttlSeconds: 43200,
+        key: "reapi:property-detail:expired",
+        source: "realestateapi",
+        data: { price: 5000000 },
+        ttlSeconds: 86400,
         expiresAt: new Date("2026-03-09T06:00:00Z"), // past
         createdAt: new Date("2026-03-08T18:00:00Z"),
         updatedAt: new Date("2026-03-08T18:00:00Z"),
@@ -106,7 +106,7 @@ describe("Cache Service", () => {
         }),
       });
 
-      const result = await cacheService.get("fred:gdp-growth");
+      const result = await cacheService.get("reapi:property-detail:expired");
       expect(result).toBeNull();
     });
   });
@@ -121,9 +121,9 @@ describe("Cache Service", () => {
       (db.insert as jest.Mock).mockImplementation(mockInsert);
 
       await cacheService.set(
-        "fred:mortgage-rate-30yr",
-        "fred",
-        { rate: 6.5 }
+        "reapi:property-search:naples",
+        "realestateapi",
+        { price: 8750000 }
       );
 
       expect(db.insert).toHaveBeenCalled();
@@ -138,16 +138,16 @@ describe("Cache Service", () => {
       (db.insert as jest.Mock).mockImplementation(mockInsert);
 
       await cacheService.set(
-        "fred:series:MORTGAGE30US",
-        "fred",
-        { value: 6.5 }
+        "reapi:property-search:naples",
+        "realestateapi",
+        { price: 8750000 }
       );
 
-      // Should use FRED's default TTL (43200s = 12h)
+      // Should use RealEstateAPI's default TTL (86400s = 24h)
       const valuesCall = mockInsert.mock.results[0].value.values;
       expect(valuesCall).toHaveBeenCalled();
       const passedValues = valuesCall.mock.calls[0][0];
-      expect(passedValues.ttlSeconds).toBe(43200);
+      expect(passedValues.ttlSeconds).toBe(86400);
     });
 
     it("upserts on duplicate key (does not create duplicates)", async () => {
@@ -160,9 +160,9 @@ describe("Cache Service", () => {
       (db.insert as jest.Mock).mockImplementation(mockInsert);
 
       await cacheService.set(
-        "fred:mortgage-rate-30yr",
-        "fred",
-        { rate: 7.0 }
+        "reapi:property-search:naples",
+        "realestateapi",
+        { price: 9000000 }
       );
 
       expect(mockOnConflict).toHaveBeenCalled();
@@ -259,7 +259,6 @@ describe("Cache Service", () => {
 
   describe("TTL defaults", () => {
     it("exports TTL constants by source", () => {
-      expect(cacheService.SOURCE_TTLS.fred).toBe(43200); // 12h
       expect(cacheService.SOURCE_TTLS.realestateapi).toBe(86400); // 24h
       expect(cacheService.SOURCE_TTLS.scrapingdog).toBe(604800); // 7d
       expect(cacheService.SOURCE_TTLS.anthropic).toBe(0); // never
