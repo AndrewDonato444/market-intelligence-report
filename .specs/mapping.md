@@ -38,6 +38,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-builder | [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
 | report-builder | [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md) | `components/reports/report-wizard.tsx` | see spec | see spec | implemented |
 | report-builder | [Report Preview](.specs/features/report-builder/report-preview.feature.md) | `components/reports/report-preview.tsx` | see spec | see spec | implemented |
+| report-template | [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | user-setup | [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md) | `app/(protected)/settings/profile/page.tsx, app/api/profile/route.ts, lib/services/profile.ts, lib/services/profile-validation.ts` | see spec | see spec | implemented |
 | user-setup | [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md) | `app/(protected)/markets/new/page.tsx, app/api/markets/route.ts, lib/services/market.ts, lib/services/market-validation.ts` | see spec | see spec | implemented |
@@ -53,8 +54,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 4 |
 | tested | 0 |
-| implemented | 21 |
-| **Total** | **25** |
+| implemented | 22 |
+| **Total** | **26** |
 
 ---
 
@@ -93,6 +94,7 @@ _None_
 - [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md)
 - [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md)
 - [Report Preview](.specs/features/report-builder/report-preview.feature.md)
+- [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md)
 - [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md)
 - [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md)
 - [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md)
