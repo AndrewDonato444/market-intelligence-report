@@ -3,7 +3,8 @@
  */
 
 import { db, schema } from "@/lib/db";
-import { eq, and, desc, asc } from "drizzle-orm";
+import { eq, and, desc, asc, sql } from "drizzle-orm";
+import { recordSectionEdit } from "./report-history";
 
 export {
   validateReportConfig,
@@ -214,6 +215,29 @@ export async function updateReportSection(
 
   if (!report) return null;
 
+  // Read current section to record history
+  const [currentSection] = await db
+    .select()
+    .from(schema.reportSections)
+    .where(
+      and(
+        eq(schema.reportSections.id, sectionId),
+        eq(schema.reportSections.reportId, reportId)
+      )
+    )
+    .limit(1);
+
+  if (!currentSection) return null;
+
+  // Record edit history (previous content)
+  await recordSectionEdit(
+    reportId,
+    sectionId,
+    currentSection.title,
+    currentSection.sectionType,
+    currentSection.content
+  );
+
   // Update the section
   const updateData: Record<string, unknown> = {
     updatedAt: new Date(),
@@ -231,6 +255,15 @@ export async function updateReportSection(
       )
     )
     .returning();
+
+  // Increment report version
+  await db
+    .update(schema.reports)
+    .set({
+      version: sql`${schema.reports.version} + 1`,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.reports.id, reportId));
 
   return updated || null;
 }

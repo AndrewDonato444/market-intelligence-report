@@ -177,6 +177,28 @@ export const reportSections = pgTable(
   ]
 );
 
+export const reportEditHistory = pgTable(
+  "report_edit_history",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    sectionId: uuid("section_id")
+      .notNull()
+      .references(() => reportSections.id, { onDelete: "cascade" }),
+    sectionTitle: varchar("section_title", { length: 500 }),
+    sectionType: varchar("section_type", { length: 100 }),
+    previousContent: jsonb("previous_content"),
+    editedAt: timestamp("edited_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("report_edit_history_report_id_idx").on(table.reportId),
+  ]
+);
+
 export const cache = pgTable(
   "cache",
   {
