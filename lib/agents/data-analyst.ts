@@ -1,25 +1,20 @@
 /**
- * Data Analyst Agent
+ * Data Analyst — Types & Computation Functions
  *
- * First agent in the pipeline. Fetches property data via connectors,
- * computes segment-level metrics, YoY calculations, price-per-sqft ratios,
- * intelligence ratings, and market health scores.
+ * Originally the first agent in the v1 pipeline. In v2, the agent execution
+ * logic has been replaced by:
+ *   - Layer 0: data-fetcher.ts (API calls)
+ *   - Layer 1: market-analytics.ts (computation)
  *
- * Pure computation — no AI/Claude calls. Structured JSON output feeds
- * all downstream agents.
+ * This module is kept as a re-export shim for types and pure computation
+ * functions that are used across the codebase.
  */
 
-import type {
-  AgentContext,
-  AgentDefinition,
-  AgentResult,
-  SectionOutput,
-} from "@/lib/agents/orchestrator";
-import {
-  searchProperties,
-  buildSearchParamsFromMarket,
-  type PropertySummary,
-} from "@/lib/connectors/realestateapi";
+import type { PropertySummary } from "@/lib/connectors/realestateapi";
+import { median, average } from "@/lib/utils/math";
+
+// Re-export math utilities for backward compatibility
+export { median, average } from "@/lib/utils/math";
 
 // --- Output types ---
 
@@ -58,22 +53,6 @@ export interface YoYMetrics {
   medianPriceChange: number | null;
   volumeChange: number | null;
   pricePerSqftChange: number | null;
-}
-
-// --- Helpers ---
-
-function median(values: number[]): number {
-  if (values.length === 0) return 0;
-  const sorted = [...values].sort((a, b) => a - b);
-  const mid = Math.floor(sorted.length / 2);
-  return sorted.length % 2 === 0
-    ? (sorted[mid - 1] + sorted[mid]) / 2
-    : sorted[mid];
-}
-
-function average(values: number[]): number {
-  if (values.length === 0) return 0;
-  return values.reduce((sum, v) => sum + v, 0) / values.length;
 }
 
 // --- Core computations ---
@@ -189,168 +168,3 @@ export function assignRating(
   return "A+";
 }
 
-// --- Main execution ---
-
-export async function executeDataAnalyst(
-  context: AgentContext
-): Promise<AgentResult> {
-  const start = Date.now();
-  const { market } = context;
-
-  // Fetch property data
-  const searchParams = buildSearchParamsFromMarket(market);
-  const searchResult = await searchProperties(searchParams, {
-    userId: context.userId,
-    reportId: context.reportId,
-  });
-
-  const { properties, stale } = searchResult;
-
-  // Handle empty results
-  if (properties.length === 0) {
-    const emptyAnalysis: DataAnalystOutput = {
-      market: {
-        totalProperties: 0,
-        medianPrice: 0,
-        averagePrice: 0,
-        medianPricePerSqft: null,
-        totalVolume: 0,
-        rating: "C",
-      },
-      segments: [],
-      yoy: { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null },
-      confidence: {
-        level: "low",
-        staleDataSources: stale ? ["realestateapi"] : [],
-        sampleSize: 0,
-      },
-    };
-
-    return {
-      agentName: "data-analyst",
-      sections: buildSections(emptyAnalysis),
-      metadata: { analysis: emptyAnalysis, insufficientData: true },
-      durationMs: Date.now() - start,
-    };
-  }
-
-  // Group by property type
-  const grouped = new Map<string, PropertySummary[]>();
-  for (const prop of properties) {
-    const type = prop.propertyType ?? "unknown";
-    const group = grouped.get(type) ?? [];
-    group.push(prop);
-    grouped.set(type, group);
-  }
-
-  // Compute per-segment metrics
-  const segments: SegmentMetrics[] = [];
-  for (const [type, props] of grouped) {
-    segments.push(computeSegmentMetrics(props, type));
-  }
-
-  // Split by year for YoY
-  const currentYear = new Date().getFullYear();
-  const currentYearProps = properties.filter((p) => {
-    if (!p.lastSaleDate) return false;
-    return new Date(p.lastSaleDate).getFullYear() === currentYear;
-  });
-  const priorYearProps = properties.filter((p) => {
-    if (!p.lastSaleDate) return false;
-    return new Date(p.lastSaleDate).getFullYear() === currentYear - 1;
-  });
-
-  const yoy = computeYoY(currentYearProps, priorYearProps);
-
-  // Assign ratings to segments
-  for (const segment of segments) {
-    segment.rating = assignRating(
-      yoy.medianPriceChange,
-      yoy.volumeChange,
-      segment.count
-    );
-  }
-
-  // Overall market metrics
-  const allPrices = properties
-    .map((p) => p.price ?? p.lastSalePrice)
-    .filter((p): p is number => p != null);
-  const allPsf = properties
-    .filter((p) => p.price != null && p.sqft != null)
-    .map((p) => p.price! / p.sqft!);
-
-  const overallRating = assignRating(
-    yoy.medianPriceChange,
-    yoy.volumeChange,
-    properties.length
-  );
-
-  // Confidence level
-  const confidenceLevel: "high" | "medium" | "low" = stale
-    ? "low"
-    : properties.length < 10
-      ? "medium"
-      : "high";
-
-  const analysis: DataAnalystOutput = {
-    market: {
-      totalProperties: properties.length,
-      medianPrice: median(allPrices),
-      averagePrice: average(allPrices),
-      medianPricePerSqft: allPsf.length > 0 ? median(allPsf) : null,
-      totalVolume: allPrices.reduce((sum, p) => sum + p, 0),
-      rating: overallRating,
-    },
-    segments,
-    yoy,
-    confidence: {
-      level: confidenceLevel,
-      staleDataSources: stale ? ["realestateapi"] : [],
-      sampleSize: properties.length,
-    },
-  };
-
-  return {
-    agentName: "data-analyst",
-    sections: buildSections(analysis),
-    metadata: { analysis },
-    durationMs: Date.now() - start,
-  };
-}
-
-function buildSections(analysis: DataAnalystOutput): SectionOutput[] {
-  return [
-    {
-      sectionType: "market_overview",
-      title: "Strategic Market Overview",
-      content: {
-        totalProperties: analysis.market.totalProperties,
-        medianPrice: analysis.market.medianPrice,
-        averagePrice: analysis.market.averagePrice,
-        medianPricePerSqft: analysis.market.medianPricePerSqft,
-        totalVolume: analysis.market.totalVolume,
-        rating: analysis.market.rating,
-        confidence: analysis.confidence,
-      },
-    },
-    {
-      sectionType: "executive_summary",
-      title: "Market Analysis Matrix",
-      content: {
-        segments: analysis.segments,
-        yoy: analysis.yoy,
-        overallRating: analysis.market.rating,
-      },
-    },
-  ];
-}
-
-// --- Agent Definition (for pipeline registration) ---
-
-export const dataAnalystAgent: AgentDefinition = {
-  name: "data-analyst",
-  description:
-    "Fetches property data, computes segment metrics, YoY calculations, and intelligence ratings",
-  dependencies: [],
-  execute: executeDataAnalyst,
-};

@@ -1,12 +1,20 @@
 /**
  * Competitive Analyst Agent
  *
+ * @deprecated v2 pipeline no longer uses this agent. Peer market comparison
+ * is now handled by:
+ *   - Layer 0: data-fetcher.ts (fetches peer data)
+ *   - Layer 1: market-analytics.ts (computePeerComparisons)
+ *   - Layer 3: report-assembler.ts (comparative_positioning section)
+ *
+ * This file is kept for backward compatibility but is not registered
+ * in the v2 pipeline.
+ *
+ * Original behavior:
  * Compares the target market against peer luxury markets.
  * Fetches property data for each peer, computes comparable metrics
  * using the same functions as the Data Analyst, then uses Claude
  * to generate strategic positioning narratives.
- *
- * Runs in parallel with Insight Generator after Data Analyst completes.
  */
 
 import Anthropic from "@anthropic-ai/sdk";
