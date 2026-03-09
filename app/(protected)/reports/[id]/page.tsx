@@ -4,6 +4,7 @@ import { getReportWithMarket, getReportSections } from "@/lib/services/report";
 import { PipelineStatusDashboard } from "@/components/reports/pipeline-status";
 import { ReportPreview } from "@/components/reports/report-preview";
 import { ReportActions } from "@/components/reports/report-actions";
+import { ReportEditor } from "@/components/reports/report-editor";
 
 export default async function ReportDetailPage({
   params,
@@ -36,6 +37,16 @@ export default async function ReportDetailPage({
             reportTitle={report.title}
             shareToken={report.shareToken}
             shareTokenExpiresAt={report.shareTokenExpiresAt?.toISOString()}
+          />
+          <ReportEditor
+            reportId={id}
+            sections={sections.map((s) => ({
+              id: s.id,
+              sectionType: s.sectionType,
+              title: s.title,
+              content: s.content as Record<string, unknown>,
+              sortOrder: s.sortOrder,
+            }))}
           />
           <ReportPreview sections={sections} />
         </>

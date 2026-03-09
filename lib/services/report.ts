@@ -182,3 +182,55 @@ export async function createReport(
 
   return report;
 }
+
+export async function updateReportSection(
+  authId: string,
+  reportId: string,
+  sectionId: string,
+  data: {
+    title?: string;
+    content?: Record<string, unknown>;
+  }
+) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.authId, authId))
+    .limit(1);
+
+  if (!user) return null;
+
+  // Verify report belongs to user
+  const [report] = await db
+    .select({ id: schema.reports.id })
+    .from(schema.reports)
+    .where(
+      and(
+        eq(schema.reports.id, reportId),
+        eq(schema.reports.userId, user.id)
+      )
+    )
+    .limit(1);
+
+  if (!report) return null;
+
+  // Update the section
+  const updateData: Record<string, unknown> = {
+    updatedAt: new Date(),
+  };
+  if (data.title !== undefined) updateData.title = data.title;
+  if (data.content !== undefined) updateData.content = data.content;
+
+  const [updated] = await db
+    .update(schema.reportSections)
+    .set(updateData)
+    .where(
+      and(
+        eq(schema.reportSections.id, sectionId),
+        eq(schema.reportSections.reportId, reportId)
+      )
+    )
+    .returning();
+
+  return updated || null;
+}
