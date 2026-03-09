@@ -101,7 +101,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 40 | Report builder wizard — market params, section selection, customization | vision | L | 4, 11, 13 | ⬜ |
+| 40 | Report builder wizard — market params, section selection, customization | vision | L | 4, 11, 13 | 🔄 |
 | 41 | Pipeline status dashboard — real-time agent progress, stage tracking | vision | M | 30, 40 | ⬜ |
 | 42 | Report preview — live assembly as sections complete | vision | M | 41, 36 | ⬜ |
 
