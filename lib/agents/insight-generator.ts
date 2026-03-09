@@ -1,0 +1,268 @@
+/**
+ * Insight Generator Agent
+ *
+ * Second stage in the pipeline. Receives structured analysis from the
+ * Data Analyst (metrics, segments, YoY, ratings) and transforms them
+ * into strategic narratives via Claude.
+ *
+ * Produces: market_overview narrative, key_drivers (themes), executive_summary
+ */
+
+import Anthropic from "@anthropic-ai/sdk";
+import type {
+  AgentContext,
+  AgentDefinition,
+  AgentResult,
+  SectionOutput,
+} from "@/lib/agents/orchestrator";
+import type { DataAnalystOutput } from "@/lib/agents/data-analyst";
+import { env } from "@/lib/config/env";
+
+// --- Output types ---
+
+export interface InsightGeneratorOutput {
+  overview: {
+    narrative: string;
+    highlights: string[];
+    recommendations: string[];
+  };
+  themes: InsightTheme[];
+  executiveSummary: {
+    narrative: string;
+    highlights: string[];
+    timing: {
+      buyers: string;
+      sellers: string;
+    };
+  };
+}
+
+export interface InsightTheme {
+  name: string;
+  impact: "high" | "medium" | "low";
+  trend: "up" | "down" | "neutral";
+  narrative: string;
+}
+
+// --- Helpers ---
+
+const TIER_LABELS: Record<string, string> = {
+  luxury: "Luxury ($1M–$5M)",
+  high_luxury: "High Luxury ($5M–$10M)",
+  ultra_luxury: "Ultra Luxury ($10M+)",
+};
+
+function formatCurrency(value: number): string {
+  if (value >= 1_000_000) {
+    return `$${(value / 1_000_000).toFixed(value % 1_000_000 === 0 ? 0 : 1)}M`;
+  }
+  return `$${value.toLocaleString()}`;
+}
+
+function formatPercent(value: number | null): string {
+  if (value == null) return "N/A";
+  return `${(value * 100).toFixed(1)}%`;
+}
+
+function buildSystemPrompt(): string {
+  return `You are a senior luxury real estate market analyst writing for an elite audience of top-producing agents and their high-net-worth clients. Your tone is authoritative, data-driven, and strategic — never generic or promotional.
+
+Your output must be valid JSON matching the exact schema requested. Do not include markdown, code fences, or any text outside the JSON object.
+
+Guidelines:
+- Reference specific numbers from the data provided
+- Identify patterns and strategic themes, not just restate metrics
+- Provide actionable timing recommendations for buyers and sellers
+- When data is insufficient, say so clearly rather than speculating
+- Use professional financial language appropriate for luxury market reports`;
+}
+
+function buildUserPrompt(
+  context: AgentContext,
+  analysis: DataAnalystOutput
+): string {
+  const { market } = context;
+  const tierLabel =
+    TIER_LABELS[market.luxuryTier] || market.luxuryTier;
+
+  const segmentSummary = analysis.segments
+    .map(
+      (s) =>
+        `  - ${s.name}: ${s.count} properties, median ${formatCurrency(s.medianPrice)}, ` +
+        `${s.medianPricePerSqft ? `$${s.medianPricePerSqft}/sqft` : "N/A psf"}, rating: ${s.rating}` +
+        `${s.lowSample ? " (LOW SAMPLE)" : ""}`
+    )
+    .join("\n");
+
+  const insufficientData =
+    analysis.confidence.level === "low" || analysis.market.totalProperties === 0;
+
+  return `Analyze the following luxury real estate market data and produce strategic insights.
+
+MARKET: ${market.name}
+LOCATION: ${market.geography.city}, ${market.geography.state}${market.geography.county ? ` (${market.geography.county})` : ""}
+TIER: ${tierLabel}
+PRICE FLOOR: ${formatCurrency(market.priceFloor)}${market.priceCeiling ? ` | CEILING: ${formatCurrency(market.priceCeiling)}` : ""}
+
+OVERALL METRICS:
+- Total Properties: ${analysis.market.totalProperties}
+- Median Price: ${formatCurrency(analysis.market.medianPrice)}
+- Average Price: ${formatCurrency(analysis.market.averagePrice)}
+- Median Price/SqFt: ${analysis.market.medianPricePerSqft ? `$${analysis.market.medianPricePerSqft}` : "N/A"}
+- Total Volume: ${formatCurrency(analysis.market.totalVolume)}
+- Overall Rating: ${analysis.market.rating}
+
+SEGMENTS:
+${segmentSummary || "  No segment data available"}
+
+YEAR-OVER-YEAR:
+- Median Price Change: ${formatPercent(analysis.yoy.medianPriceChange)}
+- Volume Change: ${formatPercent(analysis.yoy.volumeChange)}
+- Price/SqFt Change: ${formatPercent(analysis.yoy.pricePerSqftChange)}
+
+DATA CONFIDENCE: ${analysis.confidence.level} (sample: ${analysis.confidence.sampleSize})
+${analysis.confidence.staleDataSources.length > 0 ? `STALE SOURCES: ${analysis.confidence.staleDataSources.join(", ")}` : ""}
+${insufficientData ? "\n⚠️ INSUFFICIENT DATA: Provide caveated analysis. Do not fabricate specific numbers." : ""}
+
+Respond with a JSON object matching this exact schema:
+{
+  "overview": {
+    "narrative": "1-2 paragraph strategic market overview",
+    "highlights": ["3-5 key metrics/findings as bullet points"],
+    "recommendations": ["2-3 actionable recommendations"]
+  },
+  "themes": [
+    {
+      "name": "Theme name",
+      "impact": "high|medium|low",
+      "trend": "up|down|neutral",
+      "narrative": "1-2 paragraph analysis of this theme"
+    }
+  ],
+  "executiveSummary": {
+    "narrative": "1-2 paragraph executive summary",
+    "highlights": ["3-5 performance highlights"],
+    "timing": {
+      "buyers": "Timing recommendation for buyers",
+      "sellers": "Timing recommendation for sellers"
+    }
+  }
+}
+
+${insufficientData ? "Since data is insufficient, provide honest caveats. Use 0-1 themes." : "Identify 3-5 strategic themes from the segment and YoY data."}`;
+}
+
+// --- Main execution ---
+
+export async function executeInsightGenerator(
+  context: AgentContext
+): Promise<AgentResult> {
+  const start = Date.now();
+
+  // Check abort signal before starting
+  if (context.abortSignal.aborted) {
+    const error = new Error("Insight Generator aborted before execution");
+    (error as Error & { retriable: boolean }).retriable = false;
+    throw error;
+  }
+
+  // Read upstream data analyst output
+  const dataAnalystResult = context.upstreamResults["data-analyst"];
+  if (!dataAnalystResult) {
+    throw new Error(
+      "Insight Generator requires data-analyst upstream results"
+    );
+  }
+
+  const analysis = dataAnalystResult.metadata.analysis as DataAnalystOutput;
+  const insufficientData =
+    dataAnalystResult.metadata.insufficientData === true;
+
+  // Build prompts
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildUserPrompt(context, analysis);
+
+  // Call Claude
+  let insights: InsightGeneratorOutput;
+  try {
+    const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
+    const response = await client.messages.create({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 4096,
+      temperature: 0.7,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }],
+    });
+
+    // Parse response
+    const text =
+      response.content[0].type === "text" ? response.content[0].text : "";
+
+    try {
+      insights = JSON.parse(text) as InsightGeneratorOutput;
+    } catch {
+      const parseError = new Error(
+        `Failed to parse Claude response as JSON: ${text.slice(0, 200)}`
+      );
+      (parseError as Error & { retriable: boolean }).retriable = true;
+      throw parseError;
+    }
+  } catch (err: unknown) {
+    // Re-throw if already tagged
+    if (
+      err instanceof Error &&
+      "retriable" in err &&
+      typeof (err as Error & { retriable: boolean }).retriable === "boolean"
+    ) {
+      throw err;
+    }
+
+    // Tag API errors
+    const status = (err as { status?: number }).status;
+    const retriable = status === 429 || status === 500 || status === 503;
+    const wrappedError = new Error(
+      (err as Error).message || "Claude API error"
+    );
+    (wrappedError as Error & { retriable: boolean }).retriable = retriable;
+    throw wrappedError;
+  }
+
+  // Build sections
+  const sections: SectionOutput[] = [
+    {
+      sectionType: "market_overview",
+      title: "Strategic Market Overview & Insights",
+      content: insights.overview,
+    },
+    {
+      sectionType: "key_drivers",
+      title: "Key Market Drivers & Strategic Themes",
+      content: { themes: insights.themes },
+    },
+    {
+      sectionType: "executive_summary",
+      title: "Executive Summary",
+      content: insights.executiveSummary,
+    },
+  ];
+
+  return {
+    agentName: "insight-generator",
+    sections,
+    metadata: {
+      insights,
+      lowConfidence: insufficientData || analysis.confidence.level === "low",
+    },
+    durationMs: Date.now() - start,
+  };
+}
+
+// --- Agent Definition (for pipeline registration) ---
+
+export const insightGeneratorAgent: AgentDefinition = {
+  name: "insight-generator",
+  description:
+    "Transforms structured market analysis into strategic narratives, key themes, and executive summary via Claude",
+  dependencies: ["data-analyst"],
+  execute: executeInsightGenerator,
+};
