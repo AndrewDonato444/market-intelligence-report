@@ -21,6 +21,7 @@ export const reportStatusEnum = pgEnum("report_status", [
 ]);
 
 export const reportSectionTypeEnum = pgEnum("report_section_type", [
+  // Legacy section types (kept for backward compatibility)
   "market_overview",
   "executive_summary",
   "second_homes",
@@ -30,6 +31,16 @@ export const reportSectionTypeEnum = pgEnum("report_section_type", [
   "forecasts",
   "methodology",
   "strategic_summary",
+  // New 9-section report types (v2 architecture)
+  "executive_briefing",
+  "market_insights_index",
+  "luxury_market_dashboard",
+  "neighborhood_intelligence",
+  "the_narrative",
+  "forward_look",
+  "comparative_positioning",
+  "strategic_benchmark",
+  "disclaimer_methodology",
 ]);
 
 export const luxuryTierEnum = pgEnum("luxury_tier", [
