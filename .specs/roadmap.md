@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 0 |
+| ✅ Completed | 1 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 36 |
+| ⬜ Pending | 35 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -36,7 +36,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 1 | Next.js project scaffold + Tailwind + design tokens | vision | M | - | ⬜ |
+| 1 | Next.js project scaffold + Tailwind + design tokens | vision | M | - | ✅ |
 | 2 | Database schema + Supabase setup | vision | M | 1 | ⬜ |
 | 3 | Authentication with Clerk | vision | M | 1 | ⬜ |
 | 4 | Base app layout — nav, sidebar, page shell | vision | M | 1 | ⬜ |
