@@ -3,7 +3,7 @@
  */
 
 import { db, schema } from "@/lib/db";
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, desc, asc } from "drizzle-orm";
 
 export {
   validateReportConfig,
@@ -91,6 +91,44 @@ export async function getReportWithMarket(authId: string, reportId: string) {
     .limit(1);
 
   return result || null;
+}
+
+export async function getReportSections(authId: string, reportId: string) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.authId, authId))
+    .limit(1);
+
+  if (!user) return null;
+
+  // Verify report belongs to user
+  const [report] = await db
+    .select({ id: schema.reports.id })
+    .from(schema.reports)
+    .where(
+      and(
+        eq(schema.reports.id, reportId),
+        eq(schema.reports.userId, user.id)
+      )
+    )
+    .limit(1);
+
+  if (!report) return null;
+
+  return db
+    .select({
+      id: schema.reportSections.id,
+      sectionType: schema.reportSections.sectionType,
+      title: schema.reportSections.title,
+      content: schema.reportSections.content,
+      agentName: schema.reportSections.agentName,
+      sortOrder: schema.reportSections.sortOrder,
+      generatedAt: schema.reportSections.generatedAt,
+    })
+    .from(schema.reportSections)
+    .where(eq(schema.reportSections.reportId, reportId))
+    .orderBy(asc(schema.reportSections.sortOrder));
 }
 
 export async function createReport(

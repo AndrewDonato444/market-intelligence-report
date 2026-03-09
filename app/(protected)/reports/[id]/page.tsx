@@ -1,7 +1,8 @@
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect, notFound } from "next/navigation";
-import { getReportWithMarket } from "@/lib/services/report";
+import { getReportWithMarket, getReportSections } from "@/lib/services/report";
 import { PipelineStatusDashboard } from "@/components/reports/pipeline-status";
+import { ReportPreview } from "@/components/reports/report-preview";
 
 export default async function ReportDetailPage({
   params,
@@ -18,5 +19,16 @@ export default async function ReportDetailPage({
     notFound();
   }
 
-  return <PipelineStatusDashboard report={report} />;
+  // Load sections for completed reports
+  const sections =
+    report.status === "completed"
+      ? (await getReportSections(authId, id)) ?? []
+      : [];
+
+  return (
+    <div className="space-y-6">
+      <PipelineStatusDashboard report={report} />
+      {report.status === "completed" && <ReportPreview sections={sections} />}
+    </div>
+  );
 }
