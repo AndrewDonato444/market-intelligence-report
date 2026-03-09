@@ -117,7 +117,7 @@
 |---|---------|--------|------------|------|--------|
 | 50 | Report template engine (React-PDF or Puppeteer rendering pipeline) | vision | L | 1 | ✅ |
 | 51 | Report cover, TOC, and Market Overview + Insights Index sections | vision | L | 50, 36 | ✅ |
-| 52 | Executive Summary + Market Analysis Matrix sections | vision | L | 50, 36 | ⬜ |
+| 52 | Executive Summary + Market Analysis Matrix sections | vision | L | 50, 36 | 🔄 |
 | 53 | Key Drivers + Second Homes + Competitive Analysis sections | vision | L | 50, 36, 33 | ⬜ |
 | 54 | Trending Insights + Forecasts + Methodology + Strategic Summary sections | vision | L | 50, 36, 34 | ⬜ |
 | 55 | Data visualization components (charts, confidence dots, segment matrices) | vision | L | 50 | ⬜ |
