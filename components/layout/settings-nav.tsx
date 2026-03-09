@@ -5,6 +5,7 @@ import Link from "next/link";
 const tabs = [
   { label: "Profile", href: "/settings/profile" },
   { label: "Account", href: "/settings/account" },
+  { label: "Usage", href: "/settings/usage" },
 ];
 
 interface SettingsNavProps {
