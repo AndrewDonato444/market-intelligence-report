@@ -21,6 +21,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | agent-pipeline | [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md) | `lib/agents/orchestrator.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Competitive Analyst Agent](.specs/features/agent-pipeline/competitive-analyst-agent.feature.md) | `lib/agents/competitive-analyst.ts` | see spec | see spec | specced |
 | agent-pipeline | [Data Analyst Agent](.specs/features/agent-pipeline/data-analyst-agent.feature.md) | `lib/agents/data-analyst.ts` | see spec | see spec | implemented |
+| agent-pipeline | [Forecast Modeler Agent](.specs/features/agent-pipeline/forecast-modeler-agent.feature.md) | `lib/agents/forecast-modeler.ts` | see spec | see spec | specced |
 | agent-pipeline | [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md) | `lib/agents/insight-generator.ts` | see spec | see spec | specced |
 | data-infrastructure | [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md) | `app/api/usage/route.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
 | data-infrastructure | [Cache Layer — DB-backed with TTL by Data Type](.specs/features/data-infrastructure/cache-layer.feature.md) | `lib/services/cache.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
@@ -44,10 +45,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 2 |
+| specced | 3 |
 | tested | 0 |
 | implemented | 16 |
-| **Total** | **18** |
+| **Total** | **19** |
 
 ---
 
@@ -60,6 +61,7 @@ _None_
 ### Specced
 
 - [Competitive Analyst Agent](.specs/features/agent-pipeline/competitive-analyst-agent.feature.md)
+- [Forecast Modeler Agent](.specs/features/agent-pipeline/forecast-modeler-agent.feature.md)
 - [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md)
 
 ### Tested
