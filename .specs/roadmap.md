@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 14 |
+| ✅ Completed | 15 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 23 |
+| ⬜ Pending | 22 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -71,7 +71,7 @@
 | 21 | FRED API connector (economic indicators, rate data) | vision | M | 20 | ✅ |
 | 22 | RealEstateAPI connector (property search, detail, comps, valuations) | vision | L | 20 | ✅ |
 | 23 | API cost tracking + usage logging | vision | S | 20 | ✅ |
-| 24 | Data freshness indicators + staleness fallback | vision | S | 20, 21, 22 | ⬜ |
+| 24 | Data freshness indicators + staleness fallback | vision | S | 20, 21, 22 | ✅ |
 | 25 | ScrapingDog connector (neighborhood intelligence, local amenities, area context) | vision | M | 20 | ✅ |
 
 **Goal**: The system can fetch real economic and market data, cache it intelligently, and track costs per API call.
