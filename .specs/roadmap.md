@@ -88,7 +88,7 @@
 | 32 | Insight Generator agent (strategic narratives from structured analysis) | vision | M | 30, 31 | ✅ |
 | 33 | Competitive Analyst agent (market vs. peer luxury markets) | vision | M | 30, 31, 12 | ✅ |
 | 34 | Forecast Modeler agent (projections, confidence ratings, base cases) | vision | M | 30, 31 | ✅ |
-| 35 | Polish Agent (consistency, editorial tone, pull quotes, final pass) | vision | M | 30, 32 | ⬜ |
+| 35 | Polish Agent (consistency, editorial tone, pull quotes, final pass) | vision | M | 30, 32 | 🔄 |
 | 36 | Agent output schema + validation (structured JSON for report assembly) | vision | M | 30 | ⬜ |
 
 **Goal**: Given a market definition + cached data, the pipeline produces structured, validated JSON containing every section of the report — narratives, metrics, ratings, forecasts.
