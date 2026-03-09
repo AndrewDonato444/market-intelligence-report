@@ -1,13 +1,14 @@
 /**
- * Pipeline Executor Service Tests
+ * Pipeline Executor Service Tests — v2 (4-Layer Architecture)
  *
- * Tests the execution glue that connects report creation to the agent pipeline.
- * ID: SVC-PIPE-001 through SVC-PIPE-012
+ * Tests the execution glue that connects report creation to the 4-layer pipeline:
+ *   Layer 0: Data Fetch → Layer 1: Compute → Layer 2: Agents → Layer 3: Assembly
+ *
+ * ID: SVC-PIPE-001 through SVC-PIPE-016
  */
 
 import type {
   PipelineResult,
-  PipelineRunner,
   PipelineProgress,
   SectionOutput,
 } from "@/lib/agents/orchestrator";
@@ -17,6 +18,9 @@ import type {
 const mockRun = jest.fn();
 const mockCancel = jest.fn();
 const mockGetProgress = jest.fn();
+const mockFetchAllMarketData = jest.fn();
+const mockComputeMarketAnalytics = jest.fn();
+const mockAssembleReport = jest.fn();
 
 jest.mock("@/lib/db", () => {
   const dbObj = {
@@ -81,33 +85,41 @@ jest.mock("@/lib/agents/orchestrator", () => ({
   })),
 }));
 
-jest.mock("@/lib/agents/data-analyst", () => ({
-  dataAnalystAgent: { name: "data-analyst", dependencies: [], execute: jest.fn() },
-}));
+// v2 agents (3 instead of 5)
 jest.mock("@/lib/agents/insight-generator", () => ({
-  insightGeneratorAgent: { name: "insight-generator", dependencies: ["data-analyst"], execute: jest.fn() },
-}));
-jest.mock("@/lib/agents/competitive-analyst", () => ({
-  competitiveAnalystAgent: { name: "competitive-analyst", dependencies: ["data-analyst"], execute: jest.fn() },
+  insightGeneratorAgent: { name: "insight-generator", dependencies: [], execute: jest.fn() },
 }));
 jest.mock("@/lib/agents/forecast-modeler", () => ({
-  forecastModelerAgent: { name: "forecast-modeler", dependencies: ["data-analyst"], execute: jest.fn() },
+  forecastModelerAgent: { name: "forecast-modeler", dependencies: [], execute: jest.fn() },
 }));
 jest.mock("@/lib/agents/polish-agent", () => ({
-  polishAgent: { name: "polish-agent", dependencies: ["data-analyst", "insight-generator"], execute: jest.fn() },
+  polishAgent: { name: "polish-agent", dependencies: ["insight-generator"], execute: jest.fn() },
 }));
 
 jest.mock("@/lib/agents/schema", () => ({
-  SECTION_REGISTRY: [
-    { sectionType: "market_overview", sourceAgent: "insight-generator", required: true, reportOrder: 1 },
-    { sectionType: "executive_summary", sourceAgent: "insight-generator", required: true, reportOrder: 2 },
-    { sectionType: "key_drivers", sourceAgent: "insight-generator", required: true, reportOrder: 3 },
-    { sectionType: "competitive_market_analysis", sourceAgent: "competitive-analyst", required: false, reportOrder: 4 },
-    { sectionType: "forecasts", sourceAgent: "forecast-modeler", required: false, reportOrder: 5 },
-    { sectionType: "strategic_summary", sourceAgent: "forecast-modeler", required: false, reportOrder: 6 },
-    { sectionType: "polished_report", sourceAgent: "polish-agent", required: false, reportOrder: 7 },
-    { sectionType: "methodology", sourceAgent: "polish-agent", required: false, reportOrder: 8 },
+  SECTION_REGISTRY_V2: [
+    { sectionType: "executive_briefing", sourceAgent: "assembler", required: true, reportOrder: 1 },
+    { sectionType: "market_insights_index", sourceAgent: "assembler", required: true, reportOrder: 2 },
+    { sectionType: "luxury_market_dashboard", sourceAgent: "assembler", required: true, reportOrder: 3 },
+    { sectionType: "neighborhood_intelligence", sourceAgent: "assembler", required: true, reportOrder: 4 },
+    { sectionType: "the_narrative", sourceAgent: "insight-generator", required: true, reportOrder: 5 },
+    { sectionType: "forward_look", sourceAgent: "forecast-modeler", required: false, reportOrder: 6 },
+    { sectionType: "comparative_positioning", sourceAgent: "assembler", required: true, reportOrder: 7 },
+    { sectionType: "strategic_benchmark", sourceAgent: "polish-agent", required: false, reportOrder: 8 },
+    { sectionType: "disclaimer_methodology", sourceAgent: "assembler", required: true, reportOrder: 9 },
   ],
+}));
+
+jest.mock("@/lib/services/data-fetcher", () => ({
+  fetchAllMarketData: (...args: unknown[]) => mockFetchAllMarketData(...args),
+}));
+
+jest.mock("@/lib/services/market-analytics", () => ({
+  computeMarketAnalytics: (...args: unknown[]) => mockComputeMarketAnalytics(...args),
+}));
+
+jest.mock("@/lib/agents/report-assembler", () => ({
+  assembleReport: (...args: unknown[]) => mockAssembleReport(...args),
 }));
 
 jest.mock("drizzle-orm", () => ({
@@ -154,42 +166,86 @@ const MOCK_REPORT_ROW = {
   userId: MOCK_USER_ID,
   marketId: "market-uuid-001",
   status: "queued",
-  config: { sections: ["market_overview", "executive_summary"] },
+  config: { sections: ["executive_briefing", "the_narrative"] },
   title: "Naples Q1 2026 Report",
   generationStartedAt: null,
   generationCompletedAt: null,
   errorMessage: null,
 };
 
+const MOCK_COMPILED_DATA = {
+  targetMarket: { properties: [], stale: false, details: [], comps: [] },
+  peerMarkets: [],
+  neighborhood: { amenities: {} },
+  fetchMetadata: { totalApiCalls: 5, totalDurationMs: 1500, staleDataSources: [], errors: [] },
+};
+
+const MOCK_COMPUTED_ANALYTICS = {
+  market: { totalProperties: 45, medianPrice: 8750000, averagePrice: 12400000, medianPricePerSqft: 2150, totalVolume: 558000000, rating: "A" },
+  segments: [],
+  yoy: { medianPriceChange: 0.08, volumeChange: 0.12, pricePerSqftChange: 0.06 },
+  insightsIndex: { liquidity: 7, timing: 8, risk: 3, value: 6, composite: 7.0 },
+  dashboard: { powerFive: [], tierTwo: [], tierThree: [] },
+  neighborhoods: [],
+  peerComparisons: [],
+  peerRankings: [],
+  scorecard: { strengths: [], risks: [], outlook: "positive" },
+  confidence: { level: "high", staleDataSources: [], sampleSize: 45 },
+  detailMetrics: null,
+};
+
 const MOCK_PIPELINE_SECTIONS: SectionOutput[] = [
-  { sectionType: "market_overview", title: "Market Overview", content: { narrative: "Test narrative" } },
-  { sectionType: "executive_summary", title: "Executive Summary", content: { narrative: "Test summary" } },
-  { sectionType: "key_drivers", title: "Key Drivers", content: { themes: [] } },
+  { sectionType: "the_narrative", title: "The Narrative", content: { narrative: "Test narrative" } },
+  { sectionType: "forward_look", title: "Forward Look", content: { forecast: "Growth ahead" } },
 ];
 
 const MOCK_PIPELINE_RESULT: PipelineResult = {
   reportId: MOCK_REPORT_ID,
   status: "completed",
   sections: MOCK_PIPELINE_SECTIONS,
-  totalDurationMs: 15000,
+  totalDurationMs: 12000,
   agentTimings: {
-    "data-analyst": 3000,
     "insight-generator": 5000,
-    "competitive-analyst": 4000,
-    "forecast-modeler": 4500,
-    "polish-agent": 3500,
+    "forecast-modeler": 4000,
+    "polish-agent": 3000,
+  },
+};
+
+const MOCK_ASSEMBLED_REPORT = {
+  sections: [
+    { sectionNumber: 1, sectionType: "executive_briefing", title: "Executive Briefing", content: { headline: {} } },
+    { sectionNumber: 2, sectionType: "market_insights_index", title: "Market Insights Index", content: {} },
+    { sectionNumber: 3, sectionType: "luxury_market_dashboard", title: "Luxury Market Dashboard", content: {} },
+    { sectionNumber: 4, sectionType: "neighborhood_intelligence", title: "Neighborhood Intelligence", content: {} },
+    { sectionNumber: 5, sectionType: "the_narrative", title: "The Narrative", content: {} },
+    { sectionNumber: 6, sectionType: "forward_look", title: "Forward Look", content: {} },
+    { sectionNumber: 7, sectionType: "comparative_positioning", title: "Comparative Positioning", content: {} },
+    { sectionNumber: 8, sectionType: "strategic_benchmark", title: "Strategic Benchmark", content: {} },
+    { sectionNumber: 9, sectionType: "disclaimer_methodology", title: "Disclaimer & Methodology", content: {} },
+  ],
+  metadata: {
+    generatedAt: "2026-03-09T12:00:00.000Z",
+    totalDurationMs: 15000,
+    agentDurations: { "insight-generator": 5000, "forecast-modeler": 4000, "polish-agent": 3000 },
+    confidence: { level: "high", staleDataSources: [], sampleSize: 45 },
+    sectionCount: 9,
   },
 };
 
 // --- Tests ---
 
-describe("Pipeline Executor Service", () => {
+describe("Pipeline Executor Service (v2)", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     // Reset the db chain mocks
     mockDb.select.mockReturnThis();
     mockDb.from.mockReturnThis();
     mockDb.where.mockReturnThis();
+
+    // Default Layer 0/1/3 mocks
+    mockFetchAllMarketData.mockResolvedValue(MOCK_COMPILED_DATA);
+    mockComputeMarketAnalytics.mockReturnValue(MOCK_COMPUTED_ANALYTICS);
+    mockAssembleReport.mockReturnValue(MOCK_ASSEMBLED_REPORT);
   });
 
   describe("convertMarketToMarketData", () => {
@@ -229,7 +285,7 @@ describe("Pipeline Executor Service", () => {
     });
   });
 
-  describe("executePipeline", () => {
+  describe("executePipeline — 4-layer orchestration", () => {
     function setupDbMocks(reportRow: any, marketRow: any) {
       let limitCallCount = 0;
       mockDb.limit.mockImplementation(() => {
@@ -239,14 +295,14 @@ describe("Pipeline Executor Service", () => {
         return Promise.resolve([]);
       });
 
-      // Mock update chain — each call to update() returns a fresh chain
+      // Mock update chain
       mockDb.update.mockImplementation(() => ({
         set: jest.fn().mockImplementation(() => ({
           where: jest.fn().mockResolvedValue([]),
         })),
       }));
 
-      // Mock insert chain — each call to insert() returns a fresh chain
+      // Mock insert chain
       mockDb.insert.mockImplementation(() => ({
         values: jest.fn().mockImplementation(() => ({
           returning: jest.fn().mockResolvedValue([{ id: "section-uuid" }]),
@@ -260,7 +316,6 @@ describe("Pipeline Executor Service", () => {
 
       await executePipeline(MOCK_REPORT_ID);
 
-      // First update should set status to "generating"
       expect(mockDb.update).toHaveBeenCalled();
       const firstUpdateChain = mockDb.update.mock.results[0]?.value;
       expect(firstUpdateChain.set).toHaveBeenCalledWith(
@@ -270,7 +325,39 @@ describe("Pipeline Executor Service", () => {
       );
     });
 
-    it("SVC-PIPE-004: calls pipeline runner with correct market data", async () => {
+    it("SVC-PIPE-004: calls Layer 0 (fetchAllMarketData) with correct options", async () => {
+      setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
+      mockRun.mockResolvedValue(MOCK_PIPELINE_RESULT);
+
+      await executePipeline(MOCK_REPORT_ID);
+
+      expect(mockFetchAllMarketData).toHaveBeenCalledTimes(1);
+      expect(mockFetchAllMarketData).toHaveBeenCalledWith(
+        expect.objectContaining({
+          userId: MOCK_USER_ID,
+          reportId: MOCK_REPORT_ID,
+          market: expect.objectContaining({
+            name: "Naples Ultra-Luxury",
+            geography: expect.objectContaining({ city: "Naples" }),
+          }),
+        })
+      );
+    });
+
+    it("SVC-PIPE-005: calls Layer 1 (computeMarketAnalytics) with compiled data", async () => {
+      setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
+      mockRun.mockResolvedValue(MOCK_PIPELINE_RESULT);
+
+      await executePipeline(MOCK_REPORT_ID);
+
+      expect(mockComputeMarketAnalytics).toHaveBeenCalledTimes(1);
+      expect(mockComputeMarketAnalytics).toHaveBeenCalledWith(
+        MOCK_COMPILED_DATA,
+        expect.objectContaining({ name: "Naples Ultra-Luxury" })
+      );
+    });
+
+    it("SVC-PIPE-006: passes computedAnalytics to pipeline runner (Layer 2)", async () => {
       setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
       mockRun.mockResolvedValue(MOCK_PIPELINE_RESULT);
 
@@ -280,36 +367,43 @@ describe("Pipeline Executor Service", () => {
         MOCK_REPORT_ID,
         expect.objectContaining({
           userId: MOCK_USER_ID,
-          market: expect.objectContaining({
-            name: "Naples Ultra-Luxury",
-            geography: expect.objectContaining({ city: "Naples", state: "FL" }),
-            luxuryTier: "ultra_luxury",
-            priceFloor: 5000000,
-          }),
-          reportConfig: expect.objectContaining({
-            sections: ["market_overview", "executive_summary"],
-          }),
+          computedAnalytics: MOCK_COMPUTED_ANALYTICS,
         })
       );
     });
 
-    it("SVC-PIPE-005: saves pipeline sections to report_sections table", async () => {
+    it("SVC-PIPE-007: calls Layer 3 (assembleReport) with analytics and agent results", async () => {
       setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
       mockRun.mockResolvedValue(MOCK_PIPELINE_RESULT);
 
       await executePipeline(MOCK_REPORT_ID);
 
-      // Should insert 3 sections (one per MOCK_PIPELINE_SECTIONS)
-      expect(mockDb.insert).toHaveBeenCalledTimes(3);
+      expect(mockAssembleReport).toHaveBeenCalledTimes(1);
+      // First arg: computedAnalytics
+      expect(mockAssembleReport.mock.calls[0][0]).toBe(MOCK_COMPUTED_ANALYTICS);
+      // Third arg: durations
+      const durations = mockAssembleReport.mock.calls[0][2];
+      expect(durations).toHaveProperty("fetchMs");
+      expect(durations).toHaveProperty("computeMs");
+      expect(durations.agentDurations).toEqual(MOCK_PIPELINE_RESULT.agentTimings);
     });
 
-    it("SVC-PIPE-006: sets report status to completed on success", async () => {
+    it("SVC-PIPE-008: saves 9 assembled sections to report_sections table", async () => {
       setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
       mockRun.mockResolvedValue(MOCK_PIPELINE_RESULT);
 
       await executePipeline(MOCK_REPORT_ID);
 
-      // Last update call should set completed
+      // Should insert 9 sections (one per assembled section)
+      expect(mockDb.insert).toHaveBeenCalledTimes(9);
+    });
+
+    it("SVC-PIPE-009: sets report status to completed on success", async () => {
+      setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
+      mockRun.mockResolvedValue(MOCK_PIPELINE_RESULT);
+
+      await executePipeline(MOCK_REPORT_ID);
+
       const updateCalls = mockDb.update.mock.results;
       const lastUpdateChain = updateCalls[updateCalls.length - 1]?.value;
       expect(lastUpdateChain.set).toHaveBeenCalledWith(
@@ -319,7 +413,7 @@ describe("Pipeline Executor Service", () => {
       );
     });
 
-    it("SVC-PIPE-007: sets report status to failed when pipeline returns failure", async () => {
+    it("SVC-PIPE-010: sets report status to failed when pipeline returns failure", async () => {
       setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
       mockRun.mockResolvedValue({
         ...MOCK_PIPELINE_RESULT,
@@ -339,7 +433,7 @@ describe("Pipeline Executor Service", () => {
       );
     });
 
-    it("SVC-PIPE-008: fails with error when report not found", async () => {
+    it("SVC-PIPE-011: fails with error when report not found", async () => {
       setupDbMocks(null, MOCK_MARKET_ROW);
 
       await expect(executePipeline(MOCK_REPORT_ID)).rejects.toThrow(
@@ -347,7 +441,7 @@ describe("Pipeline Executor Service", () => {
       );
     });
 
-    it("SVC-PIPE-009: fails with error when market not found", async () => {
+    it("SVC-PIPE-012: fails with error when market not found", async () => {
       setupDbMocks(MOCK_REPORT_ROW, null);
 
       await expect(executePipeline(MOCK_REPORT_ID)).rejects.toThrow(
@@ -355,11 +449,26 @@ describe("Pipeline Executor Service", () => {
       );
     });
 
-    it("SVC-PIPE-010: handles pipeline runner throwing an exception", async () => {
+    it("SVC-PIPE-013: handles Layer 0 (data fetch) failure gracefully", async () => {
+      setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
+      mockFetchAllMarketData.mockRejectedValue(new Error("API rate limit"));
+
+      await executePipeline(MOCK_REPORT_ID);
+
+      const updateCalls = mockDb.update.mock.results;
+      const lastUpdateChain = updateCalls[updateCalls.length - 1]?.value;
+      expect(lastUpdateChain.set).toHaveBeenCalledWith(
+        expect.objectContaining({
+          status: "failed",
+          errorMessage: expect.stringContaining("API rate limit"),
+        })
+      );
+    });
+
+    it("SVC-PIPE-014: handles pipeline runner throwing an exception", async () => {
       setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
       mockRun.mockRejectedValue(new Error("Connection refused"));
 
-      // Should NOT throw — catches the error and updates status
       await executePipeline(MOCK_REPORT_ID);
 
       const updateCalls = mockDb.update.mock.results;
@@ -371,14 +480,28 @@ describe("Pipeline Executor Service", () => {
         })
       );
     });
+
+    it("SVC-PIPE-015: does not call agents when Layer 2 is skipped due to failed pipeline", async () => {
+      setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
+      mockRun.mockResolvedValue({
+        ...MOCK_PIPELINE_RESULT,
+        status: "failed",
+        error: "Agent crashed",
+      });
+
+      await executePipeline(MOCK_REPORT_ID);
+
+      // Assembly should NOT be called when pipeline fails
+      expect(mockAssembleReport).not.toHaveBeenCalled();
+    });
   });
 
   describe("getExecutionProgress", () => {
-    it("SVC-PIPE-011: returns idle progress for unknown report", () => {
+    it("SVC-PIPE-016: returns idle progress for unknown report", () => {
       mockGetProgress.mockReturnValue({
         reportId: "unknown-id",
         status: "idle",
-        totalAgents: 5,
+        totalAgents: 3,
         completedAgents: 0,
         currentAgents: [],
         percentComplete: 0,
@@ -391,14 +514,14 @@ describe("Pipeline Executor Service", () => {
       expect(progress.percentComplete).toBe(0);
     });
 
-    it("SVC-PIPE-012: returns live progress during execution", () => {
+    it("SVC-PIPE-017: returns live progress during execution", () => {
       mockGetProgress.mockReturnValue({
         reportId: MOCK_REPORT_ID,
         status: "running",
-        totalAgents: 5,
+        totalAgents: 3,
         completedAgents: 1,
-        currentAgents: ["insight-generator", "competitive-analyst"],
-        percentComplete: 20,
+        currentAgents: ["insight-generator"],
+        percentComplete: 33,
         events: [],
       });
 
@@ -407,7 +530,7 @@ describe("Pipeline Executor Service", () => {
       expect(progress.status).toBe("running");
       expect(progress.completedAgents).toBe(1);
       expect(progress.currentAgents).toContain("insight-generator");
-      expect(progress.percentComplete).toBe(20);
+      expect(progress.percentComplete).toBe(33);
     });
   });
 });

@@ -1,9 +1,13 @@
 /**
- * Pipeline Executor Service
+ * Pipeline Executor Service — v2 (4-Layer Architecture)
  *
- * The execution glue that connects report creation to the agent pipeline.
- * Fetches report + market data, runs the agent pipeline, saves sections
- * to the database, and updates report status.
+ * Orchestrates the full report generation pipeline:
+ *   Layer 0: Data Fetch   → CompiledMarketData  (all API calls)
+ *   Layer 1: Computation  → ComputedAnalytics    (pure math)
+ *   Layer 2: Agents (×3)  → narrative sections   (Claude only)
+ *   Layer 3: Assembly     → 9-section report     (merge data + narrative)
+ *
+ * Agents no longer call APIs directly — they receive pre-computed analytics.
  */
 
 import { db, schema } from "@/lib/db";
@@ -11,25 +15,26 @@ import { eq } from "drizzle-orm";
 import {
   createPipelineRunner,
   type MarketData,
-  type PipelineOptions,
   type PipelineProgress,
   type PipelineRunner,
 } from "@/lib/agents/orchestrator";
-import { SECTION_REGISTRY } from "@/lib/agents/schema";
+import { SECTION_REGISTRY_V2 } from "@/lib/agents/schema";
+import { fetchAllMarketData } from "@/lib/services/data-fetcher";
+import { computeMarketAnalytics } from "@/lib/services/market-analytics";
+import {
+  assembleReport as assembleV2Report,
+  type AssemblyDurations,
+} from "@/lib/agents/report-assembler";
 
-// Agent definitions
-import { dataAnalystAgent } from "@/lib/agents/data-analyst";
+// Agent definitions — v2 pipeline uses only 3 Claude agents
 import { insightGeneratorAgent } from "@/lib/agents/insight-generator";
-import { competitiveAnalystAgent } from "@/lib/agents/competitive-analyst";
 import { forecastModelerAgent } from "@/lib/agents/forecast-modeler";
 import { polishAgent } from "@/lib/agents/polish-agent";
 
-// --- All agents in pipeline order ---
+// --- All agents in pipeline order (v2: 3 agents, no data-analyst / competitive-analyst) ---
 
 const ALL_AGENTS = [
-  dataAnalystAgent,
   insightGeneratorAgent,
-  competitiveAnalystAgent,
   forecastModelerAgent,
   polishAgent,
 ];
@@ -77,14 +82,16 @@ export function convertMarketToMarketData(market: {
 // --- Pipeline execution ---
 
 /**
- * Execute the full agent pipeline for a report.
+ * Execute the full 4-layer pipeline for a report.
  *
- * This is the main entry point that:
- * 1. Fetches report + market from DB
- * 2. Updates report status to "generating"
- * 3. Runs the pipeline
- * 4. Saves sections to report_sections table
- * 5. Updates report status to "completed" or "failed"
+ * 1. Fetch report + market from DB
+ * 2. Update report status to "generating"
+ * 3. Layer 0: fetchAllMarketData() — all API calls
+ * 4. Layer 1: computeMarketAnalytics() — pure computation
+ * 5. Layer 2: pipeline runner with 3 Claude agents + computedAnalytics
+ * 6. Layer 3: assembleReport() — merge data + narratives into 9 sections
+ * 7. Save 9 sections to report_sections table
+ * 8. Update report status to "completed" or "failed"
  */
 export async function executePipeline(reportId: string): Promise<void> {
   // 1. Fetch report
@@ -118,7 +125,6 @@ export async function executePipeline(reportId: string): Promise<void> {
     })
     .where(eq(schema.reports.id, reportId));
 
-  // 4. Build pipeline options
   const marketData = convertMarketToMarketData(market);
   const reportConfig = {
     sections: (report.config as any)?.sections,
@@ -126,34 +132,85 @@ export async function executePipeline(reportId: string): Promise<void> {
     customPrompts: (report.config as any)?.customPrompts,
   };
 
-  const pipelineRunner = getRunner();
+  const abortController = new AbortController();
 
   try {
-    const result = await pipelineRunner.run(reportId, {
+    // --- Layer 0: Data Fetch ---
+    const fetchStart = Date.now();
+    const compiledData = await fetchAllMarketData({
+      userId: report.userId,
+      reportId,
+      market: marketData,
+      abortSignal: abortController.signal,
+    });
+    const fetchMs = Date.now() - fetchStart;
+
+    // --- Layer 1: Computation ---
+    const computeStart = Date.now();
+    const computedAnalytics = computeMarketAnalytics(compiledData, marketData);
+    const computeMs = Date.now() - computeStart;
+
+    // --- Layer 2: Claude Agents (3 agents, all receive computedAnalytics) ---
+    const pipelineRunner = getRunner();
+    const agentResult = await pipelineRunner.run(reportId, {
       userId: report.userId,
       market: marketData,
       reportConfig,
+      computedAnalytics,
     });
 
-    if (result.status === "failed") {
-      // Pipeline returned failure
+    if (agentResult.status === "failed") {
       await db
         .update(schema.reports)
         .set({
           status: "failed",
-          errorMessage: result.error ?? "Pipeline failed",
+          errorMessage: agentResult.error ?? "Pipeline failed",
           generationCompletedAt: new Date(),
         })
         .where(eq(schema.reports.id, reportId));
       return;
     }
 
-    // 5. Save sections to report_sections table
-    for (const section of result.sections) {
-      const registryEntry = SECTION_REGISTRY.find(
+    // --- Layer 3: Assembly ---
+    // Collect all agent results from the pipeline result
+    const agentResults: Record<string, import("@/lib/agents/orchestrator").AgentResult> = {};
+    for (const section of agentResult.sections) {
+      // We need the full AgentResult objects; reconstruct from pipeline timings
+      // The pipeline runner already tracked per-agent results internally,
+      // but only returns flattened sections. Rebuild from section types.
+    }
+
+    // Build agent results map from pipeline output
+    // Group sections by their source agent using the v2 registry
+    for (const agentName of ["insight-generator", "forecast-modeler", "polish-agent"]) {
+      const agentSections = agentResult.sections.filter((s) => {
+        const entry = SECTION_REGISTRY_V2.find((r) => r.sectionType === s.sectionType);
+        return entry?.sourceAgent === agentName;
+      });
+      if (agentSections.length > 0 || agentResult.agentTimings[agentName]) {
+        agentResults[agentName] = {
+          agentName,
+          sections: agentSections,
+          metadata: {}, // Narratives come from pipeline runner metadata
+          durationMs: agentResult.agentTimings[agentName] ?? 0,
+        };
+      }
+    }
+
+    const durations: AssemblyDurations = {
+      fetchMs,
+      computeMs,
+      agentDurations: agentResult.agentTimings,
+    };
+
+    const assembled = assembleV2Report(computedAnalytics, agentResults, durations);
+
+    // 7. Save 9 sections to report_sections table
+    for (const section of assembled.sections) {
+      const registryEntry = SECTION_REGISTRY_V2.find(
         (r) => r.sectionType === section.sectionType
       );
-      const sortOrder = registryEntry?.reportOrder ?? 99;
+      const sortOrder = registryEntry?.reportOrder ?? section.sectionNumber;
 
       await db
         .insert(schema.reportSections)
@@ -169,7 +226,7 @@ export async function executePipeline(reportId: string): Promise<void> {
         .returning();
     }
 
-    // 6. Update report to completed
+    // 8. Update report to completed
     await db
       .update(schema.reports)
       .set({
