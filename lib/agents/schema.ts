@@ -4,6 +4,9 @@
  * Defines a unified schema for all agent outputs, validates pipeline
  * results, and assembles them into an ordered ReportData object for
  * downstream consumers (report templates, PDF renderer).
+ *
+ * SECTION_REGISTRY = v1 (5-agent pipeline, 8 sections)
+ * SECTION_REGISTRY_V2 = v2 (4-layer pipeline, 9 sections)
  */
 
 import type { AgentResult, SectionOutput } from "@/lib/agents/orchestrator";
@@ -67,6 +70,24 @@ export const SECTION_REGISTRY: SectionRegistryEntry[] = [
     required: false,
     reportOrder: 8,
   },
+];
+
+/**
+ * v2 Section Registry — 9-section report (4-layer pipeline)
+ *
+ * Source is "assembler" for data-only sections (filled by report-assembler
+ * from ComputedAnalytics) or the agent that provides the narrative.
+ */
+export const SECTION_REGISTRY_V2: SectionRegistryEntry[] = [
+  { sectionType: "executive_briefing", sourceAgent: "assembler", required: true, reportOrder: 1 },
+  { sectionType: "market_insights_index", sourceAgent: "assembler", required: true, reportOrder: 2 },
+  { sectionType: "luxury_market_dashboard", sourceAgent: "assembler", required: true, reportOrder: 3 },
+  { sectionType: "neighborhood_intelligence", sourceAgent: "assembler", required: true, reportOrder: 4 },
+  { sectionType: "the_narrative", sourceAgent: "insight-generator", required: true, reportOrder: 5 },
+  { sectionType: "forward_look", sourceAgent: "forecast-modeler", required: false, reportOrder: 6 },
+  { sectionType: "comparative_positioning", sourceAgent: "assembler", required: true, reportOrder: 7 },
+  { sectionType: "strategic_benchmark", sourceAgent: "polish-agent", required: false, reportOrder: 8 },
+  { sectionType: "disclaimer_methodology", sourceAgent: "assembler", required: true, reportOrder: 9 },
 ];
 
 // --- Report Data ---

@@ -370,4 +370,78 @@ describe("Agent Output Schema + Validation", () => {
       expect(requiredTypes).toContain("key_drivers");
     });
   });
+
+  describe("SECTION_REGISTRY_V2", () => {
+    it("defines all 9 v2 section types", async () => {
+      const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
+
+      expect(SECTION_REGISTRY_V2).toHaveLength(9);
+      const types = SECTION_REGISTRY_V2.map((r) => r.sectionType);
+      expect(types).toEqual([
+        "executive_briefing",
+        "market_insights_index",
+        "luxury_market_dashboard",
+        "neighborhood_intelligence",
+        "the_narrative",
+        "forward_look",
+        "comparative_positioning",
+        "strategic_benchmark",
+        "disclaimer_methodology",
+      ]);
+    });
+
+    it("has unique, sequential report orders 1-9", async () => {
+      const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
+
+      const orders = SECTION_REGISTRY_V2.map((r) => r.reportOrder);
+      expect(orders).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    });
+
+    it("marks required vs optional correctly", async () => {
+      const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
+
+      const required = SECTION_REGISTRY_V2.filter((r) => r.required).map(
+        (r) => r.sectionType
+      );
+      const optional = SECTION_REGISTRY_V2.filter((r) => !r.required).map(
+        (r) => r.sectionType
+      );
+
+      expect(required).toEqual([
+        "executive_briefing",
+        "market_insights_index",
+        "luxury_market_dashboard",
+        "neighborhood_intelligence",
+        "the_narrative",
+        "comparative_positioning",
+        "disclaimer_methodology",
+      ]);
+      expect(optional).toEqual(["forward_look", "strategic_benchmark"]);
+    });
+
+    it("assigns correct source agents", async () => {
+      const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
+
+      const byAgent = new Map<string, string[]>();
+      for (const entry of SECTION_REGISTRY_V2) {
+        const list = byAgent.get(entry.sourceAgent) ?? [];
+        list.push(entry.sectionType);
+        byAgent.set(entry.sourceAgent, list);
+      }
+
+      // assembler handles data-only sections
+      expect(byAgent.get("assembler")).toEqual([
+        "executive_briefing",
+        "market_insights_index",
+        "luxury_market_dashboard",
+        "neighborhood_intelligence",
+        "comparative_positioning",
+        "disclaimer_methodology",
+      ]);
+      // narrative agents
+      expect(byAgent.get("insight-generator")).toEqual(["the_narrative"]);
+      expect(byAgent.get("forecast-modeler")).toEqual(["forward_look"]);
+      expect(byAgent.get("polish-agent")).toEqual(["strategic_benchmark"]);
+    });
+  });
 });
