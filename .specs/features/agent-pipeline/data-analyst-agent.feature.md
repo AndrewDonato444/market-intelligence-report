@@ -1,0 +1,169 @@
+---
+feature: Data Analyst Agent
+domain: agent-pipeline
+source: lib/agents/data-analyst.ts
+tests:
+  - __tests__/agents/data-analyst.test.ts
+components: []
+personas:
+  - rising-star-agent
+  - competitive-veteran
+status: implemented
+created: 2026-03-09
+updated: 2026-03-09
+---
+
+# Data Analyst Agent
+
+**Source File**: `lib/agents/data-analyst.ts`
+**Design System**: N/A (service layer)
+**Personas**: Rising Star Agent, Competitive Veteran
+
+## Feature: Data Analyst Agent
+
+The Data Analyst agent is the first agent in the pipeline. It fetches property data via connectors (RealEstateAPI, ScrapingDog), computes segment-level metrics, YoY calculations, price-per-sqft ratios, intelligence ratings, and market health scores. Its structured JSON output feeds all downstream agents (insight-generator, competitive-analyst, forecast-modeler).
+
+This agent does NOT call Claude — it is pure computation over fetched data. AI narrative generation happens in downstream agents.
+
+### Scenario: Analyze a market with available property data
+Given a market definition for "Palm Beach, FL" with luxury tier "ultra_luxury" and price floor $5M
+And the RealEstateAPI connector returns property search results
+When the data-analyst agent executes
+Then it produces a structured analysis with segment metrics, price statistics, and volume counts
+And the output conforms to the AgentResult interface from the orchestrator
+
+### Scenario: Compute segment-level metrics
+Given property search results with mixed property types (single_family, condo, estate)
+When the data-analyst computes segment metrics
+Then each segment includes: count, median price, average price, min/max price, median price-per-sqft
+And segments with fewer than 3 properties are flagged as "low_sample"
+
+### Scenario: Calculate YoY changes
+Given property data with lastSaleDate spanning the current and prior year
+When the data-analyst computes YoY metrics
+Then it calculates year-over-year change for median price, volume, and days-on-market
+And the YoY values are expressed as decimal percentages (e.g., 0.12 for 12%)
+
+### Scenario: Generate intelligence ratings
+Given computed segment metrics and YoY changes
+When the data-analyst assigns ratings
+Then each segment receives a rating from A+ to C based on price growth, volume, and market health
+And the overall market receives an aggregate rating
+
+### Scenario: Handle empty or insufficient data gracefully
+Given a market with no matching property results
+When the data-analyst executes
+Then it returns a result with empty segments and a metadata flag "insufficient_data": true
+And does not throw an error
+
+### Scenario: Include data freshness in output
+Given property search results that include stale cached data
+When the data-analyst produces output
+Then the metadata includes confidence_level based on data freshness
+And stale data produces "low" confidence, fresh data produces "high" confidence
+
+### Scenario: Produce market overview section
+Given a complete analysis with segments, YoY, and ratings
+When the data-analyst builds its output sections
+Then it produces a "market_overview" section with headline metrics
+And a "executive_summary" section with the analysis matrix data
+
+### Scenario: Conform to pipeline interface
+Given the data-analyst is registered as an AgentDefinition
+When the orchestrator calls execute(context)
+Then it receives AgentContext with market, reportConfig, and abortSignal
+And returns AgentResult with sections and metadata
+
+## Technical Notes
+
+### Output Schema
+
+```typescript
+interface DataAnalystOutput {
+  // Overall market metrics
+  market: {
+    totalProperties: number;
+    medianPrice: number;
+    averagePrice: number;
+    medianPricePerSqft: number;
+    totalVolume: number;
+    rating: string;  // A+ through C
+  };
+  // Per-segment breakdown
+  segments: Array<{
+    name: string;
+    propertyType: string;
+    count: number;
+    medianPrice: number;
+    averagePrice: number;
+    minPrice: number;
+    maxPrice: number;
+    medianPricePerSqft: number | null;
+    rating: string;
+    lowSample: boolean;
+  }>;
+  // Year-over-year comparisons
+  yoy: {
+    medianPriceChange: number | null;  // decimal percentage
+    volumeChange: number | null;
+    pricePerSqftChange: number | null;
+  };
+  // Confidence and freshness
+  confidence: {
+    level: "high" | "medium" | "low";
+    staleDataSources: string[];
+    sampleSize: number;
+  };
+}
+```
+
+### Rating Logic
+
+| Rating | Criteria |
+|--------|----------|
+| A+ | Price growth > 10% YoY, volume stable or growing, strong per-sqft |
+| A  | Price growth 5-10% YoY, healthy volume |
+| B+ | Price growth 0-5% YoY, adequate volume |
+| B  | Flat or slight decline, sufficient sample |
+| C+ | Declining metrics but sufficient data |
+| C  | Declining or insufficient data |
+
+### Agent Registration
+
+```typescript
+const dataAnalystAgent: AgentDefinition = {
+  name: "data-analyst",
+  description: "Fetches property data, computes segment metrics, YoY calculations, and intelligence ratings",
+  dependencies: [],  // First in pipeline, no upstream deps
+  execute: executeDataAnalyst,
+};
+```
+
+### Data Flow
+
+```
+RealEstateAPI.searchProperties(market)
+    │
+    ▼
+Parse & group by property type
+    │
+    ▼
+Compute per-segment metrics (median, avg, min/max, per-sqft)
+    │
+    ▼
+Split by year → compute YoY changes
+    │
+    ▼
+Apply rating logic per segment + overall
+    │
+    ▼
+Package as AgentResult { sections, metadata }
+```
+
+## User Journey
+
+1. Agent configures market and starts report generation
+2. Pipeline runner starts → **Data Analyst runs first (no deps)**
+3. Data Analyst fetches property data from RealEstateAPI
+4. Computes metrics, segments, ratings → outputs structured JSON
+5. Downstream agents (insight-generator, competitive-analyst, forecast-modeler) consume this output
