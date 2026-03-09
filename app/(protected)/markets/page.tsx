@@ -99,6 +99,12 @@ export default async function MarketsPage() {
                 </div>
                 <div className="flex items-center gap-3">
                   <Link
+                    href={`/markets/${market.id}/edit`}
+                    className="px-3 py-1.5 text-xs font-[family-name:var(--font-sans)] font-medium text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-[var(--radius-sm)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors duration-[var(--duration-default)]"
+                  >
+                    Edit
+                  </Link>
+                  <Link
                     href={`/markets/${market.id}/peers`}
                     className="px-3 py-1.5 text-xs font-[family-name:var(--font-sans)] font-medium text-[var(--color-accent)] border border-[var(--color-accent)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-light)] transition-colors duration-[var(--duration-default)]"
                   >

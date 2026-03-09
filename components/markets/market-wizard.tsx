@@ -44,7 +44,21 @@ interface FormState {
   propertyTypes: string[];
 }
 
-export function MarketWizard() {
+interface MarketWizardProps {
+  mode?: "create" | "edit";
+  marketId?: string;
+  initialData?: {
+    name: string;
+    geography: { city: string; state: string; county?: string; region?: string };
+    luxuryTier: "luxury" | "high_luxury" | "ultra_luxury";
+    priceFloor: number;
+    priceCeiling?: number | null;
+    segments?: string[] | null;
+    propertyTypes?: string[] | null;
+  };
+}
+
+export function MarketWizard({ mode = "create", marketId, initialData }: MarketWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
@@ -54,17 +68,19 @@ export function MarketWizard() {
     text: string;
   } | null>(null);
 
+  const isEdit = mode === "edit";
+
   const [form, setForm] = useState<FormState>({
-    name: "",
-    city: "",
-    state: "",
-    county: "",
-    region: "",
-    luxuryTier: "luxury",
-    priceFloor: "1000000",
-    priceCeiling: "",
-    segments: [],
-    propertyTypes: [],
+    name: initialData?.name || "",
+    city: initialData?.geography?.city || "",
+    state: initialData?.geography?.state || "",
+    county: initialData?.geography?.county || "",
+    region: initialData?.geography?.region || "",
+    luxuryTier: initialData?.luxuryTier || "luxury",
+    priceFloor: String(initialData?.priceFloor || 1000000),
+    priceCeiling: initialData?.priceCeiling ? String(initialData.priceCeiling) : "",
+    segments: initialData?.segments || [],
+    propertyTypes: initialData?.propertyTypes || [],
   });
 
   const handleChange = (
@@ -147,27 +163,32 @@ export function MarketWizard() {
     setSaving(true);
     setMessage(null);
 
+    const payload = {
+      name: form.name,
+      geography: {
+        city: form.city,
+        state: form.state,
+        county: form.county || undefined,
+        region: form.region || undefined,
+      },
+      luxuryTier: form.luxuryTier,
+      priceFloor: Number(form.priceFloor),
+      priceCeiling: form.priceCeiling
+        ? Number(form.priceCeiling)
+        : undefined,
+      segments: form.segments.length > 0 ? form.segments : undefined,
+      propertyTypes:
+        form.propertyTypes.length > 0 ? form.propertyTypes : undefined,
+    };
+
     try {
-      const res = await fetch("/api/markets", {
-        method: "POST",
+      const url = isEdit ? `/api/markets/${marketId}` : "/api/markets";
+      const method = isEdit ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: form.name,
-          geography: {
-            city: form.city,
-            state: form.state,
-            county: form.county || undefined,
-            region: form.region || undefined,
-          },
-          luxuryTier: form.luxuryTier,
-          priceFloor: Number(form.priceFloor),
-          priceCeiling: form.priceCeiling
-            ? Number(form.priceCeiling)
-            : undefined,
-          segments: form.segments.length > 0 ? form.segments : undefined,
-          propertyTypes:
-            form.propertyTypes.length > 0 ? form.propertyTypes : undefined,
-        }),
+        body: JSON.stringify(payload),
       });
 
       const data = await res.json();
@@ -176,12 +197,16 @@ export function MarketWizard() {
         if (data.errors) setErrors(data.errors);
         setMessage({
           type: "error",
-          text: data.error || "Failed to create market",
+          text: data.error || `Failed to ${isEdit ? "update" : "create"} market`,
         });
         return;
       }
 
-      router.push("/markets");
+      if (isEdit) {
+        setMessage({ type: "success", text: "Market updated successfully" });
+      } else {
+        router.push("/markets");
+      }
     } catch {
       setMessage({
         type: "error",
@@ -202,10 +227,10 @@ export function MarketWizard() {
     <div className="max-w-2xl mx-auto">
       <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
         <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
-          Define Your Market
+          {isEdit ? "Edit Market" : "Define Your Market"}
         </h2>
         <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
-          The market definition drives every report.
+          {isEdit ? "Update your market configuration." : "The market definition drives every report."}
         </p>
         <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-6" />
 
@@ -492,7 +517,9 @@ export function MarketWizard() {
                 disabled={saving}
                 className="px-6 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {saving ? "Creating..." : "Create Market"}
+                {saving
+                  ? (isEdit ? "Saving..." : "Creating...")
+                  : (isEdit ? "Save Changes" : "Create Market")}
               </button>
             )}
           </div>

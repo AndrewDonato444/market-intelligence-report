@@ -25,6 +25,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | foundation | [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md) | `app/layout.tsx, app/page.tsx, tailwind.config.ts, app/globals.css` | see spec | see spec | implemented |
 | user-setup | [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md) | `app/(protected)/settings/profile/page.tsx, app/api/profile/route.ts, lib/services/profile.ts, lib/services/profile-validation.ts` | see spec | see spec | implemented |
 | user-setup | [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md) | `app/(protected)/markets/new/page.tsx, app/api/markets/route.ts, lib/services/market.ts, lib/services/market-validation.ts` | see spec | see spec | implemented |
+| user-setup | [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md) | `app/(protected)/markets/[id]/edit/page.tsx, app/api/markets/[id]/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | user-setup | [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md) | `app/(protected)/markets/[id]/peers/page.tsx, app/api/markets/[id]/peers/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 
 ---
@@ -36,8 +37,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 0 |
 | tested | 0 |
-| implemented | 8 |
-| **Total** | **8** |
+| implemented | 9 |
+| **Total** | **9** |
 
 ---
 
@@ -64,6 +65,7 @@ _None_
 - [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md)
 - [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md)
 - [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md)
+- [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md)
 - [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md)
 
 ---

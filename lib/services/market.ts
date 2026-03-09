@@ -93,6 +93,50 @@ export async function getMarket(clerkId: string, marketId: string) {
   return market || null;
 }
 
+export async function updateMarket(
+  clerkId: string,
+  marketId: string,
+  data: {
+    name: string;
+    geography: { city: string; state: string; county?: string; region?: string; zipCodes?: string[] };
+    luxuryTier: "luxury" | "high_luxury" | "ultra_luxury";
+    priceFloor: number;
+    priceCeiling?: number | null;
+    segments?: string[];
+    propertyTypes?: string[];
+    focusAreas?: string[];
+  }
+) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.clerkId, clerkId))
+    .limit(1);
+
+  if (!user) throw new Error("User not found");
+
+  const [updated] = await db
+    .update(schema.markets)
+    .set({
+      name: data.name,
+      geography: data.geography,
+      luxuryTier: data.luxuryTier,
+      priceFloor: data.priceFloor,
+      priceCeiling: data.priceCeiling || null,
+      segments: data.segments || null,
+      propertyTypes: data.propertyTypes || null,
+      focusAreas: data.focusAreas || null,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(eq(schema.markets.id, marketId), eq(schema.markets.userId, user.id))
+    )
+    .returning();
+
+  if (!updated) throw new Error("Market not found");
+  return updated;
+}
+
 export async function updateMarketPeers(
   clerkId: string,
   marketId: string,
