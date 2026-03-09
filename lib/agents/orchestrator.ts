@@ -24,6 +24,8 @@ export interface AgentContext {
   reportConfig: ReportConfig;
   upstreamResults: Record<string, AgentResult>;
   abortSignal: AbortSignal;
+  /** Pre-computed analytics from Layer 1 (available in v2 pipeline) */
+  computedAnalytics?: import("@/lib/services/market-analytics").ComputedAnalytics;
 }
 
 export interface MarketData {
@@ -97,6 +99,8 @@ export interface PipelineOptions {
   maxRetries?: number;
   retryDelayMs?: number;
   onEvent?: (event: PipelineEvent) => void;
+  /** Pre-computed analytics from Layer 1 (v2 pipeline passes this through to agents) */
+  computedAnalytics?: import("@/lib/services/market-analytics").ComputedAnalytics;
 }
 
 export interface PipelineResult {
@@ -345,6 +349,7 @@ export function createPipelineRunner(agents: AgentDefinition[]): PipelineRunner 
               reportConfig,
               upstreamResults: { ...allResults },
               abortSignal: abortController.signal,
+              computedAnalytics: options.computedAnalytics,
             };
 
             const result = await executeWithRetry(
