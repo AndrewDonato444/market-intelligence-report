@@ -41,6 +41,10 @@ export interface MarketData {
   segments?: string[];
   propertyTypes?: string[];
   focusAreas?: string[];
+  peerMarkets?: Array<{
+    name: string;
+    geography: { city: string; state: string };
+  }>;
 }
 
 export interface ReportConfig {
