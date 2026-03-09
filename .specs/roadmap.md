@@ -22,8 +22,8 @@
 | Status | Count |
 |--------|-------|
 | ✅ Completed | 16 |
-| 🔄 In Progress | 0 |
-| ⬜ Pending | 21 |
+| 🔄 In Progress | 1 |
+| ⬜ Pending | 20 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -85,7 +85,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 30 | Agent orchestration framework (pipeline runner, state, error handling) | vision | L | 5 | ✅ |
-| 31 | Data Analyst agent (segment metrics, YoY calculations, ratios, ratings) | vision | L | 30, 22 | ⬜ |
+| 31 | Data Analyst agent (segment metrics, YoY calculations, ratios, ratings) | vision | L | 30, 22 | 🔄 |
 | 32 | Insight Generator agent (strategic narratives from structured analysis) | vision | M | 30, 31 | ⬜ |
 | 33 | Competitive Analyst agent (market vs. peer luxury markets) | vision | M | 30, 31, 12 | ⬜ |
 | 34 | Forecast Modeler agent (projections, confidence ratings, base cases) | vision | M | 30, 31, 21 | ⬜ |
