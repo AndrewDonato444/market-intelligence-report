@@ -1,5 +1,5 @@
 import { db, schema } from "@/lib/db";
-import { eq, and, gte, sql } from "drizzle-orm";
+import { eq, and, gte, sql, desc } from "drizzle-orm";
 
 export interface ApiCallEntry {
   userId: string;
@@ -81,4 +81,63 @@ export async function getUsageSummary(
   const cacheHitRate = totalCalls > 0 ? (totalCacheHits / totalCalls) * 100 : 0;
 
   return { byProvider, totalCost, totalCalls, cacheHitRate };
+}
+
+export interface UsageLogEntry {
+  id: string;
+  provider: string;
+  endpoint: string;
+  cost: string;
+  responseTimeMs: number | null;
+  statusCode: number | null;
+  cached: number;
+  createdAt: Date;
+}
+
+export interface UsageLogResult {
+  entries: UsageLogEntry[];
+  total: number;
+}
+
+/**
+ * Get paginated usage log entries for a user.
+ * Optionally filter by provider.
+ */
+export async function getUsageLog(
+  userId: string,
+  options: { provider?: string; limit?: number; offset?: number; since?: Date } = {}
+): Promise<UsageLogResult> {
+  const { provider, limit = 50, offset = 0, since } = options;
+
+  const conditions = [eq(schema.apiUsage.userId, userId)];
+  if (provider) {
+    conditions.push(eq(schema.apiUsage.provider, provider));
+  }
+  if (since) {
+    conditions.push(gte(schema.apiUsage.createdAt, since));
+  }
+
+  const [countResult] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(schema.apiUsage)
+    .where(and(...conditions));
+
+  const entries = await db
+    .select({
+      id: schema.apiUsage.id,
+      provider: schema.apiUsage.provider,
+      endpoint: schema.apiUsage.endpoint,
+      cost: schema.apiUsage.cost,
+      responseTimeMs: schema.apiUsage.responseTimeMs,
+      statusCode: schema.apiUsage.statusCode,
+      cached: schema.apiUsage.cached,
+      createdAt: schema.apiUsage.createdAt,
+    })
+    .from(schema.apiUsage)
+    .where(and(...conditions))
+    .orderBy(desc(schema.apiUsage.createdAt))
+    .limit(limit)
+    .offset(offset);
+
+  return { entries, total: countResult.count };
 }

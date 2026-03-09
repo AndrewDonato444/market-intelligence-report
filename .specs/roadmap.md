@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 12 |
+| ✅ Completed | 13 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 25 |
+| ⬜ Pending | 24 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -70,7 +70,7 @@
 | 20 | Cache layer — DB-backed with TTL by data type | vision | M | 2 | ✅ |
 | 21 | FRED API connector (economic indicators, rate data) | vision | M | 20 | ✅ |
 | 22 | RealEstateAPI connector (property search, detail, comps, valuations) | vision | L | 20 | ✅ |
-| 23 | API cost tracking + usage logging | vision | S | 20 | ⬜ |
+| 23 | API cost tracking + usage logging | vision | S | 20 | ✅ |
 | 24 | Data freshness indicators + staleness fallback | vision | S | 20, 21, 22 | ⬜ |
 | 25 | ScrapingDog connector (neighborhood intelligence, local amenities, area context) | vision | M | 20 | ⬜ |
 
