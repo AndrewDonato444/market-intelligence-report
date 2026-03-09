@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 22 |
+| ✅ Completed | 23 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 14 |
+| ⬜ Pending | 13 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -102,7 +102,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 40 | Report builder wizard — market params, section selection, customization | vision | L | 4, 11, 13 | ✅ |
-| 41 | Pipeline status dashboard — real-time agent progress, stage tracking | vision | M | 30, 40 | 🔄 |
+| 41 | Pipeline status dashboard — real-time agent progress, stage tracking | vision | M | 30, 40 | ✅ |
 | 42 | Report preview — live assembly as sections complete | vision | M | 41, 36 | ⬜ |
 
 **Goal**: An agent walks through a polished wizard, hits "Generate," watches the pipeline work in real-time, and sees the report take shape.
