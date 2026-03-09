@@ -53,6 +53,12 @@ export const env = {
   get FRED_API_KEY() {
     return requiredEnv("FRED_API_KEY");
   },
+  get REALESTATEAPI_KEY() {
+    return requiredEnv("REALESTATEAPI_KEY");
+  },
+  get SCRAPINGDOG_API_KEY() {
+    return requiredEnv("SCRAPINGDOG_API_KEY");
+  },
 
   // --- Storage ---
   get S3_BUCKET() {
@@ -88,6 +94,8 @@ export function validateEnv(): void {
     "CLERK_SECRET_KEY",
     "ANTHROPIC_API_KEY",
     "FRED_API_KEY",
+    "REALESTATEAPI_KEY",
+    "SCRAPINGDOG_API_KEY",
   ];
 
   const missing = required.filter((name) => !process.env[name]);

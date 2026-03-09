@@ -77,7 +77,7 @@ The example Naples Intelligence Report is stored at `.specs/reference/naples-int
 | Auth | NextAuth.js or Clerk |
 | PDF Generation | React-PDF / Puppeteer for high-fidelity output |
 | AI/Agents | Anthropic Claude API (data analysis, insight generation, narrative writing, polishing) |
-| Data APIs | MLS data providers, FRED (Federal Reserve Economic Data), market data aggregators |
+| Data APIs | RealEstateAPI (property search, detail, comps, valuations), FRED (Federal Reserve Economic Data), ScrapingDog (neighborhood intelligence, local amenities) |
 | Caching | Redis or database-backed cache with TTL management |
 | File Storage | S3-compatible (report PDFs, images) |
 | Hosting | Vercel (frontend) + serverless backend |

@@ -27,6 +27,8 @@ describe("Environment Config", () => {
       process.env.CLERK_SECRET_KEY = "sk_test_123";
       process.env.ANTHROPIC_API_KEY = "sk-ant-test-123";
       process.env.FRED_API_KEY = "test-fred-key";
+      process.env.REALESTATEAPI_KEY = "test-reapi-key";
+      process.env.SCRAPINGDOG_API_KEY = "test-scrapingdog-key";
     });
 
     beforeEach(() => {
@@ -83,6 +85,8 @@ describe("Environment Config", () => {
       process.env.CLERK_SECRET_KEY = "sk_test_123";
       process.env.ANTHROPIC_API_KEY = "sk-ant-test-123";
       process.env.FRED_API_KEY = "test-fred-key";
+      process.env.REALESTATEAPI_KEY = "test-reapi-key";
+      process.env.SCRAPINGDOG_API_KEY = "test-scrapingdog-key";
 
       const { validateEnv } = await import("@/lib/config/env");
       expect(() => validateEnv()).not.toThrow();

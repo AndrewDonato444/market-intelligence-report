@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 9 |
+| ✅ Completed | 10 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 27 |
 | ⏸️ Blocked | 0 |
@@ -67,11 +67,12 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 20 | Cache layer — DB-backed with TTL by data type | vision | M | 2 | ⬜ |
+| 20 | Cache layer — DB-backed with TTL by data type | vision | M | 2 | ✅ |
 | 21 | FRED API connector (economic indicators, rate data) | vision | M | 20 | ⬜ |
-| 22 | Market data connector (transaction/MLS data ingestion) | vision | L | 20 | ⬜ |
+| 22 | RealEstateAPI connector (property search, detail, comps, valuations) | vision | L | 20 | ⬜ |
 | 23 | API cost tracking + usage logging | vision | S | 20 | ⬜ |
 | 24 | Data freshness indicators + staleness fallback | vision | S | 20, 21, 22 | ⬜ |
+| 25 | ScrapingDog connector (neighborhood intelligence, local amenities, area context) | vision | M | 20 | ⬜ |
 
 **Goal**: The system can fetch real economic and market data, cache it intelligently, and track costs per API call.
 
@@ -190,7 +191,8 @@
 
 ### Architecture Decisions Needed
 - **PDF engine**: React-PDF vs. Puppeteer — React-PDF is more portable but Puppeteer produces pixel-perfect output. Decision should be made in Phase 6 spec.
-- **MLS data source**: No direct MLS integration in v1 (out of scope per vision). Need to decide: manual CSV upload, or third-party API aggregator? This affects #22 significantly.
+- **MLS data source**: Using RealEstateAPI (realestateapi.com) for property data — provides property search, detail, comps, valuations, MLS data, and sales history for 157M+ properties. No direct MLS integration needed.
+- **Neighborhood intelligence**: Using ScrapingDog (scrapingdog.com) for neighborhood-level data — local amenities, lifestyle signals, area context via Google Local API and web scraping. Feeds Key Drivers and Trending Insights sections.
 - **Redis vs. DB cache**: Vision mentions both. For v1, DB-backed cache (Supabase) is simpler to deploy. Redis can be added later for performance.
 
 ### Phase Dependencies
@@ -201,12 +203,12 @@
 - Phase 8 (billing) only depends on Phase 1 and can be built anytime after foundation
 
 ### Critical Path
-`#1 → #2 → #11 → #22 → #31 → #36 → #51 → #57` — this is the minimum path from empty repo to a generated report PDF. Everything else enriches this spine.
+`#1 → #2 → #11 → #20 → #22 → #31 → #36 → #51 → #57` — this is the minimum path from empty repo to a generated report PDF. Everything else enriches this spine.
 
 ### Parallelization Opportunities
 After Phase 1, multiple workstreams can run in parallel:
 - **Workstream A**: #10, #11, #12, #13 (user & market setup)
-- **Workstream B**: #20, #21, #22, #23, #24 (data infrastructure)
+- **Workstream B**: #20, #21, #22, #23, #24, #25 (data infrastructure)
 - **Workstream C**: #50, #55 (report template engine + data viz components)
 
 After Phase 3 + early Phase 6:
