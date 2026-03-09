@@ -5,6 +5,7 @@ import {
   createReport,
   validateReportConfig,
 } from "@/lib/services/report";
+import { executePipeline } from "@/lib/services/pipeline-executor";
 
 export async function GET() {
   const userId = await getAuthUserId();
@@ -42,6 +43,12 @@ export async function POST(request: Request) {
 
   try {
     const report = await createReport(userId, validation.data!);
+
+    // Fire-and-forget: trigger pipeline execution asynchronously
+    executePipeline(report.id).catch((err) => {
+      console.error(`Pipeline auto-trigger failed for report ${report.id}:`, err);
+    });
+
     return NextResponse.json({ report }, { status: 201 });
   } catch (err) {
     const message =
