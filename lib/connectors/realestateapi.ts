@@ -42,17 +42,162 @@ export interface PropertySearchResult {
 export interface PropertyDetail {
   id: string;
   address: string;
-  owner: { name: string; mailingAddress: string } | null;
-  saleHistory: Array<{ date: string; price: number }>;
-  mortgage: { amount: number; lender: string; date: string } | null;
-  valuation: { estimated: number; low: number; high: number } | null;
-  lotSize: number | null;
-  sqft: number | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  yearBuilt: number | null;
   propertyType: string | null;
   stale: boolean;
+
+  // --- Core property info ---
+  propertyInfo: {
+    address: {
+      address: string;
+      city: string;
+      state: string;
+      zip: string;
+      county: string | null;
+      label: string | null;
+    };
+    latitude: number | null;
+    longitude: number | null;
+    sqft: number | null;
+    bedrooms: number | null;
+    bathrooms: number | null;
+    partialBathrooms: number | null;
+    yearBuilt: number | null;
+    stories: number | null;
+    construction: string | null;
+    pool: boolean;
+    fireplace: boolean;
+    garageType: string | null;
+    garageSquareFeet: number | null;
+    heatingType: string | null;
+    airConditioningType: string | null;
+    lotSquareFeet: number | null;
+    pricePerSquareFoot: number | null;
+    propertyUse: string | null;
+  } | null;
+
+  // --- Root level flags ---
+  flags: {
+    absenteeOwner: boolean;
+    ownerOccupied: boolean;
+    corporateOwned: boolean;
+    investorBuyer: boolean;
+    vacant: boolean;
+    freeClear: boolean;
+    highEquity: boolean;
+    cashBuyer: boolean;
+    cashSale: boolean;
+    mlsActive: boolean;
+    mlsPending: boolean;
+    mlsSold: boolean;
+    preForeclosure: boolean;
+    auction: boolean;
+    floodZone: boolean;
+  };
+
+  // --- Valuation ---
+  estimatedValue: number | null;
+  estimatedEquity: number | null;
+  equityPercent: number | null;
+  lastSaleDate: string | null;
+  lastSalePrice: number | null;
+
+  // --- Owner info ---
+  ownerInfo: {
+    ownerName: string | null;
+    ownerType: string | null;
+    mailingAddress: string | null;
+    ownershipLengthMonths: number | null;
+  } | null;
+
+  // --- Tax info ---
+  taxInfo: {
+    assessedValue: number | null;
+    assessedLandValue: number | null;
+    assessedImprovementValue: number | null;
+    marketValue: number | null;
+    taxAmount: string | null;
+    assessmentYear: number | null;
+  } | null;
+
+  // --- Lot info ---
+  lotInfo: {
+    apn: string | null;
+    lotAcres: number | null;
+    lotSquareFeet: number | null;
+    zoning: string | null;
+    landUse: string | null;
+    legalDescription: string | null;
+    subdivision: string | null;
+  } | null;
+
+  // --- Sale history ---
+  saleHistory: Array<{
+    date: string;
+    price: number;
+    buyerNames: string | null;
+    sellerNames: string | null;
+    documentType: string | null;
+    transactionType: string | null;
+    purchaseMethod: string | null;
+  }>;
+
+  // --- Current mortgages ---
+  currentMortgages: Array<{
+    amount: number;
+    interestRate: number | null;
+    interestRateType: string | null;
+    loanType: string | null;
+    lenderName: string | null;
+    documentDate: string | null;
+    position: string | null;
+  }>;
+
+  // --- MLS history ---
+  mlsHistory: Array<{
+    price: string | null;
+    status: string | null;
+    statusDate: string | null;
+    daysOnMarket: string | null;
+    agentName: string | null;
+    agentOffice: string | null;
+    beds: number | null;
+    baths: number | null;
+  }>;
+
+  // --- Demographics (zip level) ---
+  demographics: {
+    medianIncome: string | null;
+    suggestedRent: string | null;
+    fmrYear: string | null;
+  } | null;
+
+  // --- Schools ---
+  schools: Array<{
+    name: string;
+    type: string | null;
+    grades: string | null;
+    rating: string | null;
+    parentRating: string | null;
+    enrollment: string | null;
+  }>;
+
+  // --- Neighborhood ---
+  neighborhood: {
+    name: string | null;
+    type: string | null;
+  } | null;
+
+  // --- Flood zone ---
+  floodZoneType: string | null;
+  floodZoneDescription: string | null;
+
+  // --- Linked properties (portfolio) ---
+  linkedProperties: {
+    totalOwned: string | null;
+    totalValue: string | null;
+    totalEquity: string | null;
+    ids: string[];
+  } | null;
 }
 
 export interface CompProperty {
@@ -253,41 +398,295 @@ export async function searchProperties(
 
 // --- Property Detail ---
 
+// Raw response matches REAPI Property Detail structure
+// See .specs/learnings/reapi-property-detail-schema.md for full reference
 interface RawDetailResponse {
   status: number;
   data: {
-    id: string;
-    address: { full: string };
-    owner: { name: string; mailingAddress: string } | null;
-    summary: {
-      proptype: string | null;
-      yearbuilt: number | null;
-      sqft: number | null;
-      beds: number | null;
-      baths: number | null;
-      lotsize: number | null;
+    id: string | number;
+    propertyType: string | null;
+    // Root level flags
+    absenteeOwner?: boolean;
+    ownerOccupied?: boolean;
+    corporateOwned?: boolean;
+    investorBuyer?: boolean;
+    vacant?: boolean;
+    freeClear?: boolean;
+    highEquity?: boolean;
+    cashBuyer?: boolean;
+    cashSale?: boolean;
+    mlsActive?: boolean;
+    mlsPending?: boolean;
+    mlsSold?: boolean;
+    preForeclosure?: boolean;
+    auction?: boolean;
+    floodZone?: boolean;
+    floodZoneType?: string | null;
+    floodZoneDescription?: string | null;
+    // Root level values
+    estimatedValue?: number | null;
+    estimatedEquity?: number | null;
+    equityPercent?: number | null;
+    lastSaleDate?: string | null;
+    lastSalePrice?: string | number | null;
+    // Nested objects
+    propertyInfo?: {
+      address?: {
+        address?: string;
+        city?: string;
+        state?: string;
+        zip?: string;
+        county?: string;
+        label?: string;
+      };
+      latitude?: number;
+      longitude?: number;
+      livingSquareFeet?: number;
+      buildingSquareFeet?: number;
+      bedrooms?: number;
+      bathrooms?: number;
+      partialBathrooms?: number;
+      yearBuilt?: number;
+      stories?: number;
+      construction?: string;
+      pool?: boolean;
+      fireplace?: boolean;
+      garageType?: string;
+      garageSquareFeet?: number;
+      heatingType?: string;
+      airConditioningType?: string;
+      lotSquareFeet?: number;
+      pricePerSquareFoot?: number;
+      propertyUse?: string;
     };
-    sale: Array<{ saledate: string; saleprice: number }> | null;
-    mortgage: { amount: number; lender: string; date: string } | null;
-    valuation: { estimated: number; low: number; high: number } | null;
+    ownerInfo?: {
+      owner1FullName?: string;
+      owner1Type?: string;
+      mailAddress?: { label?: string };
+      ownershipLength?: number;
+    };
+    taxInfo?: {
+      assessedValue?: number;
+      assessedLandValue?: number;
+      assessedImprovementValue?: string | number;
+      marketValue?: number;
+      taxAmount?: string;
+      assessmentYear?: number;
+      year?: number;
+    };
+    lotInfo?: {
+      apn?: string;
+      lotAcres?: number;
+      lotSquareFeet?: number;
+      zoning?: string;
+      landUse?: string;
+      legalDescription?: string;
+      subdivision?: string;
+    };
+    saleHistory?: Array<{
+      saleDate?: string;
+      saleAmount?: number;
+      buyerNames?: string;
+      sellerNames?: string;
+      documentType?: string;
+      transactionType?: string;
+      purchaseMethod?: string;
+    }>;
+    currentMortgages?: Array<{
+      amount?: number;
+      interestRate?: number;
+      interestRateType?: string;
+      loanType?: string;
+      lenderName?: string;
+      documentDate?: string;
+      position?: string;
+    }>;
+    mlsHistory?: Array<{
+      price?: string;
+      status?: string;
+      statusDate?: string;
+      daysOnMarket?: string;
+      agentName?: string;
+      agentOffice?: string;
+      beds?: number;
+      baths?: number;
+    }>;
+    demographics?: {
+      medianIncome?: string;
+      suggestedRent?: string;
+      fmrYear?: string;
+    };
+    schools?: Array<{
+      name: string;
+      type?: string;
+      grades?: string;
+      rating?: string;
+      parentRating?: string;
+      enrollment?: string;
+    }>;
+    neighborhood?: {
+      name?: string;
+      type?: string;
+    };
+    linkedProperties?: {
+      totalOwned?: string;
+      totalValue?: string;
+      totalEquity?: string;
+      ids?: string[];
+    };
   };
 }
 
 function parseDetail(raw: RawDetailResponse): Omit<PropertyDetail, "stale"> {
   const d = raw.data;
+  const pi = d.propertyInfo;
+  const addr = pi?.address;
+
   return {
-    id: d.id,
-    address: d.address?.full || "",
-    owner: d.owner || null,
-    saleHistory: (d.sale || []).map((s) => ({ date: s.saledate, price: s.saleprice })),
-    mortgage: d.mortgage || null,
-    valuation: d.valuation || null,
-    lotSize: d.summary?.lotsize ?? null,
-    sqft: d.summary?.sqft ?? null,
-    bedrooms: d.summary?.beds ?? null,
-    bathrooms: d.summary?.baths ?? null,
-    yearBuilt: d.summary?.yearbuilt ?? null,
-    propertyType: d.summary?.proptype ?? null,
+    id: String(d.id),
+    address: addr?.label || addr?.address || "",
+    propertyType: d.propertyType ?? null,
+
+    propertyInfo: pi ? {
+      address: {
+        address: addr?.address || "",
+        city: addr?.city || "",
+        state: addr?.state || "",
+        zip: addr?.zip || "",
+        county: addr?.county ?? null,
+        label: addr?.label ?? null,
+      },
+      latitude: pi.latitude ?? null,
+      longitude: pi.longitude ?? null,
+      sqft: pi.livingSquareFeet ?? pi.buildingSquareFeet ?? null,
+      bedrooms: pi.bedrooms ?? null,
+      bathrooms: pi.bathrooms ?? null,
+      partialBathrooms: pi.partialBathrooms ?? null,
+      yearBuilt: pi.yearBuilt ?? null,
+      stories: pi.stories ?? null,
+      construction: pi.construction ?? null,
+      pool: pi.pool ?? false,
+      fireplace: pi.fireplace ?? false,
+      garageType: pi.garageType ?? null,
+      garageSquareFeet: pi.garageSquareFeet ?? null,
+      heatingType: pi.heatingType ?? null,
+      airConditioningType: pi.airConditioningType ?? null,
+      lotSquareFeet: pi.lotSquareFeet ?? null,
+      pricePerSquareFoot: pi.pricePerSquareFoot ?? null,
+      propertyUse: pi.propertyUse ?? null,
+    } : null,
+
+    flags: {
+      absenteeOwner: d.absenteeOwner ?? false,
+      ownerOccupied: d.ownerOccupied ?? false,
+      corporateOwned: d.corporateOwned ?? false,
+      investorBuyer: d.investorBuyer ?? false,
+      vacant: d.vacant ?? false,
+      freeClear: d.freeClear ?? false,
+      highEquity: d.highEquity ?? false,
+      cashBuyer: d.cashBuyer ?? false,
+      cashSale: d.cashSale ?? false,
+      mlsActive: d.mlsActive ?? false,
+      mlsPending: d.mlsPending ?? false,
+      mlsSold: d.mlsSold ?? false,
+      preForeclosure: d.preForeclosure ?? false,
+      auction: d.auction ?? false,
+      floodZone: d.floodZone ?? false,
+    },
+
+    estimatedValue: d.estimatedValue ?? null,
+    estimatedEquity: d.estimatedEquity ?? null,
+    equityPercent: d.equityPercent ?? null,
+    lastSaleDate: d.lastSaleDate ?? null,
+    lastSalePrice: d.lastSalePrice != null ? Number(d.lastSalePrice) : null,
+
+    ownerInfo: d.ownerInfo ? {
+      ownerName: d.ownerInfo.owner1FullName ?? null,
+      ownerType: d.ownerInfo.owner1Type ?? null,
+      mailingAddress: d.ownerInfo.mailAddress?.label ?? null,
+      ownershipLengthMonths: d.ownerInfo.ownershipLength ?? null,
+    } : null,
+
+    taxInfo: d.taxInfo ? {
+      assessedValue: d.taxInfo.assessedValue ?? null,
+      assessedLandValue: d.taxInfo.assessedLandValue ?? null,
+      assessedImprovementValue: d.taxInfo.assessedImprovementValue != null
+        ? Number(d.taxInfo.assessedImprovementValue) : null,
+      marketValue: d.taxInfo.marketValue ?? null,
+      taxAmount: d.taxInfo.taxAmount ?? null,
+      assessmentYear: d.taxInfo.year ?? d.taxInfo.assessmentYear ?? null,
+    } : null,
+
+    lotInfo: d.lotInfo ? {
+      apn: d.lotInfo.apn ?? null,
+      lotAcres: d.lotInfo.lotAcres ?? null,
+      lotSquareFeet: d.lotInfo.lotSquareFeet ?? null,
+      zoning: d.lotInfo.zoning ?? null,
+      landUse: d.lotInfo.landUse ?? null,
+      legalDescription: d.lotInfo.legalDescription ?? null,
+      subdivision: d.lotInfo.subdivision ?? null,
+    } : null,
+
+    saleHistory: (d.saleHistory || []).map((s) => ({
+      date: s.saleDate || "",
+      price: s.saleAmount ?? 0,
+      buyerNames: s.buyerNames ?? null,
+      sellerNames: s.sellerNames ?? null,
+      documentType: s.documentType ?? null,
+      transactionType: s.transactionType ?? null,
+      purchaseMethod: s.purchaseMethod ?? null,
+    })),
+
+    currentMortgages: (d.currentMortgages || []).map((m) => ({
+      amount: m.amount ?? 0,
+      interestRate: m.interestRate ?? null,
+      interestRateType: m.interestRateType ?? null,
+      loanType: m.loanType ?? null,
+      lenderName: m.lenderName ?? null,
+      documentDate: m.documentDate ?? null,
+      position: m.position ?? null,
+    })),
+
+    mlsHistory: (d.mlsHistory || []).map((mls) => ({
+      price: mls.price ?? null,
+      status: mls.status ?? null,
+      statusDate: mls.statusDate ?? null,
+      daysOnMarket: mls.daysOnMarket ?? null,
+      agentName: mls.agentName ?? null,
+      agentOffice: mls.agentOffice ?? null,
+      beds: mls.beds ?? null,
+      baths: mls.baths ?? null,
+    })),
+
+    demographics: d.demographics ? {
+      medianIncome: d.demographics.medianIncome ?? null,
+      suggestedRent: d.demographics.suggestedRent ?? null,
+      fmrYear: d.demographics.fmrYear ?? null,
+    } : null,
+
+    schools: (d.schools || []).map((s) => ({
+      name: s.name,
+      type: s.type ?? null,
+      grades: s.grades ?? null,
+      rating: s.rating ?? null,
+      parentRating: s.parentRating ?? null,
+      enrollment: s.enrollment ?? null,
+    })),
+
+    neighborhood: d.neighborhood ? {
+      name: d.neighborhood.name ?? null,
+      type: d.neighborhood.type ?? null,
+    } : null,
+
+    floodZoneType: d.floodZoneType ?? null,
+    floodZoneDescription: d.floodZoneDescription ?? null,
+
+    linkedProperties: d.linkedProperties ? {
+      totalOwned: d.linkedProperties.totalOwned ?? null,
+      totalValue: d.linkedProperties.totalValue ?? null,
+      totalEquity: d.linkedProperties.totalEquity ?? null,
+      ids: d.linkedProperties.ids ?? [],
+    } : null,
   };
 }
 

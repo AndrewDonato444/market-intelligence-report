@@ -199,16 +199,107 @@ describe("RealEstateAPI Connector", () => {
     const mockDetailResponse = {
       status: 200,
       data: {
-        id: "prop-1",
-        address: { full: "123 Ocean Blvd", city: "Naples", state: "FL", zip: "34102" },
-        owner: { name: "John Smith", mailingAddress: "123 Ocean Blvd, Naples FL 34102" },
-        summary: { proptype: "SFR", yearbuilt: 2020, sqft: 5200, beds: 5, baths: 4, lotsize: 12000 },
-        sale: [
-          { saledate: "2025-12-15", saleprice: 8500000 },
-          { saledate: "2020-06-01", saleprice: 5200000 },
+        id: 8195564,
+        propertyType: "SFR",
+        absenteeOwner: false,
+        ownerOccupied: true,
+        corporateOwned: false,
+        freeClear: true,
+        highEquity: true,
+        cashBuyer: true,
+        mlsActive: false,
+        floodZone: true,
+        floodZoneType: "X",
+        floodZoneDescription: "AREA OF MINIMAL FLOOD HAZARD",
+        estimatedValue: 8800000,
+        estimatedEquity: 8800000,
+        equityPercent: 100,
+        lastSaleDate: "2025-12-15",
+        lastSalePrice: "8500000",
+        propertyInfo: {
+          address: {
+            address: "123 Ocean Blvd",
+            city: "Naples",
+            state: "FL",
+            zip: "34102",
+            county: "Collier",
+            label: "123 Ocean Blvd, Naples, FL 34102",
+          },
+          latitude: 26.142,
+          longitude: -81.795,
+          livingSquareFeet: 5200,
+          bedrooms: 5,
+          bathrooms: 4,
+          yearBuilt: 2020,
+          stories: 2,
+          construction: "Concrete Block",
+          pool: true,
+          fireplace: true,
+          garageType: "Garage, Attached",
+          garageSquareFeet: 800,
+          lotSquareFeet: 12000,
+          pricePerSquareFoot: 1635,
+          propertyUse: "Single Family Residence",
+        },
+        ownerInfo: {
+          owner1FullName: "John Smith",
+          owner1Type: "Individual",
+          mailAddress: { label: "123 Ocean Blvd, Naples FL 34102" },
+          ownershipLength: 3,
+        },
+        taxInfo: {
+          assessedValue: 7500000,
+          assessedLandValue: 3000000,
+          assessedImprovementValue: "4500000",
+          marketValue: 8500000,
+          taxAmount: "85000.00",
+          year: 2025,
+        },
+        lotInfo: {
+          apn: "12345678",
+          lotAcres: 0.28,
+          lotSquareFeet: 12000,
+          zoning: "RSF-4",
+          landUse: "Residential",
+        },
+        saleHistory: [
+          {
+            saleDate: "2025-12-15",
+            saleAmount: 8500000,
+            buyerNames: "John Smith",
+            sellerNames: "Jane Doe",
+            documentType: "Warranty Deed",
+            transactionType: "Resale",
+            purchaseMethod: "Mortgage Purchase",
+          },
+          {
+            saleDate: "2020-06-01",
+            saleAmount: 5200000,
+            buyerNames: "Jane Doe",
+            sellerNames: "Builder Corp",
+            documentType: "Warranty Deed",
+            transactionType: "Resale",
+          },
         ],
-        mortgage: { amount: 4000000, lender: "First National", date: "2025-12-15" },
-        valuation: { estimated: 8800000, low: 8200000, high: 9400000 },
+        currentMortgages: [
+          {
+            amount: 4000000,
+            interestRate: 6.5,
+            interestRateType: "Fixed Rate",
+            lenderName: "First National",
+            documentDate: "2025-12-15",
+            position: "First",
+          },
+        ],
+        demographics: {
+          medianIncome: "125000",
+          suggestedRent: "5200",
+          fmrYear: "2025",
+        },
+        schools: [
+          { name: "Naples Academy", type: "Public", grades: "K-5", rating: "9" },
+        ],
+        neighborhood: { name: "Port Royal", type: "subdivision" },
       },
     };
 
@@ -219,25 +310,67 @@ describe("RealEstateAPI Connector", () => {
         json: () => Promise.resolve(mockDetailResponse),
       });
 
-      const result = await getPropertyDetail("prop-1");
+      const result = await getPropertyDetail("8195564");
 
-      expect(result.id).toBe("prop-1");
-      expect(result.address).toBe("123 Ocean Blvd");
+      expect(result.id).toBe("8195564");
+      expect(result.address).toBe("123 Ocean Blvd, Naples, FL 34102");
+      expect(result.propertyType).toBe("SFR");
       expect(result.saleHistory).toHaveLength(2);
-      expect(result.valuation?.estimated).toBe(8800000);
+      expect(result.saleHistory[0].price).toBe(8500000);
+      expect(result.saleHistory[0].buyerNames).toBe("John Smith");
+      expect(result.estimatedValue).toBe(8800000);
+      expect(result.flags.freeClear).toBe(true);
+      expect(result.flags.ownerOccupied).toBe(true);
+      expect(result.propertyInfo?.pool).toBe(true);
+      expect(result.propertyInfo?.sqft).toBe(5200);
+      expect(result.ownerInfo?.ownerName).toBe("John Smith");
+      expect(result.taxInfo?.taxAmount).toBe("85000.00");
+      expect(result.currentMortgages).toHaveLength(1);
+      expect(result.currentMortgages[0].lenderName).toBe("First National");
+      expect(result.mlsHistory).toHaveLength(0);
+      expect(result.demographics?.medianIncome).toBe("125000");
+      expect(result.schools).toHaveLength(1);
+      expect(result.neighborhood?.name).toBe("Port Royal");
+      expect(result.floodZoneType).toBe("X");
       expect(result.stale).toBe(false);
     });
 
     it("checks cache before calling API", async () => {
       mockCacheGet.mockResolvedValue({
-        id: "prop-1",
+        id: "8195564",
         address: "123 Ocean Blvd",
         saleHistory: [],
       });
 
-      const result = await getPropertyDetail("prop-1");
+      const result = await getPropertyDetail("8195564");
       expect(mockFetch).not.toHaveBeenCalled();
-      expect(result.id).toBe("prop-1");
+      expect(result.id).toBe("8195564");
+    });
+
+    it("handles minimal response with missing optional objects", async () => {
+      mockCacheGet.mockResolvedValue(null);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve({
+          status: 200,
+          data: {
+            id: 123,
+            propertyType: "SFR",
+            estimatedValue: 500000,
+          },
+        }),
+      });
+
+      const result = await getPropertyDetail("123");
+
+      expect(result.id).toBe("123");
+      expect(result.propertyInfo).toBeNull();
+      expect(result.ownerInfo).toBeNull();
+      expect(result.taxInfo).toBeNull();
+      expect(result.saleHistory).toHaveLength(0);
+      expect(result.currentMortgages).toHaveLength(0);
+      expect(result.flags.freeClear).toBe(false);
+      expect(result.estimatedValue).toBe(500000);
     });
   });
 
