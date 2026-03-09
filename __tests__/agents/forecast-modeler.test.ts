@@ -215,7 +215,7 @@ describe("Forecast Modeler Agent", () => {
       );
 
       expect(forecastModelerAgent.name).toBe("forecast-modeler");
-      expect(forecastModelerAgent.dependencies).toEqual(["data-analyst"]);
+      expect(forecastModelerAgent.dependencies).toEqual([]);
       expect(typeof forecastModelerAgent.execute).toBe("function");
       expect(forecastModelerAgent.description).toBeTruthy();
     });
@@ -510,13 +510,14 @@ describe("Forecast Modeler Agent", () => {
   });
 
   describe("Pipeline conformance", () => {
-    it("throws if data-analyst results are missing", async () => {
+    it("throws if neither computedAnalytics nor data-analyst results are available", async () => {
       const { executeForecastModeler } = await import(
         "@/lib/agents/forecast-modeler"
       );
 
       const context = buildContext(buildDataAnalystOutput());
       context.upstreamResults = {};
+      context.computedAnalytics = undefined;
 
       await expect(executeForecastModeler(context)).rejects.toThrow(
         /data-analyst/i

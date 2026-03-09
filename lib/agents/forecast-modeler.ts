@@ -2,10 +2,10 @@
  * Forecast Modeler Agent
  *
  * Produces forward-looking projections, confidence ratings, and
- * base/bull/bear case scenarios. Combines Data Analyst metrics
+ * base/bull/bear case scenarios. Combines pre-computed analytics
  * with Claude's analytical capabilities for calibrated forecasts.
  *
- * Runs in parallel with Insight Generator and Competitive Analyst.
+ * No dependencies in v2 — all data via context.computedAnalytics.
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -191,15 +191,31 @@ export async function executeForecastModeler(
     throw error;
   }
 
-  // Read upstream data analyst output
-  const dataAnalystResult = context.upstreamResults["data-analyst"];
-  if (!dataAnalystResult) {
-    throw new Error(
-      "Forecast Modeler requires data-analyst upstream results"
-    );
+  // Read analytics: prefer v2 computedAnalytics, fall back to v1 upstream
+  const analytics = context.computedAnalytics;
+  let analysis: DataAnalystOutput;
+
+  if (analytics) {
+    analysis = {
+      market: analytics.market,
+      segments: analytics.segments,
+      yoy: analytics.yoy,
+      confidence: {
+        level: analytics.confidence.level,
+        staleDataSources: analytics.confidence.staleDataSources,
+        sampleSize: analytics.confidence.sampleSize,
+      },
+    };
+  } else {
+    const dataAnalystResult = context.upstreamResults["data-analyst"];
+    if (!dataAnalystResult) {
+      throw new Error(
+        "Forecast Modeler requires computedAnalytics or data-analyst upstream results"
+      );
+    }
+    analysis = dataAnalystResult.metadata.analysis as DataAnalystOutput;
   }
 
-  const analysis = dataAnalystResult.metadata.analysis as DataAnalystOutput;
   const lowConfidence =
     analysis.confidence.level === "low" ||
     analysis.yoy.medianPriceChange == null;
@@ -273,8 +289,11 @@ export async function executeForecastModeler(
     agentName: "forecast-modeler",
     sections,
     metadata: {
-      forecast,
+      forecastOutput: forecast,
       lowConfidence,
+      // Keys for report-assembler (Layer 3)
+      forecast: forecast.outlook.narrative,
+      guidance: forecast.timing,
     },
     durationMs: Date.now() - start,
   };
@@ -286,6 +305,6 @@ export const forecastModelerAgent: AgentDefinition = {
   name: "forecast-modeler",
   description:
     "Produces forward-looking projections, confidence ratings, and base/bull/bear scenarios via Claude",
-  dependencies: ["data-analyst"],
+  dependencies: [], // v2: no dependencies, all data via computedAnalytics
   execute: executeForecastModeler,
 };

@@ -211,7 +211,7 @@ describe("Insight Generator Agent", () => {
       );
 
       expect(insightGeneratorAgent.name).toBe("insight-generator");
-      expect(insightGeneratorAgent.dependencies).toEqual(["data-analyst"]);
+      expect(insightGeneratorAgent.dependencies).toEqual([]);
       expect(typeof insightGeneratorAgent.execute).toBe("function");
       expect(insightGeneratorAgent.description).toBeTruthy();
     });
@@ -556,13 +556,14 @@ describe("Insight Generator Agent", () => {
       expect(result.sections.length).toBeGreaterThan(0);
     });
 
-    it("throws if data-analyst results are missing", async () => {
+    it("throws if neither computedAnalytics nor data-analyst results are available", async () => {
       const { executeInsightGenerator } = await import(
         "@/lib/agents/insight-generator"
       );
 
       const context = buildContext(buildDataAnalystOutput());
       context.upstreamResults = {}; // No upstream data
+      context.computedAnalytics = undefined; // No computed analytics
 
       await expect(executeInsightGenerator(context)).rejects.toThrow(
         /data-analyst/i

@@ -1,12 +1,13 @@
 /**
  * Polish Agent
  *
- * Final stage in the AI pipeline. Receives all upstream narratives
+ * Final stage in the AI pipeline. Receives upstream narratives
  * and performs an editorial pass: consistency check, tone alignment,
  * pull quote extraction, and methodology generation.
  *
- * Dependencies: data-analyst, insight-generator (required)
- * Optional: competitive-analyst, forecast-modeler (used if available)
+ * Dependencies: insight-generator (required for narratives)
+ * Optional: forecast-modeler (used if available)
+ * Data: context.computedAnalytics (v2) or upstream data-analyst (v1 fallback)
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -139,16 +140,32 @@ export async function executePolishAgent(
     );
   }
 
-  // Read data analyst for confidence metadata
-  const dataAnalystResult = context.upstreamResults["data-analyst"];
-  const analysis = dataAnalystResult?.metadata
-    ?.analysis as DataAnalystOutput | undefined;
+  // Read confidence metadata: prefer v2 computedAnalytics, fall back to v1
+  const analytics = context.computedAnalytics;
+  let analysis: DataAnalystOutput | undefined;
 
   const defaultConfidence = {
     level: "medium" as const,
     staleDataSources: [] as string[],
     sampleSize: 0,
   };
+
+  if (analytics) {
+    analysis = {
+      market: analytics.market,
+      segments: analytics.segments,
+      yoy: analytics.yoy,
+      confidence: {
+        level: analytics.confidence.level,
+        staleDataSources: analytics.confidence.staleDataSources,
+        sampleSize: analytics.confidence.sampleSize,
+      },
+    };
+  } else {
+    const dataAnalystResult = context.upstreamResults["data-analyst"];
+    analysis = dataAnalystResult?.metadata?.analysis as DataAnalystOutput | undefined;
+  }
+
   const confidence = analysis?.confidence ?? defaultConfidence;
 
   // Collect all upstream sections
@@ -158,7 +175,7 @@ export async function executePolishAgent(
   // Always include insight-generator sections
   upstreamSections.push(...insightResult.sections);
 
-  // Optional: competitive-analyst
+  // Optional: competitive-analyst (v1 only, removed in v2)
   const competitiveResult = context.upstreamResults["competitive-analyst"];
   if (competitiveResult) {
     upstreamSections.push(...competitiveResult.sections);
@@ -264,6 +281,11 @@ export async function executePolishAgent(
     metadata: {
       polishOutput,
       missingSections: missingSections.length > 0 ? missingSections : undefined,
+      // Keys for report-assembler (Layer 3)
+      strategicBrief: polishOutput.polishedSections
+        .map((s) => s.revisedNarrative)
+        .join("\n\n"),
+      methodology: polishOutput.methodology.narrative,
     },
     durationMs: Date.now() - start,
   };
@@ -275,6 +297,6 @@ export const polishAgent: AgentDefinition = {
   name: "polish-agent",
   description:
     "Final editorial pass — consistency, tone, pull quotes, methodology, and quality check via Claude",
-  dependencies: ["data-analyst", "insight-generator"],
+  dependencies: ["insight-generator"], // v2: data via computedAnalytics, only needs insight narratives
   execute: executePolishAgent,
 };

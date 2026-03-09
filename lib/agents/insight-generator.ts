@@ -1,11 +1,11 @@
 /**
  * Insight Generator Agent
  *
- * Second stage in the pipeline. Receives structured analysis from the
- * Data Analyst (metrics, segments, YoY, ratings) and transforms them
- * into strategic narratives via Claude.
+ * Receives pre-computed analytics (v2: ComputedAnalytics, v1 fallback:
+ * DataAnalystOutput) and transforms them into strategic narratives via Claude.
  *
- * Produces: market_overview narrative, key_drivers (themes), executive_summary
+ * Produces: executive briefing, editorial themes, neighborhood analysis
+ * No dependencies in v2 — all data comes via context.computedAnalytics.
  */
 
 import Anthropic from "@anthropic-ai/sdk";
@@ -16,6 +16,7 @@ import type {
   SectionOutput,
 } from "@/lib/agents/orchestrator";
 import type { DataAnalystOutput } from "@/lib/agents/data-analyst";
+import type { ComputedAnalytics } from "@/lib/services/market-analytics";
 import { env } from "@/lib/config/env";
 
 // --- Output types ---
@@ -166,17 +167,36 @@ export async function executeInsightGenerator(
     throw error;
   }
 
-  // Read upstream data analyst output
-  const dataAnalystResult = context.upstreamResults["data-analyst"];
-  if (!dataAnalystResult) {
-    throw new Error(
-      "Insight Generator requires data-analyst upstream results"
-    );
-  }
+  // Read analytics: prefer v2 computedAnalytics, fall back to v1 upstream
+  const analytics = context.computedAnalytics;
+  let analysis: DataAnalystOutput;
+  let insufficientData: boolean;
 
-  const analysis = dataAnalystResult.metadata.analysis as DataAnalystOutput;
-  const insufficientData =
-    dataAnalystResult.metadata.insufficientData === true;
+  if (analytics) {
+    // v2 path: convert ComputedAnalytics to DataAnalystOutput shape
+    analysis = {
+      market: analytics.market,
+      segments: analytics.segments,
+      yoy: analytics.yoy,
+      confidence: {
+        level: analytics.confidence.level,
+        staleDataSources: analytics.confidence.staleDataSources,
+        sampleSize: analytics.confidence.sampleSize,
+      },
+    };
+    insufficientData =
+      analytics.confidence.level === "low" || analytics.market.totalProperties === 0;
+  } else {
+    // v1 fallback: read from upstream data-analyst
+    const dataAnalystResult = context.upstreamResults["data-analyst"];
+    if (!dataAnalystResult) {
+      throw new Error(
+        "Insight Generator requires computedAnalytics or data-analyst upstream results"
+      );
+    }
+    analysis = dataAnalystResult.metadata.analysis as DataAnalystOutput;
+    insufficientData = dataAnalystResult.metadata.insufficientData === true;
+  }
 
   // Build prompts
   const systemPrompt = buildSystemPrompt();
@@ -252,6 +272,11 @@ export async function executeInsightGenerator(
     metadata: {
       insights,
       lowConfidence: insufficientData || analysis.confidence.level === "low",
+      // Keys for report-assembler (Layer 3)
+      executiveBriefing: insights.overview.narrative,
+      neighborhoodAnalysis: insights.executiveSummary.narrative,
+      editorial: insights.overview.narrative,
+      themes: insights.themes.map((t) => t.name),
     },
     durationMs: Date.now() - start,
   };
@@ -263,6 +288,6 @@ export const insightGeneratorAgent: AgentDefinition = {
   name: "insight-generator",
   description:
     "Transforms structured market analysis into strategic narratives, key themes, and executive summary via Claude",
-  dependencies: ["data-analyst"],
+  dependencies: [], // v2: no dependencies, all data via computedAnalytics
   execute: executeInsightGenerator,
 };

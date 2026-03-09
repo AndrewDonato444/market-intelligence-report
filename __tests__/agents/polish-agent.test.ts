@@ -244,10 +244,7 @@ describe("Polish Agent", () => {
       const { polishAgent } = await import("@/lib/agents/polish-agent");
 
       expect(polishAgent.name).toBe("polish-agent");
-      expect(polishAgent.dependencies).toEqual([
-        "data-analyst",
-        "insight-generator",
-      ]);
+      expect(polishAgent.dependencies).toEqual(["insight-generator"]);
       expect(typeof polishAgent.execute).toBe("function");
       expect(polishAgent.description).toBeTruthy();
     });
