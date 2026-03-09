@@ -103,7 +103,7 @@
 |---|---------|--------|------------|------|--------|
 | 40 | Report builder wizard — market params, section selection, customization | vision | L | 4, 11, 13 | ✅ |
 | 41 | Pipeline status dashboard — real-time agent progress, stage tracking | vision | M | 30, 40 | ✅ |
-| 42 | Report preview — live assembly as sections complete | vision | M | 41, 36 | ⬜ |
+| 42 | Report preview — live assembly as sections complete | vision | M | 41, 36 | 🔄 |
 
 **Goal**: An agent walks through a polished wizard, hits "Generate," watches the pipeline work in real-time, and sees the report take shape.
 
