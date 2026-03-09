@@ -18,7 +18,15 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 
 | Domain | Feature | Source | Tests | Components | Status |
 |--------|---------|--------|-------|------------|--------|
-| foundation | [Authentication with Clerk](.specs/features/foundation/authentication.feature.md) | `middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
+| agent-pipeline | [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md) | `lib/agents/orchestrator.ts` | see spec | see spec | implemented |
+| agent-pipeline | [Data Analyst Agent](.specs/features/agent-pipeline/data-analyst-agent.feature.md) | `lib/agents/data-analyst.ts` | see spec | see spec | implemented |
+| agent-pipeline | [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md) | `lib/agents/insight-generator.ts` | see spec | see spec | specced |
+| data-infrastructure | [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md) | `app/api/usage/route.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
+| data-infrastructure | [Cache Layer — DB-backed with TTL by Data Type](.specs/features/data-infrastructure/cache-layer.feature.md) | `lib/services/cache.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
+| data-infrastructure | [Data Freshness Indicators + Staleness Fallback](.specs/features/data-infrastructure/data-freshness.feature.md) | `lib/services/data-freshness.ts` | see spec | see spec | implemented |
+| data-infrastructure | [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md) | `lib/connectors/realestateapi.ts` | see spec | see spec | implemented |
+| data-infrastructure | [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md) | `lib/connectors/scrapingdog.ts` | see spec | see spec | implemented |
+| foundation | [Authentication with Supabase](.specs/features/foundation/authentication.feature.md) | `middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
 | foundation | [Base App Layout](.specs/features/foundation/base-layout.feature.md) | `components/layout/top-nav.tsx, components/layout/sidebar.tsx, components/layout/page-shell.tsx, app/(protected)/layout.tsx` | see spec | see spec | implemented |
 | foundation | [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md) | `lib/db/schema.ts, lib/db/index.ts, lib/db/migrations/` | see spec | see spec | implemented |
 | foundation | [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md) | `lib/config/env.ts, .env.local.example` | see spec | see spec | implemented |
@@ -35,10 +43,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 0 |
+| specced | 1 |
 | tested | 0 |
-| implemented | 9 |
-| **Total** | **9** |
+| implemented | 16 |
+| **Total** | **17** |
 
 ---
 
@@ -50,7 +58,7 @@ _None_
 
 ### Specced
 
-_None_
+- [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md)
 
 ### Tested
 
@@ -58,7 +66,14 @@ _None_
 
 ### Implemented
 
-- [Authentication with Clerk](.specs/features/foundation/authentication.feature.md)
+- [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md)
+- [Data Analyst Agent](.specs/features/agent-pipeline/data-analyst-agent.feature.md)
+- [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md)
+- [Cache Layer — DB-backed with TTL by Data Type](.specs/features/data-infrastructure/cache-layer.feature.md)
+- [Data Freshness Indicators + Staleness Fallback](.specs/features/data-infrastructure/data-freshness.feature.md)
+- [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md)
+- [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md)
+- [Authentication with Supabase](.specs/features/foundation/authentication.feature.md)
 - [Base App Layout](.specs/features/foundation/base-layout.feature.md)
 - [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md)
 - [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md)
