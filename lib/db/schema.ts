@@ -133,6 +133,10 @@ export const reports = pgTable(
       withTimezone: true,
     }),
     errorMessage: text("error_message"),
+    shareToken: varchar("share_token", { length: 64 }).unique(),
+    shareTokenExpiresAt: timestamp("share_token_expires_at", {
+      withTimezone: true,
+    }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -144,6 +148,7 @@ export const reports = pgTable(
     index("reports_user_id_idx").on(table.userId),
     index("reports_market_id_idx").on(table.marketId),
     index("reports_status_idx").on(table.status),
+    index("reports_share_token_idx").on(table.shareToken),
   ]
 );
 

@@ -79,6 +79,8 @@ export async function getReportWithMarket(authId: string, reportId: string) {
       generationStartedAt: schema.reports.generationStartedAt,
       generationCompletedAt: schema.reports.generationCompletedAt,
       errorMessage: schema.reports.errorMessage,
+      shareToken: schema.reports.shareToken,
+      shareTokenExpiresAt: schema.reports.shareTokenExpiresAt,
     })
     .from(schema.reports)
     .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
