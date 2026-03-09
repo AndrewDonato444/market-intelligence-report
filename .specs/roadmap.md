@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 3 |
+| ✅ Completed | 4 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 33 |
+| ⬜ Pending | 32 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -39,7 +39,7 @@
 | 1 | Next.js project scaffold + Tailwind + design tokens | vision | M | - | ✅ |
 | 2 | Database schema + Supabase setup | vision | M | 1 | ✅ |
 | 3 | Authentication with Clerk | vision | M | 1 | ✅ |
-| 4 | Base app layout — nav, sidebar, page shell | vision | M | 1 | ⬜ |
+| 4 | Base app layout — nav, sidebar, page shell | vision | M | 1 | ✅ |
 | 5 | Environment config + API key management | vision | S | 1 | ⬜ |
 
 **Goal**: A deployed app skeleton where an authenticated user lands on a dashboard shell.
