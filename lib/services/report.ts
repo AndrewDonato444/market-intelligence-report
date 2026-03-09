@@ -1,0 +1,110 @@
+/**
+ * Report service — CRUD operations for reports.
+ */
+
+import { db, schema } from "@/lib/db";
+import { eq, and, desc } from "drizzle-orm";
+
+export {
+  validateReportConfig,
+  REPORT_SECTIONS,
+  REQUIRED_SECTIONS,
+} from "./report-validation";
+
+export async function getReports(authId: string) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.authId, authId))
+    .limit(1);
+
+  if (!user) return [];
+
+  return db
+    .select({
+      id: schema.reports.id,
+      title: schema.reports.title,
+      status: schema.reports.status,
+      marketId: schema.reports.marketId,
+      marketName: schema.markets.name,
+      createdAt: schema.reports.createdAt,
+      updatedAt: schema.reports.updatedAt,
+    })
+    .from(schema.reports)
+    .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
+    .where(eq(schema.reports.userId, user.id))
+    .orderBy(desc(schema.reports.createdAt));
+}
+
+export async function getReport(authId: string, reportId: string) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.authId, authId))
+    .limit(1);
+
+  if (!user) return null;
+
+  const [report] = await db
+    .select()
+    .from(schema.reports)
+    .where(
+      and(
+        eq(schema.reports.id, reportId),
+        eq(schema.reports.userId, user.id)
+      )
+    )
+    .limit(1);
+
+  return report || null;
+}
+
+export async function createReport(
+  authId: string,
+  data: {
+    marketId: string;
+    title: string;
+    sections: string[];
+  }
+) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.authId, authId))
+    .limit(1);
+
+  if (!user) {
+    throw new Error("User not found. Complete your profile first.");
+  }
+
+  // Verify market belongs to user
+  const [market] = await db
+    .select({ id: schema.markets.id })
+    .from(schema.markets)
+    .where(
+      and(
+        eq(schema.markets.id, data.marketId),
+        eq(schema.markets.userId, user.id)
+      )
+    )
+    .limit(1);
+
+  if (!market) {
+    throw new Error("Market not found or does not belong to this user.");
+  }
+
+  const [report] = await db
+    .insert(schema.reports)
+    .values({
+      userId: user.id,
+      marketId: data.marketId,
+      title: data.title,
+      status: "queued",
+      config: {
+        sections: data.sections,
+      },
+    })
+    .returning();
+
+  return report;
+}
