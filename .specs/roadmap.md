@@ -134,7 +134,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 60 | Report editor — adjust narratives, refine insights post-generation | vision | L | 42, 57 | ⬜ |
+| 60 | Report editor — adjust narratives, refine insights post-generation | vision | L | 42, 57 | 🔄 |
 | 61 | Report history + versioning | vision | M | 2, 57 | ⬜ |
 | 62 | Report templates — save/reuse market configurations | vision | M | 40, 61 | ⬜ |
 
