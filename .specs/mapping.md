@@ -18,7 +18,14 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 
 | Domain | Feature | Source | Tests | Components | Status |
 |--------|---------|--------|-------|------------|--------|
-| _No features yet_ | | | | | |
+| foundation | [Authentication with Clerk](.specs/features/foundation/authentication.feature.md) | `middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
+| foundation | [Base App Layout](.specs/features/foundation/base-layout.feature.md) | `components/layout/top-nav.tsx, components/layout/sidebar.tsx, components/layout/page-shell.tsx, app/(protected)/layout.tsx` | see spec | see spec | implemented |
+| foundation | [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md) | `lib/db/schema.ts, lib/db/index.ts, lib/db/migrations/` | see spec | see spec | implemented |
+| foundation | [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md) | `lib/config/env.ts, .env.local.example` | see spec | see spec | implemented |
+| foundation | [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md) | `app/layout.tsx, app/page.tsx, tailwind.config.ts, app/globals.css` | see spec | see spec | implemented |
+| user-setup | [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md) | `app/(protected)/settings/profile/page.tsx, app/api/profile/route.ts, lib/services/profile.ts, lib/services/profile-validation.ts` | see spec | see spec | implemented |
+| user-setup | [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md) | `app/(protected)/markets/new/page.tsx, app/api/markets/route.ts, lib/services/market.ts, lib/services/market-validation.ts` | see spec | see spec | implemented |
+| user-setup | [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md) | `app/(protected)/markets/[id]/peers/page.tsx, app/api/markets/[id]/peers/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 
 ---
 
@@ -29,8 +36,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 0 |
 | tested | 0 |
-| implemented | 0 |
-| **Total** | **0** |
+| implemented | 8 |
+| **Total** | **8** |
 
 ---
 
@@ -50,7 +57,14 @@ _None_
 
 ### Implemented
 
-_None_
+- [Authentication with Clerk](.specs/features/foundation/authentication.feature.md)
+- [Base App Layout](.specs/features/foundation/base-layout.feature.md)
+- [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md)
+- [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md)
+- [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md)
+- [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md)
+- [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md)
+- [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md)
 
 ---
 

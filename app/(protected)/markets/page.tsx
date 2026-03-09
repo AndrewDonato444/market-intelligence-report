@@ -97,7 +97,15 @@ export default async function MarketsPage() {
                     </span>
                   </div>
                 </div>
-                <div className="w-1 h-8 bg-[var(--color-accent)] rounded-full" />
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={`/markets/${market.id}/peers`}
+                    className="px-3 py-1.5 text-xs font-[family-name:var(--font-sans)] font-medium text-[var(--color-accent)] border border-[var(--color-accent)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-light)] transition-colors duration-[var(--duration-default)]"
+                  >
+                    Peers
+                  </Link>
+                  <div className="w-1 h-8 bg-[var(--color-accent)] rounded-full" />
+                </div>
               </div>
             );
           })}

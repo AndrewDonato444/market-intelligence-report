@@ -92,3 +92,31 @@ export async function getMarket(clerkId: string, marketId: string) {
 
   return market || null;
 }
+
+export async function updateMarketPeers(
+  clerkId: string,
+  marketId: string,
+  peerMarkets: Array<{ name: string; geography: { city: string; state: string } }>
+) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.clerkId, clerkId))
+    .limit(1);
+
+  if (!user) throw new Error("User not found");
+
+  const [updated] = await db
+    .update(schema.markets)
+    .set({
+      peerMarkets,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(eq(schema.markets.id, marketId), eq(schema.markets.userId, user.id))
+    )
+    .returning();
+
+  if (!updated) throw new Error("Market not found");
+  return updated;
+}
