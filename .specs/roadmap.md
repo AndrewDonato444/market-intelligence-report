@@ -21,8 +21,8 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 35 |
-| 🔄 In Progress | 1 |
+| ✅ Completed | 36 |
+| 🔄 In Progress | 0 |
 | ⬜ Pending | 2 |
 | ⏸️ Blocked | 0 |
 
@@ -148,7 +148,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 70 | Account settings page | vision | S | 3, 4 | 🔄 |
+| 70 | Account settings page | vision | S | 3, 4 | ✅ |
 | 71 | Subscription management + Stripe integration | vision | M | 70 | ⬜ |
 | 72 | Usage dashboard — API costs, report count, billing summary | vision | M | 23, 71 | ⬜ |
 
