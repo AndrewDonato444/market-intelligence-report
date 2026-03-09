@@ -3,7 +3,7 @@
  */
 
 import React from "react";
-import { Page, View, Text } from "@react-pdf/renderer";
+import { Page, View, Text, Image } from "@react-pdf/renderer";
 import { styles } from "../styles";
 
 interface CoverPageProps {
@@ -12,6 +12,7 @@ interface CoverPageProps {
   agentName: string;
   company?: string;
   generatedAt: string;
+  logoUrl?: string;
 }
 
 export function CoverPage({
@@ -20,6 +21,7 @@ export function CoverPage({
   agentName,
   company,
   generatedAt,
+  logoUrl,
 }: CoverPageProps) {
   const date = new Date(generatedAt);
   const formattedDate = date.toLocaleDateString("en-US", {
@@ -38,6 +40,12 @@ export function CoverPage({
         </Text>
       </View>
       <View style={{ marginTop: "auto" }}>
+        {logoUrl && (
+          <Image
+            src={logoUrl}
+            style={{ width: 120, height: 40, marginBottom: 16, objectFit: "contain" as const }}
+          />
+        )}
         <Text style={styles.coverBranding}>
           Prepared by {agentName}
           {company ? ` — ${company}` : ""}

@@ -5,6 +5,8 @@
 import React from "react";
 import { Document } from "@react-pdf/renderer";
 import { CoverPage } from "./templates/cover-page";
+import { TableOfContents } from "./templates/table-of-contents";
+import { InsightsIndex } from "./templates/insights-index";
 import { SectionPage } from "./templates/section-page";
 import { MetadataPage } from "./templates/metadata-page";
 import type { ReportData } from "@/lib/agents/schema";
@@ -40,6 +42,12 @@ export function ReportDocument({
         agentName={branding.name}
         company={branding.company}
         generatedAt={reportData.metadata.generatedAt}
+        logoUrl={branding.logoUrl}
+      />
+      <TableOfContents sections={reportData.sections} />
+      <InsightsIndex
+        metadata={reportData.metadata}
+        sections={reportData.sections}
       />
       {reportData.sections.map((section) => (
         <SectionPage
