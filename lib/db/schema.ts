@@ -177,6 +177,34 @@ export const reportSections = pgTable(
   ]
 );
 
+export const reportTemplates = pgTable(
+  "report_templates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    name: varchar("name", { length: 255 }).notNull(),
+    marketId: uuid("market_id")
+      .notNull()
+      .references(() => markets.id, { onDelete: "cascade" }),
+    config: jsonb("config").$type<{
+      sections?: string[];
+      dateRange?: { start: string; end: string };
+      customPrompts?: Record<string, string>;
+    }>(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("report_templates_user_id_idx").on(table.userId),
+  ]
+);
+
 export const reportEditHistory = pgTable(
   "report_edit_history",
   {
