@@ -121,7 +121,7 @@
 | 53 | Key Drivers + Second Homes + Competitive Analysis sections | vision | L | 50, 36, 33 | ✅ |
 | 54 | Trending Insights + Forecasts + Methodology + Strategic Summary sections | vision | L | 50, 36, 34 | ✅ |
 | 55 | Data visualization components (charts, confidence dots, segment matrices) | vision | L | 50 | ✅ |
-| 56 | Agent branding injection (logo, colors, contact info, disclaimers) | vision | M | 50, 10 | ⬜ |
+| 56 | Agent branding injection (logo, colors, contact info, disclaimers) | vision | M | 50, 10 | 🔄 |
 | 57 | PDF export + digital sharing links | vision | M | 50, 51 | ⬜ |
 
 **Goal**: A complete, magazine-quality PDF that matches the Naples Intelligence Report reference — branded to the agent, print-ready at 300dpi, with real data visualizations.
