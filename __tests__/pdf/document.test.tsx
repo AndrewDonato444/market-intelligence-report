@@ -168,10 +168,10 @@ describe("Report Template Engine", () => {
       expect(renderer).toBe(mod.ForecastsPdf);
     });
 
-    it("returns narrative renderer for executive_summary", async () => {
+    it("returns executive summary renderer for executive_summary", async () => {
       const mod = await import("@/lib/pdf/templates/renderers");
       const renderer = mod.getSectionRenderer("executive_summary");
-      expect(renderer).toBe(mod.NarrativeSectionPdf);
+      expect(renderer).toBe(mod.ExecutiveSummaryPdf);
     });
 
     it("returns generic renderer for unknown types", async () => {

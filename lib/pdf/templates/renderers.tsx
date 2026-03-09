@@ -230,6 +230,129 @@ export const NarrativeSectionPdf: SectionRenderer = ({ section }) => {
   );
 };
 
+// --- Executive Summary (enhanced with segment metrics) ---
+
+interface ExecutiveSummaryContent {
+  narrative?: string;
+  highlights?: string[];
+  timing?: Record<string, string>;
+  segments?: Array<{
+    name: string;
+    count: number;
+    medianPrice: number;
+    rating: string;
+  }>;
+  overallRating?: string;
+}
+
+function getRatingColor(rating: string): string {
+  if (rating.startsWith("A")) return COLORS.success;
+  if (rating.startsWith("B")) return COLORS.warning;
+  return COLORS.error;
+}
+
+export const ExecutiveSummaryPdf: SectionRenderer = ({ section }) => {
+  const content = section.content as ExecutiveSummaryContent;
+  return (
+    <View>
+      {content.narrative && <Text style={styles.body}>{content.narrative}</Text>}
+      {content.highlights && content.highlights.length > 0 && (
+        <View style={{ marginTop: 12 }}>
+          {content.highlights.map((item, i) => (
+            <Text key={i} style={styles.bulletItem}>
+              {"•  "}
+              {item}
+            </Text>
+          ))}
+        </View>
+      )}
+      {content.segments && content.segments.length > 0 && (
+        <View style={{ marginTop: 16 }}>
+          <Text style={styles.subheading}>Market Analysis Matrix</Text>
+          <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
+            <Text style={{ ...styles.tableHeader, flex: 2 }}>Segment</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Count</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Median Price</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Rating</Text>
+          </View>
+          {content.segments.map((seg, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={{ ...styles.tableCell, flex: 2 }}>
+                {seg.name.replace(/_/g, " ")}
+              </Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>
+                {seg.count.toLocaleString()}
+              </Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>
+                ${(seg.medianPrice / 1000000).toFixed(1)}M
+              </Text>
+              <Text
+                style={{
+                  ...styles.tableCell,
+                  flex: 1,
+                  color: getRatingColor(seg.rating),
+                  fontWeight: 700,
+                }}
+              >
+                {seg.rating}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+      {content.timing && Object.keys(content.timing).length > 0 && (
+        <View style={{ marginTop: 16 }}>
+          <Text style={styles.subheading}>Timing Guidance</Text>
+          {Object.entries(content.timing).map(([key, value]) => (
+            <View key={key} style={{ marginBottom: 8 }}>
+              <Text style={styles.metadataLabel}>{key}</Text>
+              <Text style={styles.body}>{value}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+
+// --- Competitive Market Analysis ---
+
+interface CompetitiveAnalysisContent {
+  narrative?: string;
+  comparisons?: Array<{
+    market: string;
+    medianPrice?: number;
+    advantage?: string;
+  }>;
+}
+
+export const CompetitiveAnalysisPdf: SectionRenderer = ({ section }) => {
+  const content = section.content as CompetitiveAnalysisContent;
+  return (
+    <View>
+      {content.narrative && <Text style={styles.body}>{content.narrative}</Text>}
+      {content.comparisons && content.comparisons.length > 0 && (
+        <View style={{ marginTop: 16 }}>
+          <Text style={styles.subheading}>Peer Market Comparison</Text>
+          {content.comparisons.map((comp, i) => (
+            <View key={i} style={styles.card}>
+              <Text style={styles.subheading}>{comp.market}</Text>
+              {comp.medianPrice && (
+                <Text style={styles.bodySmall}>
+                  Median: ${(comp.medianPrice / 1000000).toFixed(1)}M
+                </Text>
+              )}
+              {comp.advantage && (
+                <Text style={styles.body}>{comp.advantage}</Text>
+              )}
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+
 // --- Generic Section (fallback) ---
 
 export const GenericSectionPdf: SectionRenderer = ({ section }) => {
@@ -250,8 +373,9 @@ const RENDERER_MAP: Record<string, SectionRenderer> = {
   market_overview: MarketOverviewPdf,
   key_drivers: KeyDriversPdf,
   forecasts: ForecastsPdf,
-  executive_summary: NarrativeSectionPdf,
+  executive_summary: ExecutiveSummaryPdf,
   strategic_summary: NarrativeSectionPdf,
+  competitive_market_analysis: CompetitiveAnalysisPdf,
 };
 
 export function getSectionRenderer(sectionType: string): SectionRenderer {
