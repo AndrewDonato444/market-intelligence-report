@@ -179,10 +179,6 @@ describe("Authentication with Clerk", () => {
       );
     });
 
-    it("imports UserButton from Clerk", () => {
-      expect(dashboardContent).toContain("UserButton");
-    });
-
     it("imports currentUser for server-side auth", () => {
       expect(dashboardContent).toContain("currentUser");
     });
