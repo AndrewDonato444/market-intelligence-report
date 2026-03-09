@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 24 |
+| ✅ Completed | 25 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 12 |
+| ⬜ Pending | 11 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -115,7 +115,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 50 | Report template engine (React-PDF or Puppeteer rendering pipeline) | vision | L | 1 | 🔄 |
+| 50 | Report template engine (React-PDF or Puppeteer rendering pipeline) | vision | L | 1 | ✅ |
 | 51 | Report cover, TOC, and Market Overview + Insights Index sections | vision | L | 50, 36 | ⬜ |
 | 52 | Executive Summary + Market Analysis Matrix sections | vision | L | 50, 36 | ⬜ |
 | 53 | Key Drivers + Second Homes + Competitive Analysis sections | vision | L | 50, 36, 33 | ⬜ |
