@@ -1,0 +1,638 @@
+# SDD 2.0.0: Spec-Driven Development + Compound Learning
+
+A framework for AI-assisted development that combines:
+- **Spec-Driven Development (SDD)** - Define behavior before implementing
+- **User Personas** - Specs are written in users' language, scoped to their patience
+- **Personality-Driven Design** - Design system derived from vision, not generic templates
+- **Compound Learning** - Agent gets smarter from every session
+- **Roadmap-Driven Automation** - Build entire apps feature-by-feature
+- **Overnight Automation** - Wake up to draft PRs
+
+Works with both **Cursor** and **Claude Code**. Build scripts (`build-loop-local.sh`, `overnight-autonomous.sh`) support either CLI — set `CLI_PROVIDER=cursor` or `CLI_PROVIDER=claude` in `.env.local`.
+
+## Installation
+
+### Option 1: Git Alias (Recommended)
+
+Add to your `~/.gitconfig`:
+
+```ini
+[alias]
+    auto = "!f() { git clone --depth 1 https://github.com/AdrianRogowski/auto-sdd.git .sdd-temp && rm -rf .sdd-temp/.git && cp -r .sdd-temp/. . && rm -rf .sdd-temp && echo 'SDD 2.0.0 installed! Run /spec-first to create your first feature spec.'; }; f"
+```
+
+Then in any project:
+
+```bash
+git auto
+```
+
+This copies all SDD files into your current project:
+- `VERSION` - Framework version (semver, e.g. 2.0.0)
+- `.cursor/` - Cursor rules, commands, hooks
+- `.claude/` - Claude Code commands
+- `.specs/` - Feature specs, learnings, design system, personas, roadmap
+- `scripts/` - Automation scripts
+- `CLAUDE.md` - Agent instructions
+
+### Option 2: Manual Clone
+
+```bash
+git clone https://github.com/AdrianRogowski/auto-sdd.git
+cp -r auto-sdd/.cursor auto-sdd/.claude auto-sdd/.specs auto-sdd/scripts auto-sdd/CLAUDE.md .
+rm -rf auto-sdd
+```
+
+### Migrating from SDD 1.0
+
+If you have an existing project using SDD 1.0 (`git sdd`), **do NOT run `git auto`** - it would overwrite your files.
+
+Instead, use the two-step migration process:
+
+```bash
+# Step 1: Stage the 2.0 files (creates .sdd-upgrade/ directory)
+git auto-upgrade
+
+# Step 2: Run the migration (in Cursor or Claude Code)
+/sdd-migrate
+```
+
+**Git alias for `auto-upgrade`** (add to `~/.gitconfig`):
+
+```ini
+[alias]
+    auto-upgrade = "!f() { git clone --depth 1 https://github.com/AdrianRogowski/auto-sdd.git .sdd-temp && rm -rf .sdd-temp/.git && mkdir -p .sdd-upgrade && cp -r .sdd-temp/. .sdd-upgrade/ && rm -rf .sdd-temp && echo 'SDD 2.0.0 files staged in .sdd-upgrade/' && echo 'Now run /sdd-migrate to upgrade'; }; f"
+```
+
+### Post-Install (Optional: Overnight Automation)
+
+```bash
+# Install dependencies
+brew install yq gh
+
+# Configure Slack/Jira integration
+cp .env.local.example .env.local
+nano .env.local
+
+# Set up scheduled jobs
+./scripts/setup-overnight.sh
+```
+
+## Quick Start
+
+After installing, use the slash commands:
+
+```
+/vision "CRM for real estate"      # Define what you're building
+/personas                          # Create user personas (vocabulary, patience, frustrations)
+/design-tokens                     # Create personality-driven design system
+/spec-first user authentication    # Create a feature spec (informed by personas + tokens)
+/compound                          # Extract learnings after implementing
+/roadmap create                    # Create a roadmap from the vision
+/build-next                        # Build next feature from roadmap
+```
+
+## The Workflows
+
+### Project Setup (Once)
+
+Before building features, set up the project-level infrastructure. Each step reads the output of the previous:
+
+```
+/vision "description"  →  /personas  →  /design-tokens
+     │                        │               │
+     ▼                        ▼               ▼
+ vision.md              personas/         tokens.md
+ (app purpose,          (vocabulary,      (personality-driven
+  users, tech)           patience,         colors, spacing,
+                         frustrations)     typography)
+```
+
+All three are optional but improve every spec. `/spec-first` will note what's missing.
+
+### Per Feature: Spec → Test → Implement
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│    SPEC      │ ──▶ │    TEST      │ ──▶ │  IMPLEMENT   │
+│              │     │  (failing)   │     │ (loop until  │
+│ Reads:       │     │              │     │  tests pass) │
+│ - personas   │     │              │     │              │
+│ - tokens     │     │              │     │              │
+│              │     │              │     │              │
+│ Writes:      │     │              │     │              │
+│ - Gherkin    │     │              │     │              │
+│ - mockup     │     │              │     │              │
+│ - journey    │     │              │     │              │
+│              │     │              │     │              │
+│ Then:        │     │              │     │              │
+│ - persona    │     │              │     │              │
+│   revision   │     │              │     │              │
+└──────┬───────┘     └──────────────┘     └──────┬───────┘
+       │                                         │
+    [PAUSE]                                      ▼
+  user approves                          ┌──────────────┐
+                                         │  /compound   │
+                                         │ (learnings)  │
+                                         └──────────────┘
+```
+
+The SPEC step loads personas and design tokens, writes Gherkin scenarios using the user's vocabulary, creates ASCII mockups referencing design tokens, then re-reads the draft through the persona's eyes and revises. The revision notes appear at the pause point so you see what changed and why.
+
+### Roadmap: Full App Build
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  /vision    │ ──▶ │  /personas  │ ──▶ │  /roadmap   │ ──▶ │ /build-next │
+│ (describe)  │     │ + /tokens   │     │  (plan)     │     │  (repeat)   │
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+
+Or from an existing app:
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│  /clone-app │ ──▶ │ vision.md + │ ──▶ │ /build-next │ ──repeat──▶ App Built!
+│  (analyze)  │     │ roadmap.md  │     │  (loop)     │
+└─────────────┘     └─────────────┘     └─────────────┘
+```
+
+### Overnight: Autonomous
+
+```
+11:00 PM  /roadmap-triage (scan Slack/Jira → add to roadmap)
+          /build-next × MAX_FEATURES (build from roadmap)
+            └─ Each feature: spec (with personas) → tests → implement → drift check → [code review] → commit
+          Create draft PRs
+ 7:00 AM  You review 3-4 draft PRs (specs verified against code)
+```
+
+### Build Validation Pipeline
+
+Every feature build goes through a multi-stage pipeline. Each agent-based step runs in a **fresh context window** — you can assign different AI models to each step.
+
+**Manual** (`/build-next` in Cursor/Claude): Uses `/spec-first --full` in one call — spec, tests, implement, compound, commit.
+
+**Automated** (scripts): Uses a **two-phase** flow — spec-only (no `--full`) then implement from spec. Each phase gets a fresh context; spec can be reviewed before implementation; implement phase can retry independently.
+
+```
+┌─────────────┐  ┌─────────────┐  ┌───────────┐  ┌───────────┐  ┌─────────────┐  ┌─────────────┐  ┌──────────┐
+│ SPEC PHASE  │─▶│ IMPLEMENT   │─▶│  BUILD    │─▶│   TEST    │─▶│ DRIFT CHECK │─▶│CODE REVIEW  │─▶│  COMMIT  │
+│ (agent)     │  │ PHASE       │  │  CHECK    │  │  SUITE    │  │ (fresh agent│  │(fresh agent,│  │          │
+│             │  │ (agent)     │  │ (compile)  │  │ (npm test)│  │  Layer 2)   │  │ optional)   │  │          │
+└─────────────┘  └─────────────┘  └───────────┘  └───────────┘  └─────────────┘  └─────────────┘  └──────────┘
+      │                 │               │               │               │                │
+      └── retry ◄───────┴── retry ◄─────┴── retry ◄─────┘               │                │
+                                                                         ▼                ▼
+                                                                build+tests re-run  build+tests re-run
+                                                                (agents modify code)  (agents modify code)
+```
+
+| Stage | Type | Model | Controls | Blocking? | Re-validates? |
+|-------|------|-------|----------|-----------|---------------|
+| Spec phase | Agent | `SPEC_MODEL` | — | Yes (retry) | — |
+| Implement phase | Agent | `BUILD_MODEL` | — | Yes (retry) | — |
+| Build check | Shell | — | `BUILD_CHECK_CMD` | Yes (retry) | — |
+| Test suite | Shell | — | `TEST_CHECK_CMD` | Yes (retry) | — |
+| Drift check | Agent | `DRIFT_MODEL` | `DRIFT_CHECK=true` | Yes (retry) | build + tests after fix |
+| Code review | Agent | `REVIEW_MODEL` | `POST_BUILD_STEPS` | No (warn only) | build + tests after fix |
+
+**Data flow**: Spec phase outputs `FEATURE_SPEC_READY` + `SPEC_FILE` → implement phase. Implement phase outputs `FEATURE_BUILT` + `SOURCE_FILES` → drift check. Build/test failures feed `LAST_BUILD_OUTPUT` and `LAST_TEST_OUTPUT` into the retry agent.
+
+**Agents are test-aware**: Every agent receives the test command and is told to run tests and iterate until they pass. The retry agent also receives the actual failure output (last 50/80 lines of build/test errors) so it knows exactly what to fix. After each agent step, the shell re-runs build + tests as a safety net — **zero additional AI tokens** for that verification.
+
+**Model selection**: Each agent step can use a different model via `SPEC_MODEL`, `BUILD_MODEL`, `RETRY_MODEL`, `DRIFT_MODEL`, `REVIEW_MODEL`.
+
+## Slash Commands
+
+### Setup
+
+| Command | Purpose |
+|---------|---------|
+| `/vision` | Create or update vision.md from description, Jira, or Confluence |
+| `/personas` | Create user personas (vocabulary, patience, frustrations, anti-persona) |
+| `/design-tokens` | Create personality-driven design tokens (reads vision + personas) |
+| `/spec-init` | Bootstrap SDD on existing codebase |
+
+### Core Workflow
+
+| Command | Purpose |
+|---------|---------|
+| `/spec-first` | Create or update feature spec with Gherkin + ASCII mockup (persona-informed) |
+| `/spec-first --full` | Create/update spec AND build without pauses (full TDD cycle) |
+| `/compound` | Extract learnings from current session |
+
+### Roadmap Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/roadmap` | Create, add features, reprioritize, or check status |
+| `/clone-app <url>` | Analyze app → create vision.md + roadmap.md |
+| `/build-next` | Build next pending feature from roadmap |
+| `/roadmap-triage` | Scan Slack/Jira → add to roadmap |
+
+### Maintenance
+
+| Command | Purpose |
+|---------|---------|
+| `/sdd-migrate` | Migrate from SDD 1.0 to 2.0 |
+| `/catch-drift` | Detect spec ↔ code misalignment |
+| `/check-coverage` | Find gaps in spec/test coverage |
+| `/fix-bug` | Create regression test for bug |
+| `/code-review` | Review against engineering standards |
+
+## Personas
+
+User personas live in `.specs/personas/` and inform every feature spec. They're created once by `/personas` (or auto-suggested on first `/spec-first`) and referenced before every spec is written.
+
+**What they contain:**
+- **Vocabulary** — their words vs developer words → drives all UI labels
+- **Patience level** — Very Low / Low / Medium / High → drives flow length
+- **Frustrations** — interaction patterns to avoid
+- **Success metric** — how they measure if the app works
+
+**How `/spec-first` uses them:**
+1. Reads personas before writing Gherkin and mockups
+2. Uses persona vocabulary in all labels and copy
+3. Matches flow length to patience level
+4. After drafting, re-reads through persona's eyes and revises
+5. Shows revision notes at the pause point ("renamed X → Y because broker vocabulary")
+
+**Anti-persona** — describes who you're NOT building for. Prevents scope creep. If a scenario is really for the anti-persona, it gets cut or deferred.
+
+## Design System
+
+The design system lives in `.specs/design-system/tokens.md` and is created by `/design-tokens`.
+
+Unlike generic design token templates, `/design-tokens` derives a **tailored** system:
+
+1. **Reads context** — vision.md (app purpose, design principles), personas (patience, technical level)
+2. **Determines personality** — Professional, Friendly, Minimal, Bold, or Technical
+3. **Derives palette** — starts from one primary color, derives neutrals (tinted, not pure gray), semantic colors matched to palette energy
+4. **Constrains to v1** — fewer tokens used consistently beats many tokens used randomly
+5. **Documents rationale** — explains *why* these choices, not just what they are
+
+| Personality | Radii | Spacing | Example Apps |
+|-------------|-------|---------|-------------|
+| Professional | 2-6px | Tight (4px base) | Linear, Jira |
+| Friendly | 8-12px | Comfortable (8px base) | Notion, Slack |
+| Minimal | 4-8px | Generous whitespace | iA Writer, Apple |
+| Bold | 12-16px+ | Generous | Stripe, Vercel |
+| Technical | 0-4px | Tight-compact | GitHub, Grafana |
+
+## Directory Structure
+
+```
+.
+├── VERSION                 # Framework version (semver, e.g. 2.0.0)
+├── .cursor/
+│   ├── commands/           # Slash command definitions
+│   ├── rules/              # Cursor rules (SDD workflow, design tokens)
+│   ├── hooks.json          # Cursor hooks configuration
+│   └── hooks/              # Hook scripts
+│
+├── .claude/
+│   └── commands/           # Claude Code command definitions
+│
+├── .specs/
+│   ├── vision.md           # App vision (created by /vision or /clone-app)
+│   ├── roadmap.md          # Feature roadmap (single source of truth)
+│   ├── personas/           # User personas (inform every spec)
+│   │   ├── primary.md      # Main user persona
+│   │   ├── anti-persona.md # Who you're NOT building for
+│   │   └── _template.md    # Template for new personas
+│   ├── features/           # Feature specs (Gherkin + ASCII mockups)
+│   │   └── {domain}/
+│   │       └── {feature}.feature.md
+│   ├── test-suites/        # Test documentation
+│   ├── design-system/      # Personality-driven tokens + component docs
+│   │   ├── tokens.md       # Colors, spacing, typography (with rationale)
+│   │   └── components/     # Component pattern docs
+│   ├── learnings/          # Cross-cutting patterns by category
+│   │   ├── index.md        # Summary + recent learnings
+│   │   ├── testing.md
+│   │   ├── performance.md
+│   │   ├── security.md
+│   │   ├── api.md
+│   │   ├── design.md
+│   │   └── general.md
+│   └── mapping.md          # AUTO-GENERATED routing table
+│
+├── scripts/
+│   ├── build-loop-local.sh        # Run /build-next in a loop (no remote)
+│   ├── generate-mapping.sh        # Regenerate mapping.md
+│   ├── nightly-review.sh          # Extract learnings (10:30 PM)
+│   ├── overnight-autonomous.sh    # Auto-implement features (11:00 PM)
+│   ├── setup-overnight.sh         # Install launchd jobs
+│   ├── uninstall-overnight.sh     # Remove launchd jobs
+│   └── launchd/                   # macOS scheduling plists
+│
+├── logs/                   # Overnight automation logs
+├── CLAUDE.md               # Agent instructions (universal)
+└── .env.local              # Configuration (Slack, Jira, etc.)
+```
+
+### Versioning
+
+SDD uses semantic versioning. The `VERSION` file at the project root holds the framework version (e.g. `2.0.0`). `.specs/.sdd-version` mirrors it for migration detection. To check your version: `cat VERSION`.
+
+## Roadmap System
+
+The roadmap is the **single source of truth** for what to build.
+
+### vision.md
+
+High-level app description. Created by:
+- `/vision "description"` — from a text description
+- `/vision --from-jira PROJECT_KEY` — seeded from Jira epics
+- `/vision --from-confluence PAGE_ID` — seeded from a Confluence page
+- `/clone-app <url>` — from analyzing a live app
+- `/vision --update` — refresh based on what's been built and learned
+
+Contents: app overview, target users, key screens, tech stack, design principles.
+
+### roadmap.md
+
+Ordered list of features with dependencies. Managed by:
+- `/roadmap create` — build from vision.md
+- `/roadmap add "feature"` — add features to existing roadmap
+- `/roadmap reprioritize` — restructure phases and reorder
+- `/roadmap status` — read-only progress report
+- `/clone-app <url>` — auto-generated from app analysis
+- `/roadmap-triage` — add items from Slack/Jira
+
+```markdown
+## Phase 1: Foundation
+
+| # | Feature | Source | Jira | Complexity | Deps | Status |
+|---|---------|--------|------|------------|------|--------|
+| 1 | Project setup | clone-app | PROJ-101 | S | - | ✅ |
+| 2 | Auth: Signup | clone-app | PROJ-102 | M | 1 | 🔄 |
+| 3 | Auth: Login | clone-app | PROJ-103 | M | 1 | ⬜ |
+
+## Ad-hoc Requests
+
+| # | Feature | Source | Jira | Complexity | Deps | Status |
+|---|---------|--------|------|------------|------|--------|
+| 100 | Dark mode | slack:C123/ts | PROJ-200 | M | - | ⬜ |
+```
+
+### How Features Flow In
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     ROADMAP (Single Source)                     │
+├─────────────────────────────────────────────────────────────────┤
+│                              ▲                                  │
+│          ┌───────────────────┼───────────────────┐              │
+│          │                   │                   │              │
+│    ┌─────┴─────┐  ┌────┴────┐  ┌────┴────┐  ┌─────┴─────┐       │
+│    │  /vision   │  │/roadmap │  │  Slack  │  │   Jira    │       │
+│    │ /clone-app │  │  add    │  │(triage) │  │ (triage)  │       │
+│    └───────────┘  └────────┘  └────────┘  └───────────┘       │
+│                                                                 │
+│                              │                                  │
+│                              ▼                                  │
+│                       ┌─────────────┐                           │
+│                       │ /build-next │ ──▶ Picks next pending    │
+│                       └─────────────┘     feature, builds it    │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+## Jira/Slack Integration
+
+The system integrates with Jira and Slack via MCPs:
+
+| Action | Jira | Slack |
+|--------|------|-------|
+| **Triage** | Search by label | Search channel |
+| **Track** | Create tickets for features | Reply with Jira link |
+| **Start** | Transition to "In Progress" | - |
+| **Complete** | Transition to "Done" + PR link | Reply with ✅ |
+
+Configure in `.env.local`:
+
+```bash
+# CLI provider for build scripts (cursor | claude)
+# - cursor: Cursor CLI (agent) — default
+# - claude: Claude Code CLI (model names differ per provider)
+CLI_PROVIDER=cursor
+
+# Slack
+SLACK_FEATURE_CHANNEL="#feature-requests"
+SLACK_REPORT_CHANNEL="#dev-updates"
+
+# Jira
+JIRA_CLOUD_ID="yoursite.atlassian.net"
+JIRA_PROJECT_KEY="PROJ"
+JIRA_AUTO_LABEL="auto-ok"
+
+# Base branch (branch to sync from and create feature branches from)
+BASE_BRANCH=                  # Unset: build-loop uses current branch; overnight uses main
+# BASE_BRANCH=develop         # Use develop instead of main
+# BASE_BRANCH=current         # Overnight: use whatever branch you're on
+
+# Options
+CREATE_JIRA_FOR_SLACK=true    # Create Jira tickets for Slack requests
+SYNC_JIRA_STATUS=true         # Keep Jira status in sync
+MAX_FEATURES=4                # Features per overnight run
+
+# Build validation
+BUILD_CHECK_CMD=""            # Auto-detected (tsc, cargo check, etc.)
+TEST_CHECK_CMD=""             # Auto-detected (npm test, pytest, etc.)
+POST_BUILD_STEPS="test"       # Comma-separated: test, code-review
+DRIFT_CHECK=true              # Spec↔code drift detection
+
+# Model selection (per-step, each gets a fresh context window)
+# Cursor: composer-1.5, sonnet-4.5; Claude: claude-sonnet-4-5, etc.
+AGENT_MODEL="composer-1.5"    # Default for all steps (empty = CLI default)
+SPEC_MODEL=""                 # Spec phase (find feature, create spec only)
+BUILD_MODEL=""                # Implement phase (tests, implement, compound, commit)
+RETRY_MODEL=""                # Retry agent (fixing build/test failures)
+DRIFT_MODEL=""                # Catch-drift agent
+REVIEW_MODEL=""               # Code-review agent
+```
+
+## Feature Spec Format
+
+Every feature spec has YAML frontmatter and references personas:
+
+```markdown
+---
+feature: User Login
+domain: auth
+source: src/auth/LoginForm.tsx
+tests:
+  - tests/auth/login.test.ts
+components:
+  - LoginForm
+personas:
+  - primary
+  - anti-persona
+status: implemented
+created: 2026-01-31
+updated: 2026-01-31
+---
+
+# User Login
+
+**Personas**: .specs/personas/primary.md
+
+## Scenarios
+
+### Scenario: Successful login
+Given user is on the login page
+When user enters their email and password
+Then user sees their dashboard
+
+## User Journey
+
+1. User lands on marketing page (existing)
+2. **Clicks "Log in" → sees this login form**
+3. Submits → redirected to Dashboard (feature #5)
+
+## UI Mockup
+
+┌─────────────────────────────────────┐
+│           Welcome Back              │
+├─────────────────────────────────────┤
+│  Email: [________________]          │
+│  Password: [________________]       │
+│  [        Log in        ]           │
+└─────────────────────────────────────┘
+
+## Learnings
+
+### 2026-01-31
+- **Gotcha**: Safari autofill needs onBlur handler
+```
+
+## Compound Learning
+
+Learnings are persisted at two levels:
+
+| Level | Location | Example |
+|-------|----------|---------|
+| Feature-specific | Spec's `## Learnings` section | "Login: Safari needs onBlur" |
+| Cross-cutting | `.specs/learnings/{category}.md` | "All forms need loading states" |
+
+Categories: `testing.md`, `performance.md`, `security.md`, `api.md`, `design.md`, `general.md`
+
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `./scripts/build-loop-local.sh` | Run /build-next in a loop locally (no remote/push/PR). Config: CLI_PROVIDER, BASE_BRANCH, BRANCH_STRATEGY, MAX_FEATURES |
+| `./scripts/generate-mapping.sh` | Regenerate mapping.md from specs |
+| `./scripts/nightly-review.sh` | Extract learnings from today's commits |
+| `./scripts/overnight-autonomous.sh` | Full overnight automation (sync, triage, build, PRs) |
+| `./scripts/setup-overnight.sh` | Install launchd scheduled jobs |
+| `./scripts/uninstall-overnight.sh` | Remove launchd jobs |
+
+### Build Loop Examples
+
+```bash
+# Default: Cursor CLI, chained branches, build with test suite enforcement
+./scripts/build-loop-local.sh
+
+# Use Claude Code CLI instead
+CLI_PROVIDER=claude ./scripts/build-loop-local.sh
+
+# Full validation: tests + code review
+POST_BUILD_STEPS="test,code-review" ./scripts/build-loop-local.sh
+
+# Use Opus for spec (strong at planning), cheaper for implementation
+SPEC_MODEL="opus-4.6-thinking" BUILD_MODEL="composer-1.5" ./scripts/build-loop-local.sh
+
+# Branch strategies (set in .env.local or pass inline)
+BRANCH_STRATEGY=independent ./scripts/build-loop-local.sh   # Each feature isolated (worktrees)
+BRANCH_STRATEGY=both ./scripts/build-loop-local.sh         # Chained + independent rebuild
+BRANCH_STRATEGY=sequential ./scripts/build-loop-local.sh   # All features on current branch
+
+# Base branch (default: current branch for build-loop, main for overnight)
+BASE_BRANCH=develop ./scripts/build-loop-local.sh
+```
+
+## Requirements
+
+- **Cursor** or **Claude Code** (for slash commands)
+- **GitHub CLI** (`gh`) for PR creation
+- **yq** for YAML parsing (`brew install yq`)
+
+For build scripts (`build-loop-local.sh`, `overnight-autonomous.sh`):
+- **Cursor CLI** (`agent`) or **Claude Code CLI** (`claude`) — set `CLI_PROVIDER=cursor` or `CLI_PROVIDER=claude` in `.env.local`
+- macOS (for launchd scheduling of overnight runs)
+
+## Example: Building a Full App
+
+### From a description
+
+```bash
+# 1. Initialize project
+mkdir my-app && cd my-app
+git init
+git auto
+
+# 2. Define what you're building
+/vision "A task management app for small teams with projects, labels, and due dates"
+
+# 3. Create personas and design system
+/personas                    # Creates primary persona + anti-persona
+/design-tokens               # Derives personality-driven tokens from vision + personas
+
+# 4. Create the build plan
+/roadmap create
+
+# 5. Build feature by feature
+/build-next    # Builds feature #1 (spec uses persona vocabulary + design tokens)
+/build-next    # Builds feature #2
+# ...or let overnight automation handle it
+
+# 6. Check progress
+/roadmap status
+```
+
+### From an existing app
+
+```bash
+# 1. Initialize project
+mkdir my-app && cd my-app
+git init
+git auto
+
+# 2. Clone an existing app into roadmap
+/clone-app https://todoist.com
+
+# Creates:
+# - .specs/vision.md (app description)
+# - .specs/roadmap.md (20 features across 3 phases)
+
+# 3. Create personas and design system
+/personas                    # From vision's target users
+/design-tokens               # From vision + personas
+
+# 4. Build feature by feature
+/build-next    # Builds feature #1
+/build-next    # Builds feature #2
+```
+
+### Adding features later
+
+```bash
+# Add a new feature or phase
+/roadmap add "email notifications and digest system"
+
+# Pull in requests from Slack/Jira
+/roadmap-triage
+
+# Restructure after priorities change
+/roadmap reprioritize
+
+# Update vision after building 20 features
+/vision --update
+```
+
+## Credits
+
+Inspired by [Ryan Carson's Compound Engineering](https://x.com/ryancarson) approach, adapted for Cursor/Claude Code and the SDD workflow.
+
+## License
+
+MIT

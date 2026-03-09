@@ -1,0 +1,25 @@
+# SDD Migration staging directory
+.sdd-upgrade/
+
+# Environment files
+.env.local
+
+# Logs
+logs/*.log
+
+# OS files
+.DS_Store
+
+# Editor directories
+.idea/
+*.swp
+*.swo
+
+# Python cache
+__pycache__/
+
+# Local Claude settings
+.claude/settings.local.json
+
+# Build worktrees
+.build-worktrees/
