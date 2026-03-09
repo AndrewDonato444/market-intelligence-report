@@ -1,0 +1,204 @@
+/**
+ * PDF styles — maps design tokens to React-PDF StyleSheet objects.
+ *
+ * US Letter: 8.5" x 11" = 612 x 792 points at 72 DPI
+ */
+
+import { StyleSheet } from "@react-pdf/renderer";
+
+// Design token color constants
+export const COLORS = {
+  primary: "#0F172A", // deep navy
+  accent: "#CA8A04", // gold
+  background: "#FAFAF9", // warm white
+  surface: "#FFFFFF",
+  textPrimary: "#0F172A",
+  textSecondary: "#64748B",
+  border: "#E2E8F0",
+  success: "#15803D",
+  warning: "#B45309",
+  error: "#B91C1C",
+  reportAccentLine: "#CA8A04",
+  reportPullquoteBg: "#0F172A",
+  ratingA: "#15803D",
+  ratingB: "#B45309",
+  ratingC: "#B91C1C",
+};
+
+export const styles = StyleSheet.create({
+  page: {
+    width: 612,
+    height: 792,
+    paddingTop: 64,
+    paddingBottom: 64,
+    paddingLeft: 64,
+    paddingRight: 64,
+    backgroundColor: COLORS.background,
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textPrimary,
+  },
+  // Cover page
+  coverPage: {
+    width: 612,
+    height: 792,
+    backgroundColor: COLORS.primary,
+    padding: 64,
+    justifyContent: "center",
+  },
+  coverTitle: {
+    fontFamily: "Playfair Display",
+    fontSize: 36,
+    color: COLORS.surface,
+    marginBottom: 16,
+  },
+  coverSubtitle: {
+    fontFamily: "Inter",
+    fontSize: 14,
+    color: COLORS.accent,
+    marginBottom: 48,
+  },
+  coverBranding: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    color: "#94A3B8",
+    marginTop: 24,
+  },
+  coverDate: {
+    fontFamily: "Inter",
+    fontSize: 11,
+    color: "#94A3B8",
+    marginTop: 8,
+  },
+  // Section headings
+  heading: {
+    fontFamily: "Playfair Display",
+    fontSize: 24,
+    color: COLORS.primary,
+    marginBottom: 16,
+  },
+  subheading: {
+    fontFamily: "Playfair Display",
+    fontSize: 16,
+    color: COLORS.primary,
+    marginBottom: 8,
+  },
+  // Body text
+  body: {
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textPrimary,
+    lineHeight: 1.6,
+    marginBottom: 8,
+  },
+  bodySmall: {
+    fontFamily: "Inter",
+    fontSize: 9,
+    color: COLORS.textSecondary,
+    lineHeight: 1.5,
+  },
+  // Lists
+  bulletItem: {
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+    paddingLeft: 12,
+  },
+  // Accent elements
+  accentLine: {
+    width: 48,
+    height: 2,
+    backgroundColor: COLORS.accent,
+    marginBottom: 16,
+  },
+  // Cards/boxes
+  card: {
+    backgroundColor: COLORS.surface,
+    borderRadius: 4,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+  },
+  // Tables
+  tableRow: {
+    flexDirection: "row" as const,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+    paddingVertical: 6,
+  },
+  tableHeader: {
+    fontFamily: "Inter",
+    fontSize: 9,
+    fontWeight: 700,
+    color: COLORS.textSecondary,
+    textTransform: "uppercase" as const,
+  },
+  tableCell: {
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textPrimary,
+    flex: 1,
+  },
+  // Pull quotes
+  pullQuote: {
+    backgroundColor: COLORS.reportPullquoteBg,
+    padding: 20,
+    borderRadius: 4,
+    marginVertical: 16,
+  },
+  pullQuoteText: {
+    fontFamily: "Playfair Display",
+    fontSize: 14,
+    color: COLORS.surface,
+    fontStyle: "italic" as const,
+  },
+  pullQuoteSource: {
+    fontFamily: "Inter",
+    fontSize: 9,
+    color: COLORS.accent,
+    marginTop: 8,
+  },
+  // Page footer
+  pageFooter: {
+    position: "absolute" as const,
+    bottom: 32,
+    left: 64,
+    right: 64,
+    flexDirection: "row" as const,
+    justifyContent: "space-between" as const,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: 8,
+  },
+  pageNumber: {
+    fontFamily: "Inter",
+    fontSize: 8,
+    color: COLORS.textSecondary,
+  },
+  // Impact/trend badges
+  badge: {
+    fontFamily: "Inter",
+    fontSize: 8,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+    color: COLORS.surface,
+  },
+  // Metadata section
+  metadataLabel: {
+    fontFamily: "Inter",
+    fontSize: 9,
+    fontWeight: 700,
+    color: COLORS.textSecondary,
+    textTransform: "uppercase" as const,
+    marginBottom: 4,
+  },
+  metadataValue: {
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textPrimary,
+    marginBottom: 12,
+  },
+});

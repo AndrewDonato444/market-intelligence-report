@@ -9,6 +9,7 @@ const config = {
   testEnvironment: "jsdom",
   moduleNameMapper: {
     "^@/(.*)$": "<rootDir>/$1",
+    "^@react-pdf/renderer$": "<rootDir>/__mocks__/@react-pdf/renderer.js",
   },
   testPathIgnorePatterns: ["<rootDir>/node_modules/", "<rootDir>/.next/"],
 };
