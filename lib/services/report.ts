@@ -59,6 +59,40 @@ export async function getReport(authId: string, reportId: string) {
   return report || null;
 }
 
+export async function getReportWithMarket(authId: string, reportId: string) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.authId, authId))
+    .limit(1);
+
+  if (!user) return null;
+
+  const [result] = await db
+    .select({
+      id: schema.reports.id,
+      title: schema.reports.title,
+      status: schema.reports.status,
+      marketName: schema.markets.name,
+      config: schema.reports.config,
+      createdAt: schema.reports.createdAt,
+      generationStartedAt: schema.reports.generationStartedAt,
+      generationCompletedAt: schema.reports.generationCompletedAt,
+      errorMessage: schema.reports.errorMessage,
+    })
+    .from(schema.reports)
+    .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
+    .where(
+      and(
+        eq(schema.reports.id, reportId),
+        eq(schema.reports.userId, user.id)
+      )
+    )
+    .limit(1);
+
+  return result || null;
+}
+
 export async function createReport(
   authId: string,
   data: {
