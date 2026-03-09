@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getMarkets } from "@/lib/services/market";
@@ -17,10 +17,10 @@ function formatPrice(value: number): string {
 }
 
 export default async function MarketsPage() {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
+  const userId = await getAuthUserId();
+  if (!userId) redirect("/sign-in");
 
-  const markets = await getMarkets(user.id);
+  const markets = await getMarkets(userId);
 
   return (
     <div>

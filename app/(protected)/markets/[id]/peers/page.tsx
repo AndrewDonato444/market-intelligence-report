@@ -1,4 +1,4 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect, notFound } from "next/navigation";
 import { getMarket } from "@/lib/services/market";
 import { PeerMarketForm } from "@/components/markets/peer-market-form";
@@ -8,11 +8,11 @@ export default async function PeerMarketsPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
-  const user = await currentUser();
-  if (!user) redirect("/sign-in");
+  const userId = await getAuthUserId();
+  if (!userId) redirect("/sign-in");
 
   const { id } = await params;
-  const market = await getMarket(user.id, id);
+  const market = await getMarket(userId, id);
   if (!market) notFound();
 
   const peerMarkets = (market.peerMarkets as Array<{

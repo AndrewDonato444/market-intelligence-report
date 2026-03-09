@@ -1,23 +1,19 @@
-import { currentUser } from "@clerk/nextjs/server";
+import { getAuthUser } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/services/profile";
 import { ProfileForm } from "@/components/profile/profile-form";
 
 export default async function ProfilePage() {
-  const user = await currentUser();
-  if (!user) {
+  const authUser = await getAuthUser();
+  if (!authUser) {
     redirect("/sign-in");
   }
 
-  const profile = await getProfile(user.id);
-  const email = user.emailAddresses?.[0]?.emailAddress || "";
+  const profile = await getProfile(authUser.id);
 
   const initialData = {
-    name:
-      profile?.name ||
-      [user.firstName, user.lastName].filter(Boolean).join(" ") ||
-      "",
-    email,
+    name: profile?.name || "",
+    email: authUser.email,
     company: profile?.company || "",
     title: profile?.title || "",
     phone: profile?.phone || "",

@@ -228,8 +228,8 @@ describe("Market Configuration Persistence + Edit", () => {
         ),
         "utf8"
       );
-      expect(pageContent).toContain("currentUser");
-      expect(pageContent).toContain("@clerk/nextjs/server");
+      expect(pageContent).toContain("getAuthUserId");
+      expect(pageContent).toContain("@/lib/supabase/auth");
     });
 
     it("page uses getMarket service", () => {

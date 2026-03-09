@@ -302,7 +302,7 @@ describe("Peer Market Selection", () => {
   });
 
   describe("Peer markets page", () => {
-    it("page uses currentUser from Clerk", () => {
+    it("page uses Supabase auth", () => {
       const pageContent = fs.readFileSync(
         path.join(
           process.cwd(),
@@ -310,8 +310,8 @@ describe("Peer Market Selection", () => {
         ),
         "utf8"
       );
-      expect(pageContent).toContain("currentUser");
-      expect(pageContent).toContain("@clerk/nextjs/server");
+      expect(pageContent).toContain("getAuthUserId");
+      expect(pageContent).toContain("@/lib/supabase/auth");
     });
 
     it("page uses getMarket service", () => {
