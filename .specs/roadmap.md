@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 5 |
+| ✅ Completed | 6 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 31 |
+| ⬜ Pending | 30 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -52,7 +52,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 10 | Agent profile + branding (name, logo, contact, colors) | vision | M | 2, 3 | ⬜ |
+| 10 | Agent profile + branding (name, logo, contact, colors) | vision | M | 2, 3 | ✅ |
 | 11 | Market definition wizard (geography, segments, luxury tiers) | vision | M | 2, 4 | ⬜ |
 | 12 | Peer market selection for competitive analysis | vision | S | 11 | ⬜ |
 | 13 | Market configuration persistence + edit | vision | S | 11 | ⬜ |
