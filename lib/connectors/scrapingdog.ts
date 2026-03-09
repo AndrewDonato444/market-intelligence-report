@@ -93,11 +93,11 @@ export async function searchLocal(
     return { ...(cached as Omit<LocalSearchResult, "stale">), stale: false };
   }
 
-  // Call API
+  // Call API — /google_local uses "location" (text), not "ll" (GPS coords)
   const params = new URLSearchParams({
     api_key: env.SCRAPINGDOG_API_KEY,
     query,
-    ll: location,
+    location,
   });
 
   const url = `${BASE_URL}/google_local?${params.toString()}`;
