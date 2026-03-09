@@ -1,0 +1,348 @@
+// Mock DB/cache/env to avoid DATABASE_URL requirement
+jest.mock("@/lib/db", () => ({
+  db: {},
+  schema: { cache: {}, apiUsage: {} },
+}));
+jest.mock("@/lib/services/cache");
+jest.mock("@/lib/services/api-usage");
+jest.mock("@/lib/config/env", () => ({
+  env: { REALESTATEAPI_KEY: "test-key", SCRAPINGDOG_API_KEY: "test-key" },
+}));
+
+import {
+  assembleReport,
+  DISCLAIMER_TEXT,
+  NEW_SECTION_TYPES,
+  type AssemblyDurations,
+} from "@/lib/agents/report-assembler";
+import type { ComputedAnalytics } from "@/lib/services/market-analytics";
+import type { AgentResult } from "@/lib/agents/orchestrator";
+
+// --- Fixtures ---
+
+function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnalytics {
+  return {
+    market: {
+      totalProperties: 30,
+      medianPrice: 8000000,
+      averagePrice: 9000000,
+      medianPricePerSqft: 1600,
+      totalVolume: 240000000,
+      rating: "A",
+    },
+    segments: [
+      { name: "SFR", propertyType: "SFR", count: 20, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false },
+      { name: "Condo", propertyType: "Condo", count: 10, medianPrice: 5000000, averagePrice: 5500000, minPrice: 3000000, maxPrice: 9000000, medianPricePerSqft: 1200, rating: "B+", lowSample: false },
+    ],
+    yoy: { medianPriceChange: 0.08, volumeChange: 0.05, pricePerSqftChange: 0.06 },
+    insightsIndex: {
+      liquidity: { score: 7, label: "Strong", components: { cashBuyerPct: 0.4, transactionVolume: 30, freeClearPct: 0.3 } },
+      timing: { score: 6, label: "Favorable", components: { priceMomentum: 0.08, medianDOM: 45, listToSaleRatio: 0.97 } },
+      risk: { score: 8, label: "Low Risk", components: { floodZonePct: 0.1, concentrationPct: 0.67 } },
+      value: { score: 6, label: "Moderate Opportunity", components: { yoyGrowth: 0.08, psfSpread: 0.2 } },
+    },
+    dashboard: {
+      powerFive: [
+        { name: "Median Sold Price", value: 8000000, trend: "up", trendValue: 0.08, category: "power_five" },
+        { name: "Median Price/SqFt", value: 1600, trend: "up", trendValue: 0.06, category: "power_five" },
+        { name: "Median Days on Market", value: 45, trend: null, trendValue: null, category: "power_five" },
+        { name: "List-to-Sale Ratio", value: 97, trend: null, trendValue: null, category: "power_five" },
+        { name: "Transaction Volume", value: 30, trend: "up", trendValue: 0.05, category: "power_five" },
+      ],
+      tierTwo: [
+        { name: "Cash Buyer %", value: 40, trend: null, trendValue: null, category: "tier_two" },
+        { name: "Total Sales Volume", value: 240000000, trend: null, trendValue: null, category: "tier_two" },
+        { name: "Average Price", value: 9000000, trend: null, trendValue: null, category: "tier_two" },
+        { name: "Property Type Split", value: "SFR: 20, Condo: 10", trend: null, trendValue: null, category: "tier_two" },
+      ],
+      tierThree: [
+        { name: "Flood Zone Exposure", value: 10, trend: null, trendValue: null, category: "tier_three" },
+        { name: "Investor Activity Rate", value: 20, trend: null, trendValue: null, category: "tier_three" },
+        { name: "Free & Clear %", value: 30, trend: null, trendValue: null, category: "tier_three" },
+      ],
+    },
+    neighborhoods: [
+      { name: "34102", zipCode: "34102", propertyCount: 20, medianPrice: 9000000, medianPricePerSqft: 1700, yoyPriceChange: 0.1, amenities: [] },
+    ],
+    peerComparisons: [
+      { name: "Palm Beach", geography: { city: "Palm Beach", state: "FL" }, medianPrice: 7000000, averagePrice: 7500000, medianPricePerSqft: 1400, totalProperties: 25, totalVolume: 175000000, rating: "B+", yoy: { medianPriceChange: 0.05, volumeChange: 0.02, pricePerSqftChange: 0.04 } },
+    ],
+    peerRankings: [
+      { metric: "Median Price", targetRank: 1, totalMarkets: 2 },
+      { metric: "YoY Growth", targetRank: 1, totalMarkets: 2 },
+      { metric: "Transaction Volume", targetRank: 1, totalMarkets: 2 },
+    ],
+    scorecard: [
+      { segment: "SFR", rating: "A", propertyCount: 20, medianPrice: 8000000, yoyChange: 0.08, trend: "up" },
+      { segment: "Condo", rating: "B+", propertyCount: 10, medianPrice: 5000000, yoyChange: 0.08, trend: "up" },
+    ],
+    confidence: {
+      level: "high",
+      sampleSize: 30,
+      detailCoverage: 0.33,
+      staleDataSources: [],
+    },
+    detailMetrics: {
+      medianDaysOnMarket: 45,
+      cashBuyerPercentage: 0.4,
+      listToSaleRatio: 0.97,
+      floodZonePercentage: 0.1,
+      investorBuyerPercentage: 0.2,
+      freeClearPercentage: 0.3,
+    },
+    ...overrides,
+  };
+}
+
+function makeAgentResults(): Record<string, AgentResult> {
+  return {
+    "insight-generator": {
+      agentName: "insight-generator",
+      sections: [],
+      metadata: {
+        executiveBriefing: "Naples ultra-luxury market shows strong momentum...",
+        neighborhoodAnalysis: "The 34102 zip code corridor continues to lead...",
+        editorial: "A tale of two markets emerges...",
+        themes: ["Rising cash buyer dominance", "Waterfront premium expansion"],
+      },
+      durationMs: 5000,
+    },
+    "forecast-modeler": {
+      agentName: "forecast-modeler",
+      sections: [],
+      metadata: {
+        forecast: "Based on current trends, median prices expected to rise 5-8%...",
+        guidance: {
+          sellers: "Strong seller's market with accelerating prices...",
+          buyers: "Buyers should act decisively in Q2...",
+          holders: "Equity positions strengthening across all segments...",
+        },
+      },
+      durationMs: 4000,
+    },
+    "polish-agent": {
+      agentName: "polish-agent",
+      sections: [],
+      metadata: {
+        strategicBrief: "The Naples ultra-luxury market earns an 'A' rating...",
+        methodology: "Analysis based on 30 property records with 33% detail coverage...",
+      },
+      durationMs: 3000,
+    },
+  };
+}
+
+const defaultDurations: AssemblyDurations = {
+  fetchMs: 2000,
+  computeMs: 50,
+  agentDurations: {
+    "insight-generator": 5000,
+    "forecast-modeler": 4000,
+    "polish-agent": 3000,
+  },
+};
+
+// --- Tests ---
+
+describe("Report Assembler", () => {
+  describe("assembleReport", () => {
+    it("produces exactly 9 sections", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      expect(result.sections).toHaveLength(9);
+    });
+
+    it("sections are numbered 1 through 9", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const numbers = result.sections.map((s) => s.sectionNumber);
+      expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    });
+
+    it("section types match NEW_SECTION_TYPES", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const types = result.sections.map((s) => s.sectionType);
+      expect(types).toEqual([...NEW_SECTION_TYPES]);
+    });
+
+    it("Section 1 (Executive Briefing) contains headline data and narrative", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[0];
+      expect(section.sectionType).toBe("executive_briefing");
+      const content = section.content as any;
+      expect(content.headline.medianPrice).toBe(8000000);
+      expect(content.headline.rating).toBe("A");
+      expect(content.narrative).toContain("Naples ultra-luxury");
+      expect(content.confidence.level).toBe("high");
+    });
+
+    it("Section 2 (Market Insights Index) contains pure data", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[1];
+      expect(section.sectionType).toBe("market_insights_index");
+      const content = section.content as any;
+      expect(content.insightsIndex.liquidity.score).toBe(7);
+      expect(content.insightsIndex.timing.score).toBe(6);
+    });
+
+    it("Section 3 (Luxury Market Dashboard) contains dashboard tiers", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[2];
+      expect(section.sectionType).toBe("luxury_market_dashboard");
+      const content = section.content as any;
+      expect(content.dashboard.powerFive).toHaveLength(5);
+      expect(content.dashboard.tierTwo).toHaveLength(4);
+      expect(content.dashboard.tierThree).toHaveLength(3);
+    });
+
+    it("Section 4 (Neighborhood Intelligence) contains data and narrative", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[3];
+      expect(section.sectionType).toBe("neighborhood_intelligence");
+      const content = section.content as any;
+      expect(content.neighborhoods).toHaveLength(1);
+      expect(content.narrative).toContain("34102");
+    });
+
+    it("Section 5 (The Narrative) contains editorial and themes", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[4];
+      expect(section.sectionType).toBe("the_narrative");
+      const content = section.content as any;
+      expect(content.editorial).toContain("tale of two markets");
+      expect(content.themes).toHaveLength(2);
+      expect(content.marketContext.rating).toBe("A");
+    });
+
+    it("Section 6 (Forward Look) contains forecast narrative", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[5];
+      expect(section.sectionType).toBe("forward_look");
+      const content = section.content as any;
+      expect(content.forecast).toContain("median prices expected");
+      expect(content.guidance).toBeDefined();
+    });
+
+    it("Section 7 (Comparative Positioning) contains peer data", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[6];
+      expect(section.sectionType).toBe("comparative_positioning");
+      const content = section.content as any;
+      expect(content.peerComparisons).toHaveLength(1);
+      expect(content.peerRankings).toHaveLength(3);
+    });
+
+    it("Section 8 (Strategic Benchmark) contains scorecard and narrative", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[7];
+      expect(section.sectionType).toBe("strategic_benchmark");
+      const content = section.content as any;
+      expect(content.scorecard).toHaveLength(2);
+      expect(content.narrative).toContain("A");
+    });
+
+    it("Section 9 (Disclaimer) contains disclaimer text and methodology", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const section = result.sections[8];
+      expect(section.sectionType).toBe("disclaimer_methodology");
+      const content = section.content as any;
+      expect(content.disclaimer).toBe(DISCLAIMER_TEXT);
+      expect(content.methodology).toContain("30 property records");
+      expect(content.confidence.level).toBe("high");
+      expect(content.dataSources).toHaveLength(3);
+    });
+
+    it("handles missing agent results gracefully", () => {
+      const result = assembleReport(makeAnalytics(), {}, defaultDurations);
+      expect(result.sections).toHaveLength(9);
+
+      // Narrative-dependent sections should have null narratives
+      const exec = result.sections[0].content as any;
+      expect(exec.narrative).toBeNull();
+
+      const narrative = result.sections[4].content as any;
+      expect(narrative.editorial).toBeNull();
+
+      const forecast = result.sections[5].content as any;
+      expect(forecast.forecast).toBeNull();
+    });
+
+    it("marks stale data sources in disclaimer", () => {
+      const analytics = makeAnalytics({
+        confidence: {
+          level: "low",
+          sampleSize: 5,
+          detailCoverage: 0.1,
+          staleDataSources: ["realestateapi:search", "realestateapi:detail"],
+        },
+      });
+      const result = assembleReport(analytics, makeAgentResults(), defaultDurations);
+      const disclaimer = result.sections[8].content as any;
+      expect(disclaimer.dataSources[0].status).toBe("stale"); // search
+      expect(disclaimer.dataSources[1].status).toBe("stale"); // detail
+    });
+  });
+
+  describe("metadata", () => {
+    it("computes total duration from all layers", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      // 2000 fetch + 50 compute + 5000 + 4000 + 3000 agents = 14050
+      expect(result.metadata.totalDurationMs).toBe(14050);
+    });
+
+    it("includes agent durations", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      expect(result.metadata.agentDurations["insight-generator"]).toBe(5000);
+      expect(result.metadata.agentDurations["forecast-modeler"]).toBe(4000);
+      expect(result.metadata.agentDurations["polish-agent"]).toBe(3000);
+    });
+
+    it("includes confidence from analytics", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      expect(result.metadata.confidence.level).toBe("high");
+      expect(result.metadata.confidence.sampleSize).toBe(30);
+    });
+
+    it("includes section count", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      expect(result.metadata.sectionCount).toBe(9);
+    });
+
+    it("includes generatedAt timestamp", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      expect(result.metadata.generatedAt).toBeTruthy();
+      // Should be a valid ISO string
+      expect(() => new Date(result.metadata.generatedAt)).not.toThrow();
+    });
+  });
+
+  describe("data sources summary", () => {
+    it("marks all sources fresh when no stale data", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const disclaimer = result.sections[8].content as any;
+      expect(disclaimer.dataSources[0]).toEqual({
+        name: "RealEstateAPI (Property Search)",
+        status: "fresh",
+      });
+    });
+
+    it("marks detail source unavailable when no detail coverage", () => {
+      const analytics = makeAnalytics({
+        confidence: { level: "medium", sampleSize: 5, detailCoverage: 0, staleDataSources: [] },
+      });
+      const result = assembleReport(analytics, makeAgentResults(), defaultDurations);
+      const disclaimer = result.sections[8].content as any;
+      expect(disclaimer.dataSources[1].status).toBe("unavailable");
+    });
+  });
+
+  describe("DISCLAIMER_TEXT", () => {
+    it("is a non-empty string", () => {
+      expect(DISCLAIMER_TEXT.length).toBeGreaterThan(100);
+    });
+  });
+
+  describe("NEW_SECTION_TYPES", () => {
+    it("contains exactly 9 section types", () => {
+      expect(NEW_SECTION_TYPES).toHaveLength(9);
+    });
+  });
+});
