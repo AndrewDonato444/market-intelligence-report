@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 34 |
+| ✅ Completed | 35 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 2 |
+| ⬜ Pending | 1 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -136,7 +136,7 @@
 |---|---------|--------|------------|------|--------|
 | 60 | Report editor — adjust narratives, refine insights post-generation | vision | L | 42, 57 | ✅ |
 | 61 | Report history + versioning | vision | M | 2, 57 | ✅ |
-| 62 | Report templates — save/reuse market configurations | vision | M | 40, 61 | 🔄 |
+| 62 | Report templates — save/reuse market configurations | vision | M | 40, 61 | ✅ |
 
 **Goal**: An agent can edit any section of a generated report, maintain a version history, and reuse market configurations for future reports.
 
