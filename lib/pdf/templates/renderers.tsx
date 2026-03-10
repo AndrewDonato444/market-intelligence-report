@@ -422,6 +422,278 @@ export const MethodologySectionPdf: SectionRenderer = ({ section }) => {
   );
 };
 
+// --- Persona Intelligence (Section 10) ---
+
+interface PersonaIntelligenceContent {
+  strategy: string;
+  personas: Array<{
+    personaSlug: string;
+    personaName: string;
+    selectionOrder: number;
+    talkingPoints: Array<{
+      headline: string;
+      detail: string;
+      dataSource: string;
+      relevance: string;
+    }>;
+    narrativeOverlay: {
+      perspective: string;
+      emphasis: string[];
+      deEmphasis: string[];
+      toneGuidance: string;
+    };
+    metricEmphasis: Array<{
+      metricName: string;
+      currentValue: string;
+      interpretation: string;
+      priority: "primary" | "secondary";
+    }>;
+    vocabulary: {
+      preferred: string[];
+      avoid: string[];
+    };
+  }>;
+  blended: {
+    metricUnion: string[];
+    filterIntersection: {
+      priceRange: { min: number; max: number | null };
+      propertyTypes: string[];
+      communityTypes: string[];
+    };
+    blendedTalkingPoints: Array<{
+      headline: string;
+      detail: string;
+      dataSource: string;
+      relevance: string;
+    }>;
+    conflicts: Array<{
+      metric: string;
+      emphasizedBy: string;
+      deEmphasizedBy: string;
+      resolution: string;
+    }>;
+  } | null;
+  meta: {
+    personaCount: number;
+    primaryPersona: string;
+    modelUsed: string;
+    promptTokens: number;
+    completionTokens: number;
+  };
+}
+
+/**
+ * Humanize a dataSource key like "yoy.volumeChange" → "YoY Volume Change"
+ */
+function humanizeDataSource(key: string): string {
+  // Split on dots, then camelCase → words
+  return key
+    .split(".")
+    .map((segment) => {
+      // Special case: "yoy" → "YoY"
+      if (segment.toLowerCase() === "yoy") return "YoY";
+      // camelCase → space-separated, capitalize each word
+      return segment
+        .replace(/([a-z])([A-Z])/g, "$1 $2")
+        .replace(/^./, (c) => c.toUpperCase());
+    })
+    .join(" ");
+}
+
+function TalkingPointPdf({ tp }: { tp: { headline: string; detail: string; dataSource: string } }) {
+  return (
+    <View style={{ marginBottom: 12 }}>
+      <Text style={styles.talkingPointHeadline}>{tp.headline}</Text>
+      <Text style={styles.talkingPointDetail}>{tp.detail}</Text>
+      <Text style={styles.talkingPointSource}>Source: {humanizeDataSource(tp.dataSource)}</Text>
+    </View>
+  );
+}
+
+function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["personas"][0] }) {
+  const isPrimary = persona.selectionOrder === 1;
+  return (
+    <View style={isPrimary ? styles.personaCardPrimary : styles.personaCard}>
+      {/* Persona name */}
+      <Text style={styles.personaName}>{persona.personaName}</Text>
+      {isPrimary && <Text style={styles.primaryPersonaLabel}>PRIMARY PERSONA</Text>}
+
+      {/* Talking Points */}
+      <Text style={styles.sectionLabel}>TALKING POINTS</Text>
+      {persona.talkingPoints.map((tp, i) => (
+        <TalkingPointPdf key={i} tp={tp} />
+      ))}
+
+      <View style={styles.divider} />
+
+      {/* Narrative Lens */}
+      <Text style={styles.sectionLabel}>NARRATIVE LENS</Text>
+      <Text style={styles.body}>{persona.narrativeOverlay.perspective}</Text>
+      <Text style={styles.bodySmall}>
+        {"Emphasize: "}
+        {persona.narrativeOverlay.emphasis.map((item, i) => (
+          <Text key={i}>
+            <Text style={{ color: COLORS.success }}>{"\u25CF "}</Text>
+            {item}
+            {i < persona.narrativeOverlay.emphasis.length - 1 ? "  " : ""}
+          </Text>
+        ))}
+      </Text>
+      <Text style={styles.bodySmall}>
+        {"De-emphasize: "}
+        {persona.narrativeOverlay.deEmphasis.map((item, i) => (
+          <Text key={i}>
+            <Text style={{ color: COLORS.textSecondary }}>{"\u25CB "}</Text>
+            {item}
+            {i < persona.narrativeOverlay.deEmphasis.length - 1 ? "  " : ""}
+          </Text>
+        ))}
+      </Text>
+      <Text style={{ ...styles.bodySmall, fontStyle: "italic" }}>
+        {persona.narrativeOverlay.toneGuidance}
+      </Text>
+
+      <View style={styles.divider} />
+
+      {/* Key Metrics */}
+      <Text style={styles.sectionLabel}>KEY METRICS</Text>
+      <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
+        <Text style={{ ...styles.tableHeader, flex: 2 }}>Metric</Text>
+        <Text style={{ ...styles.tableHeader, flex: 1 }}>Value</Text>
+        <Text style={{ ...styles.tableHeader, flex: 3 }}>Interpretation</Text>
+      </View>
+      {persona.metricEmphasis.map((metric, i) => (
+        <View key={i} style={styles.tableRow}>
+          <Text
+            style={{
+              ...styles.tableCell,
+              flex: 2,
+              fontWeight: metric.priority === "primary" ? 700 : 400,
+            }}
+          >
+            {metric.metricName}
+          </Text>
+          <Text style={{ ...styles.tableCell, flex: 1 }}>{metric.currentValue}</Text>
+          <Text style={{ ...styles.tableCell, flex: 3 }}>{metric.interpretation}</Text>
+        </View>
+      ))}
+
+      <View style={styles.divider} />
+
+      {/* Vocabulary Guide */}
+      <Text style={styles.sectionLabel}>VOCABULARY GUIDE</Text>
+      <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 4 }}>
+        <Text style={styles.bodySmall}>Use: </Text>
+        {persona.vocabulary.preferred.map((term, i) => (
+          <Text key={i} style={styles.vocabTagPreferred}>{term}</Text>
+        ))}
+      </View>
+      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+        <Text style={styles.bodySmall}>Avoid: </Text>
+        {persona.vocabulary.avoid.map((term, i) => (
+          <Text key={i} style={styles.vocabTagAvoid}>{term}</Text>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function BlendedInsightsPdf({ blended }: { blended: NonNullable<PersonaIntelligenceContent["blended"]> }) {
+  const { filterIntersection: fi } = blended;
+  const priceLabel = fi.priceRange.max
+    ? `$${(fi.priceRange.min / 1_000_000).toFixed(0)}M–$${(fi.priceRange.max / 1_000_000).toFixed(0)}M`
+    : `$${(fi.priceRange.min / 1_000_000).toFixed(0)}M+`;
+
+  return (
+    <View style={styles.blendedSection}>
+      <Text style={{ ...styles.personaName, marginBottom: 12 }}>BLENDED INTELLIGENCE</Text>
+
+      {/* Combined Talking Points */}
+      <Text style={styles.sectionLabel}>COMBINED TALKING POINTS</Text>
+      {blended.blendedTalkingPoints.map((tp, i) => (
+        <TalkingPointPdf key={i} tp={tp} />
+      ))}
+
+      <View style={styles.divider} />
+
+      {/* Metric Union */}
+      <Text style={styles.sectionLabel}>METRIC UNION</Text>
+      <Text style={styles.body}>{blended.metricUnion.join(" \u2022 ")}</Text>
+
+      {/* Filter Overlap */}
+      <Text style={styles.sectionLabel}>FILTER OVERLAP</Text>
+      <Text style={styles.body}>
+        Price: {priceLabel}  |  Types: {fi.propertyTypes.join(", ")}
+      </Text>
+      <Text style={styles.body}>
+        Communities: {fi.communityTypes.join(", ")}
+      </Text>
+
+      {/* Conflicts */}
+      {blended.conflicts.length > 0 && (
+        <View style={{ marginTop: 8 }}>
+          <Text style={styles.sectionLabel}>CONFLICTS</Text>
+          {blended.conflicts.map((conflict, i) => (
+            <View key={i} style={styles.conflictBox}>
+              <Text style={styles.body}>
+                &ldquo;{conflict.metric}&rdquo; — emphasized by {conflict.emphasizedBy}, de-emphasized by {conflict.deEmphasizedBy}.
+              </Text>
+              <Text style={{ ...styles.bodySmall, fontStyle: "italic" }}>
+                {conflict.resolution}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+}
+
+export const PersonaIntelligencePdf: SectionRenderer = ({ section }) => {
+  const content = section.content as PersonaIntelligenceContent;
+  const sortedPersonas = [...content.personas].sort(
+    (a, b) => a.selectionOrder - b.selectionOrder
+  );
+
+  return (
+    <View>
+      {sortedPersonas.map((persona, i) => (
+        <PersonaCardPdf key={i} persona={persona} />
+      ))}
+      {content.blended && <BlendedInsightsPdf blended={content.blended} />}
+    </View>
+  );
+};
+
+// --- PersonaFraming Callout (injected into narrative sections 1, 5, 6, 8) ---
+
+interface PersonaFramingData {
+  personaName: string;
+  perspective: string;
+  emphasis: string[];
+  deEmphasis: string[];
+  toneGuidance: string;
+}
+
+export const PersonaFramingCallout: React.FC<{
+  personaFraming: PersonaFramingData | null | undefined;
+}> = ({ personaFraming }) => {
+  if (!personaFraming) return null;
+  return (
+    <View style={styles.personaCallout}>
+      <Text style={styles.personaCalloutLabel}>
+        Persona Lens: {personaFraming.personaName}
+      </Text>
+      <Text style={styles.personaCalloutBody}>
+        {personaFraming.perspective}
+      </Text>
+      <Text style={styles.personaCalloutFocus}>
+        Focus: {personaFraming.emphasis.join(" \u2022 ")}
+      </Text>
+    </View>
+  );
+};
+
 // --- Generic Section (fallback) ---
 
 export const GenericSectionPdf: SectionRenderer = ({ section }) => {
@@ -447,6 +719,7 @@ const RENDERER_MAP: Record<string, SectionRenderer> = {
   competitive_market_analysis: CompetitiveAnalysisPdf,
   polished_report: PolishedReportPdf,
   methodology: MethodologySectionPdf,
+  persona_intelligence: PersonaIntelligencePdf,
 };
 
 export function getSectionRenderer(sectionType: string): SectionRenderer {

@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-10 — Persona Content in PDF Template
+
+- **PDF renderer dispatch pattern** (`design.md`): Register in RENDERER_MAP, export component, getSectionRenderer dispatches by sectionType string
+- **Cross-cutting callout injection** (`design.md`): Add PersonaFramingCallout at SectionPage level (not per-renderer) — avoids duplicating logic across 4 renderers
+- **Data source humanization** (`general.md`): camelCase dot-notation keys → title case via regex split + capitalize; special-case "yoy" → "YoY"
+- **getAllByText for multi-match** (`testing.md`): When rendered content repeats across personas/sections, use `getAllByText().length > 0` instead of `getByText` which throws on multiple matches
+
 ### 2026-03-10 — Persona Intelligence Agent
 
 - **Agent template pattern** (`general.md`): 4-step pipeline registration: agent file → ALL_AGENTS → SECTION_REGISTRY_V2 → section-grouping loop
