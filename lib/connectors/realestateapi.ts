@@ -383,6 +383,8 @@ export async function searchProperties(
 
     const result = parseSearchResults(raw);
     await cache.set(cacheKey, "realestateapi", result);
+    // Stale fallback copy — survives normal TTL expiration (7-day window)
+    await cache.set(cacheKey + ":stale", "realestateapi", result, 604800);
 
     if (options.userId) {
       await logApiCall({
@@ -730,6 +732,8 @@ export async function getPropertyDetail(
 
     const result = parseDetail(raw);
     await cache.set(cacheKey, "realestateapi", result);
+    // Stale fallback copy — survives normal TTL expiration (7-day window)
+    await cache.set(cacheKey + ":stale", "realestateapi", result, 604800);
 
     if (options.userId) {
       await logApiCall({
@@ -815,6 +819,8 @@ export async function getPropertyComps(
 
     const result = parseComps(raw);
     await cache.set(cacheKey, "realestateapi", result);
+    // Stale fallback copy — survives normal TTL expiration (7-day window)
+    await cache.set(cacheKey + ":stale", "realestateapi", result, 604800);
 
     if (options.userId) {
       await logApiCall({

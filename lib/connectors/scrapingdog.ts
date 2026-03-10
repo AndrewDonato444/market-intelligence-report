@@ -135,6 +135,8 @@ export async function searchLocal(
 
     const result = parseLocalResults(raw as RawLocalResponse, query);
     await cache.set(cacheKey, "scrapingdog", result);
+    // Stale fallback copy — survives normal TTL expiration (7-day window)
+    await cache.set(cacheKey + ":stale", "scrapingdog", result, 604800);
 
     if (options.userId) {
       await logApiCall({
@@ -230,6 +232,8 @@ export async function scrapeUrl(
 
     const result = { html: text, url: targetUrl };
     await cache.set(cacheKey, "scrapingdog", result);
+    // Stale fallback copy — survives normal TTL expiration (7-day window)
+    await cache.set(cacheKey + ":stale", "scrapingdog", result, 604800);
 
     if (options.userId) {
       await logApiCall({

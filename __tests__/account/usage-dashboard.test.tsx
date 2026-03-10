@@ -7,6 +7,35 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn() }),
 }));
 
+describe("Regression: Usage page resolves authId to DB userId", () => {
+  it("PG-USG-R1: usage page imports getProfile for userId resolution", () => {
+    const content = fs.readFileSync(
+      path.join(process.cwd(), "app/(protected)/settings/usage/page.tsx"),
+      "utf-8"
+    );
+    expect(content).toContain('import { getProfile }');
+  });
+
+  it("PG-USG-R2: usage page passes profile.id (not authId) to getUsageSummary", () => {
+    const content = fs.readFileSync(
+      path.join(process.cwd(), "app/(protected)/settings/usage/page.tsx"),
+      "utf-8"
+    );
+    // Must use profile.id, NOT authId directly
+    expect(content).toContain("getUsageSummary(profile.id)");
+    expect(content).not.toMatch(/getUsageSummary\(authId\)/);
+  });
+
+  it("PG-USG-R3: usage page passes profile.id (not authId) to getUsageLog", () => {
+    const content = fs.readFileSync(
+      path.join(process.cwd(), "app/(protected)/settings/usage/page.tsx"),
+      "utf-8"
+    );
+    expect(content).toContain("getUsageLog(profile.id");
+    expect(content).not.toMatch(/getUsageLog\(authId/);
+  });
+});
+
 describe("Usage Dashboard", () => {
   describe("Settings nav includes Usage tab", () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports

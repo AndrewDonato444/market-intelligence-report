@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/supabase/admin-auth";
 import { registry } from "@/lib/services/data-source-registry";
 
 /**
@@ -6,6 +7,11 @@ import { registry } from "@/lib/services/data-source-registry";
  * Returns all registered data sources with their current health snapshots.
  */
 export async function GET() {
+  const adminId = await requireAdmin();
+  if (!adminId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   return NextResponse.json({ sources: registry.toJSON() });
 }
 
@@ -14,6 +20,11 @@ export async function GET() {
  * Actions: "health-check" — runs health checks on all connectors.
  */
 export async function POST(request: Request) {
+  const adminId = await requireAdmin();
+  if (!adminId) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const body = await request.json();
 
   if (body.action === "health-check") {

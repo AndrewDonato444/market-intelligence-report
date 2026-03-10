@@ -9,8 +9,8 @@ interface PersonaForPreview {
   narrativeFraming: {
     keyVocabulary: string[];
   } | null;
-  reportMetrics: Array<{ metric: string; priority?: string }> | null;
-  talkingPointTemplates: Array<{ template: string }> | null;
+  reportMetrics: string[] | null;
+  talkingPointTemplates: string[] | null;
 }
 
 interface PersonaPreviewPanelProps {
@@ -24,7 +24,7 @@ export function PersonaPreviewPanel({
 }: PersonaPreviewPanelProps) {
   const keyVocabulary = persona.narrativeFraming?.keyVocabulary ?? [];
   const reportMetrics = (persona.reportMetrics ?? []).slice(0, 3);
-  const firstTemplate = persona.talkingPointTemplates?.[0]?.template;
+  const firstTemplate = persona.talkingPointTemplates?.[0];
 
   return (
     <div
@@ -74,12 +74,12 @@ export function PersonaPreviewPanel({
             Top Report Metrics
           </p>
           <ul className="list-disc list-inside">
-            {reportMetrics.map((m) => (
+            {reportMetrics.map((metric) => (
               <li
-                key={m.metric}
+                key={metric}
                 className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text)]"
               >
-                {m.metric}
+                {metric}
               </li>
             ))}
           </ul>

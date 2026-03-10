@@ -137,6 +137,30 @@ describe("RealEstateAPI Connector", () => {
       );
     });
 
+    it("Regression: writes stale fallback copy alongside normal cache", async () => {
+      mockCacheGet.mockResolvedValue(null);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockSearchResponse),
+      });
+
+      await searchProperties({ city: "Naples", state: "FL" });
+
+      // Must write both: normal cache key AND stale fallback key
+      const setCalls = mockCacheSet.mock.calls;
+      const normalWrite = setCalls.find(
+        (c: unknown[]) => typeof c[0] === "string" && !c[0].endsWith(":stale")
+      );
+      const staleWrite = setCalls.find(
+        (c: unknown[]) => typeof c[0] === "string" && c[0].endsWith(":stale")
+      );
+
+      expect(normalWrite).toBeDefined();
+      expect(staleWrite).toBeDefined();
+      // Stale copy should have a 7-day TTL
+      expect(staleWrite![3]).toBe(604800);
+    });
+
     it("logs API call on cache miss", async () => {
       mockCacheGet.mockResolvedValue(null);
       mockFetch.mockResolvedValue({

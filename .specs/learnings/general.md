@@ -26,7 +26,12 @@ _No learnings yet._
 
 <!-- Build tools, linting, formatting -->
 
-- **NEVER run `supabase db reset`** — it destroys all local data. To apply a new migration locally, use `node -e` with the `postgres` npm package to run SQL directly, or direct the user to Supabase Studio (`http://localhost:54323` → SQL Editor). No `psql` is installed locally.
+- **⛔ NEVER run `supabase db reset` or `npm run db:reset`** — it destroys ALL local data (user-created markets, reports, profiles, everything). This has caused data loss twice. To apply a new migration locally:
+  1. **Preferred**: `node -e "const pg = require('postgres'); const sql = pg('postgresql://postgres:postgres@127.0.0.1:54422/postgres'); const fs = require('fs'); sql.unsafe(fs.readFileSync('supabase/migrations/FILE.sql','utf8')).then(()=>{console.log('Done');sql.end()}).catch(e=>{console.error(e);sql.end()})"`
+  2. **Alternative**: Supabase Studio (`http://127.0.0.1:54423` → SQL Editor → paste migration SQL → Run)
+  3. **Alternative**: `npx supabase migration up --local` (applies only unapplied migrations)
+  4. No `psql` is installed locally.
+  - See `migrations.md` for full policy. The ONLY acceptable use of `db:reset` is on a brand-new machine with no user data, or when the user explicitly asks for a full wipe.
 - **Split environment**: Auth runs on **remote** Supabase (`NEXT_PUBLIC_SUPABASE_URL`), database queries run on **local** Docker (`DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54422/postgres`). This means:
   - `supabase db push --linked` applies migrations to **remote only**
   - Local DB needs migrations applied separately (via node script or Studio)

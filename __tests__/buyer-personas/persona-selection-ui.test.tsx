@@ -42,9 +42,9 @@ const mockPersonas = [
     profileOverview:
       "Founder, CEO, PE partner, hedge fund manager. Treats real estate as an asset class. Every purchase is underwritten.",
     reportMetrics: [
-      { metric: "CAGR by Micro-Market", priority: "critical" },
-      { metric: "Price Per Square Foot Trends", priority: "critical" },
-      { metric: "Days on Market vs Sold Price", priority: "high" },
+      "CAGR by Micro-Market",
+      "Price Per Square Foot Trends",
+      "Days on Market vs Sold Price",
     ],
     narrativeFraming: {
       languageTone: "Institutional and precise",
@@ -52,10 +52,7 @@ const mockPersonas = [
       avoid: ["dream home", "paradise"],
     },
     talkingPointTemplates: [
-      {
-        template:
-          "In [period], ultra-luxury volume ($10M+) reached [value], representing...",
-      },
+      "In [period], ultra-luxury volume ($10M+) reached [value], representing...",
     ],
     demographics: { ageRange: "45-65", netWorth: "$20M-$200M+" },
     decisionDrivers: [],
@@ -74,7 +71,7 @@ const mockPersonas = [
     biggestFear: "A property without soul",
     profileOverview: "Values multi-generational wealth and family legacy.",
     reportMetrics: [
-      { metric: "Historical Price Appreciation", priority: "critical" },
+      "Historical Price Appreciation",
     ],
     narrativeFraming: {
       languageTone: "Warm and narrative",
@@ -82,7 +79,7 @@ const mockPersonas = [
       avoid: ["flip", "speculation"],
     },
     talkingPointTemplates: [
-      { template: "The [community] has attracted families for [decades]..." },
+      "The [community] has attracted families for [decades]...",
     ],
     demographics: { ageRange: "55-75", netWorth: "$10M-$100M" },
     decisionDrivers: [],
@@ -107,7 +104,7 @@ const mockPersonas = [
       avoid: ["investment vehicle"],
     },
     talkingPointTemplates: [
-      { template: "The [area] offers unmatched waterfront living..." },
+      "The [area] offers unmatched waterfront living...",
     ],
     demographics: { ageRange: "40-60", netWorth: "$5M-$50M" },
     decisionDrivers: [],
@@ -420,6 +417,28 @@ describe("Persona Selection UI [CMP-PSU]", () => {
       expect(screen.getByTestId("persona-preview-panel")).toBeInTheDocument();
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /close preview/i })); });
       expect(screen.queryByTestId("persona-preview-panel")).not.toBeInTheDocument();
+    });
+
+    it("CMP-PSU-R1: Regression: reportMetrics as string[] renders without crash", async () => {
+      // DB schema stores reportMetrics as string[], not Array<{metric, priority}>
+      // This test ensures the component handles the actual DB shape
+      await renderAtPersonaStep();
+      const previewButtons = screen.getAllByRole("button", { name: /preview/i });
+      await act(async () => { fireEvent.click(previewButtons[0]); });
+      // Verify string values render directly (not [object Object])
+      const panel = screen.getByTestId("persona-preview-panel");
+      expect(panel.textContent).toContain("CAGR by Micro-Market");
+      expect(panel.textContent).not.toContain("[object Object]");
+    });
+
+    it("CMP-PSU-R2: Regression: talkingPointTemplates as string[] renders without crash", async () => {
+      // DB schema stores talkingPointTemplates as string[], not Array<{template}>
+      await renderAtPersonaStep();
+      const previewButtons = screen.getAllByRole("button", { name: /preview/i });
+      await act(async () => { fireEvent.click(previewButtons[0]); });
+      const panel = screen.getByTestId("persona-preview-panel");
+      expect(panel.textContent).toContain("ultra-luxury volume");
+      expect(panel.textContent).not.toContain("[object Object]");
     });
 
     it("CMP-PSU-23: clicking Preview on different persona switches panel", async () => {

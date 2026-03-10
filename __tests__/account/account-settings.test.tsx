@@ -201,4 +201,43 @@ describe("Account Settings", () => {
       expect(content).toContain("SettingsNav");
     });
   });
+
+  describe("Regression: Account page fetches real stats from DB", () => {
+    it("PG-ACC-R1: account page queries reports table for count", () => {
+      const content = fs.readFileSync(
+        path.join(
+          process.cwd(),
+          "app/(protected)/settings/account/page.tsx"
+        ),
+        "utf-8"
+      );
+      expect(content).toContain("schema.reports");
+      expect(content).toContain("count()");
+    });
+
+    it("PG-ACC-R2: account page queries markets table for count", () => {
+      const content = fs.readFileSync(
+        path.join(
+          process.cwd(),
+          "app/(protected)/settings/account/page.tsx"
+        ),
+        "utf-8"
+      );
+      expect(content).toContain("schema.markets");
+    });
+
+    it("PG-ACC-R3: account page does NOT hardcode zero stats", () => {
+      const content = fs.readFileSync(
+        path.join(
+          process.cwd(),
+          "app/(protected)/settings/account/page.tsx"
+        ),
+        "utf-8"
+      );
+      // Must not contain the exact hardcoded pattern
+      expect(content).not.toContain(
+        "stats={{ reportCount: 0, marketCount: 0 }}"
+      );
+    });
+  });
 });

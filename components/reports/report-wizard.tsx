@@ -33,13 +33,13 @@ interface BuyerPersona {
   whatWinsThem: string;
   biggestFear: string;
   profileOverview: string;
-  reportMetrics: Array<{ metric: string; priority?: string }> | null;
+  reportMetrics: string[] | null;
   narrativeFraming: {
     languageTone: string;
     keyVocabulary: string[];
     avoid: string[];
   } | null;
-  talkingPointTemplates: Array<{ template: string }> | null;
+  talkingPointTemplates: string[] | null;
 }
 
 interface ReportWizardProps {

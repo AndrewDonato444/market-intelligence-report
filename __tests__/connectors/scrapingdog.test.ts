@@ -115,6 +115,28 @@ describe("ScrapingDog Connector", () => {
       );
     });
 
+    it("Regression: writes stale fallback copy alongside normal cache", async () => {
+      mockCacheGet.mockResolvedValue(null);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockLocalResponse),
+      });
+
+      await searchLocal("luxury restaurants Naples", "Naples, FL");
+
+      const setCalls = mockCacheSet.mock.calls;
+      const normalWrite = setCalls.find(
+        (c: unknown[]) => typeof c[0] === "string" && !c[0].endsWith(":stale")
+      );
+      const staleWrite = setCalls.find(
+        (c: unknown[]) => typeof c[0] === "string" && c[0].endsWith(":stale")
+      );
+
+      expect(normalWrite).toBeDefined();
+      expect(staleWrite).toBeDefined();
+      expect(staleWrite![3]).toBe(604800);
+    });
+
     it("logs API call on cache miss", async () => {
       mockCacheGet.mockResolvedValue(null);
       mockFetch.mockResolvedValue({
