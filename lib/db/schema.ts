@@ -8,6 +8,7 @@ import {
   integer,
   numeric,
   index,
+  uniqueIndex,
   pgEnum,
 } from "drizzle-orm/pg-core";
 
@@ -312,5 +313,123 @@ export const apiUsage = pgTable(
     index("api_usage_report_id_idx").on(table.reportId),
     index("api_usage_provider_idx").on(table.provider),
     index("api_usage_created_at_idx").on(table.createdAt),
+  ]
+);
+
+// --- Buyer Persona Types ---
+
+export type BuyerPersonaDemographics = {
+  ageRange: string;
+  netWorth: string;
+  primaryResidence: string;
+  purchaseType: string;
+  transactionSpeed: string;
+  financing: string;
+  informationStyle: string;
+  trustSignals: string;
+};
+
+export type DecisionDriver = {
+  factor: string;
+  weight: "critical" | "high" | "moderate";
+  description: string;
+};
+
+export type NarrativeFraming = {
+  languageTone: string;
+  keyVocabulary: string[];
+  avoid: string[];
+};
+
+export type PropertyFilters = {
+  priceRange: string;
+  propertyType: string;
+  communityType?: string;
+  yearBuilt?: string;
+  waterfront?: string;
+  lotSize?: string;
+  furnishedStatus?: string;
+  rentalAllowed?: string;
+  security?: string;
+  livingArea?: string;
+  privatePool?: string;
+  windows?: string;
+  keyDevelopmentsExample: string;
+};
+
+export type SampleBenchmark = {
+  metric: string;
+  value: string;
+};
+
+// --- Buyer Personas Table ---
+
+export const buyerPersonas = pgTable(
+  "buyer_personas",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: varchar("name", { length: 255 }).notNull(),
+    slug: varchar("slug", { length: 100 }).notNull(),
+    tagline: text("tagline").notNull(),
+    displayOrder: integer("display_order").notNull(),
+    profileOverview: text("profile_overview").notNull(),
+    primaryMotivation: varchar("primary_motivation", { length: 255 }).notNull(),
+    buyingLens: varchar("buying_lens", { length: 255 }).notNull(),
+    whatWinsThem: varchar("what_wins_them", { length: 500 }).notNull(),
+    biggestFear: varchar("biggest_fear", { length: 255 }).notNull(),
+    demographics: jsonb("demographics")
+      .notNull()
+      .$type<BuyerPersonaDemographics>(),
+    decisionDrivers: jsonb("decision_drivers")
+      .notNull()
+      .$type<DecisionDriver[]>(),
+    reportMetrics: jsonb("report_metrics")
+      .notNull()
+      .$type<string[]>(),
+    propertyFilters: jsonb("property_filters")
+      .notNull()
+      .$type<PropertyFilters>(),
+    narrativeFraming: jsonb("narrative_framing")
+      .notNull()
+      .$type<NarrativeFraming>(),
+    talkingPointTemplates: jsonb("talking_point_templates")
+      .notNull()
+      .$type<string[]>(),
+    sampleBenchmarks: jsonb("sample_benchmarks")
+      .notNull()
+      .$type<SampleBenchmark[]>(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("buyer_personas_slug_idx").on(table.slug),
+    index("buyer_personas_display_order_idx").on(table.displayOrder),
+  ]
+);
+
+// --- Report Personas Junction Table ---
+
+export const reportPersonas = pgTable(
+  "report_personas",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    buyerPersonaId: uuid("buyer_persona_id")
+      .notNull()
+      .references(() => buyerPersonas.id, { onDelete: "cascade" }),
+    selectionOrder: integer("selection_order").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("report_personas_report_id_idx").on(table.reportId),
+    index("report_personas_buyer_persona_id_idx").on(table.buyerPersonaId),
   ]
 );

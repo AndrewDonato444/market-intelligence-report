@@ -55,7 +55,7 @@ The example Naples Intelligence Report is stored at `.specs/reference/naples-int
 | Screen | Purpose | Priority |
 |--------|---------|----------|
 | **Onboarding / Market Setup** | Agent creates account, defines their market (geography, segments, luxury tiers) | Core |
-| **Report Builder - Inputs** | Guided wizard to collect market parameters, select data sources, customize sections | Core |
+| **Report Builder - Inputs** | Guided wizard to collect market parameters, select buyer personas (up to 3), select data sources, customize sections | Core |
 | **Data Pipeline Status** | Shows API calls in progress, caching status, agent pipeline progress | Core |
 | **Report Preview** | Live preview of the generated report as it's being assembled | Core |
 | **Report Editor** | Post-generation editing — adjust narratives, swap photos, refine insights | Core |
@@ -84,6 +84,65 @@ The example Naples Intelligence Report is stored at `.specs/reference/naples-int
 
 ---
 
+## Buyer Persona Intelligence
+
+The LMIR is not one-size-fits-all. Luxury real estate agents serve different buyer archetypes — each with distinct decision frameworks, vocabulary, risk tolerances, and information needs. The platform enables agents to select which buyer personas their report should address, and the system generates persona-specific insights, talking points, and narrative framing tailored to those audiences.
+
+**These are not our users.** Our users are the luxury agents. These personas represent the agent's clients — the buyers they're advising. By selecting personas during report generation, agents get content that directly addresses what their specific buyers care about.
+
+### Buyer Persona Framework
+
+The platform supports 8 universal luxury buyer archetypes, derived from the Knox Brothers Intelligence Framework:
+
+| # | Persona | Core Driver | Buying Lens | What Wins Them Over |
+|---|---------|-------------|-------------|---------------------|
+| 01 | The Private Equity & Finance Principal | Smart capital allocation | ROI + Tax + Leverage | Data, market intelligence, exclusivity |
+| 02 | The Legacy Wealth & Multigenerational Family | Meaning and legacy | Long-term hold | Story + emotional significance |
+| 03 | The Retiring UHNW Individual | Lifestyle upgrade | Experience | Design + tranquility |
+| 04 | The Tech Founder & Entrepreneur | Efficiency | Liquidity strategy | Efficiency + innovation |
+| 05 | The Seasonal & Second-Home Buyer | Peace and balance | Experience | Design + tranquility |
+| 06 | The International Buyer | Efficiency and global competence | Portfolio diversification | Concierge-level service |
+| 07 | The Celebrity / Public Figure | Privacy | Discretion | Off-market access |
+| 08 | The Corporate Executive & C-Suite Relocator | Time savings | Liquidity strategy | Efficiency + innovation |
+
+Each persona includes:
+- **Decision Drivers & Priority Matrix** — weighted factors the persona evaluates (Critical / High / Moderate)
+- **Report Intelligence Specifications** — the specific metrics and analyses this persona needs to see
+- **Property Filter Criteria** — price range, property type, community type, year built preferences
+- **Narrative Framing** — language, tone, vocabulary to use (and avoid) when writing for this persona
+- **Agent Talking Points** — templated data-driven conversation starters built from market data
+
+### Multi-Persona Output Strategy (TBD)
+
+Agents can select up to 3 personas per report. **Open design decision**: how persona content appears in the final report. Two approaches under consideration:
+
+**Option A: Blended Report** — Persona insights are woven throughout the report. The narrative tone, metric emphasis, and talking points blend all selected personas into a unified document. Rules from the Knox Brothers framework apply:
+1. Metric Union — include all primary metrics from all selected personas; use the most detailed specification where they overlap
+2. Filter Intersection — apply the most restrictive filter set that still captures the target buyer
+3. Narrative Hierarchy — the first-selected persona sets the primary tone; secondary personas contribute vocabulary naturally
+4. Blended Talking Points — maximum 7 talking points addressing overlapping concerns
+5. De-Emphasis Conflicts — if a metric is emphasized by one persona but de-emphasized by another, include it as secondary context
+
+**Option B: Persona-Specific Sections** — Each selected persona gets its own dedicated section in the report with tailored talking points, metric emphasis, and narrative framing. The core data sections remain neutral; persona sections are additive.
+
+**Option C: Hybrid** — Core report stays neutral, but a persona appendix or addendum provides per-persona talking points and framing that the agent can use in conversations.
+
+This decision will be made during the spec phase for feature #92 (Persona Intelligence Agent).
+
+### Market Calibration
+
+All persona intelligence specifications are market-agnostic by design. When generating for a specific market, the system must:
+- Adjust price tier boundaries to local luxury definitions
+- Substitute local community names and developments
+- Recalibrate seasonal patterns, DOM benchmarks, and cash transaction norms
+- Adapt community type filters to local equivalents (golf, waterfront, ski, urban high-rise, etc.)
+
+### Reference Document
+
+The full persona framework with detailed specifications is stored at `.specs/reference/knox-brothers-persona-framework.pdf`.
+
+---
+
 ## Agent Pipeline
 
 The report generation process is not a single API call — it's a pipeline of specialized agents:
@@ -95,7 +154,8 @@ The report generation process is not a single API call — it's a pipeline of sp
 | **Insight Generator** | Transforms analysis into strategic narratives, identifies key themes | Structured analysis | Section-by-section narrative content |
 | **Competitive Analyst** | Compares target market against peer luxury markets | Target market data + peer market data | Competitive positioning content |
 | **Forecast Modeler** | Projects forward trends, assigns confidence ratings | Historical data + current signals | Forecasts with confidence levels |
-| **Report Assembler** | Combines all outputs into the final report layout | All agent outputs + design tokens | Complete report draft |
+| **Persona Intelligence Agent** | Reframes data and insights through selected buyer persona lenses — generates persona-specific talking points, narrative framing, and metric emphasis | All prior agent outputs + selected persona specs | Persona-tailored content sections, blended talking points, persona-specific narrative overlays |
+| **Report Assembler** | Combines all outputs into the final report layout | All agent outputs (including persona content) + design tokens | Complete report draft |
 | **Polish Agent** | Final pass for consistency, tone, formatting, pull quotes | Draft report | Publication-ready report |
 
 ---

@@ -35,3 +35,7 @@ export type CacheEntry = typeof schema.cache.$inferSelect;
 export type NewCacheEntry = typeof schema.cache.$inferInsert;
 export type ApiUsageEntry = typeof schema.apiUsage.$inferSelect;
 export type NewApiUsageEntry = typeof schema.apiUsage.$inferInsert;
+export type BuyerPersona = typeof schema.buyerPersonas.$inferSelect;
+export type NewBuyerPersona = typeof schema.buyerPersonas.$inferInsert;
+export type ReportPersona = typeof schema.reportPersonas.$inferSelect;
+export type NewReportPersona = typeof schema.reportPersonas.$inferInsert;
