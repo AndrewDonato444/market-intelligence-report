@@ -7,6 +7,7 @@ const navItems = [
   { label: "Back to App", href: "/dashboard", icon: "arrow-left" },
   { label: "Eval Suite", href: "/admin/eval", icon: "beaker" },
   { label: "Data Sources", href: "/admin/data-sources", icon: "database" },
+  { label: "Pipeline", href: "/admin/pipeline", icon: "pipeline" },
 ];
 
 const iconMap: Record<string, React.ReactNode> = {
@@ -27,6 +28,15 @@ const iconMap: Record<string, React.ReactNode> = {
       <ellipse cx="12" cy="5" rx="9" ry="3" />
       <path d="M3 5v14a9 3 0 0 0 18 0V5" />
       <path d="M3 12a9 3 0 0 0 18 0" />
+    </svg>
+  ),
+  pipeline: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="3" width="6" height="5" rx="1" />
+      <rect x="16" y="3" width="6" height="5" rx="1" />
+      <rect x="9" y="16" width="6" height="5" rx="1" />
+      <path d="M5 8v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8" />
+      <path d="M12 13v3" />
     </svg>
   ),
 };
