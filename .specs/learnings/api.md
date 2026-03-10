@@ -55,6 +55,9 @@ The RealEstateAPI has free/cheap query modes to use before full data pulls:
 - Stale cache fallback on API errors (graceful degradation)
 - Rate limit errors (429) should trigger backoff
 
+### 2026-03-10 — Claude Agent Error Tagging
+- **Pattern**: All Claude agents tag errors with `retriable: boolean` before throwing. HTTP 429/500/503 → `retriable: true`. JSON parse failures → `retriable: true` (LLM may produce valid JSON on retry). Abort signals and 400-class errors → `retriable: false`. The orchestrator's `executeWithRetry` reads this flag to decide whether to retry with exponential backoff.
+
 ---
 
 ## Data Shapes

@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-10 — Persona Intelligence Agent
+
+- **Agent template pattern** (`general.md`): 4-step pipeline registration: agent file → ALL_AGENTS → SECTION_REGISTRY_V2 → section-grouping loop
+- **Claude agent test mocking** (`testing.md`): Mock `@anthropic-ai/sdk` class, build `buildMockClaudeResponse(n)` helper, mock DB services with full schema shapes
+- **Error tagging for retry** (`api.md`): Tag all agent errors with `retriable: boolean` — 429/500/503 and JSON parse → true, abort/400 → false
+- **Graceful upstream degradation** (feature spec): Note missing upstreams in prompt instead of throwing — partial context still produces useful output
+
 ### 2026-03-10 — Persona Selection UI
 
 - **Wizard step insertion pattern** (`general.md`): When inserting a step, update STEPS array and shift all step index conditionals

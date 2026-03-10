@@ -26,17 +26,19 @@ import {
   type AssemblyDurations,
 } from "@/lib/agents/report-assembler";
 
-// Agent definitions — v2 pipeline uses only 3 Claude agents
+// Agent definitions — v2 pipeline uses 3 core Claude agents + persona intelligence
 import { insightGeneratorAgent } from "@/lib/agents/insight-generator";
 import { forecastModelerAgent } from "@/lib/agents/forecast-modeler";
 import { polishAgent } from "@/lib/agents/polish-agent";
+import { personaIntelligenceAgent } from "@/lib/agents/persona-intelligence";
 
-// --- All agents in pipeline order (v2: 3 agents, no data-analyst / competitive-analyst) ---
+// --- All agents in pipeline order (v2: 4 agents, no data-analyst / competitive-analyst) ---
 
 const ALL_AGENTS = [
   insightGeneratorAgent,
   forecastModelerAgent,
   polishAgent,
+  personaIntelligenceAgent,
 ];
 
 // --- Singleton runner ---
@@ -182,7 +184,7 @@ export async function executePipeline(reportId: string): Promise<void> {
 
     // Build agent results map from pipeline output
     // Group sections by their source agent using the v2 registry
-    for (const agentName of ["insight-generator", "forecast-modeler", "polish-agent"]) {
+    for (const agentName of ["insight-generator", "forecast-modeler", "polish-agent", "persona-intelligence"]) {
       const agentSections = agentResult.sections.filter((s) => {
         const entry = SECTION_REGISTRY_V2.find((r) => r.sectionType === s.sectionType);
         return entry?.sourceAgent === agentName;

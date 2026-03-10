@@ -88,6 +88,7 @@ export const SECTION_REGISTRY_V2: SectionRegistryEntry[] = [
   { sectionType: "comparative_positioning", sourceAgent: "assembler", required: true, reportOrder: 7 },
   { sectionType: "strategic_benchmark", sourceAgent: "polish-agent", required: false, reportOrder: 8 },
   { sectionType: "disclaimer_methodology", sourceAgent: "assembler", required: true, reportOrder: 9 },
+  { sectionType: "persona_intelligence", sourceAgent: "persona-intelligence", required: false, reportOrder: 10 },
 ];
 
 // --- Report Data ---
