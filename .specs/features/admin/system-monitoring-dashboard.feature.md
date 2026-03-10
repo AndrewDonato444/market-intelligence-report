@@ -8,7 +8,7 @@ components:
   - SystemMonitoringDashboard
 personas:
   - internal-developer
-status: specced
+status: implemented
 created: 2026-03-10
 updated: 2026-03-10
 ---
@@ -26,7 +26,21 @@ A unified admin view showing cache statistics, API cost aggregates, and pipeline
 ### Scenario: Admin views system monitoring dashboard
 Given an admin user is signed in
 When they navigate to `/admin/monitoring`
-Then they see summary cards for Total API Calls, Total Cost, Cache Hit Rate, Pipeline Success Rate
+Then they see summary cards labeled "API Calls", "Total Cost", "Cache Hit Rate", "Pipeline Success"
+
+### Scenario: Admin refreshes dashboard data
+Given the dashboard is loaded
+When they click the "Refresh" button
+Then the monitoring data is re-fetched for the current period
+
+### Scenario: Dashboard shows loading state
+Given the admin navigates to `/admin/monitoring`
+While data is being fetched
+Then they see a loading spinner and "Loading monitoring data..." message
+
+### Scenario: Dashboard shows error state
+Given the monitoring API returns an error
+Then the admin sees an error message with the failure details
 
 ### Scenario: Admin filters by time period
 Given an admin is on the monitoring dashboard
@@ -48,6 +62,12 @@ Then the admin sees total runs by status, average duration, and recent failures
 ### Scenario: Data source status
 Given the dashboard is loaded
 Then the admin sees each data source health status and can trigger health checks
+
+### Scenario: Admin triggers health check
+Given the dashboard is loaded
+When the admin clicks "Check All"
+Then a POST request is sent to `/api/admin/monitoring` with `{ action: "health-check" }`
+And the data source statuses update with fresh results
 
 ### Scenario: Non-admin user is rejected
 Given a user with role 'user' navigates to `/admin/monitoring`
