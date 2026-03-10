@@ -695,21 +695,65 @@ export function getFixture(id: string): EvalFixture {
   return fixture;
 }
 
-/** Helper: summarize a fixture for the judge prompt */
+/** Helper: summarize a fixture for the judge prompt.
+ *  Includes segment-level detail so the judge can verify data grounding
+ *  against the actual numbers the agent received, not just top-level metrics. */
 export function summarizeFixture(fixture: EvalFixture): string {
   const { market, computedAnalytics: a } = fixture;
-  const parts = [
+  const lines: string[] = [];
+
+  // Top-level
+  const header = [
     `${market.name}, ${market.geography.state}`,
     `${market.luxuryTier.replace(/_/g, " ")} tier`,
     `${a.market.totalProperties} properties`,
     a.market.medianPrice > 0 ? `$${(a.market.medianPrice / 1_000_000).toFixed(1)}M median` : "no data",
   ];
-  if (a.yoy.medianPriceChange != null) {
-    parts.push(`${(a.yoy.medianPriceChange * 100).toFixed(1)}% YoY`);
+  if (a.market.averagePrice > 0) {
+    header.push(`$${(a.market.averagePrice / 1_000_000).toFixed(1)}M avg`);
   }
-  parts.push(`${a.confidence.level} confidence`);
+  if (a.market.medianPricePerSqft) {
+    header.push(`$${a.market.medianPricePerSqft}/sqft`);
+  }
+  if (a.market.totalVolume > 0) {
+    header.push(`$${(a.market.totalVolume / 1_000_000_000).toFixed(2)}B volume`);
+  }
+  header.push(`rating: ${a.market.rating}`);
+  lines.push(header.join(" — "));
+
+  // YoY
+  const yoyParts: string[] = [];
+  if (a.yoy.medianPriceChange != null) yoyParts.push(`price ${(a.yoy.medianPriceChange * 100).toFixed(1)}%`);
+  if (a.yoy.volumeChange != null) yoyParts.push(`volume ${(a.yoy.volumeChange * 100).toFixed(1)}%`);
+  if (a.yoy.pricePerSqftChange != null) yoyParts.push(`psf ${(a.yoy.pricePerSqftChange * 100).toFixed(1)}%`);
+  if (yoyParts.length > 0) {
+    lines.push(`YoY: ${yoyParts.join(", ")}`);
+  } else {
+    lines.push("YoY: no historical data");
+  }
+
+  // Segments
+  if (a.segments.length > 0) {
+    lines.push(`Segments (${a.segments.length}):`);
+    for (const s of a.segments) {
+      const seg = [
+        `  ${s.name}: ${s.count} properties`,
+        `$${(s.medianPrice / 1_000_000).toFixed(1)}M median`,
+      ];
+      if (s.medianPricePerSqft) seg.push(`$${s.medianPricePerSqft}/sqft`);
+      seg.push(`rating ${s.rating}`);
+      if (s.lowSample) seg.push("(LOW SAMPLE)");
+      lines.push(seg.join(", "));
+    }
+  } else {
+    lines.push("Segments: none");
+  }
+
+  // Confidence
+  lines.push(`Confidence: ${a.confidence.level} (sample: ${a.confidence.sampleSize})`);
   if (a.confidence.staleDataSources.length > 0) {
-    parts.push(`stale: ${a.confidence.staleDataSources.join(", ")}`);
+    lines.push(`Stale sources: ${a.confidence.staleDataSources.join(", ")}`);
   }
-  return parts.join(" — ");
+
+  return lines.join("\n");
 }

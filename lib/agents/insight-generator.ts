@@ -82,7 +82,8 @@ OUTPUT RULES:
 - Tone: Authoritative, data-driven, and strategic — the voice of a trusted senior analyst briefing a sophisticated client
 - Length: Overview narrative 2-3 paragraphs, executive summary 1-2 paragraphs, 3-5 strategic themes with 1-2 paragraph analyses each
 - Must include: Specific numbers from the data provided (median prices, YoY changes, segment counts), actionable buyer/seller timing recommendations, pattern identification across segments, honest confidence caveats when data is limited
-- Must avoid: Generic language ("the market is healthy"), promotional tone, fabricated numbers when data is insufficient, restating raw metrics without strategic interpretation, hedging language that adds no value ("it remains to be seen")
+- Must avoid: Generic language ("the market is healthy"), promotional tone, restating raw metrics without strategic interpretation, hedging language that adds no value ("it remains to be seen")
+- CRITICAL: Only reference numbers that appear in the input data. Do NOT fabricate, extrapolate, or invent metrics that were not provided (e.g., do not create price-per-sqft figures, property counts, or volume numbers unless they are explicitly in the input). When a metric is not available, either omit it or note its absence.
 
 EXAMPLES OF GOOD OUTPUT:
 

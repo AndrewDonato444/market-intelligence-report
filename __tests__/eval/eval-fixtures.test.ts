@@ -54,20 +54,28 @@ describe("Eval Fixtures", () => {
       expect(summary).toContain("Palm Beach");
       expect(summary).toContain("847 properties");
       expect(summary).toContain("$3.5M median");
-      expect(summary).toContain("8.2% YoY");
-      expect(summary).toContain("high confidence");
+      expect(summary).toContain("price 8.2%");
+      expect(summary).toContain("Confidence: high");
+    });
+
+    it("should include segment-level detail for judge context", () => {
+      const summary = summarizeFixture(getFixture("fixture-strong-market"));
+      expect(summary).toContain("Segments (5):");
+      expect(summary).toContain("Waterfront: 124 properties");
+      expect(summary).toContain("$1450/sqft");
+      expect(summary).toContain("Golf Community: 215 properties");
     });
 
     it("should handle empty market gracefully", () => {
       const summary = summarizeFixture(getFixture("fixture-empty-market"));
       expect(summary).toContain("0 properties");
       expect(summary).toContain("no data");
-      expect(summary).toContain("low confidence");
+      expect(summary).toContain("Confidence: low");
     });
 
     it("should include stale source info", () => {
       const summary = summarizeFixture(getFixture("fixture-stale-sources"));
-      expect(summary).toContain("stale:");
+      expect(summary).toContain("Stale sources:");
     });
   });
 

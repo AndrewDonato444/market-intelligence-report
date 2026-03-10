@@ -198,7 +198,7 @@ YEAR-OVER-YEAR TRENDS:
 - Price/SqFt Change: ${formatPercent(analysis.yoy.pricePerSqftChange)}
 
 DATA CONFIDENCE: ${analysis.confidence.level} (sample: ${analysis.confidence.sampleSize})
-${lowConfidence ? "\n⚠️ LOW CONFIDENCE DATA: Use wide ranges, low confidence ratings, and include explicit caveats. Do not produce specific point estimates." : ""}
+${analysis.market.totalProperties === 0 ? "\n🚫 ZERO PROPERTIES: This market has NO recorded transactions. Do NOT produce specific median price projections — use 0 for all medianPrice fields in the projections array. Price ranges should also be 0. All confidence levels must be \"low\". Focus entirely on qualitative monitoring framework and scenario narratives explaining what would need to change for this market to become active." : lowConfidence ? "\n⚠️ LOW CONFIDENCE DATA: Use wide ranges, low confidence ratings, and include explicit caveats. Do not produce specific point estimates or precise medianPrice values — use broad round numbers only." : ""}
 
 Respond with a JSON object matching this exact schema:
 {
@@ -237,7 +237,7 @@ Respond with a JSON object matching this exact schema:
   }
 }
 
-${lowConfidence ? "Given low data confidence, produce broad qualitative projections only." : `Produce projections for each segment: ${analysis.segments.map((s) => s.name).join(", ")}.`}`;
+${analysis.market.totalProperties === 0 ? "There are ZERO properties in this market. Set all medianPrice and priceRange values to 0. Focus on qualitative scenarios and monitoring areas only." : lowConfidence ? "Given low data confidence, produce broad qualitative projections only. Do not invent specific dollar amounts." : `Produce projections for each segment: ${analysis.segments.map((s) => s.name).join(", ")}.`}`;
 }
 
 // --- Main execution ---
