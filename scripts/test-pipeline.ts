@@ -198,7 +198,7 @@ async function runLayer1(compiledData: CompiledMarketData): Promise<ComputedAnal
   console.log(`  Total volume: $${analytics.market.totalVolume.toLocaleString()}`);
   console.log(`  Rating: ${analytics.market.rating}`);
   console.log(`  Segments: ${analytics.segments.length}`);
-  console.log(`  YoY median price change: ${(analytics.yoy.medianPriceChange * 100).toFixed(1)}%`);
+  console.log(`  YoY median price change: ${analytics.yoy.medianPriceChange != null ? (analytics.yoy.medianPriceChange * 100).toFixed(1) + '%' : 'N/A'}`);
   console.log(`  Confidence: ${analytics.confidence.level} (sample: ${analytics.confidence.sampleSize})`);
   console.log(`  Written to: ${filePath}`);
   return analytics;

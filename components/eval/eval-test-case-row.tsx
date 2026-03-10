@@ -117,16 +117,16 @@ export function EvalTestCaseRow({
                       Score: {result.judgeScore}/5
                     </div>
                     <div className="grid grid-cols-2 gap-[var(--spacing-1)] text-xs">
-                      {Object.entries(result.judgeBreakdown).map(([dim, val]) => (
+                      {(Object.entries(result.judgeBreakdown) as [string, number][]).map(([dim, val]) => (
                         <div key={dim} className="flex items-center gap-[var(--spacing-1)]">
                           <div className="w-16 h-1.5 rounded-full bg-[var(--color-neutral-200)]">
                             <div
-                              className={`h-1.5 rounded-full ${(val as number) >= PASS_THRESHOLD ? "bg-[var(--color-success)]" : "bg-[var(--color-warning)]"}`}
-                              style={{ width: `${((val as number) / 5) * 100}%` }}
+                              className={`h-1.5 rounded-full ${val >= PASS_THRESHOLD ? "bg-[var(--color-success)]" : "bg-[var(--color-warning)]"}`}
+                              style={{ width: `${(val / 5) * 100}%` }}
                             />
                           </div>
                           <span className="text-[var(--color-text-secondary)]">
-                            {dim}: {val as number}
+                            {dim}: {val}
                           </span>
                         </div>
                       ))}
@@ -151,13 +151,13 @@ export function EvalTestCaseRow({
               </div>
 
               {/* Agent Response (full width when result exists) */}
-              {result && result.response && (
+              {result && result.response != null && (
                 <div className="col-span-2">
                   <h4 className="text-xs font-semibold text-[var(--color-text-secondary)] mb-[var(--spacing-2)]">
                     Agent Response
                   </h4>
                   <pre className="text-xs font-[family-name:var(--font-mono)] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-sm)] p-[var(--spacing-3)] max-h-64 overflow-auto whitespace-pre-wrap">
-                    {JSON.stringify(result.response, null, 2)}
+                    {String(JSON.stringify(result.response, null, 2))}
                   </pre>
                 </div>
               )}

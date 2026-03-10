@@ -129,7 +129,8 @@ export function EvalDashboard() {
 
     // Fill initial concurrency pool
     while (queue.length > 0 && executing.size < MAX_CONCURRENCY && !cancelledRef.current) {
-      const p = runNext().then(() => executing.delete(p));
+      let p: Promise<void>;
+      p = runNext().then(() => { executing.delete(p); });
       executing.add(p);
     }
 
@@ -137,7 +138,8 @@ export function EvalDashboard() {
     while (executing.size > 0 && !cancelledRef.current) {
       await Promise.race(executing);
       while (queue.length > 0 && executing.size < MAX_CONCURRENCY && !cancelledRef.current) {
-        const p = runNext().then(() => executing.delete(p));
+        let p: Promise<void>;
+        p = runNext().then(() => { executing.delete(p); });
         executing.add(p);
       }
     }

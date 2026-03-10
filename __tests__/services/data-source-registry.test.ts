@@ -223,13 +223,13 @@ describe("SVC-DSR-05: Serialization", () => {
     expect(Array.isArray(json)).toBe(true);
     expect(json.length).toBe(2);
 
-    const reapi = json.find((s: Record<string, unknown>) => s.name === "realestateapi");
+    const reapi = json.find((s) => s.name === "realestateapi");
     expect(reapi).toBeDefined();
-    expect(reapi.description).toBeTruthy();
-    expect(reapi.endpoints).toBeDefined();
-    expect(reapi.cacheTtlSeconds).toBeDefined();
-    expect(reapi.health).toBeDefined();
-    expect(reapi.health.status).toBe("healthy");
-    expect(reapi.envVarsPresent).toBe(true);
+    expect(reapi!.description).toBeTruthy();
+    expect(reapi!.endpoints).toBeDefined();
+    expect(reapi!.cacheTtlSeconds).toBeDefined();
+    expect(reapi!.health).toBeDefined();
+    expect(reapi!.health!.status).toBe("healthy");
+    expect(reapi!.envVarsPresent).toBe(true);
   });
 });

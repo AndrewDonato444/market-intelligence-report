@@ -29,7 +29,17 @@ export default async function ReportDetailPage({
 
   return (
     <div className="space-y-6">
-      <PipelineStatusDashboard report={report} />
+      <PipelineStatusDashboard report={{
+        id: report.id,
+        title: report.title,
+        status: report.status,
+        marketName: report.marketName,
+        config: report.config,
+        createdAt: report.createdAt?.toISOString() ?? null,
+        generationStartedAt: report.generationStartedAt?.toISOString() ?? null,
+        generationCompletedAt: report.generationCompletedAt?.toISOString() ?? null,
+        errorMessage: report.errorMessage,
+      }} />
       {report.status === "completed" && (
         <>
           <ReportActions

@@ -63,10 +63,10 @@ export async function POST(request: Request) {
         plan: determinePlan(subscription),
         status: subscription.status,
         currentPeriodStart: new Date(
-          subscription.current_period_start * 1000
+          subscription.items.data[0].current_period_start * 1000
         ),
         currentPeriodEnd: new Date(
-          subscription.current_period_end * 1000
+          subscription.items.data[0].current_period_end * 1000
         ),
       });
       break;
@@ -92,10 +92,10 @@ export async function POST(request: Request) {
           plan: determinePlan(subscription),
           status: subscription.status,
           currentPeriodStart: new Date(
-            subscription.current_period_start * 1000
+            subscription.items.data[0].current_period_start * 1000
           ),
           currentPeriodEnd: new Date(
-            subscription.current_period_end * 1000
+            subscription.items.data[0].current_period_end * 1000
           ),
         });
       }

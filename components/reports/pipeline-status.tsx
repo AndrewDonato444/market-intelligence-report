@@ -219,6 +219,11 @@ export function PipelineStatusDashboard({
               "pending";
             if (report.status === "completed") {
               stageStatus = "completed";
+            } else if (report.status === "generating") {
+              // First stage is running, rest are pending
+              if (idx === 0) {
+                stageStatus = "running";
+              }
             } else if (report.status === "failed") {
               // Last stage is the failed one
               if (idx === PIPELINE_STAGES.length - 1) {

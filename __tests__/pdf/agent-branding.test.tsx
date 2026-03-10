@@ -6,9 +6,7 @@ describe("Agent Branding Injection", () => {
       const mod = await import("@/lib/pdf/document");
 
       // Type check — create a full branding object
-      const branding: (typeof mod)["AgentBranding"] extends never
-        ? never
-        : Parameters<typeof mod.ReportDocument>[0]["branding"] = {
+      const branding: Parameters<typeof mod.ReportDocument>[0]["branding"] = {
         name: "Victoria Ashford",
         company: "Ashford & Associates",
         logoUrl: "https://example.com/logo.png",
