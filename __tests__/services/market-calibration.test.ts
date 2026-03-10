@@ -90,6 +90,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
     ],
     peerComparisons: [], peerRankings: [], scorecard: [],
     confidence: { level: "high", sampleSize: 120, detailCoverage: 0.8, staleDataSources: [] },
+    news: { targetMarket: [], peerMarkets: {} },
     detailMetrics: { medianDaysOnMarket: 128, cashBuyerPercentage: 0.54, listToSaleRatio: 0.96, floodZonePercentage: 0.02, investorBuyerPercentage: 0.18, freeClearPercentage: 0.45 },
     ...overrides,
   };

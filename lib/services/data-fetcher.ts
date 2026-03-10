@@ -22,7 +22,10 @@ import {
 import {
   searchLocal,
   buildLocalQuery,
+  searchNews,
+  buildNewsQuery,
   type LocalBusiness,
+  type NewsArticle,
 } from "@/lib/connectors/scrapingdog";
 import { registry } from "@/lib/services/data-source-registry";
 
@@ -39,6 +42,8 @@ export interface DataFetchOptions {
   representativeComps?: number;
   /** Amenity categories to search via ScrapingDog. Default: standard luxury set */
   amenityCategories?: string[];
+  /** News query topics to search via ScrapingDog. Default: standard luxury set */
+  newsQueries?: string[];
 }
 
 export interface CompiledMarketData {
@@ -55,6 +60,12 @@ export interface CompiledMarketData {
   neighborhood: {
     /** Amenity data keyed by category (e.g., "luxury restaurants") */
     amenities: Record<string, LocalBusiness[]>;
+  };
+  /** News articles about the target and peer markets */
+  news: {
+    targetMarket: NewsArticle[];
+    peerMarkets: Record<string, NewsArticle[]>;
+    stale: boolean;
   };
   fetchMetadata: {
     totalApiCalls: number;
@@ -88,6 +99,10 @@ const DEFAULT_AMENITY_CATEGORIES = [
   "marinas",
   "art galleries",
 ];
+const DEFAULT_NEWS_QUERIES = [
+  "luxury real estate market",
+  "real estate development",
+];
 
 // --- Main function ---
 
@@ -103,6 +118,7 @@ export async function fetchAllMarketData(
     topNDetails = DEFAULT_TOP_N_DETAILS,
     representativeComps = DEFAULT_REPRESENTATIVE_COMPS,
     amenityCategories = DEFAULT_AMENITY_CATEGORIES,
+    newsQueries = DEFAULT_NEWS_QUERIES,
   } = options;
 
   const connectorOpts = { userId, reportId };
@@ -196,6 +212,19 @@ export async function fetchAllMarketData(
   apiCalls += amenities.callCount;
   if (amenities.stale) staleDataSources.push("scrapingdog:local");
 
+  // --- Step 6: Fetch market news ---
+  checkAbort(abortSignal);
+
+  const news = await fetchMarketNews(
+    market,
+    newsQueries,
+    connectorOpts,
+    abortSignal,
+    errors
+  );
+  apiCalls += news.callCount;
+  if (news.stale) staleDataSources.push("scrapingdog:news");
+
   return {
     targetMarket: {
       properties: targetProperties,
@@ -206,6 +235,11 @@ export async function fetchAllMarketData(
     peerMarkets: peerMarkets.records,
     neighborhood: {
       amenities: amenities.records,
+    },
+    news: {
+      targetMarket: news.targetArticles,
+      peerMarkets: news.peerArticles,
+      stale: news.stale,
     },
     fetchMetadata: {
       totalApiCalls: apiCalls,
@@ -393,6 +427,72 @@ async function fetchAmenities(
   }
 
   return { records, callCount, stale: anyStale };
+}
+
+async function fetchMarketNews(
+  market: MarketData,
+  queries: string[],
+  connectorOpts: { userId: string; reportId: string },
+  abortSignal: AbortSignal,
+  errors: FetchError[]
+): Promise<{ targetArticles: NewsArticle[]; peerArticles: Record<string, NewsArticle[]>; callCount: number; stale: boolean }> {
+  const targetArticles: NewsArticle[] = [];
+  const peerArticles: Record<string, NewsArticle[]> = {};
+  let anyStale = false;
+  let callCount = 0;
+
+  // Fetch news for target market
+  for (const topic of queries) {
+    if (abortSignal.aborted) break;
+    const query = buildNewsQuery(topic, {
+      city: market.geography.city,
+      state: market.geography.state,
+    });
+    try {
+      const result = await searchNews(query, {
+        ...connectorOpts,
+        results: 10,
+        tbs: "qdr:m",
+      });
+      targetArticles.push(...result.articles);
+      if (result.stale) anyStale = true;
+      callCount++;
+    } catch (err) {
+      errors.push({
+        source: "scrapingdog",
+        endpoint: "/google_news",
+        error: `News "${query}": ${err instanceof Error ? err.message : String(err)}`,
+      });
+      callCount++;
+    }
+  }
+
+  // Fetch news for each peer market (1 query per peer to limit credit usage)
+  const peers = market.peerMarkets ?? [];
+  for (const peer of peers) {
+    if (abortSignal.aborted) break;
+    const query = buildNewsQuery(queries[0] ?? "luxury real estate market", peer.geography);
+    try {
+      const result = await searchNews(query, {
+        ...connectorOpts,
+        results: 5,
+        tbs: "qdr:m",
+      });
+      peerArticles[peer.name] = result.articles;
+      if (result.stale) anyStale = true;
+      callCount++;
+    } catch (err) {
+      errors.push({
+        source: "scrapingdog",
+        endpoint: "/google_news",
+        error: `Peer news "${peer.name}": ${err instanceof Error ? err.message : String(err)}`,
+      });
+      peerArticles[peer.name] = [];
+      callCount++;
+    }
+  }
+
+  return { targetArticles, peerArticles, callCount, stale: anyStale };
 }
 
 // --- Helpers ---

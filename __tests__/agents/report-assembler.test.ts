@@ -82,6 +82,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       detailCoverage: 0.33,
       staleDataSources: [],
     },
+    news: { targetMarket: [], peerMarkets: {} },
     detailMetrics: {
       medianDaysOnMarket: 45,
       cashBuyerPercentage: 0.4,

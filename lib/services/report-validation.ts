@@ -16,55 +16,63 @@ export interface ReportSectionMeta {
 
 export const REPORT_SECTIONS: ReportSectionMeta[] = [
   {
-    type: "market_overview",
-    label: "Market Overview",
-    description:
-      "Strategic overview with key metrics and ratings",
+    type: "executive_briefing",
+    label: "Executive Briefing",
+    description: "Strategic overview with key metrics, ratings, and AI narrative",
     required: true,
   },
   {
-    type: "executive_summary",
-    label: "Executive Summary",
-    description:
-      "High-level narrative with highlights and timing",
+    type: "market_insights_index",
+    label: "Market Insights Index",
+    description: "Composite market health indices and trend indicators",
     required: true,
   },
   {
-    type: "key_drivers",
-    label: "Key Market Drivers",
-    description: "Thematic analysis of market forces",
+    type: "luxury_market_dashboard",
+    label: "Luxury Market Dashboard",
+    description: "Pricing, inventory, and velocity metrics dashboard",
     required: true,
   },
   {
-    type: "competitive_market_analysis",
-    label: "Competitive Analysis",
-    description:
-      "Peer market comparisons and positioning",
+    type: "neighborhood_intelligence",
+    label: "Neighborhood Intelligence",
+    description: "Neighborhood-level analysis with micro-market patterns",
+    required: true,
+  },
+  {
+    type: "the_narrative",
+    label: "The Narrative",
+    description: "AI-generated editorial analysis of market themes and dynamics",
+    required: true,
+  },
+  {
+    type: "forward_look",
+    label: "Forward Look",
+    description: "Forecast projections with timing guidance and scenarios",
     required: false,
   },
   {
-    type: "forecasts",
-    label: "Forecasts & Projections",
-    description:
-      "6/12-month projections with scenarios",
+    type: "comparative_positioning",
+    label: "Comparative Positioning",
+    description: "Peer market comparisons and competitive positioning",
+    required: true,
+  },
+  {
+    type: "strategic_benchmark",
+    label: "Strategic Benchmark",
+    description: "Market scorecard with strategic brief and outlook",
     required: false,
   },
   {
-    type: "strategic_summary",
-    label: "Strategic Summary",
-    description: "Timing guidance and outlook",
-    required: false,
+    type: "disclaimer_methodology",
+    label: "Disclaimer & Methodology",
+    description: "Data sources, confidence levels, and methodology transparency",
+    required: true,
   },
   {
-    type: "polished_report",
-    label: "Editorial Polish",
-    description: "Consistency check and pull quotes",
-    required: false,
-  },
-  {
-    type: "methodology",
-    label: "Methodology",
-    description: "Data sources and confidence levels",
+    type: "persona_intelligence",
+    label: "Persona Intelligence",
+    description: "Buyer persona-specific insights and narrative framing",
     required: false,
   },
 ];

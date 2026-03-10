@@ -67,6 +67,19 @@ Then city, state, zip codes are mapped to location filters
 And priceFloor/priceCeiling are mapped to price range filters
 And property types are mapped to the API's property type filters
 
+### Scenario: Convert state names to 2-letter abbreviations
+Given a market with a full state name (e.g., "Florida")
+When building search params or the API request body
+Then the state is converted to its 2-letter code (e.g., "FL")
+And 2-letter codes are preserved as-is
+
+### Scenario: Map app property types to REAPI enum values
+Given app-level property types (e.g., "single_family", "estate", "penthouse", "chalet")
+When constructing the API request body
+Then each type is mapped to a valid REAPI enum: SFR, MFR, LAND, CONDO, OTHER, or MOBILE
+And duplicate mapped values are deduplicated (e.g., "single_family" + "estate" → ["SFR"])
+And unknown types fall through to "OTHER"
+
 ## Technical Notes
 
 ### API Details
@@ -172,4 +185,7 @@ buildSearchParamsFromMarket(market: Market): PropertySearchParams
 
 ## Learnings
 
-(To be filled after implementation)
+- REAPI requires 2-letter state codes (not full names like "Florida"). The connector now converts via `toStateAbbr()`.
+- REAPI property_type enum is `[SFR, MFR, LAND, CONDO, OTHER, MOBILE]`. App-level types like "estate", "penthouse", "chalet" must be mapped via `toReapiPropertyTypes()` before sending.
+- Turbopack may serve stale compiled modules after file changes. Always clear `.next` cache and restart the dev server after modifying connector code to ensure changes take effect.
+- The `PROPERTY_TYPE_MAP` includes luxury property types: penthouse→CONDO, chalet→SFR, villa→SFR, estate→SFR.

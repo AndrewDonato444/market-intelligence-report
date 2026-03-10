@@ -363,6 +363,16 @@ export type Database = {
         | "forecasts"
         | "methodology"
         | "strategic_summary"
+        | "executive_briefing"
+        | "market_insights_index"
+        | "luxury_market_dashboard"
+        | "neighborhood_intelligence"
+        | "the_narrative"
+        | "forward_look"
+        | "comparative_positioning"
+        | "strategic_benchmark"
+        | "disclaimer_methodology"
+        | "persona_intelligence"
       report_status: "queued" | "generating" | "completed" | "failed"
     }
     CompositeTypes: {
@@ -505,6 +515,16 @@ export const Constants = {
         "forecasts",
         "methodology",
         "strategic_summary",
+        "executive_briefing",
+        "market_insights_index",
+        "luxury_market_dashboard",
+        "neighborhood_intelligence",
+        "the_narrative",
+        "forward_look",
+        "comparative_positioning",
+        "strategic_benchmark",
+        "disclaimer_methodology",
+        "persona_intelligence",
       ],
       report_status: ["queued", "generating", "completed", "failed"],
     },

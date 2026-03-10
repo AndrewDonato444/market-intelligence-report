@@ -75,6 +75,26 @@ Tests added to prevent recurrence of 5 critical bugs found during the full drift
 
 ---
 
+## Bug 6: REAPI Property Type Validation Error
+
+**Root Cause**: The pipeline sends app-level property types (e.g., "estate", "single_family", "penthouse") to RealEstateAPI, which expects enum values `[SFR, MFR, LAND, CONDO, OTHER, MOBILE]`. The `toReapiPropertyTypes()` mapping function existed but was missing entries for luxury property types ("penthouse" → CONDO, "chalet" → SFR, "villa" → SFR). Additionally, Turbopack served stale compiled code after the mapping was added, preventing it from taking effect.
+
+**Fix**: Added missing property type entries to `PROPERTY_TYPE_MAP`. Cleared `.next` cache and restarted dev server.
+
+| ID | Test | File |
+|----|------|------|
+| CONN-PT-01 | Regression: maps app property types to REAPI enums in request body | `__tests__/connectors/realestateapi.test.ts` |
+| CONN-PT-02 | Regression: maps penthouse to CONDO | `__tests__/connectors/realestateapi.test.ts` |
+| CONN-PT-03 | Regression: maps chalet to SFR | `__tests__/connectors/realestateapi.test.ts` |
+| CONN-PT-04 | Regression: unknown property types map to OTHER | `__tests__/connectors/realestateapi.test.ts` |
+| CONN-PT-05 | Regression: deduplicates mapped property types | `__tests__/connectors/realestateapi.test.ts` |
+| CONN-PT-06 | Regression: omits property_type when no types provided | `__tests__/connectors/realestateapi.test.ts` |
+| CONN-STA-01 | Regression: converts full state names to 2-letter codes | `__tests__/connectors/realestateapi.test.ts` |
+| CONN-STA-02 | Regression: preserves 2-letter state codes | `__tests__/connectors/realestateapi.test.ts` |
+| CONN-STA-03 | Regression: sends 2-letter state code in API body even when given full name | `__tests__/connectors/realestateapi.test.ts` |
+
+---
+
 ## Summary
 
 | Bug | Regression Tests | Status |
@@ -84,4 +104,5 @@ Tests added to prevent recurrence of 5 critical bugs found during the full drift
 | Account settings hardcoded stats | 3 tests | All pass |
 | reportMetrics type mismatch | 2 tests | All pass |
 | Admin data-sources missing auth | 6 tests | All pass |
-| **Total** | **16 regression tests** | **All pass** |
+| REAPI property type validation | 9 tests | All pass |
+| **Total** | **25 regression tests** | **All pass** |

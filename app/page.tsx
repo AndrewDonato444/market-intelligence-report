@@ -3,8 +3,8 @@ import { LandingNav } from "@/components/marketing/landing-nav";
 
 const DATA_CALLOUTS = [
   { value: "31", label: "Proprietary market indicators" },
-  { value: "7", label: "Specialized AI agents per report" },
-  { value: "8", label: "Intelligence sections per report" },
+  { value: "4", label: "Specialized AI agents per report" },
+  { value: "10", label: "Intelligence sections per report" },
 ];
 
 const PILLARS = [
@@ -16,7 +16,7 @@ const PILLARS = [
   {
     title: "AI-Synthesized Narrative",
     description:
-      "Seven specialized agents transform raw data into strategic market narrative with confidence ratings.",
+      "Four specialized agents transform raw data into strategic market narrative with confidence ratings.",
   },
   {
     title: "Editorial Presentation",
@@ -34,7 +34,7 @@ const PROCESS_STEPS = [
   {
     number: "02",
     title: "Analyze",
-    description: "Seven AI agents synthesize real data into strategic narrative.",
+    description: "Four AI agents synthesize real data into strategic narrative.",
   },
   {
     number: "03",
@@ -45,43 +45,43 @@ const PROCESS_STEPS = [
 
 const REPORT_SECTIONS = [
   {
-    title: "Executive Summary",
-    description: "Strategic market narrative distilled by AI, reviewed by you",
+    title: "Executive Briefing",
+    description: "Strategic overview with AI-powered narrative and key metrics",
     highlight: false,
   },
   {
-    title: "Market Overview",
-    description: "Pricing, inventory, absorption, velocity",
+    title: "Market Insights Index",
+    description: "Composite health indices and trend indicators",
     highlight: false,
   },
   {
-    title: "Second Home Analysis",
-    description: "Seasonal patterns and investment signals",
+    title: "Luxury Market Dashboard",
+    description: "Pricing, inventory, and velocity metrics dashboard",
     highlight: false,
   },
   {
-    title: "AI-Powered Forecasts",
-    description: "Confidence-rated market projections",
+    title: "Neighborhood Intelligence",
+    description: "Micro-market patterns and neighborhood analysis",
     highlight: true,
   },
   {
-    title: "Key Market Drivers",
-    description: "The forces shaping price and velocity",
+    title: "The Narrative",
+    description: "AI editorial analysis of market dynamics",
+    highlight: true,
+  },
+  {
+    title: "Forward Look",
+    description: "Confidence-rated market projections and scenarios",
     highlight: false,
   },
   {
-    title: "Competitive Analysis",
+    title: "Comparative Positioning",
     description: "Peer market matrix with intelligence ratings",
-    highlight: true,
-  },
-  {
-    title: "Trending Insights",
-    description: "Emerging patterns your competitors will miss",
     highlight: false,
   },
   {
-    title: "Methodology",
-    description: "Full transparency on sources and process",
+    title: "Strategic Benchmark",
+    description: "Market scorecard with strategic outlook",
     highlight: false,
   },
 ];

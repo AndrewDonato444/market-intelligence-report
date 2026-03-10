@@ -187,6 +187,7 @@ const strongAnalytics: ComputedAnalytics = {
     detailCoverage: 0.82,
     staleDataSources: [],
   },
+  news: { targetMarket: [], peerMarkets: {} },
   detailMetrics: defaultDetailMetrics,
 };
 
@@ -240,6 +241,7 @@ const lowDataAnalytics: ComputedAnalytics = {
     detailCoverage: 0.2,
     staleDataSources: [],
   },
+  news: { targetMarket: [], peerMarkets: {} },
   detailMetrics: {
     medianDaysOnMarket: null,
     cashBuyerPercentage: null,
@@ -295,6 +297,7 @@ const singleSegmentAnalytics: ComputedAnalytics = {
     { segment: "Mountain Estate", rating: "A", propertyCount: 120, medianPrice: 8_000_000, yoyChange: 0.11, trend: "up" },
   ],
   confidence: { level: "high", sampleSize: 120, detailCoverage: 0.75, staleDataSources: [] },
+  news: { targetMarket: [], peerMarkets: {} },
   detailMetrics: { ...defaultDetailMetrics, medianDaysOnMarket: 68 },
 };
 
@@ -452,6 +455,7 @@ const emptyAnalytics: ComputedAnalytics = {
   peerRankings: [],
   scorecard: [],
   confidence: { level: "low", sampleSize: 0, detailCoverage: 0, staleDataSources: [] },
+  news: { targetMarket: [], peerMarkets: {} },
   detailMetrics: {
     medianDaysOnMarket: null,
     cashBuyerPercentage: null,

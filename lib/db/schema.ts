@@ -42,6 +42,7 @@ export const reportSectionTypeEnum = pgEnum("report_section_type", [
   "comparative_positioning",
   "strategic_benchmark",
   "disclaimer_methodology",
+  "persona_intelligence",
 ]);
 
 export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);

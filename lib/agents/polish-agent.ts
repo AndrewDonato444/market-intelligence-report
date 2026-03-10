@@ -286,7 +286,7 @@ export async function executePolishAgent(
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
     const response = await client.messages.create({
       model: "claude-sonnet-4-6",
-      max_tokens: 4096,
+      max_tokens: 8192,
       temperature: 0.5, // Lower temp for editorial consistency
       system: systemPrompt,
       messages: [{ role: "user", content: userPrompt }],
