@@ -22,6 +22,11 @@ export function registerFonts() {
         fontWeight: 400,
       },
       {
+        src: `${GOOGLE_FONTS_BASE}/playfairdisplayitalic/v4/nuFRD-vYSZviVYUb_rj3ij__anPXDTnCjmHKM4nYO7KN_qiTbtbK-F2rA.ttf`,
+        fontWeight: 400,
+        fontStyle: "italic" as const,
+      },
+      {
         src: `${GOOGLE_FONTS_BASE}/playfairdisplay/v40/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKeiukDQ.ttf`,
         fontWeight: 700,
       },
@@ -34,6 +39,11 @@ export function registerFonts() {
       {
         src: `${GOOGLE_FONTS_BASE}/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf`,
         fontWeight: 400,
+      },
+      {
+        src: `${GOOGLE_FONTS_BASE}/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf`,
+        fontWeight: 400,
+        fontStyle: "italic" as const,
       },
       {
         src: `${GOOGLE_FONTS_BASE}/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf`,

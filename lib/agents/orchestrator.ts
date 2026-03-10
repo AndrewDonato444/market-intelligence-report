@@ -109,6 +109,7 @@ export interface PipelineResult {
   sections: SectionOutput[];
   totalDurationMs: number;
   agentTimings: Record<string, number>;
+  agentResults?: Record<string, AgentResult>;
   error?: string;
 }
 
@@ -399,6 +400,7 @@ export function createPipelineRunner(agents: AgentDefinition[]): PipelineRunner 
           sections: allSections,
           totalDurationMs,
           agentTimings,
+          agentResults: allResults,
         };
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));

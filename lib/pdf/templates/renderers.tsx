@@ -918,9 +918,16 @@ export const NeighborhoodIntelligencePdf: SectionRenderer = ({ section }) => {
 
 // --- The Narrative (v2) ---
 
+interface TheNarrativeTheme {
+  name: string;
+  impact: string;
+  trend: string;
+  narrative: string;
+}
+
 interface TheNarrativeContent {
   editorial: string | null;
-  themes: Array<{ name: string; impact: string; trend: string; narrative: string }>;
+  themes: Array<TheNarrativeTheme | string>;
   marketContext: {
     rating: string;
     yoy: { medianPriceChange: number; volumeChange: number; pricePerSqftChange: number | null };
@@ -937,17 +944,27 @@ export const TheNarrativePdf: SectionRenderer = ({ section }) => {
       {c.themes.length > 0 && (
         <View style={{ marginTop: 12 }}>
           <Text style={styles.subheading}>Key Themes</Text>
-          {c.themes.map((theme, i) => (
-            <View key={i} style={styles.card}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                <Text style={{ ...styles.subheading, marginBottom: 0 }}>{theme.name}</Text>
-                <Text style={{ ...styles.badge, backgroundColor: theme.impact === "high" ? COLORS.success : theme.impact === "medium" ? COLORS.warning : COLORS.textSecondary }}>
-                  {theme.impact} {theme.trend === "up" ? "↑" : theme.trend === "down" ? "↓" : "→"}
-                </Text>
+          {c.themes.map((theme, i) => {
+            // Handle both string themes (legacy) and object themes
+            if (typeof theme === "string") {
+              return (
+                <View key={i} style={styles.card}>
+                  <Text style={{ ...styles.subheading, marginBottom: 0 }}>{theme}</Text>
+                </View>
+              );
+            }
+            return (
+              <View key={i} style={styles.card}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+                  <Text style={{ ...styles.subheading, marginBottom: 0 }}>{theme.name}</Text>
+                  <Text style={{ ...styles.badge, backgroundColor: theme.impact === "high" ? COLORS.success : theme.impact === "medium" ? COLORS.warning : COLORS.textSecondary }}>
+                    {theme.impact} {theme.trend === "up" ? "\u2191" : theme.trend === "down" ? "\u2193" : "\u2192"}
+                  </Text>
+                </View>
+                {theme.narrative && <Text style={styles.body}>{theme.narrative}</Text>}
               </View>
-              <Text style={styles.body}>{theme.narrative}</Text>
-            </View>
-          ))}
+            );
+          })}
         </View>
       )}
       {c.marketContext.segments.length > 0 && (
@@ -981,7 +998,7 @@ export const TheNarrativePdf: SectionRenderer = ({ section }) => {
 
 interface ForwardLookContent {
   forecast: string | null;
-  guidance: string | null;
+  guidance: string | { buyers: string; sellers: string } | null;
   personaFraming?: unknown;
 }
 
@@ -1001,7 +1018,20 @@ export const ForwardLookPdf: SectionRenderer = ({ section }) => {
       {c.guidance && (
         <View>
           <Text style={styles.subheading}>Guidance</Text>
-          <Text style={styles.body}>{c.guidance}</Text>
+          {typeof c.guidance === "string" ? (
+            <Text style={styles.body}>{c.guidance}</Text>
+          ) : (
+            <View>
+              <View style={{ marginBottom: 8 }}>
+                <Text style={{ ...styles.body, fontWeight: 700, marginBottom: 2 }}>For Buyers</Text>
+                <Text style={styles.body}>{c.guidance.buyers}</Text>
+              </View>
+              <View>
+                <Text style={{ ...styles.body, fontWeight: 700, marginBottom: 2 }}>For Sellers</Text>
+                <Text style={styles.body}>{c.guidance.sellers}</Text>
+              </View>
+            </View>
+          )}
         </View>
       )}
     </View>

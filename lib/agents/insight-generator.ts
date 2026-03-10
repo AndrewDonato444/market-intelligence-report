@@ -329,7 +329,7 @@ export async function executeInsightGenerator(
       executiveBriefing: insights.overview.narrative,
       neighborhoodAnalysis: insights.executiveSummary.narrative,
       editorial: insights.overview.narrative,
-      themes: insights.themes.map((t) => t.name),
+      themes: insights.themes,
     },
     durationMs: Date.now() - start,
   };

@@ -174,30 +174,8 @@ export async function executePipeline(reportId: string): Promise<void> {
     }
 
     // --- Layer 3: Assembly ---
-    // Collect all agent results from the pipeline result
-    const agentResults: Record<string, import("@/lib/agents/orchestrator").AgentResult> = {};
-    for (const section of agentResult.sections) {
-      // We need the full AgentResult objects; reconstruct from pipeline timings
-      // The pipeline runner already tracked per-agent results internally,
-      // but only returns flattened sections. Rebuild from section types.
-    }
-
-    // Build agent results map from pipeline output
-    // Group sections by their source agent using the v2 registry
-    for (const agentName of ["insight-generator", "forecast-modeler", "polish-agent", "persona-intelligence"]) {
-      const agentSections = agentResult.sections.filter((s) => {
-        const entry = SECTION_REGISTRY_V2.find((r) => r.sectionType === s.sectionType);
-        return entry?.sourceAgent === agentName;
-      });
-      if (agentSections.length > 0 || agentResult.agentTimings[agentName]) {
-        agentResults[agentName] = {
-          agentName,
-          sections: agentSections,
-          metadata: {}, // Narratives come from pipeline runner metadata
-          durationMs: agentResult.agentTimings[agentName] ?? 0,
-        };
-      }
-    }
+    // Use full agent results (with metadata containing narratives) from orchestrator
+    const agentResults = agentResult.agentResults ?? {};
 
     const durations: AssemblyDurations = {
       fetchMs,
