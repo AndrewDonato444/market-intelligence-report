@@ -76,6 +76,7 @@ export async function getReportWithMarket(authId: string, reportId: string) {
       title: schema.reports.title,
       status: schema.reports.status,
       marketName: schema.markets.name,
+      marketGeography: schema.markets.geography,
       config: schema.reports.config,
       createdAt: schema.reports.createdAt,
       generationStartedAt: schema.reports.generationStartedAt,
@@ -94,7 +95,16 @@ export async function getReportWithMarket(authId: string, reportId: string) {
     )
     .limit(1);
 
-  return result || null;
+  if (!result) return null;
+
+  // Build full market name with state if available
+  const geo = result.marketGeography as { city?: string; state?: string } | null;
+  const fullMarketName =
+    geo?.state && !result.marketName.includes(geo.state)
+      ? `${result.marketName}, ${geo.state}`
+      : result.marketName;
+
+  return { ...result, marketName: fullMarketName };
 }
 
 export async function getReportSections(authId: string, reportId: string) {

@@ -57,6 +57,21 @@ export async function POST(
     .where(eq(schema.users.authId, userId))
     .limit(1);
 
+  // Extract confidence from disclaimer_methodology section if available
+  const disclaimerSection = sections.find(
+    (s) => s.sectionType === "disclaimer_methodology"
+  );
+  const sectionConfidence =
+    disclaimerSection?.content &&
+    typeof disclaimerSection.content === "object" &&
+    "confidence" in (disclaimerSection.content as Record<string, unknown>)
+      ? (disclaimerSection.content as Record<string, unknown>).confidence as {
+          level: string;
+          sampleSize: number;
+          staleDataSources: string[];
+        }
+      : null;
+
   // Build ReportData
   const reportData: ReportData = {
     sections: sections.map((s) => ({
@@ -74,7 +89,7 @@ export async function POST(
           report.generationStartedAt.getTime()
         : 0,
       agentDurations: {},
-      confidence: {
+      confidence: sectionConfidence ?? {
         level: "unknown",
         sampleSize: 0,
         staleDataSources: [],

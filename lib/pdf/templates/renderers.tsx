@@ -820,9 +820,25 @@ interface LuxuryMarketDashboardContent {
   detailMetrics: Record<string, number | null>;
 }
 
-function formatMetricValue(val: number | string | null): string {
+// Metric names that should NOT be formatted as dollar amounts
+const RATIO_METRICS = new Set([
+  "List-to-Sale Ratio",
+  "Median Days on Market",
+  "Flood Zone Exposure",
+  "Investor Activity Rate",
+  "Free & Clear %",
+  "Cash Buyer %",
+  "Transaction Volume",
+]);
+
+function formatMetricValue(val: number | string | null, metricName?: string): string {
   if (val == null) return "N/A";
   if (typeof val === "string") return val;
+  // Non-dollar metrics: show raw number
+  if (metricName && RATIO_METRICS.has(metricName)) {
+    if (val > 0 && val < 1) return `${(val * 100).toFixed(1)}%`;
+    return val.toLocaleString();
+  }
   if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
   if (val >= 1_000) return `$${(val / 1_000).toFixed(0)}K`;
   if (val > 0 && val < 1) return `${(val * 100).toFixed(1)}%`;
@@ -848,7 +864,7 @@ function MetricTier({ label, metrics }: { label: string; metrics: DashboardMetri
       {metrics.map((m, i) => (
         <View key={i} style={styles.tableRow}>
           <Text style={{ ...styles.tableCell, flex: 3 }}>{m.name}</Text>
-          <Text style={{ ...styles.tableCell, flex: 2 }}>{formatMetricValue(m.value)}</Text>
+          <Text style={{ ...styles.tableCell, flex: 2 }}>{formatMetricValue(m.value, m.name)}</Text>
           <Text style={{ ...styles.tableCell, flex: 1, color: m.trend === "up" ? COLORS.success : m.trend === "down" ? COLORS.error : COLORS.textSecondary }}>
             {trendArrow(m.trend)}{m.trendValue != null ? ` ${(m.trendValue * 100).toFixed(1)}%` : ""}
           </Text>

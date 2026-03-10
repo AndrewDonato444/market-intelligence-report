@@ -25,8 +25,9 @@ export function SectionPage({ section, reportTitle, companyName }: SectionPagePr
     ? `${reportTitle} — ${companyName}`
     : reportTitle;
 
-  // Extract personaFraming from section content if present
+  // Show persona framing only on executive_briefing to avoid repetition
   const personaFraming =
+    section.sectionType === "executive_briefing" &&
     section.content &&
     typeof section.content === "object" &&
     "personaFraming" in (section.content as Record<string, unknown>)
