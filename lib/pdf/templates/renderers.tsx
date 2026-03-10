@@ -245,7 +245,8 @@ interface ExecutiveSummaryContent {
   overallRating?: string;
 }
 
-function getRatingColor(rating: string): string {
+function getRatingColor(rating?: string): string {
+  if (!rating) return COLORS.textSecondary;
   if (rating.startsWith("A")) return COLORS.success;
   if (rating.startsWith("B")) return COLORS.warning;
   return COLORS.error;
@@ -694,6 +695,477 @@ export const PersonaFramingCallout: React.FC<{
   );
 };
 
+// =====================================================================
+// V2 PIPELINE RENDERERS
+// =====================================================================
+
+// --- Executive Briefing (v2) ---
+
+interface ExecutiveBriefingContent {
+  headline: {
+    rating: string;
+    medianPrice: number;
+    yoyPriceChange: number;
+    totalProperties: number;
+  };
+  narrative: string | null;
+  confidence: { level: string; sampleSize: number };
+  personaFraming?: unknown;
+}
+
+export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
+  const c = section.content as ExecutiveBriefingContent;
+  const h = c.headline;
+  const priceFmt = h.medianPrice >= 1_000_000
+    ? `$${(h.medianPrice / 1_000_000).toFixed(1)}M`
+    : `$${(h.medianPrice / 1_000).toFixed(0)}K`;
+  const yoyPct = (h.yoyPriceChange * 100).toFixed(1);
+  const yoyDir = h.yoyPriceChange > 0 ? "↑" : h.yoyPriceChange < 0 ? "↓" : "→";
+
+  return (
+    <View>
+      {/* Headline metrics row */}
+      <View style={{ flexDirection: "row", marginBottom: 16, gap: 12 }}>
+        <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+          <Text style={styles.metadataLabel}>Market Rating</Text>
+          <Text style={{ fontFamily: "Playfair Display", fontSize: 28, color: getRatingColor(h.rating) }}>{h.rating}</Text>
+        </View>
+        <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+          <Text style={styles.metadataLabel}>Median Price</Text>
+          <Text style={{ fontFamily: "Playfair Display", fontSize: 20, color: COLORS.primary }}>{priceFmt}</Text>
+        </View>
+        <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+          <Text style={styles.metadataLabel}>YoY Change</Text>
+          <Text style={{ fontFamily: "Inter", fontSize: 16, color: h.yoyPriceChange >= 0 ? COLORS.success : COLORS.error }}>{yoyDir} {yoyPct}%</Text>
+        </View>
+        <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+          <Text style={styles.metadataLabel}>Properties</Text>
+          <Text style={{ fontFamily: "Inter", fontSize: 16, color: COLORS.primary }}>{h.totalProperties}</Text>
+        </View>
+      </View>
+      {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
+      <Text style={styles.bodySmall}>
+        Confidence: {c.confidence.level} (n={c.confidence.sampleSize})
+      </Text>
+    </View>
+  );
+};
+
+// --- Market Insights Index (v2) ---
+
+interface InsightDimension {
+  label: string;
+  score: number | null;
+  components: Record<string, number | null>;
+}
+
+interface MarketInsightsIndexContent {
+  insightsIndex: {
+    risk: InsightDimension;
+    value: InsightDimension;
+    timing: InsightDimension;
+    liquidity: InsightDimension;
+  };
+}
+
+export const MarketInsightsIndexPdf: SectionRenderer = ({ section }) => {
+  const c = section.content as MarketInsightsIndexContent;
+  const dimensions = [
+    { key: "risk", data: c.insightsIndex.risk },
+    { key: "value", data: c.insightsIndex.value },
+    { key: "timing", data: c.insightsIndex.timing },
+    { key: "liquidity", data: c.insightsIndex.liquidity },
+  ];
+
+  return (
+    <View>
+      {dimensions.map(({ key, data }) => (
+        <View key={key} style={styles.card}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+            <Text style={styles.subheading}>{key.charAt(0).toUpperCase() + key.slice(1)}</Text>
+            <Text style={{ ...styles.badge, backgroundColor: data.score != null && data.score >= 7 ? COLORS.success : data.score != null && data.score >= 4 ? COLORS.warning : COLORS.textSecondary }}>
+              {data.label}
+            </Text>
+          </View>
+          {data.score != null && (
+            <Text style={{ fontFamily: "Inter", fontSize: 24, color: COLORS.accent, marginBottom: 4 }}>{data.score}/10</Text>
+          )}
+          {Object.entries(data.components).map(([compKey, val]) => (
+            <Text key={compKey} style={styles.bodySmall}>
+              {compKey.replace(/([A-Z])/g, " $1").replace(/^./, (ch) => ch.toUpperCase())}: {val != null ? (typeof val === "number" && Math.abs(val) < 1 ? `${(val * 100).toFixed(1)}%` : val.toLocaleString()) : "N/A"}
+            </Text>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+};
+
+// --- Luxury Market Dashboard (v2) ---
+
+interface DashboardMetric {
+  name: string;
+  value: number | string | null;
+  trend: string | null;
+  trendValue: number | null;
+  category: string;
+}
+
+interface LuxuryMarketDashboardContent {
+  dashboard: {
+    powerFive: DashboardMetric[];
+    tierTwo: DashboardMetric[];
+    tierThree: DashboardMetric[];
+  };
+  detailMetrics: Record<string, number | null>;
+}
+
+function formatMetricValue(val: number | string | null): string {
+  if (val == null) return "N/A";
+  if (typeof val === "string") return val;
+  if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
+  if (val >= 1_000) return `$${(val / 1_000).toFixed(0)}K`;
+  if (val > 0 && val < 1) return `${(val * 100).toFixed(1)}%`;
+  return val.toLocaleString();
+}
+
+function trendArrow(trend: string | null): string {
+  if (trend === "up") return "↑";
+  if (trend === "down") return "↓";
+  if (trend === "flat") return "→";
+  return "";
+}
+
+function MetricTier({ label, metrics }: { label: string; metrics: DashboardMetric[] }) {
+  return (
+    <View style={{ marginBottom: 16 }}>
+      <Text style={styles.sectionLabel}>{label}</Text>
+      <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
+        <Text style={{ ...styles.tableHeader, flex: 3 }}>Metric</Text>
+        <Text style={{ ...styles.tableHeader, flex: 2 }}>Value</Text>
+        <Text style={{ ...styles.tableHeader, flex: 1 }}>Trend</Text>
+      </View>
+      {metrics.map((m, i) => (
+        <View key={i} style={styles.tableRow}>
+          <Text style={{ ...styles.tableCell, flex: 3 }}>{m.name}</Text>
+          <Text style={{ ...styles.tableCell, flex: 2 }}>{formatMetricValue(m.value)}</Text>
+          <Text style={{ ...styles.tableCell, flex: 1, color: m.trend === "up" ? COLORS.success : m.trend === "down" ? COLORS.error : COLORS.textSecondary }}>
+            {trendArrow(m.trend)}{m.trendValue != null ? ` ${(m.trendValue * 100).toFixed(1)}%` : ""}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+export const LuxuryMarketDashboardPdf: SectionRenderer = ({ section }) => {
+  const c = section.content as LuxuryMarketDashboardContent;
+  return (
+    <View>
+      <MetricTier label="POWER FIVE INDICATORS" metrics={c.dashboard.powerFive} />
+      <MetricTier label="TIER TWO METRICS" metrics={c.dashboard.tierTwo} />
+      <MetricTier label="TIER THREE METRICS" metrics={c.dashboard.tierThree} />
+    </View>
+  );
+};
+
+// --- Neighborhood Intelligence (v2) ---
+
+interface NeighborhoodIntelligenceContent {
+  narrative: string | null;
+  neighborhoods: Array<{
+    name: string;
+    zipCode: string;
+    amenities: string[];
+    medianPrice: number;
+    propertyCount: number;
+    yoyPriceChange: number | null;
+  }>;
+}
+
+export const NeighborhoodIntelligencePdf: SectionRenderer = ({ section }) => {
+  const c = section.content as NeighborhoodIntelligenceContent;
+  return (
+    <View>
+      {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
+      {c.neighborhoods.length > 0 && (
+        <View style={{ marginTop: 12 }}>
+          <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
+            <Text style={{ ...styles.tableHeader, flex: 2 }}>Neighborhood</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>ZIP</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Median Price</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Count</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>YoY</Text>
+          </View>
+          {c.neighborhoods.map((n, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={{ ...styles.tableCell, flex: 2 }}>{n.name}</Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>{n.zipCode}</Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>
+                {n.medianPrice >= 1_000_000 ? `$${(n.medianPrice / 1_000_000).toFixed(1)}M` : `$${(n.medianPrice / 1_000).toFixed(0)}K`}
+              </Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>{n.propertyCount}</Text>
+              <Text style={{ ...styles.tableCell, flex: 1, color: n.yoyPriceChange != null && n.yoyPriceChange >= 0 ? COLORS.success : COLORS.error }}>
+                {n.yoyPriceChange != null ? `${(n.yoyPriceChange * 100).toFixed(1)}%` : "N/A"}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+
+// --- The Narrative (v2) ---
+
+interface TheNarrativeContent {
+  editorial: string | null;
+  themes: Array<{ name: string; impact: string; trend: string; narrative: string }>;
+  marketContext: {
+    rating: string;
+    yoy: { medianPriceChange: number; volumeChange: number; pricePerSqftChange: number | null };
+    segments: Array<{ name: string; count: number; rating: string; medianPrice: number; propertyType: string }>;
+  };
+  personaFraming?: unknown;
+}
+
+export const TheNarrativePdf: SectionRenderer = ({ section }) => {
+  const c = section.content as TheNarrativeContent;
+  return (
+    <View>
+      {c.editorial && <Text style={styles.body}>{c.editorial}</Text>}
+      {c.themes.length > 0 && (
+        <View style={{ marginTop: 12 }}>
+          <Text style={styles.subheading}>Key Themes</Text>
+          {c.themes.map((theme, i) => (
+            <View key={i} style={styles.card}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+                <Text style={{ ...styles.subheading, marginBottom: 0 }}>{theme.name}</Text>
+                <Text style={{ ...styles.badge, backgroundColor: theme.impact === "high" ? COLORS.success : theme.impact === "medium" ? COLORS.warning : COLORS.textSecondary }}>
+                  {theme.impact} {theme.trend === "up" ? "↑" : theme.trend === "down" ? "↓" : "→"}
+                </Text>
+              </View>
+              <Text style={styles.body}>{theme.narrative}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+      {c.marketContext.segments.length > 0 && (
+        <View style={{ marginTop: 12 }}>
+          <Text style={styles.subheading}>Market Segments</Text>
+          <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
+            <Text style={{ ...styles.tableHeader, flex: 2 }}>Segment</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Count</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Median</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Rating</Text>
+          </View>
+          {c.marketContext.segments.map((seg, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={{ ...styles.tableCell, flex: 2 }}>{seg.name}</Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>{seg.count}</Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>
+                {seg.medianPrice >= 1_000_000 ? `$${(seg.medianPrice / 1_000_000).toFixed(1)}M` : `$${(seg.medianPrice / 1_000).toFixed(0)}K`}
+              </Text>
+              <Text style={{ ...styles.tableCell, flex: 1, color: getRatingColor(seg.rating), fontWeight: 700 }}>
+                {seg.rating}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+
+// --- Forward Look (v2) ---
+
+interface ForwardLookContent {
+  forecast: string | null;
+  guidance: string | null;
+  personaFraming?: unknown;
+}
+
+export const ForwardLookPdf: SectionRenderer = ({ section }) => {
+  const c = section.content as ForwardLookContent;
+  if (!c.forecast && !c.guidance) {
+    return <Text style={styles.bodySmall}>Forecast data not available for this market. Insufficient historical data for projections.</Text>;
+  }
+  return (
+    <View>
+      {c.forecast && (
+        <View style={{ marginBottom: 12 }}>
+          <Text style={styles.subheading}>Forecast</Text>
+          <Text style={styles.body}>{c.forecast}</Text>
+        </View>
+      )}
+      {c.guidance && (
+        <View>
+          <Text style={styles.subheading}>Guidance</Text>
+          <Text style={styles.body}>{c.guidance}</Text>
+        </View>
+      )}
+    </View>
+  );
+};
+
+// --- Comparative Positioning (v2) ---
+
+interface ComparativePositioningContent {
+  peerRankings: Array<{ metric: string; targetRank: number; totalMarkets: number }>;
+  peerComparisons: Array<{
+    name: string;
+    rating: string;
+    medianPrice: number;
+    totalProperties: number;
+    geography: { city: string; state: string };
+    yoy: { medianPriceChange: number; volumeChange: number };
+  }>;
+}
+
+export const ComparativePositioningPdf: SectionRenderer = ({ section }) => {
+  const c = section.content as ComparativePositioningContent;
+  return (
+    <View>
+      {c.peerRankings.length > 0 && (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={styles.subheading}>Market Rankings</Text>
+          {c.peerRankings.map((r, i) => (
+            <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: COLORS.border }}>
+              <Text style={styles.body}>{r.metric}</Text>
+              <Text style={{ ...styles.body, fontWeight: 700, color: r.targetRank === 1 ? COLORS.success : COLORS.textPrimary }}>
+                #{r.targetRank} of {r.totalMarkets}
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+      {c.peerComparisons.length > 0 && (
+        <View>
+          <Text style={styles.subheading}>Peer Markets</Text>
+          {c.peerComparisons.map((peer, i) => (
+            <View key={i} style={styles.card}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
+                <Text style={styles.subheading}>{peer.name}, {peer.geography.state}</Text>
+                <Text style={{ ...styles.badge, backgroundColor: getRatingColor(peer.rating) }}>{peer.rating}</Text>
+              </View>
+              <Text style={styles.body}>
+                Median: {peer.medianPrice >= 1_000_000 ? `$${(peer.medianPrice / 1_000_000).toFixed(1)}M` : `$${(peer.medianPrice / 1_000).toFixed(0)}K`}  |  Properties: {peer.totalProperties}
+              </Text>
+              <Text style={styles.bodySmall}>
+                YoY Price: {(peer.yoy.medianPriceChange * 100).toFixed(1)}%  |  YoY Volume: {(peer.yoy.volumeChange * 100).toFixed(1)}%
+              </Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+
+// --- Strategic Benchmark (v2) ---
+
+interface StrategicBenchmarkContent {
+  narrative: string | null;
+  scorecard: Array<{
+    segment: string;
+    rating: string;
+    medianPrice: number;
+    yoyChange: number;
+    trend: string;
+    propertyCount: number;
+  }>;
+  personaFraming?: unknown;
+}
+
+export const StrategicBenchmarkPdf: SectionRenderer = ({ section }) => {
+  const c = section.content as StrategicBenchmarkContent;
+  return (
+    <View>
+      {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
+      {c.scorecard.length > 0 && (
+        <View style={{ marginTop: 12 }}>
+          <Text style={styles.subheading}>Market Scorecard</Text>
+          <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
+            <Text style={{ ...styles.tableHeader, flex: 2 }}>Segment</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Rating</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Median</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>YoY</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Trend</Text>
+            <Text style={{ ...styles.tableHeader, flex: 1 }}>Count</Text>
+          </View>
+          {c.scorecard.map((row, i) => (
+            <View key={i} style={styles.tableRow}>
+              <Text style={{ ...styles.tableCell, flex: 2 }}>{row.segment}</Text>
+              <Text style={{ ...styles.tableCell, flex: 1, color: getRatingColor(row.rating), fontWeight: 700 }}>{row.rating}</Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>
+                {row.medianPrice >= 1_000_000 ? `$${(row.medianPrice / 1_000_000).toFixed(1)}M` : `$${(row.medianPrice / 1_000).toFixed(0)}K`}
+              </Text>
+              <Text style={{ ...styles.tableCell, flex: 1, color: row.yoyChange >= 0 ? COLORS.success : COLORS.error }}>
+                {(row.yoyChange * 100).toFixed(1)}%
+              </Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>
+                {row.trend === "up" ? "↑" : row.trend === "down" ? "↓" : "→"}
+              </Text>
+              <Text style={{ ...styles.tableCell, flex: 1 }}>{row.propertyCount}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+    </View>
+  );
+};
+
+// --- Disclaimer & Methodology (v2) ---
+
+interface DisclaimerMethodologyContent {
+  disclaimer: string;
+  methodology: string | null;
+  dataSources: Array<{ name: string; status: string }>;
+  confidence: { level: string; sampleSize: number; detailCoverage: number; staleDataSources: string[] };
+}
+
+export const DisclaimerMethodologyPdf: SectionRenderer = ({ section }) => {
+  const c = section.content as DisclaimerMethodologyContent;
+  return (
+    <View>
+      {c.disclaimer && (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={styles.subheading}>Disclaimer</Text>
+          <Text style={styles.bodySmall}>{c.disclaimer}</Text>
+        </View>
+      )}
+      {c.methodology && (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={styles.subheading}>Methodology</Text>
+          <Text style={styles.body}>{c.methodology}</Text>
+        </View>
+      )}
+      {c.dataSources.length > 0 && (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={styles.subheading}>Data Sources</Text>
+          {c.dataSources.map((src, i) => (
+            <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: COLORS.border }}>
+              <Text style={styles.body}>{src.name}</Text>
+              <Text style={{ ...styles.badge, backgroundColor: src.status === "fresh" ? COLORS.success : COLORS.warning }}>{src.status}</Text>
+            </View>
+          ))}
+        </View>
+      )}
+      <View>
+        <Text style={styles.subheading}>Confidence</Text>
+        <Text style={styles.body}>
+          Level: {c.confidence.level}  |  Sample size: {c.confidence.sampleSize}  |  Detail coverage: {(c.confidence.detailCoverage * 100).toFixed(0)}%
+        </Text>
+        {c.confidence.staleDataSources.length > 0 && (
+          <Text style={styles.bodySmall}>
+            Stale sources: {c.confidence.staleDataSources.join(", ")}
+          </Text>
+        )}
+      </View>
+    </View>
+  );
+};
+
 // --- Generic Section (fallback) ---
 
 export const GenericSectionPdf: SectionRenderer = ({ section }) => {
@@ -711,6 +1183,7 @@ export const GenericSectionPdf: SectionRenderer = ({ section }) => {
 // --- Renderer dispatch ---
 
 const RENDERER_MAP: Record<string, SectionRenderer> = {
+  // v1 section types (kept for backward compatibility)
   market_overview: MarketOverviewPdf,
   key_drivers: KeyDriversPdf,
   forecasts: ForecastsPdf,
@@ -719,6 +1192,16 @@ const RENDERER_MAP: Record<string, SectionRenderer> = {
   competitive_market_analysis: CompetitiveAnalysisPdf,
   polished_report: PolishedReportPdf,
   methodology: MethodologySectionPdf,
+  // v2 section types
+  executive_briefing: ExecutiveBriefingPdf,
+  market_insights_index: MarketInsightsIndexPdf,
+  luxury_market_dashboard: LuxuryMarketDashboardPdf,
+  neighborhood_intelligence: NeighborhoodIntelligencePdf,
+  the_narrative: TheNarrativePdf,
+  forward_look: ForwardLookPdf,
+  comparative_positioning: ComparativePositioningPdf,
+  strategic_benchmark: StrategicBenchmarkPdf,
+  disclaimer_methodology: DisclaimerMethodologyPdf,
   persona_intelligence: PersonaIntelligencePdf,
 };
 

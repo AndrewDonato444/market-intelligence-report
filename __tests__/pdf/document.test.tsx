@@ -179,6 +179,71 @@ describe("Report Template Engine", () => {
       const renderer = mod.getSectionRenderer("unknown_type");
       expect(renderer).toBe(mod.GenericSectionPdf);
     });
+
+    // --- v2 section type regression tests (PDF-V2-01 through PDF-V2-09) ---
+
+    it("PDF-V2-01: returns ExecutiveBriefingPdf for executive_briefing", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("executive_briefing");
+      expect(renderer).toBe(mod.ExecutiveBriefingPdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
+
+    it("PDF-V2-02: returns MarketInsightsIndexPdf for market_insights_index", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("market_insights_index");
+      expect(renderer).toBe(mod.MarketInsightsIndexPdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
+
+    it("PDF-V2-03: returns LuxuryMarketDashboardPdf for luxury_market_dashboard", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("luxury_market_dashboard");
+      expect(renderer).toBe(mod.LuxuryMarketDashboardPdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
+
+    it("PDF-V2-04: returns NeighborhoodIntelligencePdf for neighborhood_intelligence", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("neighborhood_intelligence");
+      expect(renderer).toBe(mod.NeighborhoodIntelligencePdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
+
+    it("PDF-V2-05: returns TheNarrativePdf for the_narrative", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("the_narrative");
+      expect(renderer).toBe(mod.TheNarrativePdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
+
+    it("PDF-V2-06: returns ForwardLookPdf for forward_look", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("forward_look");
+      expect(renderer).toBe(mod.ForwardLookPdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
+
+    it("PDF-V2-07: returns ComparativePositioningPdf for comparative_positioning", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("comparative_positioning");
+      expect(renderer).toBe(mod.ComparativePositioningPdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
+
+    it("PDF-V2-08: returns StrategicBenchmarkPdf for strategic_benchmark", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("strategic_benchmark");
+      expect(renderer).toBe(mod.StrategicBenchmarkPdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
+
+    it("PDF-V2-09: returns DisclaimerMethodologyPdf for disclaimer_methodology", async () => {
+      const mod = await import("@/lib/pdf/templates/renderers");
+      const renderer = mod.getSectionRenderer("disclaimer_methodology");
+      expect(renderer).toBe(mod.DisclaimerMethodologyPdf);
+      expect(renderer).not.toBe(mod.GenericSectionPdf);
+    });
   });
 
   describe("Cover page template", () => {
