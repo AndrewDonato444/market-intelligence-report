@@ -1,29 +1,84 @@
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
-import Home from "@/app/page";
+import { render, screen, within } from "@testing-library/react";
 import fs from "fs";
 import path from "path";
 
+// Mock window.matchMedia (not available in JSDOM)
+Object.defineProperty(window, "matchMedia", {
+  writable: true,
+  value: jest.fn().mockImplementation((query: string) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: jest.fn(),
+    removeListener: jest.fn(),
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+    dispatchEvent: jest.fn(),
+  })),
+});
+
+// Mock next/font/google
+jest.mock("next/font/google", () => ({
+  Playfair_Display: () => ({
+    className: "playfair-mock",
+    variable: "--font-serif",
+  }),
+  Inter: () => ({
+    className: "inter-mock",
+    variable: "--font-sans",
+  }),
+}));
+
+// Mock next/image
+jest.mock("next/image", () => ({
+  __esModule: true,
+  default: (props: Record<string, unknown>) => {
+    return <img {...props} />;
+  },
+}));
+
+// Mock next/link
+jest.mock("next/link", () => ({
+  __esModule: true,
+  default: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+    [key: string]: unknown;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
+
+import Home from "@/app/page";
+
 describe("Project Scaffold", () => {
   describe("Landing page renders", () => {
-    it("renders the Modern Signal Advisory heading", () => {
+    it("renders the Modern Signal Advisory wordmark in navigation", () => {
       render(<Home />);
+      const nav = screen.getByRole("navigation");
       expect(
-        screen.getByText("Modern Signal Advisory")
+        within(nav).getByText(/Modern Signal Advisory/i)
       ).toBeInTheDocument();
     });
 
-    it("renders the tagline", () => {
+    it("renders the hero section", () => {
       render(<Home />);
       expect(
-        screen.getByText("Luxury Market Intelligence")
+        screen.getByTestId("hero-section")
       ).toBeInTheDocument();
     });
 
-    it("renders the initializing message", () => {
+    it("renders the main element", () => {
       render(<Home />);
       expect(
-        screen.getByText("Platform initializing...")
+        screen.getByRole("main")
       ).toBeInTheDocument();
     });
   });

@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 48 |
+| ✅ Completed | 49 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 4 |
+| ⬜ Pending | 0 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-10
@@ -185,6 +185,18 @@
 | 95 | Market calibration engine (auto-adjust persona specs to local market — price tiers, community types, seasonal patterns) | vision | M | 92, 22 | ✅ |
 
 **Goal**: An agent selects 1-3 buyer personas during report setup. The generated report includes persona-tailored insights, talking points, and narrative framing that speak directly to those buyer types — using their vocabulary, addressing their decision drivers, and emphasizing the metrics they care about.
+
+---
+
+## Phase 11: Marketing & Public Pages
+
+> Public-facing marketing pages that drive signups and establish brand positioning.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 100 | Marketing landing page (editorial design, creative brief, all sections) | vision | L | 1 | ✅ |
+
+**Goal**: A premium, editorial-quality public landing page that communicates the product's value proposition and drives agent signups.
 
 ---
 
