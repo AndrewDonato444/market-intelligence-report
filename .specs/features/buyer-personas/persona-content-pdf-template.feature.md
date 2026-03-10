@@ -282,11 +282,11 @@ And it is styled as a subtle label (font: sans, text-xs, color: text-tertiary)
 
 ## Implementation Notes
 
-### Files to Create/Modify
+### Files Created/Modified
 
-1. **`lib/pdf/templates/renderers.tsx`** — Add PersonaIntelligencePdf renderer + register in RENDERER_MAP
-2. **`lib/pdf/styles.ts`** — Add styles for persona cards, talking points, vocabulary tags, callout boxes
-3. **`lib/pdf/templates/renderers.tsx`** — Modify existing narrative section renderers (ExecutiveSummaryPdf, NarrativeSectionPdf) to render PersonaFraming callout when present
+1. **`lib/pdf/templates/renderers.tsx`** — Added PersonaIntelligencePdf renderer + PersonaFramingCallout + registered in RENDERER_MAP
+2. **`lib/pdf/styles.ts`** — Added styles for persona cards, talking points, vocabulary tags, callout boxes
+3. **`lib/pdf/templates/section-page.tsx`** — Reads `personaFraming` from section content and renders `PersonaFramingCallout` after the section renderer output. This keeps callout logic centralized rather than duplicated across individual renderers (ExecutiveSummaryPdf, NarrativeSectionPdf, etc.).
 4. **`__tests__/pdf/persona-intelligence-pdf.test.tsx`** — Tests for all scenarios
 
 ### Content Type Interfaces
