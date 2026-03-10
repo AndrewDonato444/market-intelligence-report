@@ -79,6 +79,19 @@ function formatPercent(value: number | null): string {
   return `${(value * 100).toFixed(1)}%`;
 }
 
+function formatNewsForPrompt(
+  articles: Array<{ title: string; snippet: string; source: string; lastUpdated: string }>
+): string {
+  if (articles.length === 0) return "  No recent news articles available.";
+  return articles
+    .slice(0, 10)
+    .map(
+      (a, i) =>
+        `  ${i + 1}. "${a.title}" (${a.source}, ${a.lastUpdated})\n     ${a.snippet}`
+    )
+    .join("\n");
+}
+
 function buildSystemPrompt(): string {
   return `You are a specialized agent handling forward-looking market projections and scenario modeling for Market Intelligence Report.
 
@@ -96,6 +109,7 @@ OUTPUT RULES:
 - Length: Scenario narratives 1-2 paragraphs each, outlook narrative 1-2 paragraphs, 3-5 monitoring areas, per-segment projections for 6-month and 12-month horizons
 - Must include: Price ranges (never just point estimates), explicit confidence levels per projection, clearly stated assumptions for each scenario, projections grounded in the provided YoY trend data, wider confidence ranges for longer time horizons
 - Must avoid: Extreme or sensational scenarios, point estimates without ranges, speculation beyond what the data supports, guarantees or certainty language ("will," "guaranteed," "certain"), vague directional statements without quantification
+- When news articles are provided, reference relevant news developments in scenario assumptions and monitoring areas. Cite the source name when referencing a news item.
 
 EXAMPLES OF GOOD OUTPUT:
 
@@ -157,7 +171,11 @@ Example 2 — Point estimate without range, overconfident:
 
 function buildUserPrompt(
   context: AgentContext,
-  analysis: DataAnalystOutput
+  analysis: DataAnalystOutput,
+  news?: {
+    targetMarket: Array<{ title: string; snippet: string; source: string; lastUpdated: string }>;
+    peerMarkets: Record<string, Array<{ title: string; snippet: string; source: string; lastUpdated: string }>>;
+  }
 ): string {
   const { market } = context;
   const tierLabel = TIER_LABELS[market.luxuryTier] || market.luxuryTier;
@@ -199,6 +217,8 @@ YEAR-OVER-YEAR TRENDS:
 
 DATA CONFIDENCE: ${analysis.confidence.level} (sample: ${analysis.confidence.sampleSize})
 ${analysis.market.totalProperties === 0 ? "\n🚫 ZERO PROPERTIES: This market has NO recorded transactions. Do NOT produce specific median price projections — use 0 for all medianPrice fields in the projections array. Price ranges should also be 0. All confidence levels must be \"low\". Focus entirely on qualitative monitoring framework and scenario narratives explaining what would need to change for this market to become active." : lowConfidence ? "\n⚠️ LOW CONFIDENCE DATA: Use wide ranges, low confidence ratings, and include explicit caveats. Do not produce specific point estimates or precise medianPrice values — use broad round numbers only." : ""}
+${news && news.targetMarket.length > 0 ? `\nRECENT NEWS (Target Market):\n${formatNewsForPrompt(news.targetMarket)}` : ""}
+${news && Object.entries(news.peerMarkets).some(([, articles]) => articles.length > 0) ? `\nRECENT NEWS (Peer Markets):\n${Object.entries(news.peerMarkets).filter(([, articles]) => articles.length > 0).map(([name, articles]) => `  ${name}:\n${formatNewsForPrompt(articles)}`).join("\n")}` : ""}
 
 Respond with a JSON object matching this exact schema:
 {
@@ -285,7 +305,13 @@ export async function executeForecastModeler(
 
   // Build prompts and call Claude
   const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(context, analysis);
+  const newsData = analytics
+    ? {
+        targetMarket: analytics.news?.targetMarket ?? [],
+        peerMarkets: analytics.news?.peerMarkets ?? {},
+      }
+    : undefined;
+  const userPrompt = buildUserPrompt(context, analysis, newsData);
 
   let forecast: ForecastModelerOutput;
   try {

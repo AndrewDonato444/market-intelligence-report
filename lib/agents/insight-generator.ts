@@ -66,6 +66,19 @@ function formatPercent(value: number | null): string {
   return `${(value * 100).toFixed(1)}%`;
 }
 
+function formatNewsForPrompt(
+  articles: Array<{ title: string; snippet: string; source: string; lastUpdated: string }>
+): string {
+  if (articles.length === 0) return "  No recent news articles available.";
+  return articles
+    .slice(0, 10)
+    .map(
+      (a, i) =>
+        `  ${i + 1}. "${a.title}" (${a.source}, ${a.lastUpdated})\n     ${a.snippet}`
+    )
+    .join("\n");
+}
+
 function buildSystemPrompt(): string {
   return `You are a specialized agent handling strategic market narrative generation and thematic analysis for Market Intelligence Report.
 
@@ -84,6 +97,7 @@ OUTPUT RULES:
 - Must include: Specific numbers from the data provided (median prices, YoY changes, segment counts), actionable buyer/seller timing recommendations, pattern identification across segments, honest confidence caveats when data is limited
 - Must avoid: Generic language ("the market is healthy"), promotional tone, restating raw metrics without strategic interpretation, hedging language that adds no value ("it remains to be seen")
 - CRITICAL: Only reference numbers that appear in the input data. Do NOT fabricate, extrapolate, or invent metrics that were not provided (e.g., do not create price-per-sqft figures, property counts, or volume numbers unless they are explicitly in the input). When a metric is not available, either omit it or note its absence.
+- When news articles are provided, reference specific news developments to ground themes in current events. Cite the source name when referencing a news item.
 
 EXAMPLES OF GOOD OUTPUT:
 
@@ -114,7 +128,8 @@ Example 2 — Metric restating without interpretation:
 
 function buildUserPrompt(
   context: AgentContext,
-  analysis: DataAnalystOutput
+  analysis: DataAnalystOutput,
+  news?: { targetMarket: Array<{ title: string; snippet: string; source: string; lastUpdated: string }> }
 ): string {
   const { market } = context;
   const tierLabel =
@@ -158,6 +173,7 @@ YEAR-OVER-YEAR:
 DATA CONFIDENCE: ${analysis.confidence.level} (sample: ${analysis.confidence.sampleSize})
 ${analysis.confidence.staleDataSources.length > 0 ? `STALE SOURCES: ${analysis.confidence.staleDataSources.join(", ")}` : ""}
 ${insufficientData ? "\n⚠️ INSUFFICIENT DATA: Provide caveated analysis. Do not fabricate specific numbers." : ""}
+${news && news.targetMarket.length > 0 ? `\nRECENT NEWS:\n${formatNewsForPrompt(news.targetMarket)}` : ""}
 
 Respond with a JSON object matching this exact schema:
 {
@@ -234,7 +250,10 @@ export async function executeInsightGenerator(
 
   // Build prompts
   const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(context, analysis);
+  const newsData = analytics
+    ? { targetMarket: analytics.news?.targetMarket ?? [] }
+    : undefined;
+  const userPrompt = buildUserPrompt(context, analysis, newsData);
 
   // Call Claude
   let insights: InsightGeneratorOutput;

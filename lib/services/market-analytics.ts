@@ -11,6 +11,7 @@
 import type { MarketData } from "@/lib/agents/orchestrator";
 import type { CompiledMarketData, PeerMarketData } from "@/lib/services/data-fetcher";
 import type { PropertySummary, PropertyDetail } from "@/lib/connectors/realestateapi";
+import type { NewsArticle } from "@/lib/connectors/scrapingdog";
 import { median, average, clamp, percentChange } from "@/lib/utils/math";
 
 // Re-export computation functions from data-analyst for backward compat
@@ -70,6 +71,12 @@ export interface ComputedAnalytics {
 
   /** Section 8: Segment scorecard */
   scorecard: SegmentScorecard[];
+
+  /** News articles about the market (passthrough from Layer 0) */
+  news: {
+    targetMarket: NewsArticle[];
+    peerMarkets: Record<string, NewsArticle[]>;
+  };
 
   /** Confidence metadata */
   confidence: {
@@ -200,6 +207,10 @@ export function computeMarketAnalytics(
     neighborhoods,
     peerComparisons,
     peerRankings,
+    news: {
+      targetMarket: data.news?.targetMarket ?? [],
+      peerMarkets: data.news?.peerMarkets ?? {},
+    },
     scorecard,
     confidence,
     detailMetrics,

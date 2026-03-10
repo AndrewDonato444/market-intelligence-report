@@ -111,6 +111,7 @@ function makeCompiledData(
     },
     peerMarkets: [],
     neighborhood: { amenities: {} },
+    news: { targetMarket: [], peerMarkets: {}, stale: false },
     fetchMetadata: {
       totalApiCalls: 5,
       totalDurationMs: 1200,

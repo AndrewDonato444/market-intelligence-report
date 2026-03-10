@@ -18,7 +18,7 @@ import * as path from "node:path";
 
 // Load .env.local BEFORE any app imports (they read env vars at module scope)
 import dotenv from "dotenv";
-dotenv.config({ path: path.resolve(__dirname, "..", ".env.local") });
+dotenv.config({ path: path.resolve(__dirname, "..", ".env.local"), override: true });
 
 // ── Types (import type is fine — no runtime side effects) ──
 
@@ -165,6 +165,8 @@ async function runLayer0(useCached: boolean): Promise<CompiledMarketData> {
     console.log(`  Comps: ${data.targetMarket.comps.length}`);
     console.log(`  Peer markets: ${data.peerMarkets.length}`);
     console.log(`  Amenity categories: ${Object.keys(data.neighborhood.amenities).length}`);
+    console.log(`  News articles (target): ${data.news?.targetMarket?.length ?? 0}`);
+    console.log(`  News articles (peers): ${Object.values(data.news?.peerMarkets ?? {}).reduce((sum, arr) => sum + arr.length, 0)}`);
     console.log(`  Stale sources: ${data.fetchMetadata.staleDataSources.length}`);
     console.log(`  Errors: ${data.fetchMetadata.errors.length}`);
     if (data.fetchMetadata.errors.length > 0) {
