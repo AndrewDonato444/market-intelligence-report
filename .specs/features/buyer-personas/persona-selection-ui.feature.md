@@ -77,7 +77,7 @@ And the wizard does not advance
 Given the agent selects "The Business Mogul" first, then "The Coastal Escape Seeker"
 Then "The Business Mogul" shows badge "1" (primary narrative tone)
 And "The Coastal Escape Seeker" shows badge "2" (secondary)
-And the preview panel explains: "Primary persona sets the report's narrative tone"
+And the step instructions explain: "The first persona sets the report's primary narrative tone."
 
 ### Scenario: Preview panel shows persona intelligence preview
 Given the agent clicks the "Preview" button on a persona card
