@@ -4,6 +4,11 @@
  */
 import type { ComputedAnalytics } from "@/lib/services/market-analytics";
 import type { MarketData } from "@/lib/agents/orchestrator";
+import type { MarketCalibrationResult, MarketCalibrationSkipped, LocalBenchmark, MarketProfile } from "@/lib/services/market-calibration";
+
+function assertCalibrated(result: MarketCalibrationResult | MarketCalibrationSkipped): asserts result is MarketCalibrationResult {
+  if ("skipped" in result) throw new Error("Expected calibrated result but got skipped");
+}
 
 jest.mock("@/lib/services/cache", () => ({
   get: jest.fn().mockResolvedValue(null),
@@ -97,6 +102,7 @@ describe("Market Calibration Engine", () => {
     it("produces CalibratedPersonaOverrides for each selected persona", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       expect(result.personas).toHaveLength(1);
       expect(result.personas[0].personaSlug).toBe("the-business-mogul");
       expect(result.personas[0].propertyFilters).toBeDefined();
@@ -121,6 +127,7 @@ describe("Market Calibration Engine", () => {
     it("adjusts price tiers to reflect local distribution", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       expect(result.marketProfile.priceTiers.length).toBeGreaterThanOrEqual(2);
       for (const t of result.marketProfile.priceTiers) { expect(t).toHaveProperty("label"); expect(t).toHaveProperty("min"); expect(t).toHaveProperty("transactionCount"); expect(t).toHaveProperty("percentage"); }
       expect(result.personas[0].propertyFilters.priceRange).toBeDefined();
@@ -129,15 +136,17 @@ describe("Market Calibration Engine", () => {
     it("maps persona tier labels to local price boundaries", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
-      const labels = result.marketProfile.priceTiers.map((t) => t.label);
-      expect(labels.some((l) => l.includes("entry"))).toBe(true);
-      expect(labels.some((l) => l.includes("ultra"))).toBe(true);
+      assertCalibrated(result);
+      const labels = result.marketProfile.priceTiers.map((t: MarketProfile["priceTiers"][number]) => t.label);
+      expect(labels.some((l: string) => l.includes("entry"))).toBe(true);
+      expect(labels.some((l: string) => l.includes("ultra"))).toBe(true);
     });
 
     it("includes local median price benchmark", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
-      const mb = result.personas[0].localBenchmarks.find((b) => b.metric === "medianPrice");
+      assertCalibrated(result);
+      const mb = result.personas[0].localBenchmarks.find((b: LocalBenchmark) => b.metric === "medianPrice");
       expect(mb).toBeDefined();
       expect(mb!.calibratedValue).toContain("4,500,000");
     });
@@ -147,6 +156,7 @@ describe("Market Calibration Engine", () => {
     it("replaces default communities with local names from analytics", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket({ name: "Aspen", geography: { city: "Aspen", state: "Colorado" } }));
+      assertCalibrated(result);
       const kd = result.personas[0].propertyFilters.keyDevelopmentsExample!;
       expect(kd).not.toContain("Port Royal"); expect(kd).not.toContain("Grey Oaks");
       expect(kd).toContain("Starwood"); expect(kd).toContain("Red Mountain");
@@ -155,6 +165,7 @@ describe("Market Calibration Engine", () => {
     it("populates topCommunities in market profile", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       expect(result.marketProfile.topCommunities.length).toBeGreaterThan(0);
       for (const c of result.marketProfile.topCommunities) { expect(c).toHaveProperty("name"); expect(c).toHaveProperty("transactionCount"); expect(c).toHaveProperty("medianPrice"); expect(c).toHaveProperty("type"); }
     });
@@ -164,6 +175,7 @@ describe("Market Calibration Engine", () => {
     it("computes monthly volume distribution", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       expect(result.marketProfile.monthlyVolume.length).toBe(12);
       for (const mv of result.marketProfile.monthlyVolume) { expect(mv).toHaveProperty("month"); expect(mv).toHaveProperty("count"); expect(mv).toHaveProperty("percentage"); }
     });
@@ -171,6 +183,7 @@ describe("Market Calibration Engine", () => {
     it("identifies peak and slow months", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       expect(result.personas[0].seasonalPattern).toBeDefined();
       expect(result.personas[0].seasonalPattern!.peakMonths.length).toBe(3);
       expect(result.personas[0].seasonalPattern!.slowMonths.length).toBe(3);
@@ -181,6 +194,7 @@ describe("Market Calibration Engine", () => {
       const a = makeAnalytics({ confidence: { level: "medium", sampleSize: 15, detailCoverage: 0.5, staleDataSources: [] } });
       a.market = { ...a.market, totalProperties: 15 };
       const result = await calibratePersonasToMarket(a, [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       expect(result.personas[0].seasonalPattern!.confidence).toBe("low");
       expect(result.personas[0].seasonalPattern!.sampleSize).toBe(15);
     });
@@ -190,7 +204,8 @@ describe("Market Calibration Engine", () => {
     it("replaces static DOM with actual median from analytics", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
-      const d = result.personas[0].localBenchmarks.find((b) => b.metric === "medianDOM");
+      assertCalibrated(result);
+      const d = result.personas[0].localBenchmarks.find((b: LocalBenchmark) => b.metric === "medianDOM");
       expect(d).toBeDefined(); expect(d!.defaultValue).toBe("45 days");
       expect(d!.calibratedValue).toContain("128"); expect(d!.context.length).toBeGreaterThan(0);
     });
@@ -200,7 +215,8 @@ describe("Market Calibration Engine", () => {
     it("replaces default cash rate with actual local rate", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
-      const c = result.personas[0].localBenchmarks.find((b) => b.metric === "cashRate");
+      assertCalibrated(result);
+      const c = result.personas[0].localBenchmarks.find((b: LocalBenchmark) => b.metric === "cashRate");
       expect(c).toBeDefined(); expect(c!.defaultValue).toBe("87% cash transactions");
       expect(c!.calibratedValue).toContain("54");
     });
@@ -208,7 +224,8 @@ describe("Market Calibration Engine", () => {
     it("notes comparison to national luxury average", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
-      const c = result.personas[0].localBenchmarks.find((b) => b.metric === "cashRate");
+      assertCalibrated(result);
+      const c = result.personas[0].localBenchmarks.find((b: LocalBenchmark) => b.metric === "cashRate");
       expect(c!.context).toMatch(/below|above|national|average/i);
     });
   });
@@ -219,6 +236,7 @@ describe("Market Calibration Engine", () => {
       const result = await calibratePersonasToMarket(makeAnalytics(), [
         { selectionOrder: 1, persona: makePersona() }, { selectionOrder: 2, persona: makeCoastalEscapePersona() }, { selectionOrder: 3, persona: makeLegacyBuilderPersona() },
       ], makeMarket());
+      assertCalibrated(result);
       expect(result.personas).toHaveLength(3);
       expect(result.personas[0].personaSlug).toBe("the-business-mogul");
       expect(result.personas[1].personaSlug).toBe("the-coastal-escape-seeker");
@@ -230,6 +248,7 @@ describe("Market Calibration Engine", () => {
       const result = await calibratePersonasToMarket(makeAnalytics(), [
         { selectionOrder: 1, persona: makePersona() }, { selectionOrder: 2, persona: makeCoastalEscapePersona() },
       ], makeMarket());
+      assertCalibrated(result);
       expect(result.marketProfile.totalTransactions).toBe(120);
     });
   });
@@ -240,6 +259,7 @@ describe("Market Calibration Engine", () => {
       const a = makeAnalytics({ confidence: { level: "medium", sampleSize: 15, detailCoverage: 0.3, staleDataSources: [] }, detailMetrics: { medianDaysOnMarket: null, cashBuyerPercentage: null, listToSaleRatio: null, floodZonePercentage: null, investorBuyerPercentage: null, freeClearPercentage: null } });
       a.market = { ...a.market, totalProperties: 15 };
       const result = await calibratePersonasToMarket(a, [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       expect(result.calibrationQuality).toBe("partial");
       expect(result.qualityNotes.length).toBeGreaterThan(0);
     });
@@ -249,6 +269,7 @@ describe("Market Calibration Engine", () => {
       const a = makeAnalytics({ confidence: { level: "medium", sampleSize: 15, detailCoverage: 0.3, staleDataSources: [] } });
       a.market = { ...a.market, totalProperties: 15 };
       const result = await calibratePersonasToMarket(a, [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       expect(result.marketProfile.priceTiers.length).toBeGreaterThanOrEqual(1);
     });
 
@@ -256,7 +277,8 @@ describe("Market Calibration Engine", () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const a = makeAnalytics({ detailMetrics: { medianDaysOnMarket: null, cashBuyerPercentage: null, listToSaleRatio: null, floodZonePercentage: null, investorBuyerPercentage: null, freeClearPercentage: null } });
       const result = await calibratePersonasToMarket(a, [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
-      const d = result.personas[0].localBenchmarks.find((b) => b.metric === "medianDOM");
+      assertCalibrated(result);
+      const d = result.personas[0].localBenchmarks.find((b: LocalBenchmark) => b.metric === "medianDOM");
       if (d) { expect(d.calibratedValue).toContain("N/A"); }
     });
   });
@@ -265,6 +287,7 @@ describe("Market Calibration Engine", () => {
     it("only modifies market-specific fields", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       const o = result.personas[0];
       expect(o.propertyFilters).toBeDefined(); expect(o.localBenchmarks).toBeInstanceOf(Array);
       expect(o).not.toHaveProperty("decisionDrivers"); expect(o).not.toHaveProperty("narrativeFraming");
@@ -296,8 +319,8 @@ describe("Market Calibration Engine", () => {
     it("returns skip result", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [], makeMarket());
-      expect((result as any).skipped).toBe(true);
-      expect((result as any).reason).toBe("no_personas_selected");
+      expect((result as MarketCalibrationSkipped).skipped).toBe(true);
+      expect((result as MarketCalibrationSkipped).reason).toBe("no_personas_selected");
     });
   });
 
@@ -315,8 +338,10 @@ describe("Market Calibration Engine", () => {
       const cache = require("@/lib/services/cache");
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const r1 = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(r1);
       cache.get.mockResolvedValueOnce({ marketProfile: r1.marketProfile, calibratedAt: r1.calibratedAt, marketFingerprint: r1.marketFingerprint });
       const r2 = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(r2);
       expect(r2.marketProfile.totalTransactions).toBe(r1.marketProfile.totalTransactions);
     });
   });
@@ -325,6 +350,7 @@ describe("Market Calibration Engine", () => {
     it("contains all required fields", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
       const result = await calibratePersonasToMarket(makeAnalytics(), [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
+      assertCalibrated(result);
       const mp = result.marketProfile;
       expect(mp.city).toBe("Naples"); expect(mp.state).toBe("Florida");
       expect(mp.totalTransactions).toBe(120); expect(mp.dateRange).toBeDefined();
