@@ -7,9 +7,9 @@ tests:
 components: []
 personas:
   - primary
-status: specced
+status: deprecated
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # Competitive Analyst Agent
@@ -20,9 +20,11 @@ updated: 2026-03-09
 
 ## Feature: Competitive Analyst Agent
 
+> **⚠️ DEPRECATED (v2 pipeline):** This agent was part of the v1 7-agent pipeline. In the v2 4-layer architecture, peer market comparison is handled by the report-assembler (Layer 3) using pre-fetched data from Layer 0. The source file exists but is marked `@deprecated` and is not registered in the v2 pipeline's `ALL_AGENTS` array. Kept for reference only.
+
 The Competitive Analyst compares the target market against peer luxury markets. It fetches property data for each peer market, computes comparable metrics using the same functions as the Data Analyst, then uses Claude to generate strategic positioning narratives.
 
-This is the third agent in the pipeline (runs in parallel with Insight Generator after Data Analyst completes). Depends on feature #12 (peer market selection) for the peer market definitions stored on each market record.
+This was the third agent in the v1 pipeline (ran in parallel with Insight Generator after Data Analyst completed). Depends on feature #12 (peer market selection) for the peer market definitions stored on each market record.
 
 ### Scenario: Fetches and analyzes peer market data
 Given the pipeline has completed the data-analyst stage

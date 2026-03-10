@@ -22,10 +22,10 @@ updated: 2026-03-09
 
 ## Feature: Cache-First Data Access
 
-Every external API call (RealEstateAPI, FRED, ScrapingDog) is expensive. The cache layer sits between the application and external APIs, storing responses in the `cache` table with source-specific TTLs. When data is requested, cache is checked first. On miss, the caller fetches from the API and stores the result. Every API call — cached or not — is logged in `api_usage` for cost tracking.
+Every external API call (RealEstateAPI, ScrapingDog) is expensive. The cache layer sits between the application and external APIs, storing responses in the `cache` table with source-specific TTLs. When data is requested, cache is checked first. On miss, the caller fetches from the API and stores the result. Every API call — cached or not — is logged in `api_usage` for cost tracking.
 
 ### Scenario: Cache hit returns stored data
-Given a cache entry exists for key "fred:mortgage-rate-30yr" with source "fred"
+Given a cache entry exists for key "reapi:property-search:naples-fl" with source "realestateapi"
 And the entry has not expired
 When the cache service is queried for that key
 Then the stored data is returned
@@ -38,7 +38,7 @@ Then null is returned
 And the caller knows to fetch from the external API
 
 ### Scenario: Expired entry is treated as a miss
-Given a cache entry exists for key "fred:gdp-growth" with source "fred"
+Given a cache entry exists for key "reapi:property-detail:12345" with source "realestateapi"
 And the entry's expires_at is in the past
 When the cache service is queried for that key
 Then null is returned (expired entries are not served)
@@ -50,7 +50,7 @@ Then the entry is saved with the configured TTL for that source
 And expires_at is calculated as now + TTL seconds
 
 ### Scenario: Cache set upserts on duplicate key
-Given a cache entry already exists for key "fred:mortgage-rate-30yr"
+Given a cache entry already exists for key "reapi:property-search:naples-fl"
 When the cache service stores new data for the same key
 Then the existing entry is updated (not duplicated)
 And expires_at is recalculated from the new TTL
@@ -76,8 +76,7 @@ And non-expired entries remain untouched
 ### Scenario: TTL varies by data source
 Given the TTL configuration defines different durations per source
 When data from different sources is cached
-Then FRED data uses 12h TTL (economic indicators change slowly)
-And RealEstateAPI data uses 24h TTL (transaction data)
+Then RealEstateAPI data uses 24h TTL (transaction data)
 And ScrapingDog data uses 7d TTL (neighborhood context is stable)
 And Anthropic/agent output uses 0 TTL (never cached)
 
@@ -88,7 +87,7 @@ Then an api_usage record is created with provider, endpoint, cost, response_time
 And cached is set to 0 (false)
 
 ### Scenario: API usage logs cache hits
-Given a cache hit occurs for a FRED data request
+Given a cache hit occurs for a RealEstateAPI data request
 When the usage is logged
 Then an api_usage record is created with the provider
 And cached is set to 1 (true)
@@ -107,7 +106,6 @@ And the key is human-readable for debugging
 
 | Source | TTL | Rationale |
 |--------|-----|-----------|
-| `fred` | 43200s (12h) | Economic indicators update daily at most |
 | `realestateapi` | 86400s (24h) | Transaction data is stable within a day |
 | `scrapingdog` | 604800s (7d) | Neighborhood context changes slowly |
 | `anthropic` | 0 (never) | AI outputs should always be fresh |
@@ -117,8 +115,8 @@ And the key is human-readable for debugging
 `{source}:{endpoint}:{sorted-params-hash}`
 
 Examples:
-- `fred:series:MORTGAGE30US`
 - `reapi:property-search:naples-fl-6m-ultra`
+- `reapi:property-detail:12345`
 - `scrapingdog:local:naples-fl-restaurants`
 
 ### Service API

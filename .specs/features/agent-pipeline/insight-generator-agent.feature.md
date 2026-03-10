@@ -7,7 +7,7 @@ tests:
 components: []
 personas:
   - primary
-status: specced
+status: implemented
 created: 2026-03-09
 updated: 2026-03-09
 ---
