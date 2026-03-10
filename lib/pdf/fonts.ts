@@ -18,11 +18,11 @@ export function registerFonts() {
     family: "Playfair Display",
     fonts: [
       {
-        src: `${GOOGLE_FONTS_BASE}/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDXbtM.ttf`,
+        src: `${GOOGLE_FONTS_BASE}/playfairdisplay/v40/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvUDQ.ttf`,
         fontWeight: 400,
       },
       {
-        src: `${GOOGLE_FONTS_BASE}/playfairdisplay/v37/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKd7unDXbtM.ttf`,
+        src: `${GOOGLE_FONTS_BASE}/playfairdisplay/v40/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKeiukDQ.ttf`,
         fontWeight: 700,
       },
     ],
@@ -32,15 +32,15 @@ export function registerFonts() {
     family: "Inter",
     fonts: [
       {
-        src: `${GOOGLE_FONTS_BASE}/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.ttf`,
+        src: `${GOOGLE_FONTS_BASE}/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfMZg.ttf`,
         fontWeight: 400,
       },
       {
-        src: `${GOOGLE_FONTS_BASE}/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fAZ9hiA.ttf`,
+        src: `${GOOGLE_FONTS_BASE}/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuI6fMZg.ttf`,
         fontWeight: 500,
       },
       {
-        src: `${GOOGLE_FONTS_BASE}/inter/v18/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuGKYAZ9hiA.ttf`,
+        src: `${GOOGLE_FONTS_BASE}/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuFuYMZg.ttf`,
         fontWeight: 700,
       },
     ],
