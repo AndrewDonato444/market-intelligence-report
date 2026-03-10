@@ -5,6 +5,8 @@ import {
   createReport,
   validateReportConfig,
 } from "@/lib/services/report";
+// setReportPersonas is called internally by createReport when personaIds are provided
+import { setReportPersonas } from "@/lib/services/buyer-personas";
 import { executePipeline } from "@/lib/services/pipeline-executor";
 
 export async function GET() {
@@ -42,7 +44,10 @@ export async function POST(request: Request) {
   }
 
   try {
-    const report = await createReport(userId, validation.data!);
+    // Include personaIds from request body if provided
+    const personaIds = Array.isArray(body.personaIds) ? body.personaIds as string[] : undefined;
+    const reportData = { ...validation.data!, personaIds };
+    const report = await createReport(userId, reportData);
 
     // Fire-and-forget: trigger pipeline execution asynchronously
     executePipeline(report.id).catch((err) => {

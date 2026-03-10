@@ -16,7 +16,10 @@ _No learnings yet._
 
 <!-- Common component structures, composition -->
 
-_No learnings yet._
+### 2026-03-10
+- **Pattern**: For card-based selection UIs (e.g., persona cards), use `data-selected="true|false"` attributes on the container div. This enables both CSS styling via attribute selectors and easy test assertions via `card.getAttribute("data-selected")`.
+- **Pattern**: Selection-order badges (numbered 1, 2, 3) should use `data-testid="selection-badge-{order}"` and be positioned `absolute top-2 right-2` within a `relative` container. The parent component passes `selectionOrder={index + 1}` where index comes from `selectedIds.indexOf(id)`.
+- **Decision**: Preview panels render below the card grid (not as a slide-out drawer) for simplicity. The `previewPersonaSlug` state lives in the parent wizard, toggled by clicking "Preview" on any card. Clicking a different card's Preview switches the panel; clicking the same card's Preview or "Close Preview" closes it.
 
 ---
 

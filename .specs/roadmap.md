@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 43 |
+| ✅ Completed | 44 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 7 |
 | ⏸️ Blocked | 0 |
@@ -178,7 +178,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 90 | Buyer persona data model + seed data (8 personas from Knox Brothers framework) | vision | M | 2 | ✅ |
-| 91 | Persona selection UI in report builder wizard (pick up to 3, with preview of what each adds) | vision | M | 40, 90 | ⬜ |
+| 91 | Persona selection UI in report builder wizard (pick up to 3, with preview of what each adds) | vision | M | 40, 90 | ✅ |
 | 92 | Persona Intelligence Agent (reframe data through persona lenses, generate talking points, apply narrative framing) | vision | L | 30, 31, 32, 33, 34, 90 | ⬜ |
 | 93 | Multi-persona output strategy — blended report, persona-specific sections, or hybrid (decision TBD during #92 spec) | vision | M | 92 | ⬜ |
 | 94 | Persona content in PDF template (format depends on #93 decision — blended narrative, dedicated sections, or appendix) | vision | L | 50, 92, 93 | ⬜ |

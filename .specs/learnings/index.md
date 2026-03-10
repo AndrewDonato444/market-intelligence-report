@@ -19,6 +19,15 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-10 — Persona Selection UI
+
+- **Wizard step insertion pattern** (`general.md`): When inserting a step, update STEPS array and shift all step index conditionals
+- **Pre-fetch on mount** (`general.md`): Fetch personas when wizard mounts, not on step transition — avoids loading spinners
+- **Card selection with data attributes** (`design.md`): Use `data-selected="true|false"` for both styling and test assertions
+- **Preview panel toggle pattern** (`design.md`): Single `previewPersonaSlug` state, toggle on click, switch on different card click
+- **Regex exact matching** (`testing.md`): Use `^(A|B|C)$` anchors to avoid partial string matches in `getAllByText`
+- **Multi-step wizard test helpers** (`testing.md`): Extract `renderAtStepN()` to reduce setup duplication
+
 ### 2026-03-09 — Admin Dashboard + Eval Suite
 
 - **Route groups vs real directories** (`general.md`): `app/(admin)/` doesn't create a URL segment — use `app/admin/` instead

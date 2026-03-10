@@ -48,4 +48,6 @@ _No learnings yet._
 
 <!-- Miscellaneous patterns -->
 
-_No learnings yet._
+### 2026-03-10
+- **Pattern**: When adding a step to a wizard (e.g., inserting "Personas" between "Sections" and "Review"), all step index references must shift. The `STEPS` array is the single source of truth — update it, then adjust `step === N` conditionals for the new numbering. The `StepIndicator` component automatically adapts to any array length.
+- **Decision**: Wizard state for personas (selectedPersonaIds, previewPersonaSlug, personas array) lives in the top-level ReportWizard component alongside market/sections state. Fetch happens on mount (useEffect) for pre-fetching, not when the step is reached. This ensures no loading spinner on step transition.

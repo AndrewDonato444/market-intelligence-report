@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { StepIndicator } from "@/components/markets/step-indicator";
 import {
@@ -8,8 +8,10 @@ import {
   REQUIRED_SECTIONS,
 } from "@/lib/services/report-validation";
 import Link from "next/link";
+import { PersonaCard } from "./persona-card";
+import { PersonaPreviewPanel } from "./persona-preview-panel";
 
-const STEPS = ["Market", "Sections", "Review"];
+const STEPS = ["Market", "Sections", "Personas", "Review"];
 
 interface MarketOption {
   id: string;
@@ -18,6 +20,26 @@ interface MarketOption {
   luxuryTier: string;
   isDefault: number;
   peerMarkets?: Array<{ name: string; geography: { city: string; state: string } }> | null;
+}
+
+interface BuyerPersona {
+  id: string;
+  name: string;
+  slug: string;
+  tagline: string;
+  displayOrder: number;
+  primaryMotivation: string;
+  buyingLens: string;
+  whatWinsThem: string;
+  biggestFear: string;
+  profileOverview: string;
+  reportMetrics: Array<{ metric: string; priority?: string }> | null;
+  narrativeFraming: {
+    languageTone: string;
+    keyVocabulary: string[];
+    avoid: string[];
+  } | null;
+  talkingPointTemplates: Array<{ template: string }> | null;
 }
 
 interface ReportWizardProps {
@@ -45,6 +67,14 @@ export function ReportWizard({ markets }: ReportWizardProps) {
   );
   const [title, setTitle] = useState("");
 
+  // Persona state
+  const [personas, setPersonas] = useState<BuyerPersona[]>([]);
+  const [personasFetched, setPersonasFetched] = useState(false);
+  const [personasFetchError, setPersonasFetchError] = useState(false);
+  const [selectedPersonaIds, setSelectedPersonaIds] = useState<string[]>([]);
+  const [previewPersonaSlug, setPreviewPersonaSlug] = useState<string | null>(null);
+  const [maxPersonaMessage, setMaxPersonaMessage] = useState<string | null>(null);
+
   const selectedMarket = markets.find((m) => m.id === selectedMarketId);
 
   // Generate default title based on selected market
@@ -54,8 +84,28 @@ export function ReportWizard({ markets }: ReportWizardProps) {
 
   const effectiveTitle = title.trim() || defaultTitle;
 
+  // Fetch personas on mount
+  const fetchPersonas = useCallback(async () => {
+    setPersonasFetchError(false);
+    try {
+      const res = await fetch("/api/buyer-personas");
+      if (!res.ok) {
+        setPersonasFetchError(true);
+        return;
+      }
+      const data = await res.json();
+      setPersonas(data.personas ?? []);
+      setPersonasFetched(true);
+    } catch {
+      setPersonasFetchError(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPersonas();
+  }, [fetchPersonas]);
+
   const toggleSection = (sectionType: string) => {
-    // Don't allow toggling required sections
     if (REQUIRED_SECTIONS.includes(sectionType)) return;
 
     setSelectedSections((prev) =>
@@ -65,12 +115,44 @@ export function ReportWizard({ markets }: ReportWizardProps) {
     );
   };
 
+  const handlePersonaSelect = (personaId: string) => {
+    setMaxPersonaMessage(null);
+
+    if (selectedPersonaIds.includes(personaId)) {
+      // Deselect
+      setSelectedPersonaIds((prev) => prev.filter((id) => id !== personaId));
+      return;
+    }
+
+    if (selectedPersonaIds.length >= 3) {
+      setMaxPersonaMessage(
+        "Maximum 3 personas. Deselect one to choose a different persona."
+      );
+      return;
+    }
+
+    setSelectedPersonaIds((prev) => [...prev, personaId]);
+  };
+
+  const handlePersonaPreview = (slug: string) => {
+    setPreviewPersonaSlug((prev) => (prev === slug ? null : slug));
+  };
+
+  const previewPersona = personas.find((p) => p.slug === previewPersonaSlug);
+
   const validateStep = (): boolean => {
     const newErrors: Record<string, string> = {};
 
     if (step === 0) {
       if (!selectedMarketId) {
         newErrors.market = "Select a market to continue";
+      }
+    }
+
+    if (step === 2) {
+      // Personas step — require at least 1 unless no personas exist in system
+      if (personas.length > 0 && selectedPersonaIds.length === 0) {
+        newErrors.personas = "Select at least 1 buyer persona to continue";
       }
     }
 
@@ -92,11 +174,15 @@ export function ReportWizard({ markets }: ReportWizardProps) {
     setSaving(true);
     setMessage(null);
 
-    const payload = {
+    const payload: Record<string, unknown> = {
       marketId: selectedMarketId,
       title: effectiveTitle,
       sections: selectedSections,
     };
+
+    if (selectedPersonaIds.length > 0) {
+      payload.personaIds = selectedPersonaIds;
+    }
 
     try {
       const res = await fetch("/api/reports", {
@@ -138,6 +224,12 @@ export function ReportWizard({ markets }: ReportWizardProps) {
 
   const labelClass =
     "block font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] mb-1";
+
+  // Get selected persona names for review
+  const selectedPersonaNames = selectedPersonaIds
+    .map((id) => personas.find((p) => p.id === id))
+    .filter(Boolean)
+    .map((p, i) => `${i + 1}. ${p!.name}`);
 
   // No markets available
   if (markets.length === 0) {
@@ -281,8 +373,82 @@ export function ReportWizard({ markets }: ReportWizardProps) {
           </div>
         )}
 
-        {/* Step 3: Review */}
+        {/* Step 3: Persona Selection */}
         {step === 2 && (
+          <div className="space-y-4">
+            <label className={labelClass}>Select Buyer Personas</label>
+            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] -mt-2">
+              Choose 1-3 buyer archetypes. The first persona sets the report&apos;s primary
+              narrative tone.
+            </p>
+
+            {personasFetchError && (
+              <div className="text-center py-4">
+                <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-error)] mb-2">
+                  Failed to load buyer personas.
+                </p>
+                <button
+                  type="button"
+                  onClick={fetchPersonas}
+                  className="px-4 py-1.5 font-[family-name:var(--font-sans)] text-sm text-[var(--color-accent)] border border-[var(--color-accent)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-light)] transition-colors duration-[var(--duration-default)]"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
+
+            {!personasFetchError && personasFetched && personas.length === 0 && (
+              <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] py-4 text-center">
+                No buyer personas available. You can generate a report without persona targeting.
+              </p>
+            )}
+
+            {!personasFetchError && personas.length > 0 && (
+              <div className="grid grid-cols-2 gap-3">
+                {personas.map((persona) => {
+                  const selectionIndex = selectedPersonaIds.indexOf(persona.id);
+                  const isSelected = selectionIndex !== -1;
+                  const isMaxed =
+                    !isSelected && selectedPersonaIds.length >= 3;
+
+                  return (
+                    <PersonaCard
+                      key={persona.id}
+                      persona={persona}
+                      isSelected={isSelected}
+                      selectionOrder={isSelected ? selectionIndex + 1 : null}
+                      isMaxed={isMaxed}
+                      onSelect={handlePersonaSelect}
+                      onPreview={handlePersonaPreview}
+                    />
+                  );
+                })}
+              </div>
+            )}
+
+            {maxPersonaMessage && (
+              <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-warning)] mt-2">
+                {maxPersonaMessage}
+              </p>
+            )}
+
+            {errors.personas && (
+              <p className="mt-1 text-xs text-[var(--color-error)]">
+                {errors.personas}
+              </p>
+            )}
+
+            {previewPersona && (
+              <PersonaPreviewPanel
+                persona={previewPersona}
+                onClose={() => setPreviewPersonaSlug(null)}
+              />
+            )}
+          </div>
+        )}
+
+        {/* Step 4: Review */}
+        {step === 3 && (
           <div className="space-y-6">
             <div>
               <label htmlFor="title" className={labelClass}>
@@ -322,6 +488,20 @@ export function ReportWizard({ markets }: ReportWizardProps) {
                     {selectedSections.length} of {REPORT_SECTIONS.length}
                   </dd>
                 </div>
+                {selectedPersonaNames.length > 0 && (
+                  <div className="flex justify-between items-start">
+                    <dt className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+                      Buyer Personas
+                    </dt>
+                    <dd className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text)] text-right">
+                      {selectedPersonaNames.map((name) => (
+                        <span key={name} className="block">
+                          {name}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                )}
                 <div className="flex justify-between">
                   <dt className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
                     Title

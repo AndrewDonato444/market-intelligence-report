@@ -5,6 +5,7 @@
 import { db, schema } from "@/lib/db";
 import { eq, and, desc, asc, sql } from "drizzle-orm";
 import { recordSectionEdit } from "./report-history";
+import { setReportPersonas } from "./buyer-personas";
 
 export {
   validateReportConfig,
@@ -140,6 +141,7 @@ export async function createReport(
     marketId: string;
     title: string;
     sections: string[];
+    personaIds?: string[];
   }
 ) {
   const [user] = await db
@@ -180,6 +182,11 @@ export async function createReport(
       },
     })
     .returning();
+
+  // Link selected buyer personas to the report
+  if (data.personaIds && data.personaIds.length > 0) {
+    await setReportPersonas(report.id, data.personaIds);
+  }
 
   return report;
 }
