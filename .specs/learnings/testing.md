@@ -27,6 +27,10 @@ Patterns for testing in this codebase.
 - **Gotcha**: `screen.getByText(/CAGR/)` throws when multiple elements match the regex (e.g., CAGR appears in talking points, metric names, and emphasis lists). Use `screen.getAllByText(/CAGR/).length` with `toBeGreaterThan(0)` for presence checks when duplicates are expected.
 - **Pattern**: For PDF renderer tests with rich content, use factory functions (`makePersonaContent()`, `makeBlendedContent()`) with `overrides` parameter. This keeps test data realistic while allowing per-test customization via spread.
 
+### 2026-03-10
+- **Gotcha**: When testing pages where the same text appears in multiple sections (e.g., "Request a Sample Report" in hero AND closing), scope queries using `within(screen.getByTestId("hero-section"))` rather than global `screen.getByText()`. Same for `getAllByText().length` when checking footer branding that repeats.
+- **Pattern**: For marketing pages, include a guardrail test that checks `main.textContent` against a regex (e.g., `/!/` for no exclamation points). Cheap way to enforce creative brief rules in CI.
+
 ### 2026-03-09
 - **Gotcha**: `@testing-library/jest-dom` must be explicitly imported (`import "@testing-library/jest-dom"`) in test files that use DOM matchers like `toHaveTextContent`, `toHaveAttribute`, `toBeInTheDocument`. Without it, these matchers throw "not a function" errors.
 

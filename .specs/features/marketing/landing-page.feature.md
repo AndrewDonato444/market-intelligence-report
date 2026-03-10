@@ -74,9 +74,9 @@ The creative brief establishes five design principles that govern this page:
 Given a visitor navigates to the root URL "/"
 When the page loads
 Then they see a full-viewport hero with a full-bleed architectural photograph and dark overlay
-And a serif headline in Playfair Display communicating strategic intelligence
+And a serif headline "31 Indicators. One Conviction." in Playfair Display communicating data-forward confidence
 And a gold accent line beneath the headline
-And a single-sentence subheadline in Inter addressing luxury advisors
+And a subheadline "The market intelligence platform that replaced guesswork with proof." in Inter
 And a single understated gold CTA button reading "Request a Sample Report"
 And the overall impression is editorial luxury — not a SaaS conversion page
 And the page loads within 2 seconds on a 4G connection
@@ -171,12 +171,12 @@ And typography scales proportionally between mobile and desktop
 ### Scenario: Visitor clicks primary CTA
 Given the visitor clicks "Request a Sample Report" or "Request Access"
 When the click event fires
-Then they are navigated to "/auth/signup"
+Then they are navigated to "/sign-up"
 
 ### Scenario: Visitor clicks "Sign In"
 Given the visitor clicks "Sign In" in the navigation
 When the click event fires
-Then they are navigated to "/auth/signin"
+Then they are navigated to "/sign-in"
 
 ### Scenario: Photography and imagery (placeholder state)
 Given the page is rendered
@@ -216,16 +216,16 @@ And no stock photos, no tourist imagery, no identifiable faces in the final impl
 │ │    next/image Gulf coast architecture when photography available]  │   │
 │ │                                                                    │   │
 │ │                                                                    │   │
-│ │              The Intelligence Behind                               │   │
-│ │              the Advisory                                          │   │
-│ │              (Playfair Display, text-5xl,                          │   │
+│ │              31 Indicators.                                        │   │
+│ │              One Conviction.                                       │   │
+│ │              (Playfair Display, text-3xl md:text-5xl,              │   │
 │ │               color-text-inverse, font-light)                      │   │
 │ │                                                                    │   │
 │ │              ════════════════                                       │   │
 │ │              (color-accent, 2px, 80px wide)                        │   │
 │ │                                                                    │   │
-│ │              Market intelligence that your clients                 │   │
-│ │              and their advisors will read cover to cover.          │   │
+│ │              The market intelligence platform that                 │   │
+│ │              replaced guesswork with proof.                        │   │
 │ │              (Inter, text-lg, color-text-tertiary,                 │   │
 │ │               max-width: 480px, line-height: 1.6)                  │   │
 │ │                                                                    │   │
@@ -293,7 +293,7 @@ And no stock photos, no tourist imagery, no identifiable faces in the final impl
 │   └──────────────────────────┘                                           │
 │                                                                          │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ INTELLIGENCE PILLARS (bg: color-surface, py: spacing-16)                 │
+│ INTELLIGENCE PILLARS (bg: color-report-bg, py: spacing-16)               │
 │                                                                          │
 │                  generous white space                                     │
 │                                                                          │
@@ -449,16 +449,16 @@ And no stock photos, no tourist imagery, no identifiable faces in the final impl
 │ HERO (100vh)                │
 │ [Full-bleed photo + overlay]│
 │                             │
-│   The Intelligence          │
-│   Behind the Advisory       │
+│   31 Indicators.            │
+│   One Conviction.           │
 │   (Playfair, text-3xl)      │
 │                             │
 │   ═══════════               │
 │                             │
-│   Market intelligence       │
-│   that your clients and     │
-│   their advisors will       │
-│   read cover to cover.      │
+│   The market intelligence   │
+│   platform that replaced    │
+│   guesswork with proof.     │
+│                             │
 │                             │
 │   [Request a Sample Report] │
 │                             │

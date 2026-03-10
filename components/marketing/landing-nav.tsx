@@ -37,7 +37,7 @@ export function LandingNav() {
 
         <div className="flex items-center gap-[var(--spacing-6)]">
           <Link
-            href="/auth/signin"
+            href="/sign-in"
             className={`font-[family-name:var(--font-inter)] text-sm transition-colors duration-[var(--duration-default)] ${
               scrolled
                 ? "text-[var(--color-text-secondary)]"
@@ -47,7 +47,7 @@ export function LandingNav() {
             Sign In
           </Link>
           <Link
-            href="/auth/signup"
+            href="/sign-up"
             className={`font-[family-name:var(--font-inter)] text-sm transition-colors duration-[var(--duration-default)] ${
               scrolled
                 ? "text-[var(--color-text-secondary)]"

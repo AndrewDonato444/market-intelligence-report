@@ -47,34 +47,42 @@ const REPORT_SECTIONS = [
   {
     title: "Executive Summary",
     description: "Strategic market narrative distilled by AI, reviewed by you",
+    highlight: false,
   },
   {
     title: "Market Overview",
     description: "Pricing, inventory, absorption, velocity",
+    highlight: false,
   },
   {
     title: "Second Home Analysis",
     description: "Seasonal patterns and investment signals",
+    highlight: false,
   },
   {
     title: "AI-Powered Forecasts",
     description: "Confidence-rated market projections",
+    highlight: true,
   },
   {
     title: "Key Market Drivers",
     description: "The forces shaping price and velocity",
+    highlight: false,
   },
   {
     title: "Competitive Analysis",
     description: "Peer market matrix with intelligence ratings",
+    highlight: true,
   },
   {
     title: "Trending Insights",
     description: "Emerging patterns your competitors will miss",
+    highlight: false,
   },
   {
     title: "Methodology",
     description: "Full transparency on sources and process",
+    highlight: false,
   },
 ];
 
@@ -91,10 +99,10 @@ export default function Home() {
         <div className="absolute inset-0 bg-[var(--color-primary)] opacity-85" />
 
         <div className="relative z-10 text-center max-w-2xl mx-auto px-[var(--spacing-6)]">
-          <h1 className="font-[family-name:var(--font-playfair)] text-4xl md:text-5xl font-light text-[var(--color-text-inverse)] leading-tight">
-            The Intelligence Behind
+          <h1 className="font-[family-name:var(--font-playfair)] text-3xl md:text-5xl font-light text-[var(--color-text-inverse)] leading-tight">
+            31 Indicators.
             <br />
-            the Advisory
+            One Conviction.
           </h1>
 
           <div
@@ -103,12 +111,11 @@ export default function Home() {
           />
 
           <p className="font-[family-name:var(--font-inter)] text-lg text-[var(--color-text-tertiary)] mt-[var(--spacing-6)] max-w-md mx-auto leading-relaxed">
-            Market intelligence that your clients and their advisors will read
-            cover to cover.
+            The market intelligence platform that replaced guesswork with proof.
           </p>
 
           <Link
-            href="/auth/signup"
+            href="/sign-up"
             className="inline-block mt-[var(--spacing-8)] bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-inter)] text-sm font-medium uppercase tracking-widest px-8 py-3 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)]"
           >
             Request a Sample Report
@@ -195,7 +202,7 @@ export default function Home() {
       {/* Intelligence Pillars */}
       <section
         data-testid="intelligence-pillars"
-        className="bg-[var(--color-surface)] py-[var(--spacing-16)]"
+        className="bg-[var(--color-report-bg)] py-[var(--spacing-16)]"
       >
         <div className="max-w-5xl mx-auto px-[var(--spacing-6)] grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
           {PILLARS.map((pillar) => (
@@ -223,21 +230,29 @@ export default function Home() {
           </h2>
           <div className="w-16 h-0.5 bg-[var(--color-accent)] mx-auto mt-[var(--spacing-4)]" />
 
-          <div className="flex flex-col md:flex-row items-start justify-center gap-12 md:gap-16 mt-[var(--spacing-12)]">
-            {PROCESS_STEPS.map((step) => (
+          <div className="flex flex-col md:flex-row items-start justify-center gap-12 md:gap-0 mt-[var(--spacing-12)]">
+            {PROCESS_STEPS.map((step, i) => (
               <div
                 key={step.number}
-                className="flex flex-col items-start md:items-center text-left md:text-center flex-1"
+                className="flex flex-col md:flex-row items-start md:items-center flex-1"
               >
-                <div className="font-[family-name:var(--font-playfair)] text-4xl text-[var(--color-accent)] font-light">
-                  {step.number}
+                <div className="flex flex-col items-start md:items-center text-left md:text-center flex-1">
+                  <div className="font-[family-name:var(--font-playfair)] text-4xl text-[var(--color-accent)] font-light">
+                    {step.number}
+                  </div>
+                  <div className="font-[family-name:var(--font-inter)] font-semibold text-[var(--color-primary)] mt-[var(--spacing-3)]">
+                    {step.title}
+                  </div>
+                  <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-secondary)] mt-[var(--spacing-2)]">
+                    {step.description}
+                  </p>
                 </div>
-                <div className="font-[family-name:var(--font-inter)] font-semibold text-[var(--color-primary)] mt-[var(--spacing-3)]">
-                  {step.title}
-                </div>
-                <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-secondary)] mt-[var(--spacing-2)]">
-                  {step.description}
-                </p>
+                {i < PROCESS_STEPS.length - 1 && (
+                  <div
+                    className="hidden md:block w-12 h-px bg-[var(--color-border)] mx-4 mt-4 shrink-0"
+                    aria-hidden="true"
+                  />
+                )}
               </div>
             ))}
           </div>
@@ -258,9 +273,9 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8 mt-[var(--spacing-12)]">
             {REPORT_SECTIONS.map((section) => (
               <div key={section.title} className="flex items-start gap-3">
-                <div className="w-4 h-0.5 bg-[var(--color-accent)] mt-2.5 shrink-0" />
+                <div className={`w-4 h-0.5 mt-2.5 shrink-0 ${section.highlight ? "bg-[var(--color-accent)]" : "bg-[var(--color-accent)]"}`} />
                 <div>
-                  <div className="font-[family-name:var(--font-inter)] font-medium text-[var(--color-text-inverse)]">
+                  <div className={`font-[family-name:var(--font-inter)] font-medium ${section.highlight ? "text-[var(--color-accent)]" : "text-[var(--color-text-inverse)]"}`}>
                     {section.title}
                   </div>
                   <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-tertiary)] mt-1">
@@ -290,7 +305,7 @@ export default function Home() {
           <div className="w-20 h-0.5 bg-[var(--color-accent)] mx-auto mt-[var(--spacing-6)]" />
 
           <Link
-            href="/auth/signup"
+            href="/sign-up"
             className="inline-block mt-[var(--spacing-8)] bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-inter)] text-sm font-medium uppercase tracking-widest px-8 py-3 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)]"
           >
             Request a Sample Report

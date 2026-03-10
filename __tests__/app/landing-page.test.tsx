@@ -89,20 +89,20 @@ describe("Marketing Landing Page", () => {
       ).toBeInTheDocument();
     });
 
-    it("PG-LAND-003: renders a Sign In link pointing to /auth/signin", () => {
+    it("PG-LAND-003: renders a Sign In link pointing to /sign-in", () => {
       const nav = screen.getByRole("navigation");
       const signIn = within(nav).getByText(/Sign In/i);
       expect(signIn).toBeInTheDocument();
-      expect(signIn.closest("a")).toHaveAttribute("href", "/auth/signin");
+      expect(signIn.closest("a")).toHaveAttribute("href", "/sign-in");
     });
 
-    it("PG-LAND-004: renders a Request Access link pointing to /auth/signup", () => {
+    it("PG-LAND-004: renders a Request Access link pointing to /sign-up", () => {
       const nav = screen.getByRole("navigation");
       const requestAccess = within(nav).getByText(/Request Access/i);
       expect(requestAccess).toBeInTheDocument();
       expect(requestAccess.closest("a")).toHaveAttribute(
         "href",
-        "/auth/signup"
+        "/sign-up"
       );
     });
 
@@ -114,16 +114,16 @@ describe("Marketing Landing Page", () => {
 
   // ─── PG-LAND-006–009: Hero Section ───
   describe("Hero Section", () => {
-    it("PG-LAND-006: renders a serif headline about intelligence", () => {
+    it("PG-LAND-006: renders a serif headline with data-forward confidence", () => {
       expect(
-        screen.getByText(/The Intelligence Behind/i)
+        screen.getByText(/31 Indicators/i)
       ).toBeInTheDocument();
     });
 
-    it("PG-LAND-007: renders a subheadline addressing advisors and their clients", () => {
+    it("PG-LAND-007: renders a subheadline about replacing guesswork", () => {
       const hero = screen.getByTestId("hero-section");
       expect(
-        within(hero).getByText(/cover to cover/i)
+        within(hero).getByText(/replaced guesswork with proof/i)
       ).toBeInTheDocument();
     });
 
@@ -133,7 +133,7 @@ describe("Marketing Landing Page", () => {
         name: /Request a Sample Report/i,
       });
       expect(cta).toBeInTheDocument();
-      expect(cta).toHaveAttribute("href", "/auth/signup");
+      expect(cta).toHaveAttribute("href", "/sign-up");
     });
 
     it("PG-LAND-009: hero section has a gold accent line", () => {
@@ -261,7 +261,7 @@ describe("Marketing Landing Page", () => {
       const cta = within(closing).getByRole("link", {
         name: /Request a Sample Report/i,
       });
-      expect(cta).toHaveAttribute("href", "/auth/signup");
+      expect(cta).toHaveAttribute("href", "/sign-up");
     });
   });
 

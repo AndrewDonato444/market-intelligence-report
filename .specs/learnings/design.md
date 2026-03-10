@@ -30,7 +30,9 @@ Patterns for UI and design system in this codebase.
 
 <!-- Breakpoints, mobile-first patterns -->
 
-_No learnings yet._
+### 2026-03-10
+- **Pattern**: For marketing/editorial landing pages, use `text-3xl md:text-5xl` pattern for headlines — mobile gets 30px, desktop gets 48px. The 55-70 age demographic (per Knox Brothers brief) needs generous line-height (1.5-1.6x) and never sacrificing legibility for aesthetics.
+- **Pattern**: Three-column layouts (pillars, process steps) use `grid-cols-1 md:grid-cols-3` or `flex-col md:flex-row`. On mobile they stack with generous gap-12; on desktop they sit side-by-side with reduced gap-8.
 
 ---
 
@@ -46,4 +48,16 @@ _No learnings yet._
 
 <!-- Motion patterns, transitions -->
 
-_No learnings yet._
+### 2026-03-10
+- **Pattern**: Fixed nav transparency→solid scroll transition: use `useEffect` + scroll listener with `{ passive: true }`. Toggle a `scrolled` boolean state at 50px threshold. Apply `transition-colors duration-[var(--duration-default)] ease-[var(--ease-default)]` on the nav. Background goes from `bg-transparent` to `bg-[var(--color-report-bg)]` (warm white, not cold #FFF).
+
+---
+
+## Editorial Landing Page Patterns
+
+### 2026-03-10
+- **Pattern**: "Data as Art" callouts — oversized Playfair numbers (`text-5xl`, `color-accent`) with a small gold accent line (`w-6 h-0.5`) and supporting context in `text-sm` Inter. These turn statistics into narrative moments per the Knox Brothers creative brief.
+- **Pattern**: Full-bleed photography sections use `relative` container with an `absolute inset-0` overlay div at 85% opacity over `color-primary`. The text sits in a `relative z-10` inner container. This pattern works for hero and closing sections. When real images are added, swap the overlay's bg-color div for a `next/image` with `fill` prop + the same overlay on top.
+- **Pattern**: Warm vs cold section alternation creates visual rhythm. Use `color-surface` (#FFF) for data-focused sections and `color-report-bg` (#FAFAF9, warm off-white) for editorial/narrative sections. Dark sections use `color-primary` for contrast.
+- **Decision**: CTA language for luxury market: "Request a Sample Report" (consultative, discreet) beats "Build Your First Report" (transactional, SaaS-y) or "Get Started" (generic). The brief's voice principle is "Strategic, Not Salesy."
+- **Guardrails**: Knox Brothers creative brief hard rules — no exclamation points, no urgency language, no generic luxury adjectives, no stock photos, no cluttered layouts. These apply to both the report design and the marketing page.
