@@ -4,6 +4,50 @@ import { logApiCall } from "@/lib/services/api-usage";
 
 const BASE_URL = "https://api.realestateapi.com";
 
+// --- State abbreviation lookup (REAPI requires 2-letter codes) ---
+
+const STATE_ABBR: Record<string, string> = {
+  alabama: "AL", alaska: "AK", arizona: "AZ", arkansas: "AR", california: "CA",
+  colorado: "CO", connecticut: "CT", delaware: "DE", florida: "FL", georgia: "GA",
+  hawaii: "HI", idaho: "ID", illinois: "IL", indiana: "IN", iowa: "IA",
+  kansas: "KS", kentucky: "KY", louisiana: "LA", maine: "ME", maryland: "MD",
+  massachusetts: "MA", michigan: "MI", minnesota: "MN", mississippi: "MS", missouri: "MO",
+  montana: "MT", nebraska: "NE", nevada: "NV", "new hampshire": "NH", "new jersey": "NJ",
+  "new mexico": "NM", "new york": "NY", "north carolina": "NC", "north dakota": "ND",
+  ohio: "OH", oklahoma: "OK", oregon: "OR", pennsylvania: "PA", "rhode island": "RI",
+  "south carolina": "SC", "south dakota": "SD", tennessee: "TN", texas: "TX", utah: "UT",
+  vermont: "VT", virginia: "VA", washington: "WA", "west virginia": "WV",
+  wisconsin: "WI", wyoming: "WY", "district of columbia": "DC",
+};
+
+/** Convert a state name or abbreviation to a 2-letter code. */
+function toStateAbbr(state: string): string {
+  const trimmed = state.trim();
+  if (trimmed.length === 2) return trimmed.toUpperCase();
+  return STATE_ABBR[trimmed.toLowerCase()] ?? trimmed;
+}
+
+// --- Property type mapping (REAPI expects: SFR, MFR, LAND, CONDO, OTHER, MOBILE) ---
+
+const PROPERTY_TYPE_MAP: Record<string, string> = {
+  single_family: "SFR", estate: "SFR", sfr: "SFR", villa: "SFR", chalet: "SFR",
+  multi_family: "MFR", mfr: "MFR", duplex: "MFR", triplex: "MFR",
+  condo: "CONDO", condominium: "CONDO", "co-op": "CONDO", coop: "CONDO",
+  townhouse: "CONDO", townhome: "CONDO", penthouse: "CONDO",
+  land: "LAND", lot: "LAND",
+  mobile: "MOBILE", manufactured: "MOBILE",
+};
+
+/** Convert app property types to REAPI enum values, deduped. */
+function toReapiPropertyTypes(types: string[]): string[] {
+  const mapped = new Set<string>();
+  for (const t of types) {
+    const key = t.toLowerCase().trim();
+    mapped.add(PROPERTY_TYPE_MAP[key] ?? "OTHER");
+  }
+  return [...mapped];
+}
+
 // --- Public Types ---
 
 export interface PropertySearchParams {
@@ -232,13 +276,14 @@ interface MarketLike {
 }
 
 export function buildSearchParamsFromMarket(market: MarketLike): PropertySearchParams {
+  const raw = market.propertyTypes ?? undefined;
   return {
     city: market.geography.city,
-    state: market.geography.state,
+    state: toStateAbbr(market.geography.state),
     zipCodes: market.geography.zipCodes,
     priceMin: market.priceFloor,
     priceMax: market.priceCeiling ?? undefined,
-    propertyTypes: market.propertyTypes ?? undefined,
+    propertyTypes: raw?.length ? toReapiPropertyTypes(raw) : undefined,
   };
 }
 
@@ -365,12 +410,19 @@ export async function searchProperties(
   // Build request body
   const body: Record<string, unknown> = {
     city: params.city,
-    state: params.state,
+    state: toStateAbbr(params.state),
   };
   if (params.zipCodes?.length) body.zip = params.zipCodes;
   if (params.priceMin) body.last_sale_price_min = params.priceMin;
   if (params.priceMax) body.last_sale_price_max = params.priceMax;
-  if (params.propertyTypes?.length) body.property_type = params.propertyTypes;
+  if (params.propertyTypes?.length) {
+    const mapped = toReapiPropertyTypes(params.propertyTypes);
+    // REAPI expects property_type as a single string, not an array.
+    // If only one mapped type, send it. Otherwise omit (price range filters suffice).
+    if (mapped.length === 1) {
+      body.property_type = mapped[0];
+    }
+  }
   if (params.limit) body.size = params.limit;
   if (params.offset) body.start = params.offset;
 

@@ -2,6 +2,26 @@ import fs from "fs";
 import path from "path";
 import "@testing-library/jest-dom";
 
+// v2 required sections (7 of 10)
+const V2_REQUIRED = [
+  "executive_briefing",
+  "market_insights_index",
+  "luxury_market_dashboard",
+  "neighborhood_intelligence",
+  "the_narrative",
+  "comparative_positioning",
+  "disclaimer_methodology",
+];
+
+// v2 optional sections (3 of 10)
+const V2_OPTIONAL = [
+  "forward_look",
+  "strategic_benchmark",
+  "persona_intelligence",
+];
+
+const V2_ALL = [...V2_REQUIRED, ...V2_OPTIONAL];
+
 describe("Report Builder Wizard", () => {
   describe("File structure", () => {
     it("has reports list page", () => {
@@ -61,12 +81,7 @@ describe("Report Builder Wizard", () => {
       const result = validateReportConfig({
         marketId: "550e8400-e29b-41d4-a716-446655440000",
         title: "Naples Intelligence Report",
-        sections: [
-          "market_overview",
-          "executive_summary",
-          "key_drivers",
-          "forecasts",
-        ],
+        sections: [...V2_REQUIRED, "forward_look"],
       });
       expect(result.success).toBe(true);
     });
@@ -75,7 +90,7 @@ describe("Report Builder Wizard", () => {
       const result = validateReportConfig({
         marketId: "",
         title: "Test Report",
-        sections: ["market_overview", "executive_summary", "key_drivers"],
+        sections: V2_REQUIRED,
       });
       expect(result.success).toBe(false);
       expect(result.errors).toHaveProperty("marketId");
@@ -85,7 +100,7 @@ describe("Report Builder Wizard", () => {
       const result = validateReportConfig({
         marketId: "550e8400-e29b-41d4-a716-446655440000",
         title: "",
-        sections: ["market_overview", "executive_summary", "key_drivers"],
+        sections: V2_REQUIRED,
       });
       expect(result.success).toBe(false);
       expect(result.errors).toHaveProperty("title");
@@ -95,21 +110,21 @@ describe("Report Builder Wizard", () => {
       const result = validateReportConfig({
         marketId: "550e8400-e29b-41d4-a716-446655440000",
         title: "Test",
-        sections: ["forecasts"],
+        sections: ["forward_look"],
       });
       expect(result.success).toBe(false);
       expect(result.errors).toHaveProperty("sections");
     });
 
-    it("requires all three required sections", () => {
-      // Missing key_drivers
+    it("requires all seven required sections", () => {
+      // Missing the_narrative
       const result = validateReportConfig({
         marketId: "550e8400-e29b-41d4-a716-446655440000",
         title: "Test",
-        sections: ["market_overview", "executive_summary"],
+        sections: V2_REQUIRED.filter((s) => s !== "the_narrative"),
       });
       expect(result.success).toBe(false);
-      expect(result.errors.sections).toContain("key_drivers");
+      expect(result.errors.sections).toContain("the_narrative");
     });
 
     it("fails when sections array is empty", () => {
@@ -126,12 +141,7 @@ describe("Report Builder Wizard", () => {
       const result = validateReportConfig({
         marketId: "550e8400-e29b-41d4-a716-446655440000",
         title: "Test",
-        sections: [
-          "market_overview",
-          "executive_summary",
-          "key_drivers",
-          "bogus_section",
-        ],
+        sections: [...V2_REQUIRED, "bogus_section"],
       });
       expect(result.success).toBe(false);
       expect(result.errors).toHaveProperty("sections");
@@ -141,29 +151,20 @@ describe("Report Builder Wizard", () => {
       const result = validateReportConfig({
         marketId: "550e8400-e29b-41d4-a716-446655440000",
         title: "  Naples Report  ",
-        sections: ["market_overview", "executive_summary", "key_drivers"],
+        sections: V2_REQUIRED,
       });
       expect(result.success).toBe(true);
       expect(result.data?.title).toBe("Naples Report");
     });
 
-    it("accepts all valid optional sections", () => {
+    it("accepts all valid sections", () => {
       const result = validateReportConfig({
         marketId: "550e8400-e29b-41d4-a716-446655440000",
         title: "Full Report",
-        sections: [
-          "market_overview",
-          "executive_summary",
-          "key_drivers",
-          "competitive_market_analysis",
-          "forecasts",
-          "strategic_summary",
-          "polished_report",
-          "methodology",
-        ],
+        sections: V2_ALL,
       });
       expect(result.success).toBe(true);
-      expect(result.data?.sections).toHaveLength(8);
+      expect(result.data?.sections).toHaveLength(10);
     });
   });
 
@@ -173,15 +174,15 @@ describe("Report Builder Wizard", () => {
         "@/lib/services/report-validation"
       );
       expect(Array.isArray(REPORT_SECTIONS)).toBe(true);
-      expect(REPORT_SECTIONS.length).toBe(8);
+      expect(REPORT_SECTIONS.length).toBe(10);
 
-      const overview = REPORT_SECTIONS.find(
-        (s: { type: string }) => s.type === "market_overview"
+      const briefing = REPORT_SECTIONS.find(
+        (s: { type: string }) => s.type === "executive_briefing"
       );
-      expect(overview).toBeDefined();
-      expect(overview).toHaveProperty("label");
-      expect(overview).toHaveProperty("description");
-      expect(overview).toHaveProperty("required");
+      expect(briefing).toBeDefined();
+      expect(briefing).toHaveProperty("label");
+      expect(briefing).toHaveProperty("description");
+      expect(briefing).toHaveProperty("required");
     });
 
     it("marks correct sections as required", async () => {
@@ -191,22 +192,18 @@ describe("Report Builder Wizard", () => {
       const required = REPORT_SECTIONS.filter(
         (s: { required: boolean }) => s.required
       );
-      expect(required).toHaveLength(3);
+      expect(required).toHaveLength(7);
       const requiredTypes = required.map((s: { type: string }) => s.type);
-      expect(requiredTypes).toContain("market_overview");
-      expect(requiredTypes).toContain("executive_summary");
-      expect(requiredTypes).toContain("key_drivers");
+      expect(requiredTypes).toContain("executive_briefing");
+      expect(requiredTypes).toContain("the_narrative");
+      expect(requiredTypes).toContain("disclaimer_methodology");
     });
 
     it("exports REQUIRED_SECTIONS constant", async () => {
       const { REQUIRED_SECTIONS } = await import(
         "@/lib/services/report-validation"
       );
-      expect(REQUIRED_SECTIONS).toEqual([
-        "market_overview",
-        "executive_summary",
-        "key_drivers",
-      ]);
+      expect(REQUIRED_SECTIONS).toEqual(V2_REQUIRED);
     });
   });
 
@@ -254,7 +251,7 @@ describe("Report Builder Wizard", () => {
       render(React.createElement(ReportWizard, { markets: mockMarkets }));
 
       expect(screen.getByText("Market")).toBeInTheDocument();
-      expect(screen.getByText("Sections")).toBeInTheDocument();
+      expect(screen.getByText("Personas")).toBeInTheDocument();
       expect(screen.getByText("Review")).toBeInTheDocument();
     });
 

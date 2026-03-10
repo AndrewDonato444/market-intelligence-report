@@ -443,13 +443,13 @@ describe("RealEstateAPI Connector", () => {
   });
 
   describe("buildSearchParamsFromMarket", () => {
-    it("maps market definition to search params", () => {
+    it("maps market definition to search params with REAPI property types", () => {
       const market = {
         geography: { city: "Naples", state: "FL", zipCodes: ["34102", "34103"] },
         luxuryTier: "ultra_luxury" as const,
         priceFloor: 10000000,
         priceCeiling: null,
-        propertyTypes: ["Single Family", "Condo"],
+        propertyTypes: ["single_family", "condo"],
       };
 
       const params = buildSearchParamsFromMarket(market);
@@ -458,7 +458,8 @@ describe("RealEstateAPI Connector", () => {
       expect(params.state).toBe("FL");
       expect(params.zipCodes).toEqual(["34102", "34103"]);
       expect(params.priceMin).toBe(10000000);
-      expect(params.propertyTypes).toEqual(["Single Family", "Condo"]);
+      // Property types should be mapped to REAPI enums at param-building time
+      expect(params.propertyTypes).toEqual(["SFR", "CONDO"]);
     });
 
     it("handles market with no optional fields", () => {
@@ -475,6 +476,138 @@ describe("RealEstateAPI Connector", () => {
       expect(params.priceMin).toBe(1000000);
       expect(params.priceMax).toBe(5000000);
       expect(params.zipCodes).toBeUndefined();
+    });
+
+    it("CONN-STA-01 | Regression: converts full state names to 2-letter codes", () => {
+      const market = {
+        geography: { city: "Palm Beach", state: "Florida" },
+        luxuryTier: "luxury" as const,
+        priceFloor: 1000000,
+      };
+
+      const params = buildSearchParamsFromMarket(market);
+      expect(params.state).toBe("FL");
+    });
+
+    it("CONN-STA-02 | Regression: preserves 2-letter state codes", () => {
+      const market = {
+        geography: { city: "Naples", state: "FL" },
+        luxuryTier: "luxury" as const,
+        priceFloor: 1000000,
+      };
+
+      const params = buildSearchParamsFromMarket(market);
+      expect(params.state).toBe("FL");
+    });
+  });
+
+  describe("searchProperties — property type mapping", () => {
+    const mockSearchResponse = {
+      statusCode: 200,
+      resultCount: 1,
+      data: [
+        {
+          id: "prop-1",
+          address: { address: "123 Ocean Blvd", city: "Palm Beach", state: "FL", zip: "33480" },
+          propertyType: "SFR",
+          yearBuilt: 2020,
+          squareFeet: 5200,
+          bedrooms: 5,
+          bathrooms: 4,
+          lastSaleDate: "2025-12-15",
+          lastSaleAmount: 8500000,
+          estimatedValue: 8600000,
+        },
+      ],
+    };
+
+    beforeEach(() => {
+      mockCacheGet.mockResolvedValue(null);
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockSearchResponse),
+      });
+    });
+
+    it("CONN-PT-01 | Regression: omits property_type when multiple REAPI types result (price range suffices)", async () => {
+      await searchProperties({
+        city: "Palm Beach",
+        state: "FL",
+        priceMin: 1000000,
+        propertyTypes: ["single_family", "estate", "condo", "townhouse", "co-op"],
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      // Maps to ["SFR", "CONDO"] (2 types) — REAPI only accepts a single string,
+      // so we omit property_type and let the price range filter do the work.
+      expect(fetchBody.property_type).toBeUndefined();
+    });
+
+    it("CONN-PT-02 | Regression: sends single string when one REAPI type (penthouse → CONDO)", async () => {
+      await searchProperties({
+        city: "Palm Beach",
+        state: "FL",
+        propertyTypes: ["penthouse"],
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(fetchBody.property_type).toBe("CONDO");
+    });
+
+    it("CONN-PT-03 | Regression: sends single string when one REAPI type (chalet → SFR)", async () => {
+      await searchProperties({
+        city: "Aspen",
+        state: "CO",
+        propertyTypes: ["chalet"],
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(fetchBody.property_type).toBe("SFR");
+    });
+
+    it("CONN-PT-04 | Regression: sends single string when one REAPI type (houseboat → OTHER)", async () => {
+      await searchProperties({
+        city: "Miami",
+        state: "FL",
+        propertyTypes: ["houseboat"],
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(fetchBody.property_type).toBe("OTHER");
+    });
+
+    it("CONN-PT-05 | Regression: deduplicates to single string when all map to same type", async () => {
+      await searchProperties({
+        city: "Palm Beach",
+        state: "FL",
+        propertyTypes: ["single_family", "estate", "sfr"],
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      // All three map to SFR — single type, sent as string
+      expect(fetchBody.property_type).toBe("SFR");
+    });
+
+    it("CONN-PT-06 | Regression: omits property_type when no types provided", async () => {
+      await searchProperties({
+        city: "Naples",
+        state: "FL",
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(fetchBody.property_type).toBeUndefined();
+    });
+
+    it("CONN-STA-03 | Regression: sends 2-letter state code in API body even when given full name", async () => {
+      await searchProperties({
+        city: "Palm Beach",
+        state: "Florida",
+        priceMin: 1000000,
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(fetchBody.state).toBe("FL");
+      expect(fetchBody.state).not.toBe("Florida");
     });
   });
 });

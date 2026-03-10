@@ -3,15 +3,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { StepIndicator } from "@/components/markets/step-indicator";
-import {
-  REPORT_SECTIONS,
-  REQUIRED_SECTIONS,
-} from "@/lib/services/report-validation";
+import { REPORT_SECTIONS } from "@/lib/services/report-validation";
 import Link from "next/link";
 import { PersonaCard } from "./persona-card";
 import { PersonaPreviewPanel } from "./persona-preview-panel";
 
-const STEPS = ["Market", "Sections", "Personas", "Review"];
+const STEPS = ["Market", "Personas", "Review"];
+
+// v2 pipeline always generates all sections
+const ALL_V2_SECTIONS = REPORT_SECTIONS.map((s) => s.type);
 
 interface MarketOption {
   id: string;
@@ -62,9 +62,6 @@ export function ReportWizard({ markets }: ReportWizardProps) {
   const [selectedMarketId, setSelectedMarketId] = useState(
     defaultMarket?.id || ""
   );
-  const [selectedSections, setSelectedSections] = useState<string[]>(
-    REPORT_SECTIONS.map((s) => s.type)
-  );
   const [title, setTitle] = useState("");
 
   // Persona state
@@ -105,16 +102,6 @@ export function ReportWizard({ markets }: ReportWizardProps) {
     fetchPersonas();
   }, [fetchPersonas]);
 
-  const toggleSection = (sectionType: string) => {
-    if (REQUIRED_SECTIONS.includes(sectionType)) return;
-
-    setSelectedSections((prev) =>
-      prev.includes(sectionType)
-        ? prev.filter((s) => s !== sectionType)
-        : [...prev, sectionType]
-    );
-  };
-
   const handlePersonaSelect = (personaId: string) => {
     setMaxPersonaMessage(null);
 
@@ -149,7 +136,7 @@ export function ReportWizard({ markets }: ReportWizardProps) {
       }
     }
 
-    if (step === 2) {
+    if (step === 1) {
       // Personas step — require at least 1 unless no personas exist in system
       if (personas.length > 0 && selectedPersonaIds.length === 0) {
         newErrors.personas = "Select at least 1 buyer persona to continue";
@@ -177,7 +164,7 @@ export function ReportWizard({ markets }: ReportWizardProps) {
     const payload: Record<string, unknown> = {
       marketId: selectedMarketId,
       title: effectiveTitle,
-      sections: selectedSections,
+      sections: ALL_V2_SECTIONS,
     };
 
     if (selectedPersonaIds.length > 0) {
@@ -311,70 +298,8 @@ export function ReportWizard({ markets }: ReportWizardProps) {
           </div>
         )}
 
-        {/* Step 2: Section Selection */}
+        {/* Step 2: Persona Selection */}
         {step === 1 && (
-          <div className="space-y-4">
-            <label className={labelClass}>Report Sections</label>
-            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] -mt-2">
-              Required sections cannot be removed. Toggle optional sections as needed.
-            </p>
-            <div className="space-y-2">
-              {REPORT_SECTIONS.map((section) => {
-                const isSelected = selectedSections.includes(section.type);
-                const isRequired = section.required;
-                const needsPeers =
-                  section.type === "competitive_market_analysis" &&
-                  selectedMarket &&
-                  (!selectedMarket.peerMarkets ||
-                    selectedMarket.peerMarkets.length === 0);
-
-                return (
-                  <label
-                    key={section.type}
-                    className={`flex items-start gap-3 p-3 rounded-[var(--radius-sm)] border transition-colors duration-[var(--duration-default)] ${
-                      isRequired
-                        ? "border-[var(--color-accent)] bg-[var(--color-accent-light)] cursor-default"
-                        : isSelected
-                          ? "border-[var(--color-accent)] bg-[var(--color-accent-light)] cursor-pointer"
-                          : "border-[var(--color-border)] cursor-pointer hover:border-[var(--color-border-strong)]"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      disabled={isRequired}
-                      onChange={() => toggleSection(section.type)}
-                      className="accent-[var(--color-accent)] mt-0.5"
-                    />
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
-                          {section.label}
-                        </span>
-                        {isRequired && (
-                          <span className="font-[family-name:var(--font-sans)] text-[10px] text-[var(--color-accent)] font-semibold uppercase">
-                            Required
-                          </span>
-                        )}
-                      </div>
-                      <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mt-0.5">
-                        {section.description}
-                      </p>
-                      {needsPeers && (
-                        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-warning)] mt-1">
-                          No peer markets configured — results may be limited
-                        </p>
-                      )}
-                    </div>
-                  </label>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
-        {/* Step 3: Persona Selection */}
-        {step === 2 && (
           <div className="space-y-4">
             <label className={labelClass}>Select Buyer Personas</label>
             <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] -mt-2">
@@ -447,8 +372,8 @@ export function ReportWizard({ markets }: ReportWizardProps) {
           </div>
         )}
 
-        {/* Step 4: Review */}
-        {step === 3 && (
+        {/* Step 3: Review */}
+        {step === 2 && (
           <div className="space-y-6">
             <div>
               <label htmlFor="title" className={labelClass}>
@@ -485,7 +410,7 @@ export function ReportWizard({ markets }: ReportWizardProps) {
                     Sections
                   </dt>
                   <dd className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text)]">
-                    {selectedSections.length} of {REPORT_SECTIONS.length}
+                    All {REPORT_SECTIONS.length} sections
                   </dd>
                 </div>
                 {selectedPersonaNames.length > 0 && (

@@ -159,8 +159,8 @@ describe("Marketing Landing Page", () => {
       ).toBeInTheDocument();
     });
 
-    it("PG-LAND-012: displays the number 7 for AI agents", () => {
-      expect(screen.getByText("7")).toBeInTheDocument();
+    it("PG-LAND-012: displays the number 4 for AI agents", () => {
+      expect(screen.getByText("4")).toBeInTheDocument();
       expect(
         screen.getByText(/specialized AI agents/i)
       ).toBeInTheDocument();
@@ -222,28 +222,28 @@ describe("Marketing Landing Page", () => {
     it("PG-LAND-020: lists all 8 report sections", () => {
       const breakdown = screen.getByTestId("report-breakdown");
       expect(
-        within(breakdown).getByText(/Executive Summary/i)
+        within(breakdown).getByText(/Executive Briefing/i)
       ).toBeInTheDocument();
       expect(
-        within(breakdown).getByText(/Market Overview/i)
+        within(breakdown).getByText(/Market Insights Index/i)
       ).toBeInTheDocument();
       expect(
-        within(breakdown).getByText(/Second Home Analysis/i)
+        within(breakdown).getByText(/Luxury Market Dashboard/i)
       ).toBeInTheDocument();
       expect(
-        within(breakdown).getByText(/AI-Powered Forecasts/i)
+        within(breakdown).getByText(/Neighborhood Intelligence/i)
       ).toBeInTheDocument();
       expect(
-        within(breakdown).getByText(/Key Market Drivers/i)
+        within(breakdown).getByText(/The Narrative/i)
       ).toBeInTheDocument();
       expect(
-        within(breakdown).getByText(/Competitive Analysis/i)
+        within(breakdown).getByText(/Forward Look/i)
       ).toBeInTheDocument();
       expect(
-        within(breakdown).getByText(/Trending Insights/i)
+        within(breakdown).getByText(/Comparative Positioning/i)
       ).toBeInTheDocument();
       expect(
-        within(breakdown).getByText(/Methodology/i)
+        within(breakdown).getByText(/Strategic Benchmark/i)
       ).toBeInTheDocument();
     });
   });

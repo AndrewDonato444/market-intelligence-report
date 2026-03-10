@@ -205,13 +205,12 @@ describe("Persona Selection UI [CMP-PSU]", () => {
   });
 
   describe("Wizard steps", () => {
-    it("CMP-PSU-03: wizard shows 4 steps including Personas", async () => {
+    it("CMP-PSU-03: wizard shows 3 steps including Personas", async () => {
       const { ReportWizard } = await import("@/components/reports/report-wizard");
       await act(async () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
       expect(screen.getByText("Market")).toBeInTheDocument();
-      expect(screen.getByText("Sections")).toBeInTheDocument();
       expect(screen.getByText("Personas")).toBeInTheDocument();
       expect(screen.getByText("Review")).toBeInTheDocument();
     });
@@ -221,9 +220,9 @@ describe("Persona Selection UI [CMP-PSU]", () => {
       await act(async () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
-      const stepTexts = screen.getAllByText(/^(Market|Sections|Personas|Review)$/);
+      const stepTexts = screen.getAllByText(/^(Market|Personas|Review)$/);
       const labels = stepTexts.map((el: HTMLElement) => el.textContent);
-      expect(labels).toEqual(["Market", "Sections", "Personas", "Review"]);
+      expect(labels).toEqual(["Market", "Personas", "Review"]);
     });
   });
 
@@ -233,7 +232,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
       await act(async () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => { expect(screen.getByText("The Business Mogul")).toBeInTheDocument(); });
     }
@@ -282,7 +280,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
       await act(async () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => { expect(screen.getByText("The Business Mogul")).toBeInTheDocument(); });
     }
@@ -347,7 +344,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => { expect(screen.getByText("The Business Mogul")).toBeInTheDocument(); });
     }
 
@@ -373,7 +369,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
       await act(async () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => { expect(screen.getByText("The Business Mogul")).toBeInTheDocument(); });
     }
@@ -458,7 +453,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => { expect(screen.getByText("The Business Mogul")).toBeInTheDocument(); });
       const cards = screen.getAllByTestId("persona-card");
       await act(async () => { fireEvent.click(cards[0]); });
@@ -486,7 +480,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => { expect(screen.getByText("The Business Mogul")).toBeInTheDocument(); });
       const cards = screen.getAllByTestId("persona-card");
       await act(async () => { fireEvent.click(cards[0]); });
@@ -513,7 +506,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => { expect(screen.getByText("The Business Mogul")).toBeInTheDocument(); });
       const cards = screen.getAllByTestId("persona-card");
       await act(async () => { fireEvent.click(cards[0]); });
@@ -535,7 +527,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => {
         expect(screen.getByText(/No buyer personas available/i)).toBeInTheDocument();
       });
@@ -547,7 +538,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
       await act(async () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => {
         expect(screen.getByText(/No buyer personas available/i)).toBeInTheDocument();
@@ -572,7 +562,6 @@ describe("Persona Selection UI [CMP-PSU]", () => {
       await act(async () => {
         render(React.createElement(ReportWizard, { markets: mockMarkets }));
       });
-      await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await act(async () => { fireEvent.click(screen.getByRole("button", { name: /next/i })); });
       await waitFor(() => {
         expect(screen.getByRole("button", { name: /retry/i })).toBeInTheDocument();

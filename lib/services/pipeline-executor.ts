@@ -207,25 +207,32 @@ export async function executePipeline(reportId: string): Promise<void> {
 
     const assembled = assembleV2Report(computedAnalytics, agentResults, durations);
 
-    // 7. Save 9 sections to report_sections table
+    // 7. Save sections to report_sections table
     for (const section of assembled.sections) {
       const registryEntry = SECTION_REGISTRY_V2.find(
         (r) => r.sectionType === section.sectionType
       );
       const sortOrder = registryEntry?.reportOrder ?? section.sectionNumber;
 
-      await db
-        .insert(schema.reportSections)
-        .values({
-          reportId,
-          sectionType: section.sectionType as any,
-          title: section.title,
-          content: section.content,
-          agentName: registryEntry?.sourceAgent ?? null,
-          sortOrder,
-          generatedAt: new Date(),
-        })
-        .returning();
+      try {
+        await db
+          .insert(schema.reportSections)
+          .values({
+            reportId,
+            sectionType: section.sectionType as any,
+            title: section.title,
+            content: section.content,
+            agentName: registryEntry?.sourceAgent ?? null,
+            sortOrder,
+            generatedAt: new Date(),
+          })
+          .returning();
+      } catch (sectionErr) {
+        console.error(
+          `[pipeline] Failed to insert section "${section.sectionType}" for report ${reportId}:`,
+          sectionErr instanceof Error ? sectionErr.message : sectionErr
+        );
+      }
     }
 
     // 8. Update report to completed
