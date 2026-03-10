@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import { getReports } from "@/lib/services/report";
+import { DownloadPdfButton } from "@/components/reports/download-pdf-button";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   queued: { label: "Queued", color: "var(--color-text-secondary)" },
@@ -60,8 +61,8 @@ export default async function ReportsPage() {
                 key={report.id}
                 className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-4 flex items-center justify-between"
               >
-                <div>
-                  <h3 className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+                <Link href={`/reports/${report.id}`} className="flex-1 min-w-0">
+                  <h3 className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors">
                     {report.title}
                   </h3>
                   <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mt-0.5">
@@ -70,16 +71,24 @@ export default async function ReportsPage() {
                       ? new Date(report.createdAt).toLocaleDateString()
                       : "—"}
                   </p>
+                </Link>
+                <div className="flex items-center gap-3 ml-4">
+                  {report.status === "completed" && (
+                    <DownloadPdfButton
+                      reportId={report.id}
+                      reportTitle={report.title}
+                    />
+                  )}
+                  <span
+                    className="font-[family-name:var(--font-sans)] text-xs font-medium px-2 py-1 rounded-[var(--radius-sm)]"
+                    style={{
+                      color: status.color,
+                      backgroundColor: `color-mix(in srgb, ${status.color} 10%, transparent)`,
+                    }}
+                  >
+                    {status.label}
+                  </span>
                 </div>
-                <span
-                  className="font-[family-name:var(--font-sans)] text-xs font-medium px-2 py-1 rounded-[var(--radius-sm)]"
-                  style={{
-                    color: status.color,
-                    backgroundColor: `color-mix(in srgb, ${status.color} 10%, transparent)`,
-                  }}
-                >
-                  {status.label}
-                </span>
               </div>
             );
           })}
