@@ -32,6 +32,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | agent-pipeline | [Pipeline Evaluation Suite](.specs/features/agent-pipeline/pipeline-eval-suite.feature.md) | `app/admin/eval/page.tsx, components/eval/eval-dashboard.tsx, app/api/eval/run/route.ts, app/api/eval/test-cases/route.ts, lib/eval/runner.ts, lib/eval/judge.ts, lib/eval/test-cases.ts, lib/eval/fixtures.ts, lib/eval/types.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Polish Agent](.specs/features/agent-pipeline/polish-agent.feature.md) | `lib/agents/polish-agent.ts` | see spec | see spec | specced |
 | buyer-personas | [Buyer Persona Data Model](.specs/features/buyer-personas/buyer-persona-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
+| buyer-personas | [Market Calibration Engine](.specs/features/buyer-personas/market-calibration-engine.feature.md) | `lib/services/market-calibration.ts` | see spec | see spec | implemented |
 | buyer-personas | [Multi-Persona Output Strategy](.specs/features/buyer-personas/multi-persona-output-strategy.feature.md) | `lib/agents/report-assembler.ts` | see spec | see spec | implemented |
 | buyer-personas | [Persona Content in PDF Template](.specs/features/buyer-personas/persona-content-pdf-template.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | buyer-personas | [Persona Intelligence Agent](.specs/features/buyer-personas/persona-intelligence-agent.feature.md) | `lib/agents/persona-intelligence.ts` | see spec | see spec | implemented |
@@ -76,8 +77,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 8 |
 | tested | 0 |
-| implemented | 40 |
-| **Total** | **48** |
+| implemented | 41 |
+| **Total** | **49** |
 
 ---
 
@@ -111,6 +112,7 @@ _None_
 - [Data Analyst Agent](.specs/features/agent-pipeline/data-analyst-agent.feature.md)
 - [Pipeline Evaluation Suite](.specs/features/agent-pipeline/pipeline-eval-suite.feature.md)
 - [Buyer Persona Data Model](.specs/features/buyer-personas/buyer-persona-data-model.feature.md)
+- [Market Calibration Engine](.specs/features/buyer-personas/market-calibration-engine.feature.md)
 - [Multi-Persona Output Strategy](.specs/features/buyer-personas/multi-persona-output-strategy.feature.md)
 - [Persona Content in PDF Template](.specs/features/buyer-personas/persona-content-pdf-template.feature.md)
 - [Persona Intelligence Agent](.specs/features/buyer-personas/persona-intelligence-agent.feature.md)

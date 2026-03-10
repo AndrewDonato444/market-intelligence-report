@@ -21,6 +21,10 @@ import type {
 import { env } from "@/lib/config/env";
 import { stripJsonFences } from "@/lib/utils/json";
 import { getReportPersonas } from "@/lib/services/buyer-personas";
+import {
+  calibratePersonasToMarket,
+  mergeCalibrationOverrides,
+} from "@/lib/services/market-calibration";
 
 // --- Output types ---
 
@@ -277,15 +281,26 @@ export async function executePersonaIntelligence(
     };
   }
 
+  // Calibrate persona specs to local market before building prompt
+  let calibratedPersonas = reportPersonas;
+  if (context.computedAnalytics) {
+    const calibration = await calibratePersonasToMarket(
+      context.computedAnalytics,
+      reportPersonas,
+      context.market,
+    );
+    calibratedPersonas = mergeCalibrationOverrides(reportPersonas, calibration);
+  }
+
   // Check which upstream agents are missing
   const expectedUpstream = ["insight-generator", "forecast-modeler", "polish-agent"];
   const missingUpstream = expectedUpstream.filter(
     (name) => !context.upstreamResults[name]
   );
 
-  // Build prompts
+  // Build prompts with calibrated personas
   const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(context, reportPersonas, missingUpstream);
+  const userPrompt = buildUserPrompt(context, calibratedPersonas, missingUpstream);
 
   // Check abort signal before API call
   if (context.abortSignal.aborted) {

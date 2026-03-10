@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 47 |
+| ✅ Completed | 48 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 5 |
+| ⬜ Pending | 4 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-10
@@ -182,7 +182,7 @@
 | 92 | Persona Intelligence Agent (reframe data through persona lenses, generate talking points, apply narrative framing) | vision | L | 30, 31, 32, 33, 34, 90 | ✅ |
 | 93 | Multi-persona output strategy — hybrid: dedicated Section 10 + persona framing injected into narrative sections | vision | M | 92 | ✅ |
 | 94 | Persona content in PDF template (format depends on #93 decision — blended narrative, dedicated sections, or appendix) | vision | L | 50, 92, 93 | ✅ |
-| 95 | Market calibration engine (auto-adjust persona specs to local market — price tiers, community types, seasonal patterns) | vision | M | 92, 22 | ⬜ |
+| 95 | Market calibration engine (auto-adjust persona specs to local market — price tiers, community types, seasonal patterns) | vision | M | 92, 22 | ✅ |
 
 **Goal**: An agent selects 1-3 buyer personas during report setup. The generated report includes persona-tailored insights, talking points, and narrative framing that speak directly to those buyer types — using their vocabulary, addressing their decision drivers, and emphasizing the metrics they care about.
 
