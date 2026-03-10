@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 39 |
+| ✅ Completed | 40 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 3 |
+| ⬜ Pending | 9 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-09
@@ -163,11 +163,28 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 80 | Pipeline execution service (trigger, section persistence, status updates) | discussion | L | 30, 36, 22, 25 | ✅ |
-| 81 | Data source registry (pluggable connector management, health checks) | discussion | M | 80, 22, 25 | ⬜ |
+| 81 | Data source registry (pluggable connector management, health checks) | discussion | M | 80, 22, 25 | ✅ |
 | 82 | Pipeline visualizer (admin view of agent execution, timing, errors) | discussion | M | 80, 41 | ⬜ |
 | 83 | System monitoring dashboard (cache stats, API costs, pipeline health) | discussion | M | 23, 80 | ⬜ |
 
 **Goal**: Reports generate end-to-end when triggered. Admin can visualize the pipeline, manage data sources, and monitor system health.
+
+---
+
+## Phase 10: Buyer Persona Intelligence
+
+> Persona-driven content generation. Agents select which buyer archetypes their report should address, and a new Persona Intelligence Agent reframes all data and insights through those lenses — generating persona-specific talking points, narrative framing, and metric emphasis. These are the agent's clients, not our users.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 90 | Buyer persona data model + seed data (8 personas from Knox Brothers framework) | vision | M | 2 | ⬜ |
+| 91 | Persona selection UI in report builder wizard (pick up to 3, with preview of what each adds) | vision | M | 40, 90 | ⬜ |
+| 92 | Persona Intelligence Agent (reframe data through persona lenses, generate talking points, apply narrative framing) | vision | L | 30, 31, 32, 33, 34, 90 | ⬜ |
+| 93 | Multi-persona output strategy — blended report, persona-specific sections, or hybrid (decision TBD during #92 spec) | vision | M | 92 | ⬜ |
+| 94 | Persona content in PDF template (format depends on #93 decision — blended narrative, dedicated sections, or appendix) | vision | L | 50, 92, 93 | ⬜ |
+| 95 | Market calibration engine (auto-adjust persona specs to local market — price tiers, community types, seasonal patterns) | vision | M | 92, 22 | ⬜ |
+
+**Goal**: An agent selects 1-3 buyer personas during report setup. The generated report includes persona-tailored insights, talking points, and narrative framing that speak directly to those buyer types — using their vocabulary, addressing their decision drivers, and emphasizing the metrics they care about.
 
 ---
 

@@ -26,13 +26,14 @@ describe("AdminSidebar", () => {
   });
 
   // Scenario: Admin sidebar navigation
-  it("should render exactly two nav items: Back to App and Eval Suite", () => {
+  it("should render nav items: Back to App, Eval Suite, and Data Sources", () => {
     render(<AdminSidebar />);
 
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(2);
+    expect(links).toHaveLength(3);
     expect(links[0]).toHaveTextContent("Back to App");
     expect(links[1]).toHaveTextContent("Eval Suite");
+    expect(links[2]).toHaveTextContent("Data Sources");
   });
 
   it("should link Back to App to /dashboard", () => {

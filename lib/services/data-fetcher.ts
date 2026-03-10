@@ -24,6 +24,7 @@ import {
   buildLocalQuery,
   type LocalBusiness,
 } from "@/lib/connectors/scrapingdog";
+import { registry } from "@/lib/services/data-source-registry";
 
 // --- Types ---
 
@@ -108,6 +109,21 @@ export async function fetchAllMarketData(
   const staleDataSources: string[] = [];
   const errors: FetchError[] = [];
   let apiCalls = 0;
+
+  // Pre-flight: log connector availability from registry
+  for (const connector of registry.getAll()) {
+    if (!registry.envVarsPresent(connector.name)) {
+      console.warn(
+        `[data-fetcher] Connector "${connector.name}" missing env vars: ${connector.requiredEnvVars.join(", ")}`
+      );
+    }
+    const health = registry.getHealthSnapshot(connector.name);
+    if (health && health.status === "unhealthy") {
+      console.warn(
+        `[data-fetcher] Connector "${connector.name}" is unhealthy: ${health.error ?? "unknown error"}`
+      );
+    }
+  }
 
   // --- Step 1: Fetch target market properties ---
   checkAbort(abortSignal);
