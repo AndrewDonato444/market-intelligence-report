@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 41 |
+| ✅ Completed | 42 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 8 |
+| ⬜ Pending | 7 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-10
@@ -165,7 +165,7 @@
 | 80 | Pipeline execution service (trigger, section persistence, status updates) | discussion | L | 30, 36, 22, 25 | ✅ |
 | 81 | Data source registry (pluggable connector management, health checks) | discussion | M | 80, 22, 25 | ✅ |
 | 82 | Pipeline visualizer (admin view of agent execution, timing, errors) | discussion | M | 80, 41 | ✅ |
-| 83 | System monitoring dashboard (cache stats, API costs, pipeline health) | discussion | M | 23, 80 | ⬜ |
+| 83 | System monitoring dashboard (cache stats, API costs, pipeline health) | discussion | M | 23, 80 | ✅ |
 
 **Goal**: Reports generate end-to-end when triggered. Admin can visualize the pipeline, manage data sources, and monitor system health.
 
