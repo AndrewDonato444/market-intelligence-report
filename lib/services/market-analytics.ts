@@ -519,7 +519,7 @@ export function computeDashboard(
     {
       name: "List-to-Sale Ratio",
       value: detailMetrics.listToSaleRatio != null
-        ? Math.round(detailMetrics.listToSaleRatio * 10000) / 100
+        ? detailMetrics.listToSaleRatio
         : null,
       trend: null,
       trendValue: null,
@@ -537,9 +537,7 @@ export function computeDashboard(
   const tierTwo: DashboardIndicator[] = [
     {
       name: "Cash Buyer %",
-      value: detailMetrics.cashBuyerPercentage != null
-        ? Math.round(detailMetrics.cashBuyerPercentage * 100)
-        : null,
+      value: detailMetrics.cashBuyerPercentage ?? null,
       trend: null,
       trendValue: null,
       category: "tier_two",
@@ -570,27 +568,21 @@ export function computeDashboard(
   const tierThree: DashboardIndicator[] = [
     {
       name: "Flood Zone Exposure",
-      value: detailMetrics.floodZonePercentage != null
-        ? Math.round(detailMetrics.floodZonePercentage * 100)
-        : null,
+      value: detailMetrics.floodZonePercentage ?? null,
       trend: null,
       trendValue: null,
       category: "tier_three",
     },
     {
       name: "Investor Activity Rate",
-      value: detailMetrics.investorBuyerPercentage != null
-        ? Math.round(detailMetrics.investorBuyerPercentage * 100)
-        : null,
+      value: detailMetrics.investorBuyerPercentage ?? null,
       trend: null,
       trendValue: null,
       category: "tier_three",
     },
     {
       name: "Free & Clear %",
-      value: detailMetrics.freeClearPercentage != null
-        ? Math.round(detailMetrics.freeClearPercentage * 100)
-        : null,
+      value: detailMetrics.freeClearPercentage ?? null,
       trend: null,
       trendValue: null,
       category: "tier_three",

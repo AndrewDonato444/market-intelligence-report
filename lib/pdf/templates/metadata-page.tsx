@@ -64,9 +64,6 @@ export function MetadataPage({
           <Text style={styles.metadataLabel}>Generated</Text>
           <Text style={styles.metadataValue}>{generatedDate}</Text>
 
-          <Text style={styles.metadataLabel}>Generation Duration</Text>
-          <Text style={styles.metadataValue}>{durationSeconds}s</Text>
-
           {metadata.confidence.staleDataSources.length > 0 && (
             <>
               <Text style={styles.metadataLabel}>Data Sources (Stale)</Text>

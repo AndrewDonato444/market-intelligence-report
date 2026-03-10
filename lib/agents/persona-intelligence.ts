@@ -216,10 +216,10 @@ For each persona, generate:
     instructions += `
 
 Since ${personas.length} personas are selected, also generate blended content:
-- Metric Union: include all primary metrics from all selected personas
+- Metric Union: array of STRINGS, each a formatted metric label like "Median Price: $2.0M" or "YoY Growth: 5.9%". Do NOT use objects.
 - Filter Intersection: note the most restrictive filter overlap
 - Blended Talking Points: maximum 7 talking points addressing overlapping concerns
-- Conflicts: metrics emphasized by one but de-emphasized by another are flagged as secondary
+- Conflicts: metrics emphasized by one persona but de-emphasized by another. IMPORTANT: "emphasizedBy" and "deEmphasizedBy" MUST contain the full persona NAME (e.g. "${personas[0].persona.name}"), never leave blank.
 - Narrative Hierarchy: ${personas[0].persona.name} (first) sets primary tone`;
   }
 
@@ -238,7 +238,7 @@ Return JSON in this exact structure:
       "vocabulary": { "preferred": ["..."], "avoid": ["..."] }
     }
   ],
-  "blended": ${personas.length >= 2 ? '{ "metricUnion": [...], "filterIntersection": { "priceRange": { "min": N, "max": N|null }, "propertyTypes": [...], "communityTypes": [...] }, "blendedTalkingPoints": [...], "conflicts": [...] }' : "null"},
+  "blended": ${personas.length >= 2 ? `{ "metricUnion": ["Median Price: $2.0M", "YoY Growth: 5.9%", "Days on Market: 45"], "filterIntersection": { "priceRange": { "min": N, "max": N|null }, "propertyTypes": [...], "communityTypes": [...] }, "blendedTalkingPoints": [{ "headline": "...", "detail": "...", "dataSource": "...", "relevance": "..." }], "conflicts": [{ "metric": "Days on Market", "emphasizedBy": "${personas[0].persona.name}", "deEmphasizedBy": "${personas.length > 1 ? personas[1].persona.name : "Other Persona"}", "resolution": "Included as secondary context." }] }` : "null"},
   "meta": {
     "personaCount": ${personas.length},
     "primaryPersona": "${personas[0].persona.slug}",

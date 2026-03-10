@@ -328,7 +328,7 @@ export async function executeInsightGenerator(
       // Keys for report-assembler (Layer 3)
       executiveBriefing: insights.overview.narrative,
       neighborhoodAnalysis: insights.executiveSummary.narrative,
-      editorial: insights.overview.narrative,
+      editorial: insights.executiveSummary.narrative,
       themes: insights.themes,
     },
     durationMs: Date.now() - start,

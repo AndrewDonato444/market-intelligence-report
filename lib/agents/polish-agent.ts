@@ -348,8 +348,8 @@ export async function executePolishAgent(
       missingSections: missingSections.length > 0 ? missingSections : undefined,
       // Keys for report-assembler (Layer 3)
       strategicBrief: polishOutput.polishedSections
-        .map((s) => s.revisedNarrative)
-        .join("\n\n"),
+        .find((s) => s.sectionType === "executive_summary" || s.sectionType === "executive_briefing")
+        ?.revisedNarrative ?? polishOutput.polishedSections[0]?.revisedNarrative ?? null,
       methodology: polishOutput.methodology.narrative,
     },
     durationMs: Date.now() - start,

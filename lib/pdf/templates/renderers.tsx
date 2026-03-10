@@ -619,7 +619,11 @@ function BlendedInsightsPdf({ blended }: { blended: NonNullable<PersonaIntellige
 
       {/* Metric Union */}
       <Text style={styles.sectionLabel}>METRIC UNION</Text>
-      <Text style={styles.body}>{blended.metricUnion.join(" \u2022 ")}</Text>
+      <Text style={styles.body}>
+        {blended.metricUnion
+          .map((m) => (typeof m === "string" ? m : typeof m === "object" && m !== null ? ((m as Record<string, unknown>).metricName ?? (m as Record<string, unknown>).name ?? JSON.stringify(m)) : String(m)))
+          .join(" \u2022 ")}
+      </Text>
 
       {/* Filter Overlap */}
       <Text style={styles.sectionLabel}>FILTER OVERLAP</Text>
@@ -637,7 +641,7 @@ function BlendedInsightsPdf({ blended }: { blended: NonNullable<PersonaIntellige
           {blended.conflicts.map((conflict, i) => (
             <View key={i} style={styles.conflictBox}>
               <Text style={styles.body}>
-                &ldquo;{conflict.metric}&rdquo; — emphasized by {conflict.emphasizedBy}, de-emphasized by {conflict.deEmphasizedBy}.
+                &ldquo;{conflict.metric}&rdquo;{conflict.emphasizedBy ? ` — emphasized by ${conflict.emphasizedBy}` : ""}{conflict.deEmphasizedBy ? `, de-emphasized by ${conflict.deEmphasizedBy}` : ""}.
               </Text>
               <Text style={{ ...styles.bodySmall, fontStyle: "italic" }}>
                 {conflict.resolution}
@@ -820,25 +824,44 @@ interface LuxuryMarketDashboardContent {
   detailMetrics: Record<string, number | null>;
 }
 
-// Metric names that should NOT be formatted as dollar amounts
-const RATIO_METRICS = new Set([
-  "List-to-Sale Ratio",
-  "Median Days on Market",
+// Metrics displayed as percentages (e.g. 0.4 → "40%" or legacy 40 → "40%")
+const PERCENTAGE_METRICS = new Set([
   "Flood Zone Exposure",
   "Investor Activity Rate",
   "Free & Clear %",
   "Cash Buyer %",
+]);
+
+// Metrics displayed as plain counts (no $ or %)
+const COUNT_METRICS = new Set([
+  "Median Days on Market",
   "Transaction Volume",
 ]);
 
 function formatMetricValue(val: number | string | null, metricName?: string): string {
   if (val == null) return "N/A";
   if (typeof val === "string") return val;
-  // Non-dollar metrics: show raw number
-  if (metricName && RATIO_METRICS.has(metricName)) {
-    if (val > 0 && val < 1) return `${(val * 100).toFixed(1)}%`;
+
+  // List-to-Sale Ratio: raw decimal ~1.0 means 100%
+  if (metricName === "List-to-Sale Ratio") {
+    if (val > 0.5 && val < 2) return `${(val * 100).toFixed(1)}%`;
+    // Legacy pre-scaled: values 50-200 are already percentages
+    if (val >= 50 && val <= 200) return `${val.toFixed(1)}%`;
     return val.toLocaleString();
   }
+
+  // Percentage metrics: raw decimal (0-1) or legacy pre-multiplied (>=1)
+  if (metricName && PERCENTAGE_METRICS.has(metricName)) {
+    if (val > 0 && val < 1) return `${(val * 100).toFixed(1)}%`;
+    return `${val}%`;
+  }
+
+  // Count metrics: plain number
+  if (metricName && COUNT_METRICS.has(metricName)) {
+    return val.toLocaleString();
+  }
+
+  // Default: dollar formatting
   if (val >= 1_000_000) return `$${(val / 1_000_000).toFixed(1)}M`;
   if (val >= 1_000) return `$${(val / 1_000).toFixed(0)}K`;
   if (val > 0 && val < 1) return `${(val * 100).toFixed(1)}%`;
