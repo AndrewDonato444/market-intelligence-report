@@ -551,15 +551,15 @@ export function computeDashboard(
     {
       name: "Total Sales Volume",
       value: market.totalVolume,
-      trend: null,
-      trendValue: null,
+      trend: trendDir(yoy.totalVolumeChange),
+      trendValue: yoy.totalVolumeChange,
       category: "tier_two",
     },
     {
       name: "Average Price",
       value: market.averagePrice,
-      trend: null,
-      trendValue: null,
+      trend: trendDir(yoy.averagePriceChange),
+      trendValue: yoy.averagePriceChange,
       category: "tier_two",
     },
     {

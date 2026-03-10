@@ -311,6 +311,8 @@ describe("Market Analytics Engine", () => {
       medianPriceChange: 0.08,
       volumeChange: 0.05,
       pricePerSqftChange: 0.06,
+      averagePriceChange: 0.07,
+      totalVolumeChange: 0.12,
     };
 
     const detailMetrics: DetailDerivedMetrics = {
@@ -352,24 +354,24 @@ describe("Market Analytics Engine", () => {
     });
 
     it("assigns flat trend for small changes", () => {
-      const flatYoY = { medianPriceChange: 0.005, volumeChange: -0.005, pricePerSqftChange: 0.003 };
+      const flatYoY = { medianPriceChange: 0.005, volumeChange: -0.005, pricePerSqftChange: 0.003, averagePriceChange: 0.004, totalVolumeChange: -0.002 };
       const result = computeDashboard(market, flatYoY, detailMetrics, segments);
       const medianSold = result.powerFive.find((i) => i.name === "Median Sold Price");
       expect(medianSold?.trend).toBe("flat");
     });
 
     it("assigns down trend for negative changes", () => {
-      const downYoY = { medianPriceChange: -0.05, volumeChange: -0.1, pricePerSqftChange: -0.03 };
+      const downYoY = { medianPriceChange: -0.05, volumeChange: -0.1, pricePerSqftChange: -0.03, averagePriceChange: -0.04, totalVolumeChange: -0.15 };
       const result = computeDashboard(market, downYoY, detailMetrics, segments);
       const medianSold = result.powerFive.find((i) => i.name === "Median Sold Price");
       expect(medianSold?.trend).toBe("down");
     });
 
-    it("formats list-to-sale ratio as percentage", () => {
+    it("passes raw list-to-sale ratio decimal", () => {
       const result = computeDashboard(market, yoy, detailMetrics, segments);
       const lts = result.powerFive.find((i) => i.name === "List-to-Sale Ratio");
-      // 0.97 * 10000 / 100 = 97.00
-      expect(lts?.value).toBe(97);
+      // Raw decimal passed through — formatting happens in renderer
+      expect(lts?.value).toBe(0.97);
     });
 
     it("handles null detail metrics", () => {

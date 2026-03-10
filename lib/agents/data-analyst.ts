@@ -53,6 +53,8 @@ export interface YoYMetrics {
   medianPriceChange: number | null;
   volumeChange: number | null;
   pricePerSqftChange: number | null;
+  averagePriceChange: number | null;
+  totalVolumeChange: number | null;
 }
 
 // --- Core computations ---
@@ -94,6 +96,8 @@ export function computeYoY(
       medianPriceChange: null,
       volumeChange: null,
       pricePerSqftChange: null,
+      averagePriceChange: null,
+      totalVolumeChange: null,
     };
   }
 
@@ -131,7 +135,19 @@ export function computeYoY(
       ? (currentMedianPsf - priorMedianPsf) / priorMedianPsf
       : null;
 
-  return { medianPriceChange, volumeChange, pricePerSqftChange };
+  // Average price YoY
+  const currentAvg = average(currentPrices);
+  const priorAvg = average(priorPrices);
+  const averagePriceChange =
+    priorAvg > 0 ? (currentAvg - priorAvg) / priorAvg : null;
+
+  // Total sales volume YoY
+  const currentTotal = currentPrices.reduce((sum, p) => sum + p, 0);
+  const priorTotal = priorPrices.reduce((sum, p) => sum + p, 0);
+  const totalVolumeChange =
+    priorTotal > 0 ? (currentTotal - priorTotal) / priorTotal : null;
+
+  return { medianPriceChange, volumeChange, pricePerSqftChange, averagePriceChange, totalVolumeChange };
 }
 
 export function assignRating(
