@@ -310,7 +310,9 @@ export function computeDetailMetrics(details: PropertyDetail[]): DetailDerivedMe
   // Cash buyer percentage
   const cashCount = details.filter((d) => d.flags.cashBuyer || d.flags.cashSale).length;
 
-  // List-to-sale ratio
+  // List-to-sale ratio — compare most recent sale price to most recent MLS list price.
+  // Only include ratios in the plausible range (0.7–1.5) to filter out data mismatches
+  // where MLS price may be per-sqft, in thousands, or from a different listing.
   const ratios: number[] = [];
   for (const detail of details) {
     const lastMls = detail.mlsHistory.find((m) => m.price != null);
@@ -318,7 +320,11 @@ export function computeDetailMetrics(details: PropertyDetail[]): DetailDerivedMe
     if (lastMls?.price && lastSale?.price) {
       const listPrice = parseFloat(String(lastMls.price));
       if (listPrice > 0) {
-        ratios.push(lastSale.price / listPrice);
+        const ratio = lastSale.price / listPrice;
+        // Plausible list-to-sale ratios fall between 70% and 150%
+        if (ratio >= 0.7 && ratio <= 1.5) {
+          ratios.push(ratio);
+        }
       }
     }
   }
