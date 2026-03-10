@@ -17,6 +17,7 @@ import type {
 } from "@/lib/agents/orchestrator";
 import type { DataAnalystOutput } from "@/lib/agents/data-analyst";
 import { env } from "@/lib/config/env";
+import { stripJsonFences } from "@/lib/utils/json";
 
 // --- Output types ---
 
@@ -301,7 +302,7 @@ export async function executeForecastModeler(
       response.content[0].type === "text" ? response.content[0].text : "";
 
     try {
-      forecast = JSON.parse(text) as ForecastModelerOutput;
+      forecast = JSON.parse(stripJsonFences(text)) as ForecastModelerOutput;
     } catch {
       const parseError = new Error(
         `Failed to parse Claude response as JSON: ${text.slice(0, 200)}`

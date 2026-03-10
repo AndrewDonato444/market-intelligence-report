@@ -243,11 +243,17 @@ Tokens used:
 |------|--------|
 | `app/(protected)/eval/page.tsx` | Moved to `app/admin/eval/` |
 
+## Files Also Modified (post-implementation)
+
+| File | Change |
+|------|--------|
+| `app/api/eval/run/route.ts` | Switched from `getAuthUserId()` to `requireAdmin()`, returns 403 for non-admins |
+| `app/api/eval/test-cases/route.ts` | Switched from `getAuthUserId()` to `requireAdmin()`, returns 403 for non-admins |
+
 ## No Changes Needed
 
 - `lib/eval/*` — all eval backend code stays
 - `components/eval/*` — all eval UI components stay
-- `app/api/eval/*` — API routes stay (auth check at page level, API uses `getAuthUserId()`)
 - `__tests__/eval/*` — all 105 tests stay
 - `lib/supabase/middleware.ts` — no changes needed (middleware already protects non-public routes)
 

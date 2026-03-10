@@ -2,16 +2,12 @@
  * Admin Auth Tests
  *
  * Tests for the requireAdmin() helper that checks if the current
- * user has admin role. These are FAILING tests — the admin-auth
- * module (lib/supabase/admin-auth.ts) does not exist yet.
+ * user has admin role.
  *
  * Spec: .specs/features/admin/admin-dashboard.feature.md
  */
 
-// --- These imports will fail until admin-auth.ts is implemented ---
-// import { requireAdmin } from "@/lib/supabase/admin-auth";
-
-// Mock dependencies
+// Mock dependencies before importing the module under test
 const mockGetAuthUserId = jest.fn<Promise<string | null>, []>();
 const mockGetProfile = jest.fn<Promise<{ role?: string } | null>, [string]>();
 
@@ -23,14 +19,7 @@ jest.mock("@/lib/services/profile", () => ({
   getProfile: (...args: unknown[]) => mockGetProfile(...(args as [string])),
 }));
 
-// Placeholder mock until admin-auth.ts exists
-const requireAdmin = jest.fn<Promise<string | null>, []>(async () => {
-  const authId = await mockGetAuthUserId();
-  if (!authId) return null;
-  const profile = await mockGetProfile(authId);
-  if (!profile || profile.role !== "admin") return null;
-  return authId;
-});
+import { requireAdmin } from "@/lib/supabase/admin-auth";
 
 describe("Admin Auth — requireAdmin", () => {
   beforeEach(() => {

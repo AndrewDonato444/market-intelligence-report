@@ -1,33 +1,34 @@
 ---
 feature: Pipeline Evaluation Suite
 domain: agent-pipeline
-source: src/app/eval/page.tsx, src/components/EvalDashboard.tsx, src/app/api/eval/judge/route.ts, src/lib/eval-test-cases.ts
-tests: []
+source: app/admin/eval/page.tsx, components/eval/eval-dashboard.tsx, app/api/eval/run/route.ts, app/api/eval/test-cases/route.ts, lib/eval/runner.ts, lib/eval/judge.ts, lib/eval/test-cases.ts, lib/eval/fixtures.ts, lib/eval/types.ts
+tests:
+  - __tests__/eval/eval-runner.test.ts
+  - __tests__/eval/eval-judge.test.ts
+  - __tests__/eval/eval-fixtures.test.ts
 components:
   - EvalDashboard
   - EvalTestCaseTable
   - EvalTestCaseRow
   - EvalReportSummary
-  - EvalRunProgress
 personas:
-  - primary
-status: specced
+  - internal-developer
+status: implemented
 created: 2026-03-09
 updated: 2026-03-09
 ---
 
 # Pipeline Evaluation Suite
 
-**Source File**: `src/app/eval/page.tsx`, `src/components/EvalDashboard.tsx`, `src/app/api/eval/judge/route.ts`, `src/lib/eval-test-cases.ts`
+**Source Files**: `app/admin/eval/page.tsx`, `components/eval/eval-dashboard.tsx`, `app/api/eval/run/route.ts`, `app/api/eval/test-cases/route.ts`, `lib/eval/runner.ts`, `lib/eval/judge.ts`, `lib/eval/test-cases.ts`, `lib/eval/fixtures.ts`
 **Design System**: `.specs/design-system/tokens.md`
-**Depends On**: Pipeline Executor (`lib/services/pipeline-executor.ts`), Insight Generator (`lib/agents/insight-generator.ts`), Forecast Modeler (`lib/agents/forecast-modeler.ts`), Polish Agent (`lib/agents/polish-agent.ts`)
-**Created**: 2026-03-09
+**Depends On**: Admin Auth (`lib/supabase/admin-auth.ts`), Insight Generator (`lib/agents/insight-generator.ts`), Forecast Modeler (`lib/agents/forecast-modeler.ts`), Polish Agent (`lib/agents/polish-agent.ts`), JSON Utils (`lib/utils/json.ts`)
 
 ---
 
 ## Feature: Pipeline Evaluation Suite
 
-An evaluation dashboard at `/eval` that tests the 3-agent report pipeline against a curated set of ~24 test cases. Each test case provides a market data fixture (ComputedAnalytics) and evaluates the output of one or more agents against expected quality criteria. The system runs each agent with the fixture data and uses an LLM-as-judge to score how well the agent's output meets the expected rubric. Results show the score prominently in each row with optional expand for details.
+An evaluation dashboard at `/admin/eval` (admin-only, requires `role = 'admin'`) that tests the 3-agent report pipeline against a curated set of ~24 test cases. Each test case provides a market data fixture (ComputedAnalytics) and evaluates the output of one or more agents against expected quality criteria. The system runs each agent with the fixture data and uses an LLM-as-judge (Sonnet 4.6) to score how well the agent's output meets the expected rubric. Results show the score prominently in each row with optional expand for details.
 
 Unlike the agentic chat eval (which tests question→answer accuracy), this eval tests:
 - **Narrative quality**: Does the agent produce strategic, insight-driven text?
@@ -41,7 +42,7 @@ Unlike the agentic chat eval (which tests question→answer accuracy), this eval
 
 ## Scenario: View evaluation test cases list
 
-Given the user navigates to `/eval`
+Given the user navigates to `/admin/eval`
 When the page loads
 Then they see a list of ~24 test cases
 And each row shows: description, agent (insight-generator | forecast-modeler | polish-agent | full-pipeline), category, score (or —), Run button
@@ -49,7 +50,7 @@ And they see a summary header with total test cases, pass rate, avg score
 
 ## Scenario: Run a single test case
 
-Given the user is on the eval page
+Given the user is on the admin eval page
 And a test case exists (e.g. "Insight Generator — strong market, high confidence")
 When they click "Run" for that test case
 Then the system sends the fixture data to the target agent
@@ -60,7 +61,7 @@ And they can expand to see judge reasoning and full response
 
 ## Scenario: Run all test cases
 
-Given the user is on the eval page
+Given the user is on the admin eval page
 When they click "Run All"
 Then the system clears previous stats and runs each of the ~24 test cases once in parallel (with concurrency limit to avoid rate limits)
 And progress is shown (e.g. "Completed 7/24...")
@@ -95,17 +96,16 @@ And the report persists for the session (or can be exported)
 
 Given a test case has been run and the row is expanded
 When the user views the expanded content
-Then they see four labeled sections: **Input Data**, **Agent Response**, **Expected Rubric**, **Eval Suite Evaluation**
-And the Input Data section shows the market fixture summary (market name, key metrics, confidence level)
-And the Agent Response section shows the agent's full JSON output
-And the Expected Rubric section shows what the judge was looking for
-And the Eval Suite Evaluation section shows the judge's score (1–5), breakdown scores, and reasoning
+Then they see three labeled sections: **Expected Rubric**, **Judge Evaluation**, **Agent Response**
+And the Expected Rubric section shows what the judge was looking for (left column)
+And the Judge Evaluation section shows the judge's score (1–5), breakdown dimension bars, reasoning, and duration (right column)
+And the Agent Response section shows the agent's full JSON output (full width below)
 
 ## Scenario: Export report
 
 Given a report has been generated
-When the user clicks "Export Report"
-Then they can download JSON or CSV with: test case, agent, category, expected rubric, score, breakdown scores, judge reasons
+When the user clicks "Export"
+Then they can download a JSON file with: test case, agent, category, expected rubric, score, breakdown scores, judge reasons
 And the export includes timestamps for each run
 
 ## Scenario: Loading and error states
@@ -119,9 +119,9 @@ And partial results are preserved (don't lose completed runs on one failure)
 
 ## Scenario: Test case configuration
 
-Given the eval page loads
+Given the admin eval page loads
 When test cases are fetched
-Then they come from a config file (e.g. `data/eval-test-cases.json`) or hardcoded module
+Then they come from a TypeScript module (`lib/eval/test-cases.ts`)
 And each test case has: `id`, `description`, `agent`, `category`, `fixtureId`, `expectedRubric`
 And categories are: "narrative-quality", "data-grounding", "schema-compliance", "tone-voice", "edge-case", "cross-section"
 
@@ -226,28 +226,51 @@ This prevents wasting judge tokens on structurally broken responses
 
 ## API Design
 
-### POST /api/eval/judge
+### GET /api/eval/test-cases
+
+Returns all test cases and fixture names. Requires admin auth (`requireAdmin()`); returns 403 for non-admins.
+
+### POST /api/eval/run
+
+Runs a single test case or all test cases. Requires admin auth (`requireAdmin()`); returns 403 for non-admins.
 
 **Request:**
 ```json
+{ "testCaseId": "tc-01" }
+```
+or
+```json
+{ "runAll": true }
+```
+
+The runner internally:
+1. Builds `AgentContext` from the fixture
+2. Dispatches to the appropriate agent executor
+3. Unwraps metadata (each agent stores raw output under a named key: `metadata.insights`, `metadata.forecastOutput`, or `metadata.polishOutput`)
+4. Strips JSON markdown fences from LLM responses via `stripJsonFences()` before parsing
+5. Runs deterministic schema pre-check if `schemaCheck: true`
+6. Calls `scoreWithJudge()` internally (no separate judge API route)
+
+### Judge (internal to runner, not a separate route)
+
+The judge is called via `scoreWithJudge()` in `lib/eval/judge.ts`. It uses the Anthropic API with **Sonnet 4.6** (`claude-sonnet-4-6`) as the judge model.
+
+**Judge input:**
+```typescript
 {
-  "testCaseDescription": "Insight Generator — strong market, high confidence",
-  "agent": "insight-generator",
-  "expectedRubric": "Narrative should reference median price of $3.5M, identify waterfront compression as a theme, provide buyer/seller timing recs. Tone should be authoritative, not promotional.",
-  "actualResponse": {
-    "overview": { "narrative": "...", "highlights": [...], "recommendations": [...] },
-    "themes": [...],
-    "executiveSummary": { ... }
-  },
-  "inputFixtureSummary": "Palm Beach, FL — Luxury tier — 847 properties — $3.5M median — 8.2% YoY growth — High confidence"
+  testCaseDescription: string;
+  agent: string;
+  expectedRubric: string;
+  actualResponse: unknown;
+  inputFixtureSummary: string;
 }
 ```
 
-**Response:**
+**Judge output:**
 ```json
 {
   "score": 4,
-  "reason": "Strong narrative with specific data references ($3.5M median, 8.2% YoY). Identified 4 relevant themes including waterfront dynamics. Buyer/seller timing present and actionable. Minor: could have referenced price-per-sqft differential between segments.",
+  "reason": "Strong narrative with specific data references...",
   "breakdown": {
     "dataGrounding": 4,
     "narrativeQuality": 5,
@@ -256,8 +279,6 @@ This prevents wasting judge tokens on structurally broken responses
   }
 }
 ```
-
-Uses Anthropic API; judge model can be Haiku 4.5 for cost efficiency (evaluating structured JSON, not generating creative content).
 
 ---
 
@@ -302,25 +323,22 @@ Uses Anthropic API; judge model can be Haiku 4.5 for cost efficiency (evaluating
 ┌─────────────────────────────────────────────────────────┐
 │  ┌─ Test case row (expanded) ──────────────────────────┐│
 │  │                                                      ││
-│  │  Input Data                                          ││
-│  │  Palm Beach, FL — Luxury — 847 properties            ││
-│  │  Median: $3.5M — YoY: +8.2% — Confidence: High      ││
+│  │  ┌─ Left Column ──────┐ ┌─ Right Column ──────────┐ ││
+│  │  │ Expected Rubric     │ │ Judge Evaluation        │ ││
+│  │  │ "Reference $3.5M   │ │ Score: 4   (badge)      │ ││
+│  │  │  median, identify  │ │                          │ ││
+│  │  │  waterfront..."    │ │ Data Grounding    ███░ 4 │ ││
+│  │  │                    │ │ Narrative Quality ████ 5 │ ││
+│  │  │                    │ │ Schema Compliance ████ 5 │ ││
+│  │  │                    │ │ Tone/Voice        ███░ 4 │ ││
+│  │  │                    │ │                          │ ││
+│  │  │                    │ │ Reason: "Strong..."      │ ││
+│  │  │                    │ │ Duration: 2.3s           │ ││
+│  │  └────────────────────┘ └──────────────────────────┘ ││
 │  │                                                      ││
-│  │  Agent Response                                      ││
+│  │  Agent Response (full width)                         ││
 │  │  { "overview": { "narrative": "The Palm Beach..." }, ││
 │  │    "themes": [...], "executiveSummary": {...} }       ││
-│  │                                                      ││
-│  │  Expected Rubric                                     ││
-│  │  "Reference $3.5M median, identify waterfront        ││
-│  │   compression, provide timing recs..."               ││
-│  │                                                      ││
-│  │  Eval Suite Evaluation                               ││
-│  │  Score: 4                                            ││
-│  │  ├─ Data Grounding:    4/5                           ││
-│  │  ├─ Narrative Quality: 5/5                           ││
-│  │  ├─ Schema Compliance: 5/5                           ││
-│  │  └─ Tone/Voice:        4/5                           ││
-│  │  Reason: "Strong narrative with specific data..."    ││
 │  │                                                      ││
 │  └──────────────────────────────────────────────────────┘│
 └─────────────────────────────────────────────────────────┘
@@ -447,7 +465,7 @@ The judge (LLM) receives instructions to handle:
 
 ## Market Data Fixtures
 
-Fixtures are pre-built ComputedAnalytics objects stored in `src/lib/eval-fixtures.ts`:
+Fixtures are pre-built ComputedAnalytics objects stored in `lib/eval/fixtures.ts`:
 
 | Fixture ID | Description | Key Characteristics |
 |---|---|---|
@@ -465,15 +483,15 @@ Fixtures are pre-built ComputedAnalytics objects stored in `src/lib/eval-fixture
 
 ---
 
-## Open Questions
+## Resolved Questions
 
-- [ ] Store test cases in JSON file vs TypeScript module?
-- [ ] Persist report to localStorage or session only?
-- [ ] Judge model: Haiku 4.5 (cheaper) or Sonnet 4.6 (same as agents)?
-- [ ] Score threshold for "pass" (4? 3.5?)
-- [x] Concurrency limit (3) for Run All to avoid API rate limits
-- [ ] Should rubrics be strict text or flexible key-facts?
-- [ ] Run fixtures against agent functions directly (unit-style) or through full pipeline API?
+- [x] Store test cases in JSON file vs TypeScript module? → **TypeScript module** (`lib/eval/test-cases.ts`) for type safety
+- [x] Persist report to localStorage or session only? → **Session only** (React state in EvalDashboard)
+- [x] Judge model: Haiku 4.5 (cheaper) or Sonnet 4.6 (same as agents)? → **Sonnet 4.6** (`claude-sonnet-4-6`) for better evaluation quality
+- [x] Score threshold for "pass" (4? 3.5?)? → **4** (defined as `PASS_THRESHOLD` in `lib/eval/types.ts`)
+- [x] Concurrency limit (3) for Run All to avoid API rate limits → **3** (defined as `MAX_CONCURRENCY` in `lib/eval/types.ts`)
+- [x] Should rubrics be strict text or flexible key-facts? → **Flexible natural language rubrics** (string in test case)
+- [x] Run fixtures against agent functions directly (unit-style) or through full pipeline API? → **Direct agent function calls** (unit-style via `AGENT_EXECUTORS` map in runner)
 
 ---
 
@@ -484,14 +502,14 @@ Fixtures are pre-built ComputedAnalytics objects stored in `src/lib/eval-fixture
 - [x] Run All runs all cases, shows progress (EVAL-004)
 - [x] Run All supports cancel (EVAL-005)
 - [x] Report summary shows pass rate, avg score, by-agent breakdown (EVAL-006)
-- [x] Export report downloads JSON/CSV (EVAL-007)
+- [x] Export report downloads JSON (EVAL-007)
 - [x] Error state: agent API failure shows retry (EVAL-008)
 - [x] Error state: judge API failure shows raw response (EVAL-009)
 - [x] Expand row shows individual run details with 4 sections (EVAL-010)
 - [x] Deterministic pre-check catches invalid JSON before judge (EVAL-011)
 - [x] Content fits bounded box, no horizontal scroll (EVAL-012)
 - [x] Mobile: Score, Category, and Actions columns do not overlap (EVAL-015)
-- [x] Expanded row shows Input Data, Agent Response, Expected Rubric, Eval Suite Evaluation (EVAL-016)
+- [x] Expanded row shows Expected Rubric, Judge Evaluation, Agent Response (EVAL-016)
 - [x] Report breakdown by agent and by category (EVAL-017)
 
 ---
@@ -500,11 +518,12 @@ Fixtures are pre-built ComputedAnalytics objects stored in `src/lib/eval-fixture
 
 | Component | Status | File |
 |---|---|---|
-| EvalDashboard | Stub created | `.specs/design-system/components/eval-dashboard.md` |
-| EvalTestCaseTable | Stub created | `.specs/design-system/components/eval-test-case-table.md` |
-| EvalTestCaseRow | Stub created | `.specs/design-system/components/eval-test-case-row.md` |
-| EvalReportSummary | Stub created | `.specs/design-system/components/eval-report-summary.md` |
-| EvalRunProgress | Stub created | `.specs/design-system/components/eval-run-progress.md` |
+| EvalDashboard | Implemented | `components/eval/eval-dashboard.tsx` |
+| EvalTestCaseTable | Implemented | `components/eval/eval-test-case-table.tsx` |
+| EvalTestCaseRow | Implemented | `components/eval/eval-test-case-row.tsx` |
+| EvalReportSummary | Implemented | `components/eval/eval-report-summary.tsx` |
+
+Note: Progress tracking (completed X/Y with progress bar and cancel) is embedded inline in `EvalDashboard` via `batchProgress` state, not a separate component.
 
 ---
 
@@ -519,3 +538,14 @@ Fixtures are pre-built ComputedAnalytics objects stored in `src/lib/eval-fixture
 - `radius-sm`, `radius-md` — Cards, buttons
 - `spacing-4`, `spacing-6` — Padding
 - `font-mono` — JSON output display, fixture summaries
+
+---
+
+## Learnings
+
+### 2026-03-09
+- **Gotcha**: Claude often wraps JSON responses in ` ```json ``` ` markdown fences despite system prompt instructions. Created shared `stripJsonFences()` utility in `lib/utils/json.ts` — applied to all 4 agents and the judge.
+- **Decision**: Judge model is Sonnet 4.6 (`claude-sonnet-4-6`), not Haiku 4.5. Chose quality over cost savings since judge accuracy directly affects eval reliability.
+- **Pattern**: Agent metadata unwrapping — each agent stores raw output under a named key in `result.metadata` (`insights`, `forecastOutput`, `polishOutput`). The runner must unwrap before schema validation.
+- **Decision**: No separate `/api/eval/judge` route. The judge is called internally by the runner via `scoreWithJudge()`. The only API routes are `GET /api/eval/test-cases` and `POST /api/eval/run`.
+- **Decision**: Both eval API routes use `requireAdmin()` for access control, returning 403 Forbidden for non-admin users.

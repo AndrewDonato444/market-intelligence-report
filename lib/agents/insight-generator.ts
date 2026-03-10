@@ -18,6 +18,7 @@ import type {
 import type { DataAnalystOutput } from "@/lib/agents/data-analyst";
 import type { ComputedAnalytics } from "@/lib/services/market-analytics";
 import { env } from "@/lib/config/env";
+import { stripJsonFences } from "@/lib/utils/json";
 
 // --- Output types ---
 
@@ -251,7 +252,7 @@ export async function executeInsightGenerator(
       response.content[0].type === "text" ? response.content[0].text : "";
 
     try {
-      insights = JSON.parse(text) as InsightGeneratorOutput;
+      insights = JSON.parse(stripJsonFences(text)) as InsightGeneratorOutput;
     } catch {
       const parseError = new Error(
         `Failed to parse Claude response as JSON: ${text.slice(0, 200)}`

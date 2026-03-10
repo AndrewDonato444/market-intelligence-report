@@ -10,7 +10,7 @@ Security patterns for this codebase.
 
 ### 2026-03-09
 - **Pattern**: Role-based admin access uses a two-step check: `getAuthUserId()` (Supabase auth) → `getProfile(authId)` (local DB) → check `role === 'admin'`. This is encapsulated in `requireAdmin()` at `lib/supabase/admin-auth.ts`.
-- **Decision**: Admin role check is at the page level (`app/admin/eval/page.tsx`), not at the API level. API routes (`app/api/eval/*`) still use `getAuthUserId()` for any authenticated user. This keeps the API usable for future integrations while restricting the UI to admins.
+- **Decision**: Admin role check is enforced at both the page level (`app/admin/eval/page.tsx`) and API level (`app/api/eval/*`). Both use `requireAdmin()` to ensure only admins can access eval functionality. Returns 403 Forbidden for non-admin API requests.
 
 ---
 

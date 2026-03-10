@@ -36,6 +36,7 @@ import {
   type PropertySummary,
 } from "@/lib/connectors/realestateapi";
 import { env } from "@/lib/config/env";
+import { stripJsonFences } from "@/lib/utils/json";
 
 // --- Output types ---
 
@@ -391,7 +392,7 @@ export async function executeCompetitiveAnalyst(
       response.content[0].type === "text" ? response.content[0].text : "";
 
     try {
-      competitiveAnalysis = JSON.parse(text) as CompetitiveAnalystOutput;
+      competitiveAnalysis = JSON.parse(stripJsonFences(text)) as CompetitiveAnalystOutput;
     } catch {
       const parseError = new Error(
         `Failed to parse Claude response as JSON: ${text.slice(0, 200)}`

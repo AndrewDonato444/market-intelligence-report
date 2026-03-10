@@ -2,8 +2,7 @@
  * Admin Sidebar Tests
  *
  * Tests for the AdminSidebar component and the removal of Eval
- * from the user-facing Sidebar. These are FAILING tests — the
- * AdminSidebar component does not exist yet.
+ * from the user-facing Sidebar.
  *
  * Spec: .specs/features/admin/admin-dashboard.feature.md
  */
@@ -18,66 +17,8 @@ jest.mock("next/navigation", () => ({
   usePathname: () => mockPathname(),
 }));
 
-// --- User Sidebar tests (verifying Eval removal) ---
-// Import the existing Sidebar once Eval is removed
-// import { Sidebar } from "@/components/layout/sidebar";
-
-// --- Admin Sidebar tests ---
-// import { AdminSidebar } from "@/components/layout/admin-sidebar";
-
-// Placeholder components for TDD (remove once real components exist)
-function AdminSidebar() {
-  const pathname = mockPathname();
-  const navItems = [
-    { label: "Back to App", href: "/dashboard", icon: "arrow-left" },
-    { label: "Eval Suite", href: "/admin/eval", icon: "beaker" },
-  ];
-
-  return (
-    <aside data-testid="admin-sidebar">
-      <nav>
-        <ul>
-          {navItems.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
-            return (
-              <li key={item.href}>
-                <a href={item.href} data-active={isActive}>
-                  {item.label}
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
-      <div data-testid="sidebar-footer">
-        <p>Modern Signal Advisory</p>
-      </div>
-    </aside>
-  );
-}
-
-function Sidebar() {
-  const navItems = [
-    { label: "Dashboard", href: "/dashboard" },
-    { label: "Reports", href: "/reports" },
-    { label: "Markets", href: "/markets" },
-    { label: "Settings", href: "/settings" },
-  ];
-
-  return (
-    <aside data-testid="user-sidebar">
-      <nav>
-        <ul>
-          {navItems.map((item) => (
-            <li key={item.href}>
-              <a href={item.href}>{item.label}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
-    </aside>
-  );
-}
+import { AdminSidebar } from "@/components/layout/admin-sidebar";
+import { Sidebar } from "@/components/layout/sidebar";
 
 describe("AdminSidebar", () => {
   beforeEach(() => {
@@ -113,25 +54,24 @@ describe("AdminSidebar", () => {
     mockPathname.mockReturnValue("/admin/eval");
     render(<AdminSidebar />);
 
-    const evalLink = screen.getByText("Eval Suite");
-    expect(evalLink).toHaveAttribute("data-active", "true");
+    // The real component uses className for active state, not data-active
+    const evalLink = screen.getByText("Eval Suite").closest("a");
+    expect(evalLink?.className).toContain("color-primary");
   });
 
   it("should not mark Back to App as active when on /admin/eval", () => {
     mockPathname.mockReturnValue("/admin/eval");
     render(<AdminSidebar />);
 
-    const backLink = screen.getByText("Back to App");
-    expect(backLink).toHaveAttribute("data-active", "false");
+    const backLink = screen.getByText("Back to App").closest("a");
+    expect(backLink?.className).toContain("color-text-secondary");
   });
 
   // Scenario: Footer
   it("should show Modern Signal Advisory in the footer", () => {
     render(<AdminSidebar />);
 
-    expect(screen.getByTestId("sidebar-footer")).toHaveTextContent(
-      "Modern Signal Advisory"
-    );
+    expect(screen.getByText("Modern Signal Advisory")).toBeInTheDocument();
   });
 });
 

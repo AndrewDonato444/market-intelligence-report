@@ -19,6 +19,7 @@ import type {
 } from "@/lib/agents/orchestrator";
 import type { DataAnalystOutput } from "@/lib/agents/data-analyst";
 import { env } from "@/lib/config/env";
+import { stripJsonFences } from "@/lib/utils/json";
 
 // --- Output types ---
 
@@ -295,7 +296,7 @@ export async function executePolishAgent(
       response.content[0].type === "text" ? response.content[0].text : "";
 
     try {
-      polishOutput = JSON.parse(text) as PolishAgentOutput;
+      polishOutput = JSON.parse(stripJsonFences(text)) as PolishAgentOutput;
     } catch {
       const parseError = new Error(
         `Failed to parse Claude response as JSON: ${text.slice(0, 200)}`
