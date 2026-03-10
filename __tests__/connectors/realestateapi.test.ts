@@ -43,32 +43,32 @@ describe("RealEstateAPI Connector", () => {
 
   describe("searchProperties", () => {
     const mockSearchResponse = {
-      status: 200,
+      statusCode: 200,
       resultCount: 2,
       data: [
         {
           id: "prop-1",
-          address: { full: "123 Ocean Blvd", city: "Naples", state: "FL", zip: "34102" },
-          summary: {
-            proptype: "SFR",
-            yearbuilt: 2020,
-            sqft: 5200,
-            beds: 5,
-            baths: 4,
-          },
-          sale: { saledate: "2025-12-15", saleprice: 8500000 },
+          address: { address: "123 Ocean Blvd", city: "Naples", state: "FL", zip: "34102" },
+          propertyType: "SFR",
+          yearBuilt: 2020,
+          squareFeet: 5200,
+          bedrooms: 5,
+          bathrooms: 4,
+          lastSaleDate: "2025-12-15",
+          lastSaleAmount: 8500000,
+          estimatedValue: 8600000,
         },
         {
           id: "prop-2",
-          address: { full: "456 Gulf Shore Dr", city: "Naples", state: "FL", zip: "34102" },
-          summary: {
-            proptype: "CONDO",
-            yearbuilt: 2018,
-            sqft: 3100,
-            beds: 3,
-            baths: 3,
-          },
-          sale: { saledate: "2025-11-20", saleprice: 6200000 },
+          address: { address: "456 Gulf Shore Dr", city: "Naples", state: "FL", zip: "34102" },
+          propertyType: "CONDO",
+          yearBuilt: 2018,
+          squareFeet: 3100,
+          bedrooms: 3,
+          bathrooms: 3,
+          lastSaleDate: "2025-11-20",
+          lastSaleAmount: 6200000,
+          estimatedValue: 6300000,
         },
       ],
     };
@@ -164,6 +164,7 @@ describe("RealEstateAPI Connector", () => {
         ok: false,
         status: 401,
         statusText: "Unauthorized",
+        text: () => Promise.resolve('{"error":"Unauthorized"}'),
       });
 
       await expect(

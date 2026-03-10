@@ -15,18 +15,23 @@ export const SOURCE_TTLS: Record<string, number> = {
  * Get cached data by key. Returns null if not found or expired.
  */
 export async function get(key: string): Promise<unknown | null> {
-  const [entry] = await db
-    .select()
-    .from(schema.cache)
-    .where(eq(schema.cache.key, key))
-    .limit(1);
+  try {
+    const [entry] = await db
+      .select()
+      .from(schema.cache)
+      .where(eq(schema.cache.key, key))
+      .limit(1);
 
-  if (!entry) return null;
+    if (!entry) return null;
 
-  // Check expiration
-  if (entry.expiresAt <= new Date()) return null;
+    // Check expiration
+    if (entry.expiresAt <= new Date()) return null;
 
-  return entry.data;
+    return entry.data;
+  } catch {
+    // DB unavailable — treat as cache miss
+    return null;
+  }
 }
 
 /**
@@ -43,25 +48,29 @@ export async function set(
   const now = new Date();
   const expiresAt = new Date(now.getTime() + ttl * 1000);
 
-  await db
-    .insert(schema.cache)
-    .values({
-      key,
-      source,
-      data,
-      ttlSeconds: ttl,
-      expiresAt,
-    })
-    .onConflictDoUpdate({
-      target: schema.cache.key,
-      set: {
-        data,
+  try {
+    await db
+      .insert(schema.cache)
+      .values({
+        key,
         source,
+        data,
         ttlSeconds: ttl,
         expiresAt,
-        updatedAt: now,
-      },
-    });
+      })
+      .onConflictDoUpdate({
+        target: schema.cache.key,
+        set: {
+          data,
+          source,
+          ttlSeconds: ttl,
+          expiresAt,
+          updatedAt: now,
+        },
+      });
+  } catch {
+    // DB unavailable — skip cache write
+  }
 }
 
 /**

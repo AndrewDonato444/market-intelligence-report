@@ -31,17 +31,21 @@ export interface UsageSummary {
  * Log an API call (external or cache hit) to the api_usage table.
  */
 export async function logApiCall(entry: ApiCallEntry): Promise<void> {
-  await db.insert(schema.apiUsage).values({
-    userId: entry.userId,
-    reportId: entry.reportId,
-    provider: entry.provider,
-    endpoint: entry.endpoint,
-    cost: entry.cached ? "0" : String(entry.cost ?? 0),
-    tokensUsed: entry.tokensUsed,
-    responseTimeMs: entry.responseTimeMs,
-    statusCode: entry.statusCode,
-    cached: entry.cached ? 1 : 0,
-  });
+  try {
+    await db.insert(schema.apiUsage).values({
+      userId: entry.userId,
+      reportId: entry.reportId,
+      provider: entry.provider,
+      endpoint: entry.endpoint,
+      cost: entry.cached ? "0" : String(entry.cost ?? 0),
+      tokensUsed: entry.tokensUsed,
+      responseTimeMs: entry.responseTimeMs,
+      statusCode: entry.statusCode,
+      cached: entry.cached ? 1 : 0,
+    });
+  } catch {
+    // DB unavailable — skip usage logging
+  }
 }
 
 /**

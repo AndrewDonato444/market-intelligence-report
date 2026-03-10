@@ -263,6 +263,7 @@ async function apiRequest<T>(
   const responseTimeMs = Date.now() - startTime;
 
   if (!response.ok) {
+    const errorBody = await response.text().catch(() => "(could not read body)");
     if (options.userId) {
       await logApiCall({
         userId: options.userId,
@@ -275,7 +276,7 @@ async function apiRequest<T>(
       });
     }
     throw new Error(
-      `RealEstateAPI error: ${response.status} ${response.statusText} for ${endpoint}`
+      `RealEstateAPI error: ${response.status} ${response.statusText} for ${endpoint} | Body: ${errorBody}`
     );
   }
 
@@ -286,38 +287,48 @@ async function apiRequest<T>(
 // --- Search Properties ---
 
 interface RawSearchResponse {
-  status: number;
+  statusCode: number;
   resultCount: number;
   data: Array<{
-    id: string;
-    address: { full: string; city: string; state: string; zip: string };
-    summary: {
-      proptype: string | null;
-      yearbuilt: number | null;
-      sqft: number | null;
-      beds: number | null;
-      baths: number | null;
-    };
-    sale: { saledate: string | null; saleprice: number | null } | null;
+    id: string | number;
+    address: { address: string; city: string; state: string; zip: string };
+    propertyType: string | null;
+    yearBuilt: number | null;
+    squareFeet: number | null;
+    bedrooms: number | null;
+    bathrooms: number | null;
+    lastSaleDate: string | null;
+    lastSaleAmount: number | string | null;
+    estimatedValue: number | null;
   }>;
 }
 
+/** Safely parse a value that may be a string or number to a number. */
+function toNumber(val: number | string | null | undefined): number | null {
+  if (val == null) return null;
+  const n = typeof val === "string" ? parseFloat(val) : val;
+  return isNaN(n) ? null : n;
+}
+
 function parseSearchResults(raw: RawSearchResponse): { properties: PropertySummary[]; total: number } {
-  const properties: PropertySummary[] = (raw.data || []).map((p) => ({
-    id: p.id,
-    address: p.address?.full || "",
-    city: p.address?.city || "",
-    state: p.address?.state || "",
-    zip: p.address?.zip || "",
-    price: p.sale?.saleprice ?? null,
-    sqft: p.summary?.sqft ?? null,
-    bedrooms: p.summary?.beds ?? null,
-    bathrooms: p.summary?.baths ?? null,
-    propertyType: p.summary?.proptype ?? null,
-    yearBuilt: p.summary?.yearbuilt ?? null,
-    lastSaleDate: p.sale?.saledate ?? null,
-    lastSalePrice: p.sale?.saleprice ?? null,
-  }));
+  const properties: PropertySummary[] = (raw.data || []).map((p) => {
+    const salePrice = toNumber(p.lastSaleAmount);
+    return {
+      id: String(p.id),
+      address: p.address?.address || "",
+      city: p.address?.city || "",
+      state: p.address?.state || "",
+      zip: p.address?.zip || "",
+      price: salePrice ?? toNumber(p.estimatedValue) ?? null,
+      sqft: p.squareFeet ?? null,
+      bedrooms: p.bedrooms ?? null,
+      bathrooms: p.bathrooms ?? null,
+      propertyType: p.propertyType ?? null,
+      yearBuilt: p.yearBuilt ?? null,
+      lastSaleDate: p.lastSaleDate ?? null,
+      lastSalePrice: salePrice,
+    };
+  });
   return { properties, total: raw.resultCount || properties.length };
 }
 
@@ -357,8 +368,8 @@ export async function searchProperties(
     state: params.state,
   };
   if (params.zipCodes?.length) body.zip = params.zipCodes;
-  if (params.priceMin) body.sale_price_min = params.priceMin;
-  if (params.priceMax) body.sale_price_max = params.priceMax;
+  if (params.priceMin) body.last_sale_price_min = params.priceMin;
+  if (params.priceMax) body.last_sale_price_max = params.priceMax;
   if (params.propertyTypes?.length) body.property_type = params.propertyTypes;
   if (params.limit) body.size = params.limit;
   if (params.offset) body.start = params.offset;
@@ -798,7 +809,7 @@ export async function getPropertyComps(
   try {
     const { data: raw, responseTimeMs } = await apiRequest<RawCompsResponse>(
       "/v3/PropertyComps",
-      { address, comps: true },
+      { address },
       options
     );
 

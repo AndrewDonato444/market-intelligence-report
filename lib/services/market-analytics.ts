@@ -228,13 +228,29 @@ function computeAllSegments(grouped: Map<string, PropertySummary[]>): SegmentMet
 }
 
 function splitByYear(properties: PropertySummary[], currentYear: number) {
+  const MIN_SAMPLE = 3;
+
+  let recentYear = currentYear;
+  let priorYear = currentYear - 1;
+
+  // If current calendar year has too few sales (e.g. early in the year),
+  // fall back to comparing the two most recent full years instead.
+  const currentYearCount = properties.filter(
+    (p) => p.lastSaleDate && new Date(p.lastSaleDate).getFullYear() === currentYear
+  ).length;
+
+  if (currentYearCount < MIN_SAMPLE) {
+    recentYear = currentYear - 1;
+    priorYear = currentYear - 2;
+  }
+
   const currentYearProps = properties.filter((p) => {
     if (!p.lastSaleDate) return false;
-    return new Date(p.lastSaleDate).getFullYear() === currentYear;
+    return new Date(p.lastSaleDate).getFullYear() === recentYear;
   });
   const priorYearProps = properties.filter((p) => {
     if (!p.lastSaleDate) return false;
-    return new Date(p.lastSaleDate).getFullYear() === currentYear - 1;
+    return new Date(p.lastSaleDate).getFullYear() === priorYear;
   });
   return { currentYearProps, priorYearProps };
 }
@@ -599,13 +615,9 @@ export function computeNeighborhoods(
       .filter((p) => p.price != null && p.sqft != null)
       .map((p) => p.price! / p.sqft!);
 
-    // YoY for this neighborhood
-    const currentProps = props.filter(
-      (p) => p.lastSaleDate && new Date(p.lastSaleDate).getFullYear() === currentYear
-    );
-    const priorProps = props.filter(
-      (p) => p.lastSaleDate && new Date(p.lastSaleDate).getFullYear() === currentYear - 1
-    );
+    // YoY for this neighborhood (uses splitByYear for same fallback logic)
+    const { currentYearProps: currentProps, priorYearProps: priorProps } =
+      splitByYear(props, currentYear);
     const localYoY = computeYoY(currentProps, priorProps);
 
     // Flatten amenities for this neighborhood (we don't have per-zip amenities,

@@ -273,7 +273,7 @@ async function fetchPropertyComps(
 
   for (const prop of selected) {
     if (abortSignal.aborted) break;
-    const address = `${prop.address}, ${prop.city} ${prop.state} ${prop.zip}`;
+    const address = prop.address;
     try {
       const result = await getPropertyComps(address, connectorOpts);
       records.push(result);

@@ -40,6 +40,9 @@ __pycache__/
 # Testing
 coverage/
 
+# Pipeline test output
+scripts/output/
+
 # Vercel
 .vercel
 

@@ -48,8 +48,8 @@ export function buildLocalQuery(
 interface RawLocalResult {
   title: string;
   type?: string;
-  rating?: number;
-  reviews?: number;
+  rating?: number | string;
+  reviews?: number | string;
   address?: string;
 }
 
@@ -61,8 +61,8 @@ function parseLocalResults(raw: RawLocalResponse, query: string): Omit<LocalSear
   const businesses: LocalBusiness[] = (raw.local_results || []).map((r) => ({
     name: r.title || "",
     category: r.type || "",
-    rating: r.rating ?? null,
-    reviewCount: r.reviews ?? null,
+    rating: r.rating != null ? Number(r.rating) || null : null,
+    reviewCount: r.reviews != null ? Number(r.reviews) || null : null,
     address: r.address ?? null,
   }));
   return { businesses, query };
@@ -124,8 +124,16 @@ export async function searchLocal(
       );
     }
 
-    const raw: RawLocalResponse = await response.json();
-    const result = parseLocalResults(raw, query);
+    const raw = await response.json();
+
+    // ScrapingDog returns 200 with { success: false } for auth/plan errors
+    if (raw.success === false) {
+      throw new Error(
+        `ScrapingDog error for /google_local: ${raw.message || "unknown error (success: false)"}`
+      );
+    }
+
+    const result = parseLocalResults(raw as RawLocalResponse, query);
     await cache.set(cacheKey, "scrapingdog", result);
 
     if (options.userId) {
@@ -205,8 +213,22 @@ export async function scrapeUrl(
       );
     }
 
-    const html = await response.text();
-    const result = { html, url: targetUrl };
+    const text = await response.text();
+
+    // ScrapingDog returns 200 with JSON { success: false } for auth/plan errors
+    try {
+      const maybeJson = JSON.parse(text);
+      if (maybeJson.success === false) {
+        throw new Error(
+          `ScrapingDog error for /scrape: ${maybeJson.message || "unknown error (success: false)"}`
+        );
+      }
+    } catch (e) {
+      // Not JSON — it's actual HTML content, which is what we want
+      if (e instanceof Error && e.message.startsWith("ScrapingDog error")) throw e;
+    }
+
+    const result = { html: text, url: targetUrl };
     await cache.set(cacheKey, "scrapingdog", result);
 
     if (options.userId) {

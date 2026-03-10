@@ -425,15 +425,21 @@ describe("Market Analytics Engine", () => {
     });
 
     it("computes YoY price change per neighborhood", () => {
-      // Use mid-month dates to avoid UTC midnight timezone edge case
+      // Need >= 3 current-year properties to avoid fallback to prior years
       const properties = [
         makeProperty({ id: "p1", zip: "34102", price: 10000000, lastSaleDate: "2026-03-15", lastSalePrice: 10000000 }),
-        makeProperty({ id: "p2", zip: "34102", price: 9000000, lastSaleDate: "2025-06-15", lastSalePrice: 9000000 }),
+        makeProperty({ id: "p2", zip: "34102", price: 11000000, lastSaleDate: "2026-02-15", lastSalePrice: 11000000 }),
+        makeProperty({ id: "p3", zip: "34102", price: 12000000, lastSaleDate: "2026-01-15", lastSalePrice: 12000000 }),
+        makeProperty({ id: "p4", zip: "34102", price: 9000000, lastSaleDate: "2025-06-15", lastSalePrice: 9000000 }),
+        makeProperty({ id: "p5", zip: "34102", price: 9500000, lastSaleDate: "2025-04-15", lastSalePrice: 9500000 }),
+        makeProperty({ id: "p6", zip: "34102", price: 8500000, lastSaleDate: "2025-08-15", lastSalePrice: 8500000 }),
       ];
       const result = computeNeighborhoods(properties, 2026, {});
       const hood = result.find((n) => n.zipCode === "34102")!;
-      // Current year: [10M], prior year: [9M] → (10M-9M)/9M ≈ 0.111
-      expect(hood.yoyPriceChange).toBeCloseTo(1 / 9);
+      // Current year (2026): median of [10M, 11M, 12M] = 11M
+      // Prior year (2025): median of [8.5M, 9M, 9.5M] = 9M
+      // YoY: (11M - 9M) / 9M ≈ 0.222
+      expect(hood.yoyPriceChange).toBeCloseTo(2000000 / 9000000);
     });
 
     it("includes amenity data", () => {
