@@ -372,10 +372,10 @@ describe("Agent Output Schema + Validation", () => {
   });
 
   describe("SECTION_REGISTRY_V2", () => {
-    it("defines all 9 v2 section types", async () => {
+    it("defines all 10 v2 section types", async () => {
       const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
 
-      expect(SECTION_REGISTRY_V2).toHaveLength(9);
+      expect(SECTION_REGISTRY_V2).toHaveLength(10);
       const types = SECTION_REGISTRY_V2.map((r) => r.sectionType);
       expect(types).toEqual([
         "executive_briefing",
@@ -387,14 +387,15 @@ describe("Agent Output Schema + Validation", () => {
         "comparative_positioning",
         "strategic_benchmark",
         "disclaimer_methodology",
+        "persona_intelligence",
       ]);
     });
 
-    it("has unique, sequential report orders 1-9", async () => {
+    it("has unique, sequential report orders 1-10", async () => {
       const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
 
       const orders = SECTION_REGISTRY_V2.map((r) => r.reportOrder);
-      expect(orders).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+      expect(orders).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
     });
 
     it("marks required vs optional correctly", async () => {
@@ -416,7 +417,11 @@ describe("Agent Output Schema + Validation", () => {
         "comparative_positioning",
         "disclaimer_methodology",
       ]);
-      expect(optional).toEqual(["forward_look", "strategic_benchmark"]);
+      expect(optional).toEqual([
+        "forward_look",
+        "strategic_benchmark",
+        "persona_intelligence",
+      ]);
     });
 
     it("assigns correct source agents", async () => {
@@ -442,6 +447,10 @@ describe("Agent Output Schema + Validation", () => {
       expect(byAgent.get("insight-generator")).toEqual(["the_narrative"]);
       expect(byAgent.get("forecast-modeler")).toEqual(["forward_look"]);
       expect(byAgent.get("polish-agent")).toEqual(["strategic_benchmark"]);
+      // persona agent
+      expect(byAgent.get("persona-intelligence")).toEqual([
+        "persona_intelligence",
+      ]);
     });
   });
 });
