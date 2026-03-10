@@ -11,6 +11,7 @@
 
 import type { AgentResult, SectionOutput } from "@/lib/agents/orchestrator";
 import type { ComputedAnalytics } from "@/lib/services/market-analytics";
+import type { PersonaIntelligenceOutput } from "@/lib/agents/persona-intelligence";
 
 // --- Types ---
 
@@ -61,9 +62,20 @@ export const NEW_SECTION_TYPES = [
   "comparative_positioning",
   "strategic_benchmark",
   "disclaimer_methodology",
+  "persona_intelligence",
 ] as const;
 
 export type NewSectionType = (typeof NEW_SECTION_TYPES)[number];
+
+// --- Persona Framing ---
+
+export interface PersonaFraming {
+  personaName: string;
+  perspective: string;
+  emphasis: string[];
+  deEmphasis: string[];
+  toneGuidance: string;
+}
 
 // --- Assembly ---
 
@@ -78,6 +90,10 @@ export function assembleReport(
   const insightNarrative = extractNarrative(agentResults, "insight-generator");
   const forecastNarrative = extractNarrative(agentResults, "forecast-modeler");
   const polishNarrative = extractNarrative(agentResults, "polish-agent");
+
+  // Extract persona intelligence output (if available and not skipped)
+  const personaFraming = extractPersonaFraming(agentResults);
+  const personaOutput = extractPersonaIntelligenceOutput(agentResults);
 
   const sections: AssembledSection[] = [
     // Section 1: Executive Briefing (data + insight-generator narrative)
@@ -94,6 +110,7 @@ export function assembleReport(
         },
         narrative: insightNarrative?.executiveBriefing ?? null,
         confidence: analytics.confidence,
+        personaFraming,
       },
     },
 
@@ -142,6 +159,7 @@ export function assembleReport(
           yoy: analytics.yoy,
           rating: analytics.market.rating,
         },
+        personaFraming,
       },
     },
 
@@ -153,6 +171,7 @@ export function assembleReport(
       content: {
         forecast: forecastNarrative?.forecast ?? null,
         guidance: forecastNarrative?.guidance ?? null,
+        personaFraming,
       },
     },
 
@@ -175,6 +194,7 @@ export function assembleReport(
       content: {
         scorecard: analytics.scorecard,
         narrative: polishNarrative?.strategicBrief ?? null,
+        personaFraming,
       },
     },
 
@@ -191,6 +211,21 @@ export function assembleReport(
       },
     },
   ];
+
+  // Section 10: Persona Intelligence Briefing (only when persona output exists)
+  if (personaOutput) {
+    sections.push({
+      sectionNumber: 10,
+      sectionType: "persona_intelligence",
+      title: "Persona Intelligence Briefing",
+      content: {
+        strategy: "hybrid",
+        personas: personaOutput.personas,
+        blended: personaOutput.blended,
+        meta: personaOutput.meta,
+      },
+    });
+  }
 
   // Compute totals
   const agentDurationsTotal = Object.values(durations.agentDurations).reduce(
@@ -225,6 +260,47 @@ function extractNarrative(
   const result = results[agentName];
   if (!result) return null;
   return (result.metadata as Record<string, unknown>) ?? null;
+}
+
+/**
+ * Extract the primary persona's narrative overlay as a PersonaFraming object.
+ * Returns null if persona-intelligence agent didn't run or was skipped.
+ */
+function extractPersonaFraming(
+  results: Record<string, AgentResult>
+): PersonaFraming | null {
+  const output = extractPersonaIntelligenceOutput(results);
+  if (!output || output.personas.length === 0) return null;
+
+  // Primary persona is first (selectionOrder=1)
+  const primary = output.personas[0];
+  return {
+    personaName: primary.personaName,
+    perspective: primary.narrativeOverlay.perspective,
+    emphasis: primary.narrativeOverlay.emphasis,
+    deEmphasis: primary.narrativeOverlay.deEmphasis,
+    toneGuidance: primary.narrativeOverlay.toneGuidance,
+  };
+}
+
+/**
+ * Extract PersonaIntelligenceOutput from agent results.
+ * Returns null if persona-intelligence agent didn't run, was skipped, or has no output.
+ */
+function extractPersonaIntelligenceOutput(
+  results: Record<string, AgentResult>
+): PersonaIntelligenceOutput | null {
+  const result = results["persona-intelligence"];
+  if (!result) return null;
+
+  const meta = result.metadata as Record<string, unknown>;
+  // Skip if persona agent reported skipped
+  if (meta.skipped) return null;
+
+  const output = meta.personaIntelligence as PersonaIntelligenceOutput | undefined;
+  if (!output || !output.personas || output.personas.length === 0) return null;
+
+  return output;
 }
 
 function buildDataSourcesSummary(

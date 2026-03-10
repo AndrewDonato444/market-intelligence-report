@@ -157,10 +157,10 @@ describe("Report Assembler", () => {
       expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
     });
 
-    it("section types match NEW_SECTION_TYPES", () => {
+    it("section types match first 9 of NEW_SECTION_TYPES (no persona agent)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const types = result.sections.map((s) => s.sectionType);
-      expect(types).toEqual([...NEW_SECTION_TYPES]);
+      expect(types).toEqual([...NEW_SECTION_TYPES].slice(0, 9));
     });
 
     it("Section 1 (Executive Briefing) contains headline data and narrative", () => {
@@ -341,8 +341,194 @@ describe("Report Assembler", () => {
   });
 
   describe("NEW_SECTION_TYPES", () => {
-    it("contains exactly 9 section types", () => {
-      expect(NEW_SECTION_TYPES).toHaveLength(9);
+    it("contains exactly 10 section types (including persona_intelligence)", () => {
+      expect(NEW_SECTION_TYPES).toHaveLength(10);
+      expect(NEW_SECTION_TYPES[9]).toBe("persona_intelligence");
+    });
+  });
+
+  describe("persona intelligence integration", () => {
+    function makePersonaAgentResult(): AgentResult {
+      return {
+        agentName: "persona-intelligence",
+        sections: [
+          {
+            sectionType: "persona_intelligence",
+            title: "Persona Intelligence",
+            content: {},
+          },
+        ],
+        metadata: {
+          personaIntelligence: {
+            personas: [
+              {
+                personaSlug: "business-mogul",
+                personaName: "The Business Mogul",
+                selectionOrder: 1,
+                talkingPoints: [
+                  { headline: "Ultra-luxury volume surged 5%", detail: "YoY growth remains strong...", dataSource: "yoy.volumeChange", relevance: "ROI signal" },
+                ],
+                narrativeOverlay: {
+                  perspective: "This market represents a compelling capital deployment opportunity with strong risk-adjusted returns.",
+                  emphasis: ["CAGR", "price per sqft trends", "cash buyer dominance"],
+                  deEmphasis: ["lifestyle amenities", "school districts"],
+                  toneGuidance: "Direct, data-forward, institutional language",
+                },
+                metricEmphasis: [
+                  { metricName: "Median Price YoY", currentValue: "+8%", interpretation: "Strong alpha vs broader market", priority: "primary" as const },
+                ],
+                vocabulary: {
+                  preferred: ["basis", "alpha", "total return", "cap rate"],
+                  avoid: ["cute", "charming", "cozy"],
+                },
+              },
+              {
+                personaSlug: "coastal-escape-seeker",
+                personaName: "The Coastal Escape Seeker",
+                selectionOrder: 2,
+                talkingPoints: [
+                  { headline: "Waterfront premium holds steady", detail: "Coastal properties maintain premium...", dataSource: "segments", relevance: "Lifestyle signal" },
+                ],
+                narrativeOverlay: {
+                  perspective: "The coast offers a sanctuary of natural beauty and refined living.",
+                  emphasis: ["waterfront premiums", "lifestyle quality", "design features"],
+                  deEmphasis: ["ROI metrics", "cap rates"],
+                  toneGuidance: "Warm, experiential, aspirational",
+                },
+                metricEmphasis: [
+                  { metricName: "Waterfront Premium", currentValue: "25%", interpretation: "Reflects the sanctuary value of coastal living", priority: "primary" as const },
+                ],
+                vocabulary: {
+                  preferred: ["sanctuary", "retreat", "coastal living", "turnkey"],
+                  avoid: ["investment vehicle", "basis points"],
+                },
+              },
+            ],
+            blended: {
+              metricUnion: ["Median Price YoY", "Waterfront Premium", "CAGR"],
+              filterIntersection: {
+                priceRange: { min: 5000000, max: null },
+                propertyTypes: ["SFR"],
+                communityTypes: ["Waterfront"],
+              },
+              blendedTalkingPoints: [
+                { headline: "Market strength across buyer profiles", detail: "Both investment and lifestyle buyers find value...", dataSource: "market.rating", relevance: "Cross-persona" },
+              ],
+              conflicts: [
+                { metric: "ROI metrics", emphasizedBy: "business-mogul", deEmphasizedBy: "coastal-escape-seeker", resolution: "included as secondary context" },
+              ],
+            },
+            meta: {
+              personaCount: 2,
+              primaryPersona: "business-mogul",
+              modelUsed: "claude-sonnet-4-6",
+              promptTokens: 3500,
+              completionTokens: 2800,
+            },
+          },
+        },
+        durationMs: 6000,
+      };
+    }
+
+    function makeAgentResultsWithPersona(): Record<string, AgentResult> {
+      return {
+        ...makeAgentResults(),
+        "persona-intelligence": makePersonaAgentResult(),
+      };
+    }
+
+    const durationsWithPersona: AssemblyDurations = {
+      fetchMs: 2000,
+      computeMs: 50,
+      agentDurations: {
+        "insight-generator": 5000,
+        "forecast-modeler": 4000,
+        "polish-agent": 3000,
+        "persona-intelligence": 6000,
+      },
+    };
+
+    it("produces 10 sections when persona intelligence is present", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
+      expect(result.sections).toHaveLength(10);
+    });
+
+    it("Section 10 has sectionType persona_intelligence", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
+      const section10 = result.sections[9];
+      expect(section10.sectionNumber).toBe(10);
+      expect(section10.sectionType).toBe("persona_intelligence");
+      expect(section10.title).toBe("Persona Intelligence Briefing");
+    });
+
+    it("Section 10 content has hybrid strategy, personas, blended, and meta", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
+      const content = result.sections[9].content as any;
+      expect(content.strategy).toBe("hybrid");
+      expect(content.personas).toHaveLength(2);
+      expect(content.personas[0].personaSlug).toBe("business-mogul");
+      expect(content.personas[1].personaSlug).toBe("coastal-escape-seeker");
+      expect(content.blended).toBeDefined();
+      expect(content.blended.metricUnion).toHaveLength(3);
+      expect(content.meta.personaCount).toBe(2);
+      expect(content.meta.primaryPersona).toBe("business-mogul");
+    });
+
+    it("narrative sections (1, 5, 6, 8) receive personaFraming from primary persona", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
+
+      const framingSections = [0, 4, 5, 7]; // indices for sections 1, 5, 6, 8
+      for (const idx of framingSections) {
+        const content = result.sections[idx].content as any;
+        expect(content.personaFraming).toBeDefined();
+        expect(content.personaFraming.personaName).toBe("The Business Mogul");
+        expect(content.personaFraming.perspective).toContain("capital deployment");
+        expect(content.personaFraming.emphasis).toContain("CAGR");
+        expect(content.personaFraming.toneGuidance).toContain("data-forward");
+      }
+    });
+
+    it("personaFraming is null when no persona agent result", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+
+      const framingSections = [0, 4, 5, 7]; // indices for sections 1, 5, 6, 8
+      for (const idx of framingSections) {
+        const content = result.sections[idx].content as any;
+        expect(content.personaFraming).toBeNull();
+      }
+    });
+
+    it("produces 9 sections when persona agent was skipped", () => {
+      const agentResults = {
+        ...makeAgentResults(),
+        "persona-intelligence": {
+          agentName: "persona-intelligence",
+          sections: [],
+          metadata: { skipped: true, reason: "no_personas_selected" },
+          durationMs: 5,
+        },
+      };
+      const result = assembleReport(makeAnalytics(), agentResults, defaultDurations);
+      expect(result.sections).toHaveLength(9);
+    });
+
+    it("metadata includes persona agent duration in totalDurationMs", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
+      // 2000 fetch + 50 compute + 5000 + 4000 + 3000 + 6000 agents = 20050
+      expect(result.metadata.totalDurationMs).toBe(20050);
+      expect(result.metadata.agentDurations["persona-intelligence"]).toBe(6000);
+    });
+
+    it("sectionCount reflects actual count with persona section", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
+      expect(result.metadata.sectionCount).toBe(10);
+    });
+
+    it("all 10 section types match NEW_SECTION_TYPES when persona present", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
+      const types = result.sections.map((s) => s.sectionType);
+      expect(types).toEqual([...NEW_SECTION_TYPES]);
     });
   });
 });
