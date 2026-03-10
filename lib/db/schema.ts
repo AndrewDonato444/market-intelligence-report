@@ -43,6 +43,8 @@ export const reportSectionTypeEnum = pgEnum("report_section_type", [
   "disclaimer_methodology",
 ]);
 
+export const userRoleEnum = pgEnum("user_role", ["user", "admin"]);
+
 export const luxuryTierEnum = pgEnum("luxury_tier", [
   "luxury",
   "high_luxury",
@@ -66,6 +68,7 @@ export const users = pgTable("users", {
   phone: varchar("phone", { length: 50 }),
   title: varchar("title", { length: 255 }),
   bio: text("bio"),
+  role: userRoleEnum("role").notNull().default("user"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),

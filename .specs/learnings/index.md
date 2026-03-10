@@ -19,7 +19,14 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
-_No learnings yet. Run `/compound` at the end of implementation sessions._
+### 2026-03-09 — Admin Dashboard + Eval Suite
+
+- **Route groups vs real directories** (`general.md`): `app/(admin)/` doesn't create a URL segment — use `app/admin/` instead
+- **jest.mock fails on non-existent modules** (`testing.md`): Use local mock functions in TDD when target module doesn't exist yet
+- **@testing-library/jest-dom import required** (`testing.md`): Must explicitly import for DOM matchers
+- **Role-based admin auth pattern** (`security.md`): `requireAdmin()` composes auth ID + profile role check
+- **Split environment gotchas** (`general.md`): Remote auth + local DB requires manual profile row insertion
+- **Never `supabase db reset`** (`general.md`): Destroys all local data; use `node -e` or Studio SQL Editor
 
 ---
 
