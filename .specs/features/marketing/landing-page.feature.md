@@ -21,7 +21,7 @@ personas:
   - legacy-agent
 status: implemented
 created: 2026-03-10
-updated: 2026-03-10
+updated: 2026-03-11
 ---
 
 # Marketing Landing Page
@@ -85,7 +85,7 @@ And the page loads within 2 seconds on a 4G connection
 Given the visitor has seen the hero
 When they scroll to the data callout section just below the hero
 Then they see 3 oversized data figures styled as design elements
-And each figure uses Playfair Display at text-4xl in gold or navy
+And each figure uses Playfair Display at text-5xl in gold
 And each figure has a supporting context line beneath it in Inter
 And the callouts are spaced generously with ample white space between them
 And the section establishes the product as data-rich without feeling cluttered
@@ -131,7 +131,7 @@ And generous spacing prevents any feeling of clutter
 ### Scenario: Visitor reaches the closing statement
 Given the visitor has scrolled to the bottom of the page
 When the closing statement section is visible
-Then they see a section with full-bleed photography and dark overlay (matching hero treatment)
+Then they see a section with a dark navy background and overlay (min-height 60vh, shorter than full-viewport hero)
 And a brief, confident closing headline in Playfair Display
 And a single gold CTA button reading "Request a Sample Report"
 And minimal footer with "Modern Signal Advisory" branding and copyright
@@ -178,14 +178,14 @@ Given the visitor clicks "Sign In" in the navigation
 When the click event fires
 Then they are navigated to "/auth/signin"
 
-### Scenario: Photography and imagery
+### Scenario: Photography and imagery (placeholder state)
 Given the page is rendered
 When the visitor views the hero and closing sections
-Then both sections feature full-bleed photography with dark navy overlays
-And the photography subjects are architectural (Gulf coast estates, clean lines, coastal)
-And the color grading is warm and slightly desaturated (morning light / golden hour)
-And no stock photos, no tourist imagery, no identifiable faces
-And images are loaded via next/image with appropriate priority and sizing
+Then both sections use a dark navy CSS background with an opacity overlay (placeholder for photography)
+And the intent is architectural Gulf coast photography with warm desaturated grading
+And the overlay div uses color-primary at 85% opacity over the section background
+And real photography will be swapped in via next/image — code is structured for trivial image replacement
+And no stock photos, no tourist imagery, no identifiable faces in the final implementation
 
 ---
 
@@ -212,8 +212,8 @@ And images are loaded via next/image with appropriate priority and sizing
 │ HERO (100vh)                                                             │
 │ ┌────────────────────────────────────────────────────────────────────┐   │
 │ │                                                                    │   │
-│ │   [FULL-BLEED PHOTOGRAPHY: Gulf coast architecture,                │   │
-│ │    morning light, warm desaturated — with dark navy overlay]       │   │
+│ │   [CSS PLACEHOLDER: dark navy bg with overlay — ready to accept    │   │
+│ │    next/image Gulf coast architecture when photography available]  │   │
 │ │                                                                    │   │
 │ │                                                                    │   │
 │ │              The Intelligence Behind                               │   │
@@ -404,11 +404,11 @@ And images are loaded via next/image with appropriate priority and sizing
 │                  generous white space                                     │
 │                                                                          │
 ├──────────────────────────────────────────────────────────────────────────┤
-│ CLOSING STATEMENT (100vh, same treatment as hero)                        │
+│ CLOSING STATEMENT (min-h-[60vh], same overlay treatment as hero)          │
 │ ┌────────────────────────────────────────────────────────────────────┐   │
 │ │                                                                    │   │
-│ │   [FULL-BLEED PHOTOGRAPHY: architectural detail or Gulf horizon,   │   │
-│ │    golden hour, warm desaturated — with dark navy overlay]         │   │
+│ │   [CSS PLACEHOLDER: dark navy bg with overlay — same treatment     │   │
+│ │    as hero; ready to accept next/image when photography available] │   │
 │ │                                                                    │   │
 │ │                                                                    │   │
 │ │              Your market deserves more                             │   │
