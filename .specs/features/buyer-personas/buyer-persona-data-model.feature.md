@@ -15,9 +15,19 @@ updated: 2026-03-10
 
 # Buyer Persona Data Model + Seed Data
 
-**Source Files**: `lib/db/schema.ts`, `lib/services/buyer-personas.ts`
+**Source Files**: `lib/db/schema.ts`, `lib/services/buyer-personas.ts`, `lib/db/index.ts`
+**API Routes**: `app/api/buyer-personas/route.ts`, `app/api/buyer-personas/[slug]/route.ts`
 **Design System**: .specs/design-system/tokens.md
 **Reference**: .specs/reference/knox-brothers-persona-framework.pdf
+
+## Service Functions
+
+`lib/services/buyer-personas.ts` exposes:
+- `getAllBuyerPersonas()` — returns all personas ordered by display_order asc
+- `getBuyerPersonaBySlug(slug)` — returns single persona or null
+- `getBuyerPersonaById(id)` — returns single persona or null
+- `getReportPersonas(reportId)` — returns [{selectionOrder, persona}] for a report, ordered by selection_order
+- `setReportPersonas(reportId, personaIds[])` — replaces selections; requires 1-3 IDs
 
 ## Feature: Buyer Persona Data Model
 
@@ -32,19 +42,21 @@ And each has a unique slug and display_order from 1 to 8
 ### Scenario: Each persona contains complete Knox Brothers data
 Given a buyer persona record exists
 Then it contains profile_overview text
-And it contains demographics as structured JSON
-And it contains decision_drivers as an array of weighted factors
-And it contains report_metrics as structured JSON
-And it contains property_filters as structured JSON
-And it contains narrative_framing with language, vocabulary, and avoid lists
-And it contains talking_point_templates as an array
-And it contains sample_benchmarks as structured JSON
+And it contains demographics as structured JSON (BuyerPersonaDemographics type)
+And it contains decision_drivers as an array of weighted factors (DecisionDriver[])
+And it contains report_metrics as a JSON string array of metric names (string[])
+And it contains property_filters as structured JSON (PropertyFilters type)
+And it contains narrative_framing with languageTone, keyVocabulary array, and avoid array (NarrativeFraming type)
+And it contains talking_point_templates as a string array
+And it contains sample_benchmarks as an array of {metric, value} objects (SampleBenchmark[])
 
-### Scenario: Report can be linked to up to 3 personas
+### Scenario: Report can be linked to 1 to 3 personas
 Given a report exists
-When personas are selected for that report
-Then up to 3 report_persona junction records can be created
+When personas are selected for that report (via setReportPersonas)
+Then 1 to 3 report_persona junction records are created
 And each has a selection_order (1, 2, or 3)
+And providing 0 or more than 3 persona IDs throws an error
+And existing selections for the report are replaced (not appended)
 
 ### Scenario: Fetch all personas via API
 Given the user is authenticated
@@ -56,6 +68,11 @@ And they are ordered by display_order ascending
 Given the user is authenticated
 When GET /api/buyer-personas/business-mogul is called
 Then the full persona record is returned with all JSONB fields
+
+### Scenario: Unknown slug returns 404
+Given the user is authenticated
+When GET /api/buyer-personas/unknown-slug is called
+Then a 404 response is returned with error "Buyer persona not found"
 
 ### Scenario: Persona slugs match the 8 Knox Brothers archetypes
 Given the seed data has been loaded
