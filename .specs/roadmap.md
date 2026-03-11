@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 80 |
+| ✅ Completed | 81 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 16 |
 | ⏸️ Blocked | 0 |
@@ -281,7 +281,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 140 | Report eval test cases — define evaluation criteria (data accuracy, completeness, narrative quality, formatting, actionability, persona alignment) with rubrics | vision | M | 36 | ✅ |
-| 141 | Report eval runner — execute report-level evals using LLM-as-judge scoring (1–5) with per-criterion breakdown | vision | L | 140, 57 | ⬜ |
+| 141 | Report eval runner — execute report-level evals using LLM-as-judge scoring (1–5) with per-criterion breakdown | vision | L | 140, 57 | ✅ |
 | 142 | Report eval dashboard — UI for running report evals, viewing scores, comparing across reports, filtering by criterion | vision | M | 141 | ⬜ |
 | 143 | Regression tracking — store eval scores over time, chart quality trends, alert on score degradation | vision | M | 141 | ⬜ |
 
