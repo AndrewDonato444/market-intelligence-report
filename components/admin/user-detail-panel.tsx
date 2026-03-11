@@ -53,6 +53,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -94,6 +95,27 @@ export function UserDetailPanel({ userId }: { userId: string }) {
       });
       setShowConfirm(false);
       // Refresh data to reflect new status
+      await fetchDetail();
+    } catch (err) {
+      setActionMessage({ type: "error", text: (err as Error).message });
+    } finally {
+      setActionLoading(false);
+    }
+  }, [userId, fetchDetail]);
+
+  const handleDelete = useCallback(async () => {
+    setActionLoading(true);
+    setActionMessage(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/delete`, {
+        method: "DELETE",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to delete account");
+      }
+      setActionMessage({ type: "success", text: "Account deleted" });
+      setShowDeleteConfirm(false);
       await fetchDetail();
     } catch (err) {
       setActionMessage({ type: "error", text: (err as Error).message });
@@ -390,6 +412,83 @@ export function UserDetailPanel({ userId }: { userId: string }) {
               >
                 {actionLoading ? "Unsuspending..." : "Unsuspend Account"}
               </button>
+            )}
+
+            {/* Delete Account Button */}
+            {!showDeleteConfirm && (
+              <button
+                onClick={() => setShowDeleteConfirm(true)}
+                style={{
+                  padding: "var(--spacing-2) var(--spacing-4)",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--color-error)",
+                  background: "var(--color-error-light, rgba(239,68,68,0.1))",
+                  color: "var(--color-error)",
+                  fontSize: "var(--text-sm)",
+                  fontWeight: "var(--font-medium)",
+                  cursor: "pointer",
+                  marginLeft: "var(--spacing-2)",
+                }}
+              >
+                Delete Account
+              </button>
+            )}
+
+            {/* Delete Confirmation Dialog */}
+            {showDeleteConfirm && (
+              <div
+                style={{
+                  padding: "var(--spacing-4)",
+                  background: "var(--color-error-light, rgba(239,68,68,0.05))",
+                  border: "1px solid var(--color-error)",
+                  borderRadius: "var(--radius-md)",
+                  marginTop: "var(--spacing-3)",
+                }}
+              >
+                <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-text)" }}>
+                  Delete Account
+                </p>
+                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+                  This will permanently delete {user.name}&apos;s account. Their reports will be kept for analytics but de-linked from their profile.
+                </p>
+                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-error)", fontWeight: "var(--font-medium)" }}>
+                  This action cannot be undone.
+                </p>
+                <div style={{ display: "flex", gap: "var(--spacing-2)", marginTop: "var(--spacing-3)" }}>
+                  <button
+                    onClick={() => setShowDeleteConfirm(false)}
+                    disabled={actionLoading}
+                    style={{
+                      padding: "var(--spacing-1) var(--spacing-3)",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface)",
+                      color: "var(--color-text-secondary)",
+                      fontSize: "var(--text-sm)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleDelete}
+                    disabled={actionLoading}
+                    style={{
+                      padding: "var(--spacing-1) var(--spacing-3)",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--color-error)",
+                      background: "var(--color-error)",
+                      color: "#fff",
+                      fontSize: "var(--text-sm)",
+                      fontWeight: "var(--font-medium)",
+                      cursor: actionLoading ? "not-allowed" : "pointer",
+                      opacity: actionLoading ? 0.6 : 1,
+                    }}
+                  >
+                    {actionLoading ? "Deleting..." : "Delete Account"}
+                  </button>
+                </div>
+              </div>
             )}
           </div>
         )}
