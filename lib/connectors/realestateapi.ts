@@ -59,6 +59,8 @@ export interface PropertySearchParams {
   propertyTypes?: string[];
   limit?: number;
   offset?: number;
+  lastSaleDateMin?: string; // YYYY-MM-DD
+  lastSaleDateMax?: string; // YYYY-MM-DD
 }
 
 export interface PropertySummary {
@@ -390,6 +392,8 @@ export async function searchProperties(
     ...(params.propertyTypes && { types: params.propertyTypes.join(",") }),
     ...(params.limit && { limit: params.limit }),
     ...(params.offset && { offset: params.offset }),
+    ...(params.lastSaleDateMin && { dateMin: params.lastSaleDateMin }),
+    ...(params.lastSaleDateMax && { dateMax: params.lastSaleDateMax }),
   });
 
   // Check cache
@@ -425,6 +429,8 @@ export async function searchProperties(
   }
   if (params.limit) body.size = params.limit;
   if (params.offset) body.start = params.offset;
+  if (params.lastSaleDateMin) body.last_sale_date_min = params.lastSaleDateMin;
+  if (params.lastSaleDateMax) body.last_sale_date_max = params.lastSaleDateMax;
 
   try {
     const { data: raw, responseTimeMs } = await apiRequest<RawSearchResponse>(

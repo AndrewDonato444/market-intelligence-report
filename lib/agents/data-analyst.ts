@@ -55,6 +55,10 @@ export interface YoYMetrics {
   pricePerSqftChange: number | null;
   averagePriceChange: number | null;
   totalVolumeChange: number | null;
+  /** Median Days on Market change (set from PropertyDetail cohort data) */
+  domChange: number | null;
+  /** List-to-Sale Ratio change (set from PropertyDetail cohort data) */
+  listToSaleChange: number | null;
 }
 
 // --- Core computations ---
@@ -98,6 +102,8 @@ export function computeYoY(
       pricePerSqftChange: null,
       averagePriceChange: null,
       totalVolumeChange: null,
+      domChange: null,
+      listToSaleChange: null,
     };
   }
 
@@ -147,7 +153,11 @@ export function computeYoY(
   const totalVolumeChange =
     priorTotal > 0 ? (currentTotal - priorTotal) / priorTotal : null;
 
-  return { medianPriceChange, volumeChange, pricePerSqftChange, averagePriceChange, totalVolumeChange };
+  return {
+    medianPriceChange, volumeChange, pricePerSqftChange, averagePriceChange, totalVolumeChange,
+    domChange: null,        // Set later from PropertyDetail cohort data
+    listToSaleChange: null, // Set later from PropertyDetail cohort data
+  };
 }
 
 export function assignRating(

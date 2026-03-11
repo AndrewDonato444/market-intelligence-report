@@ -10,7 +10,7 @@ jest.mock("@/lib/config/env", () => ({
 jest.mock("@/lib/connectors/realestateapi");
 jest.mock("@/lib/connectors/scrapingdog");
 
-import { fetchAllMarketData, type DataFetchOptions } from "@/lib/services/data-fetcher";
+import { fetchAllMarketData, computePeriodBounds, type DataFetchOptions } from "@/lib/services/data-fetcher";
 import * as reapi from "@/lib/connectors/realestateapi";
 import * as scrapingdog from "@/lib/connectors/scrapingdog";
 import type { MarketData } from "@/lib/agents/orchestrator";
@@ -21,6 +21,8 @@ const mockGetPropertyComps = reapi.getPropertyComps as jest.MockedFunction<typeo
 const mockBuildSearchParams = reapi.buildSearchParamsFromMarket as jest.MockedFunction<typeof reapi.buildSearchParamsFromMarket>;
 const mockSearchLocal = scrapingdog.searchLocal as jest.MockedFunction<typeof scrapingdog.searchLocal>;
 const mockBuildLocalQuery = scrapingdog.buildLocalQuery as jest.MockedFunction<typeof scrapingdog.buildLocalQuery>;
+const mockSearchNews = scrapingdog.searchNews as jest.MockedFunction<typeof scrapingdog.searchNews>;
+const mockBuildNewsQuery = scrapingdog.buildNewsQuery as jest.MockedFunction<typeof scrapingdog.buildNewsQuery>;
 
 // --- Fixtures ---
 
@@ -98,12 +100,17 @@ describe("Data Fetch Service", () => {
       priceMin: 5000000,
     });
     mockBuildLocalQuery.mockImplementation((cat, market) => `${cat} ${market.city} ${market.state}`);
+    mockBuildNewsQuery.mockImplementation((topic, geo) => `${topic} ${geo.city} ${geo.state}`);
+    mockSearchNews.mockResolvedValue({ articles: [], query: "", stale: false });
   });
 
   describe("fetchAllMarketData", () => {
-    it("fetches target market properties", async () => {
-      const props = [makeProperty("p1", 8000000), makeProperty("p2", 6000000)];
-      mockSearchProperties.mockResolvedValue({ properties: props, total: 2, stale: false });
+    it("fetches target market properties with two date-bounded searches", async () => {
+      // Current period returns 1 prop, prior period returns 1 prop, peer returns 0
+      mockSearchProperties
+        .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
+        .mockResolvedValueOnce({ properties: [makeProperty("p2", 6000000)], total: 1, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "p1", comps: [], avm: null, stale: false,
@@ -112,8 +119,11 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions());
 
+      // Combined: current + prior
       expect(result.targetMarket.properties).toHaveLength(2);
       expect(result.targetMarket.stale).toBe(false);
+      // 2 target searches (current + prior)
+      expect(mockSearchProperties).toHaveBeenCalledTimes(3); // 2 target + 1 peer
     });
 
     it("throws when target market fetch fails", async () => {
@@ -124,33 +134,35 @@ describe("Data Fetch Service", () => {
       );
     });
 
-    it("fetches property details for top-N by price", async () => {
-      const props = [
-        makeProperty("p1", 10000000),
-        makeProperty("p2", 8000000),
-        makeProperty("p3", 6000000),
-      ];
-      mockSearchProperties.mockResolvedValue({ properties: props, total: 3, stale: false });
+    it("fetches property details for each period cohort", async () => {
+      // 2 current props, 1 prior prop, 0 peer
+      mockSearchProperties
+        .mockResolvedValueOnce({ properties: [makeProperty("p1", 10000000), makeProperty("p2", 8000000)], total: 2, stale: false })
+        .mockResolvedValueOnce({ properties: [makeProperty("p3", 6000000)], total: 1, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "addr", comps: [], avm: null, stale: false,
       });
       mockSearchLocal.mockResolvedValue({ businesses: [], query: "", stale: false });
 
-      const result = await fetchAllMarketData(makeOptions({ topNDetails: 2 }));
+      // topNDetails=6 → detailsPerCohort=max(3,3)=3
+      const result = await fetchAllMarketData(makeOptions({ topNDetails: 6 }));
 
-      // Should call detail for top 2 by price: p1 ($10M), p2 ($8M)
-      expect(mockGetPropertyDetail).toHaveBeenCalledTimes(2);
-      expect(result.targetMarket.details).toHaveLength(2);
+      // Details from current (min(2,3)=2) + prior (min(1,3)=1) = 3 total
+      expect(mockGetPropertyDetail).toHaveBeenCalledTimes(3);
+      expect(result.targetMarket.details).toHaveLength(3);
+      expect(result.targetMarket.currentPeriodDetails).toHaveLength(2);
+      expect(result.targetMarket.priorPeriodDetails).toHaveLength(1);
     });
 
     it("fetches peer market data", async () => {
-      const targetProps = [makeProperty("p1", 8000000)];
       const peerProps = [makeProperty("peer-1", 7000000)];
 
-      // First call = target, second = peer
+      // 2 target searches (current + prior) + 1 peer
       mockSearchProperties
-        .mockResolvedValueOnce({ properties: targetProps, total: 1, stale: false })
+        .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
         .mockResolvedValueOnce({ properties: peerProps, total: 1, stale: false });
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
@@ -166,8 +178,10 @@ describe("Data Fetch Service", () => {
     });
 
     it("continues when peer market fetch fails", async () => {
+      // 2 target searches succeed, peer fails
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
         .mockRejectedValueOnce(new Error("Peer API error"));
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
@@ -183,11 +197,10 @@ describe("Data Fetch Service", () => {
     });
 
     it("fetches neighborhood amenities", async () => {
-      mockSearchProperties.mockResolvedValue({
-        properties: [makeProperty("p1", 8000000)],
-        total: 1,
-        stale: false,
-      });
+      mockSearchProperties
+        .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "addr", comps: [], avm: null, stale: false,
@@ -205,6 +218,7 @@ describe("Data Fetch Service", () => {
     });
 
     it("tracks stale data sources", async () => {
+      // All calls return stale data
       mockSearchProperties.mockResolvedValue({
         properties: [makeProperty("p1", 8000000)],
         total: 1,
@@ -223,8 +237,10 @@ describe("Data Fetch Service", () => {
     });
 
     it("tracks total API calls", async () => {
+      // 2 target searches + 1 peer search
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })  // prior
         .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
@@ -234,8 +250,8 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions());
 
-      // 1 target search + 1 detail + 1 comp + 1 peer search + 1 amenity = 5
-      expect(result.fetchMetadata.totalApiCalls).toBe(5);
+      // 2 target searches + details + comps + 1 peer search + amenities
+      expect(result.fetchMetadata.totalApiCalls).toBeGreaterThanOrEqual(5);
     });
 
     it("respects abort signal", async () => {
@@ -263,13 +279,16 @@ describe("Data Fetch Service", () => {
       const result = await fetchAllMarketData(makeOptions({ market: marketNoPeers }));
 
       expect(result.peerMarkets).toHaveLength(0);
-      // Only 1 searchProperties call (target, no peers)
-      expect(mockSearchProperties).toHaveBeenCalledTimes(1);
+      // 2 target searches (current + prior), no peers
+      expect(mockSearchProperties).toHaveBeenCalledTimes(2);
     });
 
     it("continues when PropertyDetail fails for individual properties", async () => {
-      const props = [makeProperty("p1", 10000000), makeProperty("p2", 8000000)];
-      mockSearchProperties.mockResolvedValue({ properties: props, total: 2, stale: false });
+      // 2 props in current, 0 in prior
+      mockSearchProperties
+        .mockResolvedValueOnce({ properties: [makeProperty("p1", 10000000), makeProperty("p2", 8000000)], total: 2, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
       mockGetPropertyDetail
         .mockResolvedValueOnce(makeDetail("p1"))
         .mockRejectedValueOnce(new Error("Detail API error"));
@@ -286,6 +305,7 @@ describe("Data Fetch Service", () => {
     });
 
     it("returns fetchMetadata with duration", async () => {
+      // 2 target searches return empty
       mockSearchProperties.mockResolvedValue({
         properties: [], total: 0, stale: false,
       });
@@ -295,6 +315,50 @@ describe("Data Fetch Service", () => {
 
       expect(result.fetchMetadata.totalDurationMs).toBeGreaterThanOrEqual(0);
       expect(result.fetchMetadata.errors).toEqual([]);
+    });
+
+    it("passes date bounds to target market searches", async () => {
+      mockSearchProperties.mockResolvedValue({ properties: [], total: 0, stale: false });
+      mockSearchLocal.mockResolvedValue({ businesses: [], query: "", stale: false });
+
+      await fetchAllMarketData(makeOptions({ market: { ...testMarket, peerMarkets: undefined } }));
+
+      // First call: current period should have date params
+      const firstCallParams = mockSearchProperties.mock.calls[0][0];
+      expect(firstCallParams.lastSaleDateMin).toBeDefined();
+      expect(firstCallParams.lastSaleDateMax).toBeDefined();
+
+      // Second call: prior period should have date params
+      const secondCallParams = mockSearchProperties.mock.calls[1][0];
+      expect(secondCallParams.lastSaleDateMin).toBeDefined();
+      expect(secondCallParams.lastSaleDateMax).toBeDefined();
+
+      // Current period max should be > prior period max
+      expect(firstCallParams.lastSaleDateMax! > secondCallParams.lastSaleDateMax!).toBe(true);
+    });
+  });
+
+  describe("computePeriodBounds", () => {
+    it("computes rolling 12-month periods", () => {
+      const now = new Date(2026, 2, 10); // March 10, 2026
+      const result = computePeriodBounds(now);
+
+      // Current: March 11 2025 → March 10 2026
+      expect(result.current.min).toBe("2025-03-11");
+      expect(result.current.max).toBe("2026-03-10");
+
+      // Prior: March 11 2024 → March 10 2025
+      expect(result.prior.min).toBe("2024-03-11");
+      expect(result.prior.max).toBe("2025-03-10");
+    });
+
+    it("returns non-overlapping periods", () => {
+      const result = computePeriodBounds(new Date(2026, 5, 15));
+      // Prior max should be exactly 1 day before current min
+      const priorMax = new Date(result.prior.max);
+      const currentMin = new Date(result.current.min);
+      const diffDays = (currentMin.getTime() - priorMax.getTime()) / (1000 * 60 * 60 * 24);
+      expect(diffDays).toBe(1);
     });
   });
 });

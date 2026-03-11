@@ -45,6 +45,10 @@ describe("Polish Agent", () => {
         medianPriceChange: 0.08,
         volumeChange: 0.12,
         pricePerSqftChange: 0.06,
+        averagePriceChange: null,
+        totalVolumeChange: null,
+        domChange: null,
+        listToSaleChange: null,
       },
       confidence: {
         level: "high",

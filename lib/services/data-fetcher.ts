@@ -51,8 +51,12 @@ export interface CompiledMarketData {
     /** All properties from the target market (current + prior period combined) */
     properties: PropertySummary[];
     stale: boolean;
-    /** Detailed records for top-N properties by price */
+    /** Detailed records for top-N properties by price (both periods combined) */
     details: PropertyDetail[];
+    /** Details fetched for current-period properties only */
+    currentPeriodDetails: PropertyDetail[];
+    /** Details fetched for prior-period properties only */
+    priorPeriodDetails: PropertyDetail[];
     /** Comparable property data + AVM estimates */
     comps: CompsResult[];
   };
@@ -141,18 +145,32 @@ export async function fetchAllMarketData(
     }
   }
 
-  // --- Step 1: Fetch target market properties ---
+  // --- Step 1: Fetch target market properties (two date-bounded searches) ---
   checkAbort(abortSignal);
 
   const searchParams = buildSearchParamsFromMarket(market);
-  let targetProperties: PropertySummary[] = [];
+  const periods = computePeriodBounds();
+  let currentPeriodProps: PropertySummary[] = [];
+  let priorPeriodProps: PropertySummary[] = [];
   let targetStale = false;
 
   try {
-    const result = await searchProperties(searchParams, connectorOpts);
-    targetProperties = result.properties;
-    targetStale = result.stale;
-    if (result.stale) staleDataSources.push("realestateapi:search");
+    // Current period (last 12 months)
+    const currentResult = await searchProperties(
+      { ...searchParams, lastSaleDateMin: periods.current.min, lastSaleDateMax: periods.current.max },
+      connectorOpts
+    );
+    currentPeriodProps = currentResult.properties;
+    if (currentResult.stale) targetStale = true;
+    apiCalls++;
+
+    // Prior period (12–24 months ago)
+    const priorResult = await searchProperties(
+      { ...searchParams, lastSaleDateMin: periods.prior.min, lastSaleDateMax: periods.prior.max },
+      connectorOpts
+    );
+    priorPeriodProps = priorResult.properties;
+    if (priorResult.stale) targetStale = true;
     apiCalls++;
   } catch (err) {
     // Target market fetch is fatal — rethrow
@@ -161,18 +179,31 @@ export async function fetchAllMarketData(
     );
   }
 
-  // --- Step 2: Fetch property details for top-N by price ---
+  const targetProperties = [...currentPeriodProps, ...priorPeriodProps];
+  if (targetStale) staleDataSources.push("realestateapi:search");
+
+  // --- Step 2: Fetch property details for both period cohorts ---
   checkAbort(abortSignal);
 
-  const details = await fetchPropertyDetails(
-    targetProperties,
-    topNDetails,
+  const detailsPerCohort = Math.max(Math.floor(topNDetails / 2), 3);
+
+  const currentDetails = await fetchPropertyDetails(
+    currentPeriodProps,
+    detailsPerCohort,
     connectorOpts,
     abortSignal,
     errors
   );
-  apiCalls += details.callCount;
-  if (details.stale) staleDataSources.push("realestateapi:detail");
+  const priorDetails = await fetchPropertyDetails(
+    priorPeriodProps,
+    detailsPerCohort,
+    connectorOpts,
+    abortSignal,
+    errors
+  );
+
+  apiCalls += currentDetails.callCount + priorDetails.callCount;
+  if (currentDetails.stale || priorDetails.stale) staleDataSources.push("realestateapi:detail");
 
   // --- Step 3: Fetch comps for representative properties ---
   checkAbort(abortSignal);
@@ -229,7 +260,9 @@ export async function fetchAllMarketData(
     targetMarket: {
       properties: targetProperties,
       stale: targetStale,
-      details: details.records,
+      details: [...currentDetails.records, ...priorDetails.records],
+      currentPeriodDetails: currentDetails.records,
+      priorPeriodDetails: priorDetails.records,
       comps: comps.records,
     },
     peerMarkets: peerMarkets.records,
@@ -501,4 +534,26 @@ function checkAbort(signal: AbortSignal): void {
   if (signal.aborted) {
     throw new Error("Data fetch aborted");
   }
+}
+
+/**
+ * Compute rolling 12-month period bounds for current vs prior year comparison.
+ * Returns YYYY-MM-DD date strings for each period.
+ */
+export function computePeriodBounds(now = new Date()): {
+  current: { min: string; max: string };
+  prior: { min: string; max: string };
+} {
+  const fmt = (d: Date) => d.toISOString().split("T")[0];
+
+  const currentMax = fmt(now);
+  const currentMin = fmt(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() + 1));
+
+  const priorMax = fmt(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()));
+  const priorMin = fmt(new Date(now.getFullYear() - 2, now.getMonth(), now.getDate() + 1));
+
+  return {
+    current: { min: currentMin, max: currentMax },
+    prior: { min: priorMin, max: priorMax },
+  };
 }

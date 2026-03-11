@@ -73,7 +73,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       { name: "Condo", propertyType: "condo", count: 42, medianPrice: 2800000, averagePrice: 3500000, minPrice: 1000000, maxPrice: 7200000, medianPricePerSqft: 1400, rating: "B+", lowSample: false },
       { name: "Estate", propertyType: "estate", count: 24, medianPrice: 12000000, averagePrice: 15000000, minPrice: 6000000, maxPrice: 42000000, medianPricePerSqft: 2800, rating: "A+", lowSample: false },
     ],
-    yoy: { medianPriceChange: 0.08, volumeChange: 0.12, pricePerSqftChange: 0.05 },
+    yoy: { medianPriceChange: 0.08, volumeChange: 0.12, pricePerSqftChange: 0.05, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     insightsIndex: {
       liquidity: { score: 7, label: "Strong", components: { cashBuyerPct: 0.54, transactionVolume: 120 } },
       timing: { score: 6, label: "Favorable", components: {} },

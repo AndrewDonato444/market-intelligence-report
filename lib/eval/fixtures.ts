@@ -96,6 +96,10 @@ const strongAnalytics: ComputedAnalytics = {
     medianPriceChange: 0.082,
     volumeChange: 0.05,
     pricePerSqftChange: 0.065,
+    averagePriceChange: null,
+    totalVolumeChange: null,
+    domChange: null,
+    listToSaleChange: null,
   },
   insightsIndex: {
     liquidity: dimScore(8, "Strong", { daysOnMarket: 45, turnover: 0.24 }),
@@ -155,7 +159,7 @@ const strongAnalytics: ComputedAnalytics = {
       totalProperties: 620,
       totalVolume: 1_980_000_000,
       rating: "B+",
-      yoy: { medianPriceChange: 0.065, volumeChange: 0.03, pricePerSqftChange: 0.05 },
+      yoy: { medianPriceChange: 0.065, volumeChange: 0.03, pricePerSqftChange: 0.05, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     },
     {
       name: "Miami Beach",
@@ -166,7 +170,7 @@ const strongAnalytics: ComputedAnalytics = {
       totalProperties: 1_200,
       totalVolume: 3_360_000_000,
       rating: "B+",
-      yoy: { medianPriceChange: 0.045, volumeChange: 0.08, pricePerSqftChange: 0.035 },
+      yoy: { medianPriceChange: 0.045, volumeChange: 0.08, pricePerSqftChange: 0.035, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     },
   ],
   peerRankings: [
@@ -214,7 +218,7 @@ const lowDataAnalytics: ComputedAnalytics = {
   segments: [
     segment("Mountain", 5, 1_200_000, { lowSample: true, rating: "C" }),
   ],
-  yoy: { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null },
+  yoy: { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
   insightsIndex: {
     liquidity: dimScore(2, "Weak", {}),
     timing: dimScore(3, "Uncertain", {}),
@@ -275,7 +279,7 @@ const singleSegmentAnalytics: ComputedAnalytics = {
   segments: [
     segment("Mountain Estate", 120, 8_000_000, { medianPricePerSqft: 2_200, rating: "A" }),
   ],
-  yoy: { medianPriceChange: 0.11, volumeChange: -0.03, pricePerSqftChange: 0.09 },
+  yoy: { medianPriceChange: 0.11, volumeChange: -0.03, pricePerSqftChange: 0.09, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
   insightsIndex: {
     liquidity: dimScore(6, "Moderate", { daysOnMarket: 68, turnover: 0.15 }),
     timing: dimScore(5, "Neutral", {}),
@@ -326,7 +330,7 @@ const noYoyAnalytics: ComputedAnalytics = {
     segment("Desert Estate", 120, 2_500_000, { medianPricePerSqft: 900, rating: "B+" }),
     segment("Golf Course", 80, 1_800_000, { medianPricePerSqft: 750, rating: "B" }),
   ],
-  yoy: { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null },
+  yoy: { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
   confidence: { level: "medium", sampleSize: 200, detailCoverage: 0.5, staleDataSources: [] },
 };
 
@@ -385,7 +389,7 @@ const ultraLuxuryAnalytics: ComputedAnalytics = {
     segment("Modern", 28, 14_000_000, { medianPricePerSqft: 3_600, rating: "A" }),
     segment("Condo/Penthouse", 16, 8_500_000, { medianPricePerSqft: 3_200, rating: "A-" }),
   ],
-  yoy: { medianPriceChange: 0.045, volumeChange: -0.08, pricePerSqftChange: 0.055 },
+  yoy: { medianPriceChange: 0.045, volumeChange: -0.08, pricePerSqftChange: 0.055, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
   confidence: { level: "high", sampleSize: 89, detailCoverage: 0.9, staleDataSources: [] },
 };
 
@@ -417,7 +421,7 @@ const mixedConfidenceAnalytics: ComputedAnalytics = {
     segment("New Build", 60, 7_200_000, { medianPricePerSqft: 2_000, rating: "B+" }),
     segment("Tear-Down Lot", 60, 4_000_000, { medianPricePerSqft: null, rating: "C+", lowSample: false }),
   ],
-  yoy: { medianPriceChange: 0.06, volumeChange: -0.02, pricePerSqftChange: 0.07 },
+  yoy: { medianPriceChange: 0.06, volumeChange: -0.02, pricePerSqftChange: 0.07, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
   confidence: { level: "medium", sampleSize: 300, detailCoverage: 0.55, staleDataSources: ["ScrapingDog (Local Search)"] },
 };
 
@@ -442,7 +446,7 @@ const emptyAnalytics: ComputedAnalytics = {
     rating: "F",
   },
   segments: [],
-  yoy: { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null },
+  yoy: { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
   insightsIndex: {
     liquidity: dimScore(0, "None", {}),
     timing: dimScore(0, "None", {}),

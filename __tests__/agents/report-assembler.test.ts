@@ -34,7 +34,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       { name: "SFR", propertyType: "SFR", count: 20, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false },
       { name: "Condo", propertyType: "Condo", count: 10, medianPrice: 5000000, averagePrice: 5500000, minPrice: 3000000, maxPrice: 9000000, medianPricePerSqft: 1200, rating: "B+", lowSample: false },
     ],
-    yoy: { medianPriceChange: 0.08, volumeChange: 0.05, pricePerSqftChange: 0.06 },
+    yoy: { medianPriceChange: 0.08, volumeChange: 0.05, pricePerSqftChange: 0.06, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     insightsIndex: {
       liquidity: { score: 7, label: "Strong", components: { cashBuyerPct: 0.4, transactionVolume: 30, freeClearPct: 0.3 } },
       timing: { score: 6, label: "Favorable", components: { priceMomentum: 0.08, medianDOM: 45, listToSaleRatio: 0.97 } },
@@ -65,7 +65,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       { name: "34102", zipCode: "34102", propertyCount: 20, medianPrice: 9000000, medianPricePerSqft: 1700, yoyPriceChange: 0.1, amenities: [] },
     ],
     peerComparisons: [
-      { name: "Palm Beach", geography: { city: "Palm Beach", state: "FL" }, medianPrice: 7000000, averagePrice: 7500000, medianPricePerSqft: 1400, totalProperties: 25, totalVolume: 175000000, rating: "B+", yoy: { medianPriceChange: 0.05, volumeChange: 0.02, pricePerSqftChange: 0.04 } },
+      { name: "Palm Beach", geography: { city: "Palm Beach", state: "FL" }, medianPrice: 7000000, averagePrice: 7500000, medianPricePerSqft: 1400, totalProperties: 25, totalVolume: 175000000, rating: "B+", yoy: { medianPriceChange: 0.05, volumeChange: 0.02, pricePerSqftChange: 0.04, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null } },
     ],
     peerRankings: [
       { metric: "Median Price", targetRank: 1, totalMarkets: 2 },

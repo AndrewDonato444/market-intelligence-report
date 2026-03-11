@@ -12,6 +12,7 @@ jest.mock("@/lib/config/env", () => ({
 import {
   computeMarketAnalytics,
   computeDetailMetrics,
+  computeDetailYoY,
   computeInsightsIndex,
   computeDashboard,
   computeNeighborhoods,
@@ -107,6 +108,8 @@ function makeCompiledData(
         makeDetail({ id: "p1" }),
         makeDetail({ id: "p2" }),
       ],
+      currentPeriodDetails: [makeDetail({ id: "p1" })],
+      priorPeriodDetails: [makeDetail({ id: "p2" })],
       comps: [],
     },
     peerMarkets: [],
@@ -216,6 +219,67 @@ describe("Market Analytics Engine", () => {
     });
   });
 
+  describe("computeDetailYoY", () => {
+    it("computes DOM and list-to-sale changes from two cohorts", () => {
+      const currentDetails = [
+        makeDetail({
+          mlsHistory: [
+            { price: "10000000", status: "Sold", statusDate: "2026-01-01", daysOnMarket: "40", agentName: null, agentOffice: null, beds: null, baths: null },
+          ],
+          saleHistory: [{ date: "2026-01-15", price: 9700000, buyerNames: null, sellerNames: null, documentType: null, transactionType: null, purchaseMethod: null }],
+        }),
+      ];
+      const priorDetails = [
+        makeDetail({
+          id: "p2",
+          mlsHistory: [
+            { price: "9000000", status: "Sold", statusDate: "2025-01-01", daysOnMarket: "50", agentName: null, agentOffice: null, beds: null, baths: null },
+          ],
+          saleHistory: [{ date: "2025-01-20", price: 8800000, buyerNames: null, sellerNames: null, documentType: null, transactionType: null, purchaseMethod: null }],
+        }),
+      ];
+
+      const result = computeDetailYoY(currentDetails, priorDetails);
+
+      // DOM: current=40, prior=50 → (40-50)/50 = -0.20
+      expect(result.domChange).toBeCloseTo(-0.20, 2);
+      // LTS: current=9.7M/10M=0.97, prior=8.8M/9M≈0.9778 → (0.97-0.9778)/0.9778
+      expect(result.listToSaleChange).toBeDefined();
+      expect(result.listToSaleChange).not.toBeNull();
+    });
+
+    it("returns null when prior cohort is empty", () => {
+      const currentDetails = [
+        makeDetail({
+          mlsHistory: [
+            { price: "10000000", status: "Sold", statusDate: "2026-01-01", daysOnMarket: "40", agentName: null, agentOffice: null, beds: null, baths: null },
+          ],
+        }),
+      ];
+
+      const result = computeDetailYoY(currentDetails, []);
+
+      expect(result.domChange).toBeNull();
+      expect(result.listToSaleChange).toBeNull();
+    });
+
+    it("returns null when both cohorts are empty", () => {
+      const result = computeDetailYoY([], []);
+      expect(result.domChange).toBeNull();
+      expect(result.listToSaleChange).toBeNull();
+    });
+
+    it("returns null when no MLS history exists in either cohort", () => {
+      const currentDetails = [makeDetail()];
+      const priorDetails = [makeDetail({ id: "p2" })];
+
+      const result = computeDetailYoY(currentDetails, priorDetails);
+
+      expect(result.domChange).toBeNull();
+      expect(result.listToSaleChange).toBeNull();
+    });
+  });
+
   describe("computeInsightsIndex", () => {
     const baseMarket: ComputedAnalytics["market"] = {
       totalProperties: 50,
@@ -230,6 +294,10 @@ describe("Market Analytics Engine", () => {
       medianPriceChange: 0.08,
       volumeChange: 0.05,
       pricePerSqftChange: 0.06,
+      averagePriceChange: null,
+      totalVolumeChange: null,
+      domChange: null,
+      listToSaleChange: null,
     };
 
     const baseDetailMetrics: DetailDerivedMetrics = {
@@ -313,6 +381,8 @@ describe("Market Analytics Engine", () => {
       pricePerSqftChange: 0.06,
       averagePriceChange: 0.07,
       totalVolumeChange: 0.12,
+      domChange: -0.15,
+      listToSaleChange: 0.02,
     };
 
     const detailMetrics: DetailDerivedMetrics = {
@@ -354,17 +424,40 @@ describe("Market Analytics Engine", () => {
     });
 
     it("assigns flat trend for small changes", () => {
-      const flatYoY = { medianPriceChange: 0.005, volumeChange: -0.005, pricePerSqftChange: 0.003, averagePriceChange: 0.004, totalVolumeChange: -0.002 };
+      const flatYoY = { medianPriceChange: 0.005, volumeChange: -0.005, pricePerSqftChange: 0.003, averagePriceChange: 0.004, totalVolumeChange: -0.002, domChange: 0.005, listToSaleChange: -0.003 };
       const result = computeDashboard(market, flatYoY, detailMetrics, segments);
       const medianSold = result.powerFive.find((i) => i.name === "Median Sold Price");
       expect(medianSold?.trend).toBe("flat");
     });
 
     it("assigns down trend for negative changes", () => {
-      const downYoY = { medianPriceChange: -0.05, volumeChange: -0.1, pricePerSqftChange: -0.03, averagePriceChange: -0.04, totalVolumeChange: -0.15 };
+      const downYoY = { medianPriceChange: -0.05, volumeChange: -0.1, pricePerSqftChange: -0.03, averagePriceChange: -0.04, totalVolumeChange: -0.15, domChange: 0.20, listToSaleChange: -0.05 };
       const result = computeDashboard(market, downYoY, detailMetrics, segments);
       const medianSold = result.powerFive.find((i) => i.name === "Median Sold Price");
       expect(medianSold?.trend).toBe("down");
+    });
+
+    it("assigns DOM trend from yoy.domChange", () => {
+      const result = computeDashboard(market, yoy, detailMetrics, segments);
+      const dom = result.powerFive.find((i) => i.name === "Median Days on Market");
+      expect(dom?.trend).toBe("down"); // -15% DOM change
+      expect(dom?.trendValue).toBe(-0.15);
+    });
+
+    it("assigns list-to-sale trend from yoy.listToSaleChange", () => {
+      const result = computeDashboard(market, yoy, detailMetrics, segments);
+      const lts = result.powerFive.find((i) => i.name === "List-to-Sale Ratio");
+      expect(lts?.trend).toBe("up"); // +2% change
+      expect(lts?.trendValue).toBe(0.02);
+    });
+
+    it("shows null trends for DOM/LTS when YoY data unavailable", () => {
+      const noDetailYoY = { ...yoy, domChange: null, listToSaleChange: null };
+      const result = computeDashboard(market, noDetailYoY, detailMetrics, segments);
+      const dom = result.powerFive.find((i) => i.name === "Median Days on Market");
+      expect(dom?.trend).toBeNull();
+      const lts = result.powerFive.find((i) => i.name === "List-to-Sale Ratio");
+      expect(lts?.trend).toBeNull();
     });
 
     it("passes raw list-to-sale ratio decimal", () => {
@@ -481,6 +574,10 @@ describe("Market Analytics Engine", () => {
       medianPriceChange: 0.08,
       volumeChange: 0.05,
       pricePerSqftChange: 0.06,
+      averagePriceChange: null,
+      totalVolumeChange: null,
+      domChange: null,
+      listToSaleChange: null,
     };
 
     it("computes metrics for each peer market", () => {
@@ -552,7 +649,7 @@ describe("Market Analytics Engine", () => {
     ];
 
     it("creates a scorecard entry per segment", () => {
-      const yoy = { medianPriceChange: 0.08, volumeChange: 0.05, pricePerSqftChange: 0.06 };
+      const yoy = { medianPriceChange: 0.08, volumeChange: 0.05, pricePerSqftChange: 0.06, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null };
       const result = computeScorecard(segments, yoy);
       expect(result).toHaveLength(2);
       expect(result[0].segment).toBe("SFR");
@@ -560,27 +657,27 @@ describe("Market Analytics Engine", () => {
     });
 
     it("assigns trend based on YoY median price change", () => {
-      const yoyUp = { medianPriceChange: 0.08, volumeChange: null, pricePerSqftChange: null };
+      const yoyUp = { medianPriceChange: 0.08, volumeChange: null, pricePerSqftChange: null, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null };
       const result = computeScorecard(segments, yoyUp);
       expect(result[0].trend).toBe("up");
 
-      const yoyDown = { medianPriceChange: -0.05, volumeChange: null, pricePerSqftChange: null };
+      const yoyDown = { medianPriceChange: -0.05, volumeChange: null, pricePerSqftChange: null, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null };
       const resultDown = computeScorecard(segments, yoyDown);
       expect(resultDown[0].trend).toBe("down");
 
-      const yoyFlat = { medianPriceChange: 0.005, volumeChange: null, pricePerSqftChange: null };
+      const yoyFlat = { medianPriceChange: 0.005, volumeChange: null, pricePerSqftChange: null, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null };
       const resultFlat = computeScorecard(segments, yoyFlat);
       expect(resultFlat[0].trend).toBe("flat");
     });
 
     it("assigns flat trend when YoY is null", () => {
-      const yoy = { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null };
+      const yoy = { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null };
       const result = computeScorecard(segments, yoy);
       expect(result[0].trend).toBe("flat");
     });
 
     it("preserves segment ratings and prices", () => {
-      const yoy = { medianPriceChange: 0.08, volumeChange: 0.05, pricePerSqftChange: 0.06 };
+      const yoy = { medianPriceChange: 0.08, volumeChange: 0.05, pricePerSqftChange: 0.06, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null };
       const result = computeScorecard(segments, yoy);
       expect(result[0].rating).toBe("A");
       expect(result[0].medianPrice).toBe(8000000);
@@ -636,6 +733,8 @@ describe("Market Analytics Engine", () => {
           properties: [],
           stale: false,
           details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
           comps: [],
         },
       });
@@ -653,7 +752,7 @@ describe("Market Analytics Engine", () => {
         makeProperty({ id: `p${i}`, price: 8000000 + i * 100000, lastSalePrice: 8000000 + i * 100000 })
       );
       const data = makeCompiledData({
-        targetMarket: { properties: props, stale: false, details: [], comps: [] },
+        targetMarket: { properties: props, stale: false, details: [], currentPeriodDetails: [], priorPeriodDetails: [], comps: [] },
       });
       const result = computeMarketAnalytics(data, testMarket);
       expect(result.confidence.level).toBe("high");
@@ -665,7 +764,7 @@ describe("Market Analytics Engine", () => {
         makeProperty({ id: "p2", price: 9000000, lastSalePrice: 9000000 }),
       ];
       const data = makeCompiledData({
-        targetMarket: { properties: props, stale: false, details: [], comps: [] },
+        targetMarket: { properties: props, stale: false, details: [], currentPeriodDetails: [], priorPeriodDetails: [], comps: [] },
       });
       const result = computeMarketAnalytics(data, testMarket);
       expect(result.confidence.level).toBe("medium");
@@ -679,6 +778,8 @@ describe("Market Analytics Engine", () => {
           ),
           stale: true,
           details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
           comps: [],
         },
       });
@@ -694,6 +795,8 @@ describe("Market Analytics Engine", () => {
           ),
           stale: false,
           details: [makeDetail(), makeDetail({ id: "p2" }), makeDetail({ id: "p3" })],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
           comps: [],
         },
       });
@@ -730,6 +833,8 @@ describe("Market Analytics Engine", () => {
           ],
           stale: false,
           details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
           comps: [],
         },
       });
@@ -748,6 +853,8 @@ describe("Market Analytics Engine", () => {
           ],
           stale: false,
           details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
           comps: [],
         },
       });

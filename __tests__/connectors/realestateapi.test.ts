@@ -598,6 +598,44 @@ describe("RealEstateAPI Connector", () => {
       expect(fetchBody.property_type).toBeUndefined();
     });
 
+    it("CONN-DATE-01 | sends date params in request body when provided", async () => {
+      await searchProperties({
+        city: "Naples",
+        state: "FL",
+        lastSaleDateMin: "2025-03-11",
+        lastSaleDateMax: "2026-03-10",
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(fetchBody.last_sale_date_min).toBe("2025-03-11");
+      expect(fetchBody.last_sale_date_max).toBe("2026-03-10");
+    });
+
+    it("CONN-DATE-02 | omits date params when not provided", async () => {
+      await searchProperties({
+        city: "Naples",
+        state: "FL",
+      });
+
+      const fetchBody = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(fetchBody.last_sale_date_min).toBeUndefined();
+      expect(fetchBody.last_sale_date_max).toBeUndefined();
+    });
+
+    it("CONN-DATE-03 | includes date params in cache key", async () => {
+      await searchProperties({
+        city: "Naples",
+        state: "FL",
+        lastSaleDateMin: "2025-03-11",
+        lastSaleDateMax: "2026-03-10",
+      });
+
+      const cacheKeyCall = mockCacheBuildKey.mock.calls[0];
+      const params = cacheKeyCall[2];
+      expect(params.dateMin).toBe("2025-03-11");
+      expect(params.dateMax).toBe("2026-03-10");
+    });
+
     it("CONN-STA-03 | Regression: sends 2-letter state code in API body even when given full name", async () => {
       await searchProperties({
         city: "Palm Beach",

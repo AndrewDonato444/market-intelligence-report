@@ -125,7 +125,7 @@ function buildAnalysis(): DataAnalystOutput {
       { name: "condo", propertyType: "condo", count: 15, medianPrice: 6200000, averagePrice: 7800000, minPrice: 5000000, maxPrice: 18500000, medianPricePerSqft: 1850, rating: "B+", lowSample: false },
       { name: "estate", propertyType: "estate", count: 5, medianPrice: 22000000, averagePrice: 25600000, minPrice: 15000000, maxPrice: 42000000, medianPricePerSqft: 3100, rating: "A+", lowSample: false },
     ],
-    yoy: { medianPriceChange: 0.124, volumeChange: 0.12, pricePerSqftChange: 0.06 },
+    yoy: { medianPriceChange: 0.124, volumeChange: 0.12, pricePerSqftChange: 0.06, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     confidence: { level: "high", staleDataSources: [], sampleSize: 45 },
   };
 }

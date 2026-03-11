@@ -23,7 +23,7 @@
 |--------|-------|
 | ✅ Completed | 49 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 0 |
+| ⬜ Pending | 1 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-10
@@ -72,8 +72,9 @@
 | 23 | API cost tracking + usage logging | vision | S | 20 | ✅ |
 | 24 | Data freshness indicators + staleness fallback | vision | S | 20, 22 | ✅ |
 | 25 | ScrapingDog connector (neighborhood intelligence, local amenities, area context) | vision | M | 20 | ✅ |
+| 26 | Agent output cache — hash-based dedup of Claude calls when source data unchanged | user-request | M | 20, 30 | ⬜ |
 
-**Goal**: The system can fetch real market data, cache it intelligently, and track costs per API call.
+**Goal**: The system can fetch real market data, cache it intelligently, cache agent outputs to minimize token spend, and track costs per API call.
 
 ---
 

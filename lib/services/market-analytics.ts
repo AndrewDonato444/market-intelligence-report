@@ -175,6 +175,13 @@ export function computeMarketAnalytics(
   // --- Detail-derived metrics ---
   const detailMetrics = computeDetailMetrics(details);
 
+  // --- Detail-derived YoY (DOM, List-to-Sale) ---
+  const currentPeriodDetails = data.targetMarket.currentPeriodDetails ?? [];
+  const priorPeriodDetails = data.targetMarket.priorPeriodDetails ?? [];
+  const detailYoY = computeDetailYoY(currentPeriodDetails, priorPeriodDetails);
+  yoy.domChange = detailYoY.domChange;
+  yoy.listToSaleChange = detailYoY.listToSaleChange;
+
   // --- Confidence ---
   const confidence = computeConfidence(data);
 
@@ -348,6 +355,21 @@ export function computeDetailMetrics(details: PropertyDetail[]): DetailDerivedMe
   };
 }
 
+// --- Detail-derived YoY ---
+
+export function computeDetailYoY(
+  currentDetails: PropertyDetail[],
+  priorDetails: PropertyDetail[]
+): { domChange: number | null; listToSaleChange: number | null } {
+  const current = computeDetailMetrics(currentDetails);
+  const prior = computeDetailMetrics(priorDetails);
+
+  return {
+    domChange: percentChange(current.medianDaysOnMarket, prior.medianDaysOnMarket),
+    listToSaleChange: percentChange(current.listToSaleRatio, prior.listToSaleRatio),
+  };
+}
+
 // --- Confidence ---
 
 function computeConfidence(data: CompiledMarketData): ComputedAnalytics["confidence"] {
@@ -518,8 +540,8 @@ export function computeDashboard(
     {
       name: "Median Days on Market",
       value: detailMetrics.medianDaysOnMarket,
-      trend: null,
-      trendValue: null,
+      trend: trendDir(yoy.domChange),
+      trendValue: yoy.domChange,
       category: "power_five",
     },
     {
@@ -527,8 +549,8 @@ export function computeDashboard(
       value: detailMetrics.listToSaleRatio != null
         ? detailMetrics.listToSaleRatio
         : null,
-      trend: null,
-      trendValue: null,
+      trend: trendDir(yoy.listToSaleChange),
+      trendValue: yoy.listToSaleChange,
       category: "power_five",
     },
     {
