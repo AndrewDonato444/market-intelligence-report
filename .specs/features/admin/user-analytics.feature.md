@@ -57,7 +57,7 @@ And rows are sorted by report count descending
 ### Scenario: Churn indicators section shows at-risk users
 Given an admin is on the user analytics page
 When data loads
-Then a "Churn Indicators" section shows users who were active (report in prior 60d) but inactive (no report in last 30d)
+Then a "Churn Indicators" section shows users who were active (report in prior 90d) but inactive (no report in last 30d)
 And each row shows: user name, email, last report date, days since last report
 And the section header shows the total count of at-risk users
 
@@ -158,14 +158,14 @@ Then they are navigated to `/admin/users/{userId}` (the admin user detail page)
 │  Top Report Generators (font: sans, text: lg, weight: semibold)          │
 │                                                                          │
 │  ┌─ Table (font: sans) ────────────────────────────────────────────-┐   │
-│  │  NAME (text: xs, weight: medium,    REPORTS  LAST REPORT        │   │
+│  │  NAME (text: xs, weight: medium,  EMAIL   REPORTS  LAST REPORT  │   │
 │  │        color: text-secondary)                                    │   │
 │  │  ─────────────────────────────────────────────────────────────   │   │
-│  │  Jordan Ellis (link, color: accent)    47     Mar 10, 2026      │   │
-│  │  Morgan Hale                           38     Mar 9, 2026       │   │
-│  │  Taylor Kim                            31     Mar 11, 2026      │   │
-│  │  Alex Rivera                           28     Mar 8, 2026       │   │
-│  │  Pat Donovan                           22     Mar 7, 2026       │   │
+│  │  Jordan Ellis (link, color: accent) jordan@... 47  Mar 10, 2026 │   │
+│  │  Morgan Hale                        morgan@... 38  Mar 9, 2026  │   │
+│  │  Taylor Kim                         taylor@... 31  Mar 11, 2026 │   │
+│  │  Alex Rivera                        alex@...   28  Mar 8, 2026  │   │
+│  │  Pat Donovan                        pat@...    22  Mar 7, 2026  │   │
 │  │  ...                                                             │   │
 │  └──────────────────────────────────────────────────────────────────-┘   │
 │                                                                          │
@@ -174,7 +174,7 @@ Then they are navigated to `/admin/users/{userId}` (the admin user detail page)
 ┌─ Churn Indicators (bg: surface, radius: md, shadow: sm, p: spacing-6) ─-┐
 │                                                                          │
 │  At-Risk Users (font: sans, text: lg, weight: semibold)                  │
-│  12 users active in prior 60d but no report in last 30d                  │
+│  12 users active in prior 90d but no report in last 30d                  │
 │  (font: sans, text: sm, color: text-secondary)                           │
 │                                                                          │
 │  ┌─ Table (font: sans) ────────────────────────────────────────────-┐   │
@@ -193,7 +193,7 @@ Then they are navigated to `/admin/users/{userId}` (the admin user detail page)
 
 ### Enhanced `/api/admin/analytics/users` endpoint
 
-**Query Parameters**: `period` (7d, 30d, 90d, 365d, all), `granularity` (daily, weekly, monthly)
+**Query Parameters**: `period` (7d, 30d, 90d, 365d), `granularity` (daily, weekly, monthly)
 
 **Response Shape**:
 ```json
@@ -232,7 +232,7 @@ Then they are navigated to `/admin/users/{userId}` (the admin user detail page)
 
 - **Active users**: `SELECT DISTINCT userId FROM reports WHERE createdAt >= NOW() - 30d`
 - **Power users**: `SELECT userId, COUNT(*) as reportCount, MAX(createdAt) as lastReport FROM reports GROUP BY userId ORDER BY reportCount DESC LIMIT 10`
-- **Churn risk**: Users who have a report in the (30d-90d ago) window but NOT in the last 30d window. Ordered by days since last report ascending.
+- **Churn risk**: Users who have a report in the (30d–90d ago) window but NOT in the last 30d window. Ordered by last report date ascending (i.e. most days since last report first).
 - **Signups**: Group `users.createdAt` by date bucket (same zero-fill pattern as volume endpoint)
 
 ## Component References

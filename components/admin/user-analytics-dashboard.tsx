@@ -246,7 +246,7 @@ export function UserAnalyticsDashboard() {
               At-Risk Users
             </h2>
             <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mb-[var(--spacing-4)]">
-              {data.churnRisk.length} users active in prior 60d but no report in last 30d
+              {data.churnRisk.length} users active in prior 90d but no report in last 30d
             </p>
 
             {data.churnRisk.length > 0 ? (
