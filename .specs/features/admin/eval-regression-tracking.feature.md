@@ -65,8 +65,10 @@ When they call GET or POST to /api/eval/report/history
 Then they receive a 403 Forbidden response
 
 ## Technical Notes
-- DB table: report_eval_results (id, runId, testCaseId, criterion, score, breakdown JSONB, durationMs, createdAt)
+- DB table: report_eval_results (id, runId, testCaseId, criterion, score, breakdown JSONB, judgeReason TEXT, durationMs INTEGER, error TEXT, createdAt)
 - runId groups results from the same batch run
+- `saveEvalResult` persists a single result; `saveBatchResults` persists an array in one INSERT
 - Trend chart uses simple SVG line chart with 6 criterion lines
-- Regression detection: alert if drop > 0.5 between latest two runs
-- History API returns max 90 days by default
+- Regression detection: alert if drop > 0.5 (strictly) between latest two runs
+- History API GET returns max 90 days by default (configurable 1–365 via `?days=` param)
+- History API POST saves a single result; 422 if required fields missing
