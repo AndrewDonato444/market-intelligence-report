@@ -48,13 +48,13 @@ export function LandingNav() {
           </Link>
           <Link
             href="/sign-up"
-            className={`font-[family-name:var(--font-inter)] text-sm transition-colors duration-[var(--duration-default)] ${
+            className={`font-[family-name:var(--font-inter)] text-sm font-medium transition-colors duration-[var(--duration-default)] ${
               scrolled
-                ? "text-[var(--color-text-secondary)]"
-                : "text-[var(--color-text-tertiary)]"
+                ? "bg-[var(--color-accent)] text-[var(--color-primary)] px-4 py-1.5 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)]"
+                : "text-[var(--color-accent)] hover:text-[var(--color-accent-hover)]"
             }`}
           >
-            Request Access
+            Get Started
           </Link>
         </div>
       </div>
