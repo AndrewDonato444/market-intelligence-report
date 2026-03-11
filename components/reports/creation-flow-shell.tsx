@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageTransition } from "@/lib/animations";
 import { CreationStepIndicator } from "./creation-step-indicator";
+import { StepYourMarket } from "./steps/step-your-market";
+import type { StepMarketData } from "./steps/step-your-market";
 import type { PageDirection } from "@/lib/animations";
 
 const STEPS = [
@@ -50,6 +52,8 @@ interface CreationFlowShellProps {
 export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<PageDirection>("forward");
+  const [stepValid, setStepValid] = useState(false);
+  const marketDataRef = useRef<StepMarketData | null>(null);
 
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
@@ -58,6 +62,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     if (!isLastStep) {
       setDirection("forward");
       setCurrentStep((s) => s + 1);
+      setStepValid(false);
     }
   };
 
@@ -65,10 +70,48 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     if (!isFirstStep) {
       setDirection("backward");
       setCurrentStep((s) => s - 1);
+      setStepValid(false);
     }
   };
 
+  const handleMarketStepComplete = useCallback((data: StepMarketData) => {
+    marketDataRef.current = data;
+  }, []);
+
+  const handleMarketValidation = useCallback((valid: boolean) => {
+    setStepValid(valid);
+  }, []);
+
   const step = STEPS[currentStep];
+
+  const renderStepContent = () => {
+    if (currentStep === 0) {
+      return (
+        <StepYourMarket
+          markets={markets}
+          onStepComplete={handleMarketStepComplete}
+          onValidationChange={handleMarketValidation}
+        />
+      );
+    }
+
+    // Placeholder for steps 1-5 (features #153-#157)
+    return (
+      <div className="py-8 text-center">
+        <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-2">
+          {step.name}
+        </h2>
+        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+          {step.description}
+        </p>
+        <div className="mt-6 p-4 rounded-[var(--radius-sm)] border border-dashed border-[var(--color-border)] bg-[var(--color-background)]">
+          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+            Step content will be implemented in feature #{152 + currentStep}
+          </p>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -91,19 +134,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
               exit="exit"
               data-testid={`step-content-${currentStep}`}
             >
-              <div className="py-8 text-center">
-                <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-2">
-                  {step.name}
-                </h2>
-                <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-                  {step.description}
-                </p>
-                <div className="mt-6 p-4 rounded-[var(--radius-sm)] border border-dashed border-[var(--color-border)] bg-[var(--color-background)]">
-                  <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
-                    Step content will be implemented in feature #{152 + currentStep}
-                  </p>
-                </div>
-              </div>
+              {renderStepContent()}
             </motion.div>
           </AnimatePresence>
         </div>

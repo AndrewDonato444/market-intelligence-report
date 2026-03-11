@@ -300,13 +300,14 @@ describe("Unified Creation Flow Shell (#151)", () => {
       ).toBeInTheDocument();
     });
 
-    it("each step placeholder shows the step name", () => {
+    it("step 0 shows StepYourMarket content, step 1 shows placeholder", () => {
       render(
         React.createElement(CreationFlowShell, { markets: mockMarkets })
       );
 
+      // Step 0 now renders the real StepYourMarket component
       const step1 = screen.getByTestId("step-content-0");
-      expect(step1.textContent).toContain("Your Market");
+      expect(step1.textContent).toContain("Where do you operate?");
 
       fireEvent.click(screen.getByRole("button", { name: /next/i }));
       const step2 = screen.getByTestId("step-content-1");
