@@ -9,6 +9,7 @@ import { StepYourTier } from "./steps/step-your-tier";
 import { StepYourFocus } from "./steps/step-your-focus";
 import { StepYourAudience } from "./steps/step-your-audience";
 import { StepYourReview } from "./steps/step-your-review";
+import { StepGenerating } from "./steps/step-generating";
 import type { StepMarketData } from "./steps/step-your-market";
 import type { StepTierData } from "./steps/step-your-tier";
 import type { StepFocusData } from "./steps/step-your-focus";
@@ -65,6 +66,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   const tierDataRef = useRef<StepTierData | null>(null);
   const focusDataRef = useRef<StepFocusData | null>(null);
   const audienceDataRef = useRef<StepAudienceData | null>(null);
+  const [reportData, setReportData] = useState<StepReviewData | null>(null);
 
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
@@ -118,7 +120,10 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   }, []);
 
   const handleReviewStepComplete = useCallback((data: StepReviewData) => {
-    // Report created — navigation handled by StepYourReview
+    setReportData(data);
+    setDirection("forward");
+    setCurrentStep(5);
+    setStepValid(false);
   }, []);
 
   const handleReviewValidation = useCallback((valid: boolean) => {
@@ -190,22 +195,19 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    // Placeholder for step 5 (feature #157)
-    return (
-      <div className="py-8 text-center">
-        <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-2">
-          {step.name}
-        </h2>
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-          {step.description}
-        </p>
-        <div className="mt-6 p-4 rounded-[var(--radius-sm)] border border-dashed border-[var(--color-border)] bg-[var(--color-background)]">
-          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
-            Step content will be implemented in feature #{152 + currentStep}
-          </p>
-        </div>
-      </div>
-    );
+    // Step 6: Generating (feature #157)
+    if (currentStep === 5 && reportData) {
+      return (
+        <StepGenerating
+          reportId={reportData.reportId}
+          reportTitle={reportData.title}
+          onStepComplete={() => {}}
+          onValidationChange={handleReviewValidation}
+        />
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -234,38 +236,33 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
           </AnimatePresence>
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-border)]">
-          <div>
-            {!isFirstStep && (
-              <button
-                type="button"
-                onClick={handleBack}
-                className="px-5 py-2.5 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-[var(--duration-default)] rounded-[var(--radius-sm)]"
-              >
-                Back
-              </button>
-            )}
+        {/* Navigation — hidden on Step 6 (Generating) */}
+        {currentStep !== 5 && (
+          <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-border)]">
+            <div>
+              {!isFirstStep && (
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  className="px-5 py-2.5 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-[var(--duration-default)] rounded-[var(--radius-sm)]"
+                >
+                  Back
+                </button>
+              )}
+            </div>
+            <div>
+              {currentStep === 4 ? null : (
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="px-6 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+                >
+                  Next
+                </button>
+              )}
+            </div>
           </div>
-          <div>
-            {currentStep === 4 ? null : isLastStep ? (
-              <button
-                type="button"
-                className="px-8 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] shadow-[var(--shadow-sm)]"
-              >
-                Generate Report
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={handleNext}
-                className="px-6 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
-              >
-                Next
-              </button>
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

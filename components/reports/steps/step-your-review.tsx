@@ -2,7 +2,6 @@
 
 import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
 import { fadeVariant, staggerContainer } from "@/lib/animations";
 import type { StepMarketData } from "./step-your-market";
 import type { StepTierData } from "./step-your-tier";
@@ -171,8 +170,6 @@ export function StepYourReview({
   onValidationChange,
   onNavigateToStep,
 }: StepYourReviewProps) {
-  const router = useRouter();
-
   // Auto-generated title
   const defaultTitle = useMemo(
     () => generateTitle(marketData?.city || "Market", tierData?.luxuryTier || "luxury"),
@@ -265,12 +262,11 @@ export function StepYourReview({
       const reportId = reportJson.report.id;
 
       onStepComplete({ reportId, title: title.trim() });
-      router.push(`/reports/${reportId}`);
     } catch {
       setIsSubmitting(false);
       setError("Something went wrong. Please try again.");
     }
-  }, [isTitleValid, isSubmitting, marketData, tierData, focusData, audienceData, title, onStepComplete, router]);
+  }, [isTitleValid, isSubmitting, marketData, tierData, focusData, audienceData, title, onStepComplete]);
 
   // Price range display
   const priceDisplay = useMemo(() => {

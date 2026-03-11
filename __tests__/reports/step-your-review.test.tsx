@@ -260,18 +260,20 @@ describe("Step 5: Review & Generate (#156)", () => {
       expect(screen.getByText("Report title is required")).toBeInTheDocument();
     });
 
-    it("CMP-156-19: clicking Generate creates report and navigates", async () => {
-      renderReview();
+    it("CMP-156-19: clicking Generate creates report and calls onStepComplete", async () => {
+      const { props } = renderReview();
       const btn = screen.getByRole("button", { name: /Generate Report/i });
       await act(async () => { fireEvent.click(btn); });
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith("/reports/report-789");
+        expect(props.onStepComplete).toHaveBeenCalledWith(
+          expect.objectContaining({ reportId: "report-789" })
+        );
       });
     });
 
     it("CMP-156-20: new market created before report for isNewMarket", async () => {
       mockFetchSuccess();
-      renderReview({ marketData: MOCK_NEW_MARKET_DATA });
+      const { props } = renderReview({ marketData: MOCK_NEW_MARKET_DATA });
       const btn = screen.getByRole("button", { name: /Generate Report/i });
       await act(async () => { fireEvent.click(btn); });
       await waitFor(() => {
@@ -284,7 +286,9 @@ describe("Step 5: Review & Generate (#156)", () => {
         expect(marketCall).toBeTruthy();
       });
       await waitFor(() => {
-        expect(mockPush).toHaveBeenCalledWith("/reports/report-789");
+        expect(props.onStepComplete).toHaveBeenCalledWith(
+          expect.objectContaining({ reportId: "report-789" })
+        );
       });
     });
 
