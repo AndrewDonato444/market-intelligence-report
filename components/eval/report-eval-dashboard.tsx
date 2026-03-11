@@ -3,10 +3,12 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import type { ReportEvalTestCase, ReportEvalCriterion, ReportEvalJudgeBreakdown } from "@/lib/eval/report-eval/types";
 import { REPORT_EVAL_PASS_THRESHOLD } from "@/lib/eval/report-eval/types";
+import type { RunSummary, RegressionAlert } from "@/lib/eval/report-eval/history";
 import { ReportEvalSummaryPanel } from "./report-eval-summary-panel";
 import { ReportEvalTestCaseTable, type ReportEvalSortField } from "./report-eval-test-case-table";
 import { ReportEvalCriterionBreakdown } from "./report-eval-criterion-breakdown";
 import { ReportEvalFixtureComparison } from "./report-eval-fixture-comparison";
+import { ReportEvalTrendPanel } from "./report-eval-trend-panel";
 
 export interface ReportEvalDashboardResult {
   testCaseId: string;
@@ -58,9 +60,13 @@ export function ReportEvalDashboard() {
   const [fixtureFilter, setFixtureFilter] = useState<string>("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [trendRuns, setTrendRuns] = useState<RunSummary[]>([]);
+  const [trendRegression, setTrendRegression] = useState<RegressionAlert | null>(null);
+  const [trendLoading, setTrendLoading] = useState(true);
 
   const cancelledRef = useRef(false);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const currentRunIdRef = useRef<string | null>(null);
 
   // Load test cases on mount
   useEffect(() => {
@@ -86,7 +92,66 @@ export function ReportEvalDashboard() {
     if (results.size > 0) saveResults(results);
   }, [results]);
 
-  const runSingleTestCase = useCallback(async (testCaseId: string, signal?: AbortSignal) => {
+  // Load trend history on mount
+  useEffect(() => {
+    async function fetchHistory() {
+      try {
+        const res = await fetch("/api/eval/report/history");
+        if (!res.ok) {
+          setTrendLoading(false);
+          return;
+        }
+        const data = await res.json();
+        setTrendRuns(data.runs ?? []);
+        setTrendRegression(data.regression ?? null);
+      } catch {
+        // Silently fail — trend panel shows empty state
+      } finally {
+        setTrendLoading(false);
+      }
+    }
+    fetchHistory();
+  }, []);
+
+  // Persist a single result to the history DB
+  const persistToHistory = useCallback(
+    async (result: ReportEvalDashboardResult, runId: string) => {
+      try {
+        await fetch("/api/eval/report/history", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            runId,
+            testCaseId: result.testCaseId,
+            criterion: result.criterion,
+            score: result.judgeScore,
+            breakdown: result.judgeBreakdown,
+            judgeReason: result.judgeReason,
+            durationMs: result.durationMs,
+            error: result.error,
+          }),
+        });
+      } catch {
+        // Non-blocking — history persistence is best-effort
+      }
+    },
+    []
+  );
+
+  // Refresh trend data after runs complete
+  const refreshTrends = useCallback(async () => {
+    try {
+      const res = await fetch("/api/eval/report/history");
+      if (!res.ok) return;
+      const data = await res.json();
+      setTrendRuns(data.runs ?? []);
+      setTrendRegression(data.regression ?? null);
+    } catch {
+      // Silent
+    }
+  }, []);
+
+  const runSingleTestCase = useCallback(async (testCaseId: string, signal?: AbortSignal, runId?: string) => {
     setRunningIds((prev) => new Set(prev).add(testCaseId));
     try {
       const res = await fetch("/api/eval/report/run", {
@@ -105,6 +170,11 @@ export function ReportEvalDashboard() {
         next.set(testCaseId, result);
         return next;
       });
+
+      // Persist to history DB (best-effort, non-blocking)
+      const effectiveRunId = runId ?? crypto.randomUUID();
+      persistToHistory(result, effectiveRunId);
+
       return result;
     } finally {
       setRunningIds((prev) => {
@@ -113,7 +183,7 @@ export function ReportEvalDashboard() {
         return next;
       });
     }
-  }, []);
+  }, [persistToHistory]);
 
   const handleRunAll = useCallback(async () => {
     if (!confirm("This will make ~36 API calls to Claude (18 fixtures + 18 judge calls). Proceed?")) {
@@ -123,6 +193,10 @@ export function ReportEvalDashboard() {
     cancelledRef.current = false;
     const controller = new AbortController();
     abortControllerRef.current = controller;
+
+    // Generate a shared runId for this batch so all results are grouped together
+    const batchRunId = crypto.randomUUID();
+    currentRunIdRef.current = batchRunId;
 
     setBatchRunning(true);
     setBatchProgress({ completed: 0, total: testCases.length });
@@ -137,7 +211,7 @@ export function ReportEvalDashboard() {
       if (!id) return;
 
       try {
-        await runSingleTestCase(id, controller.signal);
+        await runSingleTestCase(id, controller.signal, batchRunId);
       } catch {
         // Individual failures are captured in the result
       }
@@ -165,7 +239,11 @@ export function ReportEvalDashboard() {
 
     setBatchRunning(false);
     abortControllerRef.current = null;
-  }, [testCases, runSingleTestCase]);
+    currentRunIdRef.current = null;
+
+    // Refresh trend data after batch completes
+    refreshTrends();
+  }, [testCases, runSingleTestCase, refreshTrends]);
 
   const handleCancel = useCallback(() => {
     cancelledRef.current = true;
@@ -262,6 +340,12 @@ export function ReportEvalDashboard() {
         fixtureNames={fixtureNames}
       />
 
+      <ReportEvalTrendPanel
+        runs={trendRuns}
+        regression={trendRegression}
+        loading={trendLoading}
+      />
+
       <ReportEvalTestCaseTable
         testCases={testCases}
         results={results}
@@ -274,7 +358,7 @@ export function ReportEvalDashboard() {
         fixtureNames={fixtureNames}
         onSort={handleSort}
         onExpand={setExpandedId}
-        onRunSingle={(id) => runSingleTestCase(id)}
+        onRunSingle={(id) => runSingleTestCase(id).then(() => refreshTrends())}
         onCriterionFilter={setCriterionFilter}
         onFixtureFilter={setFixtureFilter}
         onClearResults={handleClearResults}

@@ -465,6 +465,41 @@ export const userActivity = pgTable(
   ]
 );
 
+// --- Report Eval Results Table ---
+
+export const reportEvalResults = pgTable(
+  "report_eval_results",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    runId: uuid("run_id").notNull(),
+    testCaseId: varchar("test_case_id", { length: 100 }).notNull(),
+    criterion: varchar("criterion", { length: 50 }).notNull(),
+    score: integer("score").notNull(),
+    breakdown: jsonb("breakdown")
+      .notNull()
+      .$type<{
+        dataAccuracy: number;
+        completeness: number;
+        narrativeQuality: number;
+        formatting: number;
+        actionability: number;
+        personaAlignment: number;
+      }>(),
+    judgeReason: text("judge_reason"),
+    durationMs: integer("duration_ms"),
+    error: text("error"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("report_eval_results_run_id_idx").on(table.runId),
+    index("report_eval_results_test_case_id_idx").on(table.testCaseId),
+    index("report_eval_results_created_at_idx").on(table.createdAt),
+    index("report_eval_results_criterion_idx").on(table.criterion),
+  ]
+);
+
 // --- Report Personas Junction Table ---
 
 export const reportPersonas = pgTable(
