@@ -1,6 +1,6 @@
 import { TopNav, Sidebar, PageShell } from "@/components/layout";
-import { getAuthUserId } from "@/lib/supabase/auth";
-import { getProfile } from "@/lib/services/profile";
+import { getAuthUser } from "@/lib/supabase/auth";
+import { ensureUserProfile } from "@/lib/services/profile";
 
 export default async function ProtectedLayout({
   children,
@@ -9,9 +9,9 @@ export default async function ProtectedLayout({
 }) {
   let isAdmin = false;
   try {
-    const authId = await getAuthUserId();
-    if (authId) {
-      const profile = await getProfile(authId);
+    const authUser = await getAuthUser();
+    if (authUser) {
+      const profile = await ensureUserProfile(authUser.id, authUser.email);
       isAdmin = profile?.role === "admin";
     }
   } catch {

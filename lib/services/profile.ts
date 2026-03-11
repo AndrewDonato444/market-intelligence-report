@@ -8,6 +8,30 @@ export { validateProfileData } from "./profile-validation";
 
 // --- Database operations ---
 
+/**
+ * Ensure a users row exists for this auth user.
+ * Called from the protected layout on every authenticated request.
+ * Uses INSERT ... ON CONFLICT DO NOTHING for idempotency.
+ */
+export async function ensureUserProfile(authId: string, email: string) {
+  const existing = await getProfile(authId);
+  if (existing) return existing;
+
+  const [created] = await db
+    .insert(schema.users)
+    .values({
+      authId,
+      email,
+      name: email.split("@")[0], // default name from email prefix
+      lastLoginAt: new Date(),
+    })
+    .onConflictDoNothing({ target: schema.users.authId })
+    .returning();
+
+  // If another request raced us, fetch the existing row
+  return created ?? await getProfile(authId);
+}
+
 export async function getProfile(authId: string) {
   const [user] = await db
     .select()
