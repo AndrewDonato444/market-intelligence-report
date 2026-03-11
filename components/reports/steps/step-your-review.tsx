@@ -38,19 +38,26 @@ const TIER_LABELS: Record<string, string> = {
 };
 
 const SEGMENT_LABELS: Record<string, string> = {
+  "high-rise": "High-Rise",
+  penthouse: "Penthouse",
+  townhouse: "Townhouse",
+  "arts district": "Arts & Culture District",
+  "trophy home": "Trophy Home",
   waterfront: "Waterfront",
+  beachfront: "Beachfront",
+  lakefront: "Lakefront",
+  marina: "Private Dock / Marina",
+  island: "Island",
   "golf course": "Golf Course",
   "gated community": "Gated Community",
   "ski-in/ski-out": "Ski-In/Ski-Out",
   "mountain view": "Mountain View",
+  equestrian: "Equestrian",
+  "country estate": "Country Estate",
   "historic district": "Historic District",
   "new development": "New Development",
-  equestrian: "Equestrian",
-  beachfront: "Beachfront",
-  lakefront: "Lakefront",
   vineyard: "Vineyard",
   desert: "Desert",
-  island: "Island",
 };
 
 const PROPERTY_TYPE_LABELS: Record<string, string> = {

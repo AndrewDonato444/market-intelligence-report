@@ -492,7 +492,7 @@ describe("Step 3: Your Focus (#154)", () => {
       );
       expect(onStepComplete).toHaveBeenCalledWith(
         expect.objectContaining({
-          segments: expect.arrayContaining(["waterfront", "beachfront", "golf course"]),
+          segments: expect.arrayContaining(["waterfront", "beachfront", "high-rise", "marina"]),
           propertyTypes: expect.arrayContaining(["single_family", "estate", "condo"]),
         })
       );

@@ -9,19 +9,30 @@ import { selectionVariant, staggerContainer, scaleVariant } from "@/lib/animatio
 // ---------------------------------------------------------------------------
 
 const SEGMENT_OPTIONS = [
+  // Urban luxury
+  { value: "high-rise", label: "High-Rise", description: "Luxury condo towers and skyscraper residences", icon: "🏙️" },
+  { value: "penthouse", label: "Penthouse", description: "Top-floor premium units with panoramic views", icon: "🌇" },
+  { value: "townhouse", label: "Townhouse", description: "Townhouses, brownstones, and row houses", icon: "🏘️" },
+  { value: "arts district", label: "Arts & Culture District", description: "Trendy creative neighborhoods and gallery districts", icon: "🎨" },
+  { value: "trophy home", label: "Trophy Home", description: "Celebrity estates and iconic luxury properties", icon: "🏆" },
+  // Waterfront & coastal
   { value: "waterfront", label: "Waterfront", description: "Lakefront, riverfront, and canal-front properties", icon: "🌊" },
+  { value: "beachfront", label: "Beachfront", description: "Direct ocean or gulf access", icon: "🏖️" },
+  { value: "lakefront", label: "Lakefront", description: "Direct lake access", icon: "🏞️" },
+  { value: "marina", label: "Private Dock / Marina", description: "Deep-water access and private marina communities", icon: "⛵" },
+  { value: "island", label: "Island", description: "Island and barrier island properties", icon: "🏝️" },
+  // Resort & lifestyle
   { value: "golf course", label: "Golf Course", description: "Golf and country club communities", icon: "⛳" },
   { value: "gated community", label: "Gated Community", description: "Private, access-controlled enclaves", icon: "🏰" },
   { value: "ski-in/ski-out", label: "Ski-In/Ski-Out", description: "Direct slope access properties", icon: "⛷️" },
   { value: "mountain view", label: "Mountain View", description: "Properties with mountain vistas", icon: "🏔️" },
+  { value: "equestrian", label: "Equestrian", description: "Horse properties and equestrian estates", icon: "🐴" },
+  { value: "country estate", label: "Country Estate", description: "Large acreage estates and gentleman's farms", icon: "🌳" },
+  // Specialty
   { value: "historic district", label: "Historic District", description: "Designated historic neighborhoods", icon: "🏛️" },
   { value: "new development", label: "New Development", description: "Recently built or under construction", icon: "🏗️" },
-  { value: "equestrian", label: "Equestrian", description: "Horse properties and equestrian estates", icon: "🐴" },
-  { value: "beachfront", label: "Beachfront", description: "Direct ocean or gulf access", icon: "🏖️" },
-  { value: "lakefront", label: "Lakefront", description: "Direct lake access", icon: "🏞️" },
   { value: "vineyard", label: "Vineyard", description: "Wine country and vineyard estates", icon: "🍇" },
   { value: "desert", label: "Desert", description: "Desert landscape properties", icon: "🏜️" },
-  { value: "island", label: "Island", description: "Island and barrier island properties", icon: "🏝️" },
 ];
 
 const PROPERTY_TYPE_OPTIONS = [
@@ -42,28 +53,39 @@ const PROPERTY_TYPE_OPTIONS = [
 // ---------------------------------------------------------------------------
 
 const STATE_SEGMENT_DEFAULTS: Record<string, string[]> = {
-  FL: ["waterfront", "beachfront", "golf course"],
-  HI: ["waterfront", "beachfront", "golf course"],
-  SC: ["waterfront", "beachfront", "golf course"],
-  NC: ["waterfront", "beachfront", "golf course"],
+  // Urban metros
+  NY: ["high-rise", "penthouse", "townhouse"],
+  NJ: ["townhouse", "waterfront", "gated community"],
+  CT: ["country estate", "waterfront", "gated community"],
+  MA: ["townhouse", "historic district", "waterfront"],
+  IL: ["high-rise", "penthouse", "townhouse"],
+  // Coastal & waterfront
+  FL: ["waterfront", "beachfront", "high-rise", "marina"],
+  HI: ["waterfront", "beachfront", "island"],
+  SC: ["waterfront", "beachfront", "historic district"],
+  NC: ["waterfront", "beachfront", "mountain view"],
   GA: ["waterfront", "beachfront", "golf course"],
   AL: ["waterfront", "beachfront", "golf course"],
   MS: ["waterfront", "beachfront", "golf course"],
-  LA: ["waterfront", "beachfront", "golf course"],
-  TX: ["waterfront", "beachfront", "golf course"],
-  CA: ["waterfront", "vineyard", "new development"],
+  LA: ["waterfront", "historic district", "golf course"],
+  TX: ["waterfront", "new development", "golf course"],
+  // West Coast
+  CA: ["high-rise", "beachfront", "trophy home", "vineyard"],
+  WA: ["waterfront", "high-rise", "mountain view"],
+  OR: ["waterfront", "vineyard", "mountain view"],
+  // Mountain / ski
   CO: ["ski-in/ski-out", "mountain view"],
   MT: ["ski-in/ski-out", "mountain view"],
   WY: ["ski-in/ski-out", "mountain view"],
   UT: ["ski-in/ski-out", "mountain view"],
   ID: ["ski-in/ski-out", "mountain view"],
-  NY: ["gated community", "waterfront"],
-  NJ: ["gated community", "waterfront"],
-  CT: ["gated community", "waterfront"],
-  MA: ["gated community", "waterfront"],
-  AZ: ["desert", "golf course"],
-  NV: ["desert", "golf course"],
+  // Desert / Southwest
+  AZ: ["desert", "golf course", "new development"],
+  NV: ["desert", "high-rise", "golf course"],
   NM: ["desert", "golf course"],
+  // Mid-Atlantic / Southeast
+  VA: ["historic district", "waterfront", "equestrian"],
+  DC: ["townhouse", "historic district"],
   _default: ["gated community"],
 };
 
