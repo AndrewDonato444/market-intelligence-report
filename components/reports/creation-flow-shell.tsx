@@ -6,8 +6,10 @@ import { pageTransition } from "@/lib/animations";
 import { CreationStepIndicator } from "./creation-step-indicator";
 import { StepYourMarket } from "./steps/step-your-market";
 import { StepYourTier } from "./steps/step-your-tier";
+import { StepYourFocus } from "./steps/step-your-focus";
 import type { StepMarketData } from "./steps/step-your-market";
 import type { StepTierData } from "./steps/step-your-tier";
+import type { StepFocusData } from "./steps/step-your-focus";
 import type { PageDirection } from "@/lib/animations";
 
 const STEPS = [
@@ -57,6 +59,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   const [stepValid, setStepValid] = useState(false);
   const marketDataRef = useRef<StepMarketData | null>(null);
   const tierDataRef = useRef<StepTierData | null>(null);
+  const focusDataRef = useRef<StepFocusData | null>(null);
 
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
@@ -93,6 +96,14 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     setStepValid(valid);
   }, []);
 
+  const handleFocusStepComplete = useCallback((data: StepFocusData) => {
+    focusDataRef.current = data;
+  }, []);
+
+  const handleFocusValidation = useCallback((valid: boolean) => {
+    setStepValid(valid);
+  }, []);
+
   const step = STEPS[currentStep];
 
   const renderStepContent = () => {
@@ -115,7 +126,21 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    // Placeholder for steps 2-5 (features #154-#157)
+    if (currentStep === 2) {
+      return (
+        <StepYourFocus
+          marketData={
+            marketDataRef.current
+              ? { city: marketDataRef.current.city, state: marketDataRef.current.state }
+              : undefined
+          }
+          onStepComplete={handleFocusStepComplete}
+          onValidationChange={handleFocusValidation}
+        />
+      );
+    }
+
+    // Placeholder for steps 3-5 (features #155-#157)
     return (
       <div className="py-8 text-center">
         <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-2">

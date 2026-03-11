@@ -70,7 +70,9 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | user-setup | [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md) | `app/(protected)/markets/[id]/edit/page.tsx, app/api/markets/[id]/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | user-setup | [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md) | `app/(protected)/markets/[id]/peers/page.tsx, app/api/markets/[id]/peers/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | ux-redesign | [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md) | `components/ui/tooltip.tsx, lib/animations.ts` | see spec | see spec | implemented |
-| ux-redesign | [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md) | `components/reports/steps/step-your-market.tsx` | see spec | see spec | specced |
+| ux-redesign | [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md) | `components/reports/steps/step-your-market.tsx` | see spec | see spec | implemented |
+| ux-redesign | [Step 2: Your Tier](.specs/features/ux-redesign/step-2-your-tier.feature.md) | `components/reports/steps/step-your-tier.tsx` | see spec | see spec | implemented |
+| ux-redesign | [Step 3: Your Focus](.specs/features/ux-redesign/step-3-your-focus.feature.md) | `components/reports/steps/step-your-focus.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Unified Creation Flow Shell](.specs/features/ux-redesign/unified-creation-flow-shell.feature.md) | `app/(protected)/reports/create/page.tsx` | see spec | see spec | implemented |
 
 ---
@@ -80,10 +82,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 4 |
+| specced | 3 |
 | tested | 0 |
-| implemented | 49 |
-| **Total** | **54** |
+| implemented | 52 |
+| **Total** | **56** |
 
 ---
 
@@ -98,7 +100,6 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
-- [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md)
 
 ### Tested
 
@@ -154,6 +155,9 @@ _None_
 - [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md)
 - [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md)
 - [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md)
+- [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md)
+- [Step 2: Your Tier](.specs/features/ux-redesign/step-2-your-tier.feature.md)
+- [Step 3: Your Focus](.specs/features/ux-redesign/step-3-your-focus.feature.md)
 - [Unified Creation Flow Shell](.specs/features/ux-redesign/unified-creation-flow-shell.feature.md)
 
 ---
@@ -179,6 +183,7 @@ See `.specs/design-system/tokens.md` for token reference.
 | persona-preview-panel | stub | [doc](.specs/design-system/components/persona-preview-panel.md) |
 | process-narrative | stub | [doc](.specs/design-system/components/process-narrative.md) |
 | report-breakdown | stub | [doc](.specs/design-system/components/report-breakdown.md) |
+| toggle-card | stub | [doc](.specs/design-system/components/toggle-card.md) |
 | tooltip | documented | [doc](.specs/design-system/components/tooltip.md) |
 
 ---

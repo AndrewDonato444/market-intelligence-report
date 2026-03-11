@@ -22,6 +22,19 @@ jest.mock("framer-motion", () => {
           ref: React.Ref<HTMLDivElement>,
         ) => React.createElement("div", { ...props, ref }),
       ),
+      button: React.forwardRef(
+        (
+          {
+            initial,
+            animate,
+            exit,
+            variants,
+            whileTap,
+            ...props
+          }: Record<string, unknown>,
+          ref: React.Ref<HTMLButtonElement>,
+        ) => React.createElement("button", { ...props, ref }),
+      ),
     },
     AnimatePresence: ({
       children,

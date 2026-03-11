@@ -18,6 +18,10 @@ Patterns for UI and design system in this codebase.
 
 <!-- Common component structures, composition -->
 
+### 2026-03-11 — ToggleCard pattern
+- **Pattern**: A single `ToggleCard` component serves both segments and property types — use `role="switch"` with `aria-checked` instead of radio/checkbox. Props: `value`, `label`, `description?`, `icon`, `selected`, `popular`, `onToggle`. The `popular` flag drives a "Popular in your area" badge that persists even after deselection (tied to smart defaults, not selection state).
+- **Pattern**: Card toggle styling uses CSS variable references: selected = `border-[var(--color-accent)] bg-[var(--color-accent-light)]`, hover = `border-[var(--color-border-strong)] shadow-[var(--shadow-md)]`. Matches the tier card pattern from Step 2 but uses `role="switch"` instead of `role="radio"` since multiple selections are allowed.
+
 ### 2026-03-10
 - **Pattern**: For card-based selection UIs (e.g., persona cards), use `data-selected="true|false"` attributes on the container div. This enables both CSS styling via attribute selectors and easy test assertions via `card.getAttribute("data-selected")`.
 - **Pattern**: Selection-order badges (numbered 1, 2, 3) should use `data-testid="selection-badge-{order}"` and be positioned `absolute top-2 right-2` within a `relative` container. The parent component passes `selectionOrder={index + 1}` where index comes from `selectedIds.indexOf(id)`.

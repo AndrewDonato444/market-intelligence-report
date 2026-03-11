@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Step 3: Your Focus (ToggleCard pattern)
+
+- **Framer Motion mock must include all element types** (`testing.md`): When adding `motion.button` to a component, ALL test files that render that component (including parent shell tests) must include `motion.button` in their framer-motion mock. Missing element types cause "Element type is invalid: got undefined" errors
+- **ToggleCard as unified toggle pattern** (`design.md`): A single `ToggleCard` component with `role="switch"` + `aria-checked` handles both segments and property types — no need for separate `SegmentCard` / `PropertyTypeCard` components. Props: `value`, `label`, `description?`, `icon`, `selected`, `popular`, `onToggle`
+- **Smart defaults via static state mapping** (`general.md`): For v1, map state abbreviations to default selections rather than calling APIs. Compute once via `useMemo` on mount, initialize `useState` with the result. "Popular" badges use a stable `Set` from the defaults that doesn't change on toggle
+- **Validation + emission pattern for multi-select steps** (`general.md`): Use two `useEffect` hooks — one for `onValidationChange(isValid)`, one for `onStepComplete(data)` that only fires when valid. For toggle-based steps, the empty state prompt shows only when `!isValid && defaultSegments.length === 0`
+
 ### 2026-03-10 — Animation & UX Infrastructure
 
 - **Framer Motion v12 Easing type** (`design.md`): Use `import type { Easing }` and annotate constants — `as const` and `as number[]` both fail strict TS

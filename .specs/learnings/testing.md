@@ -8,6 +8,9 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Framer Motion mock completeness
+- **Gotcha**: When a new component uses `motion.button` (or any `motion.X` element not yet in the mock), ALL test files that render that component — including parent component tests like `creation-flow-shell.test.tsx` — must add that element to their framer-motion mock. Otherwise the mock returns `undefined` for the missing element, causing "Element type is invalid: got undefined" in `ToggleCard`. Always check parent test mocks when adding new `motion.*` elements.
+
 ### 2026-03-10 — Framer Motion mocking
 - **Pattern**: Mock `framer-motion` for JSDOM tests by replacing `motion.div` with a plain `div` via `React.forwardRef`. Destructure and discard animation props (`initial`, `animate`, `exit`, `variants`, `whileTap`) from rest-props to prevent React DOM warnings. Wrap `AnimatePresence` as a pass-through `Fragment`. This lets tests verify rendered content, attributes, and data-testids without a real animation engine.
 

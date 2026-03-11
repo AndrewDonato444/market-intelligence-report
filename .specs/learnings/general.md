@@ -53,6 +53,11 @@ _No learnings yet._
 
 <!-- Miscellaneous patterns -->
 
+### 2026-03-11 — Step 3: Smart defaults and multi-select validation
+- **Pattern**: Smart defaults via static state-to-selections mapping (`STATE_SEGMENT_DEFAULTS`, `STATE_PROPERTY_DEFAULTS`) with `_default` fallback key. Compute once with `useMemo` keyed on `marketData`, use result as `useState` initializer. The "popular" set is separate from selection state — tracked via `useMemo(() => new Set(defaults))` so badges persist after deselection.
+- **Pattern**: For multi-select step validation (at least one of N categories), derive `isValid` directly from state (`segments.length > 0 || propertyTypes.length > 0`). Two `useEffect` hooks: one reports `onValidationChange(isValid)`, one calls `onStepComplete(data)` only when valid. This matches the Step 2 pattern but adapted for toggle-based (not radio-based) selection.
+- **Pattern**: Empty state prompt only shows when `!isValid && defaultSegments.length === 0` — this prevents the prompt from flashing when smart defaults pre-select cards on mount.
+
 ### 2026-03-10
 - **Pattern**: To add a new agent to the v2 pipeline: (1) create agent file with `AgentDefinition` export, (2) import and add to `ALL_AGENTS` array in `pipeline-executor.ts`, (3) add a `SectionRegistryEntry` to `SECTION_REGISTRY_V2` in `schema.ts`, (4) add the agent name to the section-grouping loop in `executePipeline()`. All 4 steps are required or the agent won't run / its sections won't be saved.
 - **Pattern**: When adding a step to a wizard (e.g., inserting "Personas" between "Sections" and "Review"), all step index references must shift. The `STEPS` array is the single source of truth — update it, then adjust `step === N` conditionals for the new numbering. The `StepIndicator` component automatically adapts to any array length.
