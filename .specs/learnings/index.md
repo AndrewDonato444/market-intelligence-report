@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-10 — Animation & UX Infrastructure
+
+- **Framer Motion v12 Easing type** (`design.md`): Use `import type { Easing }` and annotate constants — `as const` and `as number[]` both fail strict TS
+- **Variant data vs components** (`design.md`): Keep animation variant objects in `lib/animations.ts` (no React) separate from `"use client"` components
+- **Portal tooltip positioning** (`design.md`): `createPortal` + `useEffect` for portal target + `requestAnimationFrame` for position measurement
+- **Framer Motion JSDOM mock** (`testing.md`): Replace `motion.div` with plain `div` via `forwardRef`, destructure away animation props, `AnimatePresence` → `Fragment`
+
 ### 2026-03-10 — Persona Content in PDF Template
 
 - **PDF renderer dispatch pattern** (`design.md`): Register in RENDERER_MAP, export component, getSectionRenderer dispatches by sectionType string

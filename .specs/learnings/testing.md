@@ -8,6 +8,9 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-10 — Framer Motion mocking
+- **Pattern**: Mock `framer-motion` for JSDOM tests by replacing `motion.div` with a plain `div` via `React.forwardRef`. Destructure and discard animation props (`initial`, `animate`, `exit`, `variants`, `whileTap`) from rest-props to prevent React DOM warnings. Wrap `AnimatePresence` as a pass-through `Fragment`. This lets tests verify rendered content, attributes, and data-testids without a real animation engine.
+
 ### 2026-03-10
 - **Pattern**: For Claude agent tests, mock `@anthropic-ai/sdk` at the module level with `jest.mock` returning a class whose `messages.create` method is a `jest.fn()`. Store the mock create fn as a module-level variable for per-test response control. Also mock `@/lib/config/env` with a test API key.
 - **Pattern**: When an agent calls a DB service (e.g., `getReportPersonas`), mock the service module (`jest.mock("@/lib/services/buyer-personas")`). Build realistic mock persona objects matching the full DB schema shape (all JSONB fields) — tests catch schema mismatches early.

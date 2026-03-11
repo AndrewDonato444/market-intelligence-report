@@ -69,6 +69,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | user-setup | [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md) | `app/(protected)/markets/new/page.tsx, app/api/markets/route.ts, lib/services/market.ts, lib/services/market-validation.ts` | see spec | see spec | implemented |
 | user-setup | [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md) | `app/(protected)/markets/[id]/edit/page.tsx, app/api/markets/[id]/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | user-setup | [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md) | `app/(protected)/markets/[id]/peers/page.tsx, app/api/markets/[id]/peers/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
+| ux-redesign | [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md) | `components/ui/tooltip.tsx, lib/animations.ts` | see spec | see spec | implemented |
 
 ---
 
@@ -79,8 +80,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 47 |
-| **Total** | **51** |
+| implemented | 48 |
+| **Total** | **52** |
 
 ---
 
@@ -149,6 +150,7 @@ _None_
 - [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md)
 - [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md)
 - [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md)
+- [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md)
 
 ---
 
@@ -160,6 +162,7 @@ See `.specs/design-system/tokens.md` for token reference.
 
 | Component | Status | Source |
 |-----------|--------|--------|
+| animated-container | documented | [doc](.specs/design-system/components/animated-container.md) |
 | closing-statement | stub | [doc](.specs/design-system/components/closing-statement.md) |
 | data-callout | stub | [doc](.specs/design-system/components/data-callout.md) |
 | editorial-showcase | stub | [doc](.specs/design-system/components/editorial-showcase.md) |
@@ -170,6 +173,7 @@ See `.specs/design-system/tokens.md` for token reference.
 | persona-preview-panel | stub | [doc](.specs/design-system/components/persona-preview-panel.md) |
 | process-narrative | stub | [doc](.specs/design-system/components/process-narrative.md) |
 | report-breakdown | stub | [doc](.specs/design-system/components/report-breakdown.md) |
+| tooltip | documented | [doc](.specs/design-system/components/tooltip.md) |
 
 ---
 

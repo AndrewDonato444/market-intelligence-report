@@ -40,7 +40,9 @@ Patterns for UI and design system in this codebase.
 
 <!-- ARIA, keyboard nav, screen readers -->
 
-_No learnings yet._
+### 2026-03-10
+- **Pattern**: Tooltips need: `role="tooltip"` on the popup, unique `id` (React `useId()`), `aria-describedby={id}` on the trigger (only when visible), `tabIndex={0}` on trigger for keyboard focus, Enter to toggle, Escape to dismiss. The trigger wraps children in a `<span>` with inline-flex display.
+- **Pattern**: Portal-rendered tooltips (via `createPortal` to `document.body`) escape parent overflow/z-index stacking but need `position: absolute` with scroll-aware coordinates (`window.scrollX/Y`). Set `pointerEvents: "none"` to prevent tooltip from stealing mouse events.
 
 ---
 
@@ -49,6 +51,10 @@ _No learnings yet._
 <!-- Motion patterns, transitions -->
 
 ### 2026-03-10
+- **Gotcha**: Framer Motion v12+ with strict TS requires `Easing` type for cubic-bezier arrays — `[0.4, 0, 0.2, 1] as const` fails (readonly tuple ≠ `Easing`), `as number[]` fails (too wide). Import `Easing` from `framer-motion` and annotate: `const EASING_DEFAULT: Easing = [0.4, 0, 0.2, 1]`. This satisfies `Transition.ease` without casting.
+- **Pattern**: Animation variants in `lib/animations.ts` are plain objects (no React imports) — importable by any `"use client"` component. Keep all duration/easing constants exported alongside variants so tooltip, animated-container, and future components share a single source of truth mirroring CSS custom properties.
+- **Pattern**: Framer Motion components must have `"use client"` directive — they use hooks internally. Keep animation *data* (variant objects, constants) separate from animation *components* so server components can reference the data without pulling in the client boundary.
+- **Pattern**: For tooltip positioning with `createPortal`, use `requestAnimationFrame(updatePosition)` after showing — the portal-rendered element needs one frame to be in the DOM before `getBoundingClientRect()` returns real dimensions.
 - **Pattern**: Fixed nav transparency→solid scroll transition: use `useEffect` + scroll listener with `{ passive: true }`. Toggle a `scrolled` boolean state at 50px threshold. Apply `transition-colors duration-[var(--duration-default)] ease-[var(--ease-default)]` on the nav. Background goes from `bg-transparent` to `bg-[var(--color-report-bg)]` (warm white, not cold #FFF).
 
 ---
