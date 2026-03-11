@@ -65,15 +65,30 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ report }, { status: 201 });
-  } catch (err) {
+  } catch (err: unknown) {
+    // Extract the real Postgres/Drizzle error — Drizzle wraps the DB error
     const message =
       err instanceof Error ? err.message : "Failed to create report";
+    const cause = err instanceof Error ? (err as any).cause : undefined;
+    const code = (err as any)?.code ?? cause?.code;
+    const detail = (err as any)?.detail ?? cause?.detail;
+    const constraint = (err as any)?.constraint ?? cause?.constraint;
+
     console.error("[POST /api/reports] createReport failed:", {
       authId: userId,
       marketId: validation.data?.marketId,
       error: message,
+      code,
+      detail,
+      constraint,
+      cause: cause ? String(cause) : undefined,
       stack: err instanceof Error ? err.stack : undefined,
+      // Log the full error object keys to find hidden properties
+      errorKeys: err && typeof err === "object" ? Object.keys(err) : [],
     });
-    return NextResponse.json({ error: message }, { status: 400 });
+    return NextResponse.json(
+      { error: message, code, detail },
+      { status: 400 }
+    );
   }
 }
