@@ -1,7 +1,7 @@
 ---
 feature: Admin Sidebar Update
 domain: admin
-source: components/layout/admin-sidebar.tsx
+source: components/layout/admin-sidebar.tsx, components/layout/sidebar.tsx
 tests:
   - __tests__/admin/admin-sidebar.test.tsx
 components:
@@ -55,6 +55,16 @@ Then the sidebar shows these items in order:
   | Data Sources |
   | Pipeline |
   | System Monitor |
+
+### Scenario: Footer branding
+Given an admin user is viewing the admin sidebar
+Then the sidebar footer shows "Modern Signal Advisory"
+
+### Scenario: User sidebar does not show Eval
+Given a non-admin user is viewing the main application sidebar
+Then the sidebar shows only: Dashboard, Reports, Markets, Settings
+And the sidebar does not show an "Eval" or "Eval Suite" link
+And the sidebar does not show an "Admin" link
 
 ## UI Mockup
 
