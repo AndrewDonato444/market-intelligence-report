@@ -4,7 +4,7 @@
  * Tests for the AdminSidebar component and the removal of Eval
  * from the user-facing Sidebar.
  *
- * Spec: .specs/features/admin/admin-dashboard.feature.md
+ * Spec: .specs/features/admin/admin-sidebar-update.feature.md
  */
 
 import React from "react";
@@ -25,14 +25,14 @@ describe("AdminSidebar", () => {
     mockPathname.mockReturnValue("/admin/eval");
   });
 
-  // Scenario: Admin sidebar navigation
-  it("should render nav items: Back to App, Users, Eval Suite, Data Sources, Pipeline, and System Monitor", () => {
+  // Scenario: All nav items present
+  it("should render nav items: Back to App, User Management, Eval Suite, Data Sources, Pipeline, and System Monitor", () => {
     render(<AdminSidebar />);
 
     const links = screen.getAllByRole("link");
     expect(links).toHaveLength(6);
     expect(links[0]).toHaveTextContent("Back to App");
-    expect(links[1]).toHaveTextContent("Users");
+    expect(links[1]).toHaveTextContent("User Management");
     expect(links[2]).toHaveTextContent("Eval Suite");
     expect(links[3]).toHaveTextContent("Data Sources");
     expect(links[4]).toHaveTextContent("Pipeline");
@@ -46,25 +46,54 @@ describe("AdminSidebar", () => {
     expect(backLink).toHaveAttribute("href", "/dashboard");
   });
 
-  it("should link Eval Suite to /admin/eval", () => {
+  it("should link User Management to /admin/users", () => {
     render(<AdminSidebar />);
 
-    const evalLink = screen.getByText("Eval Suite");
-    expect(evalLink).toHaveAttribute("href", "/admin/eval");
+    const usersLink = screen.getByText("User Management");
+    expect(usersLink).toHaveAttribute("href", "/admin/users");
   });
 
-  // Scenario: Active page is highlighted
+  // Scenario: Active state on user list page
+  it("should mark User Management as active when on /admin/users", () => {
+    mockPathname.mockReturnValue("/admin/users");
+    render(<AdminSidebar />);
+
+    const usersLink = screen.getByText("User Management").closest("a");
+    expect(usersLink?.className).toContain("color-primary");
+  });
+
+  // Scenario: Active state on user detail sub-page
+  it("should mark User Management as active when on /admin/users/abc123", () => {
+    mockPathname.mockReturnValue("/admin/users/abc123");
+    render(<AdminSidebar />);
+
+    const usersLink = screen.getByText("User Management").closest("a");
+    expect(usersLink?.className).toContain("color-primary");
+  });
+
+  // Scenario: Active state does not bleed to unrelated routes
   it("should mark Eval Suite as active when on /admin/eval", () => {
     mockPathname.mockReturnValue("/admin/eval");
     render(<AdminSidebar />);
 
-    // The real component uses className for active state, not data-active
     const evalLink = screen.getByText("Eval Suite").closest("a");
     expect(evalLink?.className).toContain("color-primary");
+
+    const usersLink = screen.getByText("User Management").closest("a");
+    expect(usersLink?.className).toContain("color-text-secondary");
   });
 
+  // Scenario: Back to App is never active in admin context
   it("should not mark Back to App as active when on /admin/eval", () => {
     mockPathname.mockReturnValue("/admin/eval");
+    render(<AdminSidebar />);
+
+    const backLink = screen.getByText("Back to App").closest("a");
+    expect(backLink?.className).toContain("color-text-secondary");
+  });
+
+  it("should not mark Back to App as active when on /admin/users", () => {
+    mockPathname.mockReturnValue("/admin/users");
     render(<AdminSidebar />);
 
     const backLink = screen.getByText("Back to App").closest("a");
