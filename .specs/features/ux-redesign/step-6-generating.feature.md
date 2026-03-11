@@ -33,6 +33,11 @@ Then they see the heading "Generating Your Report"
 And they see helper text "Sit back — our AI agents are analyzing your market."
 And they see an accent divider below the heading
 
+### Scenario: Heading and subtitle change on completion
+Given the pipeline finishes with status "completed"
+Then the heading changes to "Your Report Is Ready"
+And the subtitle changes to "{reportTitle} has been generated successfully."
+
 ### Scenario: Progress bar shows live percentage
 Given the agent is on Step 6 and the pipeline is running
 Then they see a progress bar with the current percentage
@@ -41,8 +46,9 @@ And the percentage updates every 3 seconds via polling
 ### Scenario: Pipeline stages display with status
 Given the agent is on Step 6
 Then they see all 5 pipeline stages listed (Data Analysis, Insight Generation, Competitive Analysis, Forecast Modeling, Editorial Polish)
-And each stage shows a status indicator (pending, running, or completed)
+And each stage shows a status indicator (pending, running, completed, or failed)
 And the currently running stage has a pulsing accent dot
+And a failed stage shows a red error dot
 
 ### Scenario: Contextual stage description shown
 Given a pipeline stage is running
