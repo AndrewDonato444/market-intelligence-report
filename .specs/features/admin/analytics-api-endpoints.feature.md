@@ -9,7 +9,7 @@ personas:
   - internal-admin
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-12
 ---
 
 # Analytics API Endpoints
@@ -60,7 +60,7 @@ Given an admin user is authenticated
 When they call `GET /api/admin/analytics/users?period=30d&granularity=daily`
 Then they receive:
   - `signups`: time series of new user registrations per day
-  - `summary`: `totalUsers`, `activeUsers` (report in last 30d), `newSignups` (in period), `churnIndicators` (users inactive > 60d)
+  - `summary`: `totalUsers`, `activeUsers` (report in last 30d), `newSignups` (in period), `inactiveOver60d` (users with no report in last 60d)
 
 ### Scenario: Admin fetches error rate trends
 Given an admin user is authenticated
@@ -81,15 +81,29 @@ Given an authenticated user with role "user" (not "admin")
 When they call any `/api/admin/analytics/*` endpoint
 Then they receive a `403 Forbidden` response
 
-### Scenario: Period parameter validation
+### Scenario: Period parameter validation on volume endpoint
 Given an admin user is authenticated
 When they call `GET /api/admin/analytics/volume?period=invalid`
 Then they receive a `400 Bad Request` with a message indicating valid periods: `24h`, `7d`, `30d`, `90d`, `365d`
+
+### Scenario: Period parameter validation on users and errors endpoints
+Given an admin user is authenticated
+When they call `GET /api/admin/analytics/users?period=invalid` or `GET /api/admin/analytics/errors?period=invalid`
+Then they receive a `400 Bad Request` with a message indicating valid periods: `7d`, `30d`, `90d`, `365d`
+Note: These endpoints do not support `24h` — only the volume endpoint accepts `24h`
 
 ### Scenario: Granularity parameter validation
 Given an admin user is authenticated
 When they call `GET /api/admin/analytics/volume?granularity=invalid`
 Then they receive a `400 Bad Request` with a message indicating valid granularities: `daily`, `weekly`, `monthly`
+
+### Scenario: No errors returns null mostFailingAgent
+Given an admin user is authenticated
+And the platform has no failed reports in the requested period
+When they call `GET /api/admin/analytics/errors`
+Then `summary.mostFailingAgent` is `null` (not an empty object)
+And `summary.totalErrors` is `0`
+And `summary.errorRate` is `0`
 
 ### Scenario: Empty platform returns zero-value responses
 Given an admin user is authenticated
@@ -200,7 +214,7 @@ Returns a summary snapshot for the admin dashboard hero cards.
   "summary": {
     "totalErrors": 9,
     "errorRate": 0.0385,
-    "mostFailingAgent": { "agent": "data-analyst", "count": 4 },
+    "mostFailingAgent": { "agent": "data-analyst", "count": 4 },  // null when no errors
     "retriedCount": 5
   },
   "period": "30d",
