@@ -19,6 +19,14 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Report Error Tracking Schema (#120)
+
+- **JSON snapshot truncation gotcha** (`general.md`): `JSON.parse(truncatedString)` always fails — iterate keys with byte budget instead
+- **Retry error history via `_previousErrors`** (`general.md`): Store accumulated history in JSONB, extract on next failure
+- **Never-throw error recording** (`api.md`): Nested try/catch fallback chain ensures pipeline status is always updated
+- **PipelineResult proxy for failedAgent** (`general.md`): `Object.keys(agentTimings).pop()` identifies the running agent at failure time
+- **Error tracking service test pattern** (`testing.md`): Mock sequential DB failures to test never-throw guarantees
+
 ### 2026-03-11 — User Status Schema (#110)
 
 - **Edge middleware + Drizzle incompatibility** (`security.md`): Edge middleware can't import Drizzle/postgres-js. Use Supabase REST API with service role key for status checks in middleware

@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Error tracking service tests (#120)
+- **Pattern**: For services with multiple DB operations (read + write), build the mock chain with separate clear/reset functions per operation. `resetMocks()` in `beforeEach` clears all mock call history without resetting implementations. Use `mockDbLimit.mockResolvedValueOnce(...)` for per-test data, `mockDbWhere.mockRejectedValueOnce(...)` for simulating DB failures.
+- **Pattern**: Test never-throw guarantees by mocking sequential failures (first attempt + fallback both reject) and asserting `resolves.toBeUndefined()`. Spy on `console.error` to verify error logging without noise.
+
 ### 2026-03-11 — Drizzle DB mock for service unit tests
 - **Pattern**: To test Drizzle service functions without a DB, mock `@/lib/db` with chained mock functions that mirror the fluent API: `db.select() → .from() → .where() → .limit()` and `db.update() → .set() → .where() → .returning()`. Use `jest.requireActual("@/lib/db/schema")` for the schema export so column definitions and enum values are real. Control return values via `mockDbReturning.mockReturnValue([...])` or `mockDbLimit.mockReturnValue([...])` per test.
 - **Gotcha**: When using `jest.useFakeTimers({ now })` in Drizzle service tests, remember to call `jest.useRealTimers()` in cleanup. Otherwise, subsequent tests that use `Date` may get stale timestamps.

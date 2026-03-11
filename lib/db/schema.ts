@@ -183,7 +183,23 @@ export const reports = pgTable(
     generationCompletedAt: timestamp("generation_completed_at", {
       withTimezone: true,
     }),
-    errorMessage: text("error_message"),
+    errorMessage: text("error_message"), // Deprecated: use errorDetails for structured error data
+    errorDetails: jsonb("error_details").$type<{
+      agent: string;
+      message: string;
+      stack?: string;
+      inputSnapshot?: Record<string, unknown>;
+      occurredAt: string;
+      stageIndex?: number;
+      totalStages?: number;
+      previousErrors?: Array<{
+        agent: string;
+        message: string;
+        occurredAt: string;
+      }>;
+    }>(),
+    retriedAt: timestamp("retried_at", { withTimezone: true }),
+    retriedBy: text("retried_by"),
     shareToken: varchar("share_token", { length: 64 }).unique(),
     shareTokenExpiresAt: timestamp("share_token_expires_at", {
       withTimezone: true,

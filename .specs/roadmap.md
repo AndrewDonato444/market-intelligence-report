@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 67 |
+| ✅ Completed | 68 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 23 |
+| ⬜ Pending | 22 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-11
@@ -246,7 +246,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 120 | Report error tracking schema — add `errorDetails` JSONB (agent, message, stack, input snapshot) to reports table, add `retriedAt`, `retriedBy` columns | vision | S | 2 | ⬜ |
+| 120 | Report error tracking schema — add `errorDetails` JSONB (agent, message, stack, input snapshot) to reports table, add `retriedAt`, `retriedBy` columns | vision | S | 2 | ✅ |
 | 121 | Admin report list page — all reports across all users, filterable by status (queued/generating/completed/failed), date range, user, market | vision | L | 120, 83 | ⬜ |
 | 122 | Admin report detail page — full report view, agent execution breakdown (which agents ran, timing, cache hits, API costs) | vision | M | 121, 80 | ⬜ |
 | 123 | Error triage view — dedicated filtered view of failed/errored reports with error details, agent failure info, input data | vision | M | 121, 120 | ⬜ |

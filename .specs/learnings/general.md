@@ -53,6 +53,11 @@ _No learnings yet._
 
 <!-- Miscellaneous patterns -->
 
+### 2026-03-11 — Report Error Tracking Schema (#120)
+- **Gotcha**: JSON snapshot truncation — `JSON.parse(json.substring(0, N))` always fails because the truncated string is invalid JSON. Instead, iterate over top-level keys and accumulate until the byte budget is exhausted, then add `_truncated: true`.
+- **Pattern**: Retry error history via `_previousErrors` key in JSONB — store accumulated error history in errorDetails during retry prep, then extract and carry forward when the next failure occurs. Avoids needing a separate history column.
+- **Decision**: `PipelineResult` doesn't expose `failedAgent`. Use `Object.keys(agentTimings).pop()` as a proxy — the last agent with timing data was running when the failure occurred.
+
 ### 2026-03-11 — User Status Schema (#110)
 - **Pattern**: Schema migration with safe defaults — add columns with `DEFAULT 'active'` and `NOT NULL` so existing rows get backfilled automatically. No need for a separate backfill step (though explicit `UPDATE` in migration is good for safety). The migration is non-breaking: all new columns are either defaulted or nullable.
 - **Pattern**: User account lifecycle as a service module: `lib/services/user-status.ts` groups all status-related operations (suspend, unsuspend, softDelete, updateLastLogin, getUsersByStatus, getUserStatus). Each function operates on a single user and returns the updated row. Status changes always update `updatedAt` alongside the status-specific timestamp.

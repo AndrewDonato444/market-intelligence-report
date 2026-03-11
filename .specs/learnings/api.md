@@ -58,6 +58,11 @@ The RealEstateAPI has free/cheap query modes to use before full data pulls:
 ### 2026-03-10 — Claude Agent Error Tagging
 - **Pattern**: All Claude agents tag errors with `retriable: boolean` before throwing. HTTP 429/500/503 → `retriable: true`. JSON parse failures → `retriable: true` (LLM may produce valid JSON on retry). Abort signals and 400-class errors → `retriable: false`. The orchestrator's `executeWithRetry` reads this flag to decide whether to retry with exponential backoff.
 
+### 2026-03-11 — Structured Error Recording (#120)
+- **Pattern**: Pipeline errors now recorded as structured JSONB (`errorDetails`) with agent identity, stack trace, input snapshot, and retry history. Backward compat maintained by also writing flat `errorMessage`.
+- **Gotcha**: `PipelineResult` doesn't expose `failedAgent` — use `Object.keys(agentTimings).pop()` as proxy (last timed agent was running at failure time).
+- **Pattern**: Never-throw error recording — nested try/catch with fallback chain: full errorDetails → errorMessage only → console.error. Pipeline status must always be updated.
+
 ---
 
 ## Data Shapes

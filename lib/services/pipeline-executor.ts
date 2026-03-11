@@ -26,6 +26,11 @@ import {
   type AssemblyDurations,
 } from "@/lib/agents/report-assembler";
 import { logActivity } from "@/lib/services/activity-log";
+import {
+  buildErrorDetails,
+  recordErrorDetails,
+  extractPreviousErrors,
+} from "@/lib/services/report-error-tracking";
 
 // Agent definitions — v2 pipeline uses 3 core Claude agents + persona intelligence
 import { insightGeneratorAgent } from "@/lib/agents/insight-generator";
@@ -163,14 +168,16 @@ export async function executePipeline(reportId: string): Promise<void> {
     });
 
     if (agentResult.status === "failed") {
-      await db
-        .update(schema.reports)
-        .set({
-          status: "failed",
-          errorMessage: agentResult.error ?? "Pipeline failed",
-          generationCompletedAt: new Date(),
-        })
-        .where(eq(schema.reports.id, reportId));
+      // Determine which agent failed from timing data (last agent with timing = the one that ran)
+      const failedAgent = Object.keys(agentResult.agentTimings).pop() ?? "unknown";
+      const previousErrors = extractPreviousErrors(report.errorDetails);
+      const errorDetails = buildErrorDetails({
+        agent: failedAgent,
+        error: agentResult.error ?? "Pipeline failed",
+        totalStages: ALL_AGENTS.length,
+        previousErrors: previousErrors ?? undefined,
+      });
+      await recordErrorDetails(reportId, errorDetails);
       return;
     }
 
@@ -232,18 +239,14 @@ export async function executePipeline(reportId: string): Promise<void> {
       metadata: { title: report.title },
     });
   } catch (err) {
-    // Pipeline threw an exception
-    const errorMessage =
-      err instanceof Error ? err.message : String(err);
-
-    await db
-      .update(schema.reports)
-      .set({
-        status: "failed",
-        errorMessage,
-        generationCompletedAt: new Date(),
-      })
-      .where(eq(schema.reports.id, reportId));
+    // Pipeline threw an exception — record structured error details
+    const previousErrors = extractPreviousErrors(report.errorDetails);
+    const errorDetails = buildErrorDetails({
+      agent: "pipeline-executor",
+      error: err instanceof Error ? err : String(err),
+      previousErrors: previousErrors ?? undefined,
+    });
+    await recordErrorDetails(reportId, errorDetails);
   }
 }
 
