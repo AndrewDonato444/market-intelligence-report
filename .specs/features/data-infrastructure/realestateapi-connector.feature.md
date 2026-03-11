@@ -141,16 +141,60 @@ interface PropertySearchResult {
 interface PropertyDetail {
   id: string;
   address: string;
-  owner: { name: string; mailingAddress: string } | null;
-  saleHistory: Array<{ date: string; price: number }>;
-  mortgage: { amount: number; lender: string; date: string } | null;
-  valuation: { estimated: number; low: number; high: number } | null;
-  lotSize: number | null;
-  sqft: number | null;
-  bedrooms: number | null;
-  bathrooms: number | null;
-  yearBuilt: number | null;
-  propertyType: string | null;
+  propertyInfo: {
+    bedrooms: number | null;
+    bathrooms: number | null;
+    sqft: number | null;
+    lotSqft: number | null;
+    yearBuilt: number | null;
+    propertyType: string | null;
+    propertyUse: string | null;
+    stories: number | null;
+    garage: string | null;
+    pool: string | null;
+    heating: string | null;
+    cooling: string | null;
+    construction: string | null;
+    roofType: string | null;
+    foundation: string | null;
+  };
+  flags: {
+    isForeign: boolean;
+    isCorporate: boolean;
+    isAbsentee: boolean;
+    isTrust: boolean;
+    isForeclosure: boolean;
+    isReo: boolean;
+    isNewConstruction: boolean;
+    isHighEquity: boolean;
+    isNegativeEquity: boolean;
+    isFreeClear: boolean;
+    isCashBuyer: boolean;
+    isInvestor: boolean;
+    isMultiParcel: boolean;
+    isDeath: boolean;
+    isInterFamily: boolean;
+  };
+  ownerInfo: {
+    ownerName: string | null;
+    ownerType: string | null;
+    mailingAddress: string | null;
+    ownershipLengthMonths: number | null;
+  } | null;
+  taxInfo: { assessedValue: number | null; taxAmount: number | null; taxYear: number | null } | null;
+  lotInfo: { apn: string | null; lotAcres: number | null; lotSquareFeet: number | null; zoning: string | null; landUse: string | null; legalDescription: string | null; subdivision: string | null } | null;
+  saleHistory: Array<{ date: string; price: number; buyerNames: string | null; sellerNames: string | null; documentType: string | null; transactionType: string | null; purchaseMethod: string | null }>;
+  currentMortgages: Array<{ amount: number; interestRate: number | null; interestRateType: string | null; loanType: string | null; lenderName: string | null; documentDate: string | null; position: number | null }>;
+  mlsHistory: Array<{ statusDate: string; status: string; listPrice: number | null; closePrice: number | null; daysOnMarket: number | null; mlsNumber: string | null; listingAgent: string | null; listingOffice: string | null }>;
+  estimatedValue: number | null;
+  estimatedEquity: number | null;
+  equityPercent: number | null;
+  demographics: Record<string, unknown> | null;
+  schools: unknown[] | null;
+  neighborhood: Record<string, unknown> | null;
+  floodZone: string | null;
+  floodZoneType: string | null;
+  linkedProperties: unknown[] | null;
   stale: boolean;
 }
 

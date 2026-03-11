@@ -13,6 +13,7 @@ created: 2026-03-09
 updated: 2026-03-10
 ---
 
+
 # Data Analyst Agent
 
 **Source File**: `lib/agents/data-analyst.ts`
@@ -54,7 +55,7 @@ And the overall market receives an aggregate rating
 ### Scenario: Handle empty or insufficient data gracefully
 Given a market with no matching property results
 When the data-analyst executes
-Then it returns a result with empty segments and a metadata flag "insufficient_data": true
+Then it returns a result with empty segments and confidence level set to reflect sample quality (e.g., "low" for zero or few results)
 And does not throw an error
 
 ### Scenario: Include data freshness in output
@@ -63,17 +64,17 @@ When the data-analyst produces output
 Then the metadata includes confidence_level based on data freshness
 And stale data produces "low" confidence, fresh data produces "high" confidence
 
-### Scenario: Produce market overview section
+### Scenario: Produce structured ComputedAnalytics output
 Given a complete analysis with segments, YoY, and ratings
-When the data-analyst builds its output sections
-Then it produces a "market_overview" section with headline metrics
-And a "executive_summary" section with the analysis matrix data
+When the data-analyst builds its output
+Then it produces a ComputedAnalytics object with typed fields: market, segments, yoy, insightsIndex, dashboard, confidence, and peerComparisons
+And this structured object feeds all downstream agents (insight-generator, competitive-analyst, forecast-modeler) rather than named report sections
 
-### Scenario: Conform to pipeline interface
-Given the data-analyst is registered as an AgentDefinition
-When the orchestrator calls execute(context)
-Then it receives AgentContext with market, reportConfig, and abortSignal
-And returns AgentResult with sections and metadata
+### Scenario: Conform to computation layer interface
+Given the data-analyst is a pure computation layer (not a pipeline agent)
+When Layer 0 (data-fetcher.ts) fetches property data and Layer 1 (market-analytics.ts) invokes computation
+Then the module exports computation functions (computeSegmentMetrics, computeYoY, assignRating) and types
+And it does NOT export an AgentDefinition or execute(context) — it is called directly by market-analytics, not by the pipeline orchestrator
 
 ## Technical Notes
 

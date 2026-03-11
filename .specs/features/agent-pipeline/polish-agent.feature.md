@@ -9,7 +9,7 @@ personas:
   - primary
 status: implemented
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # Polish Agent
@@ -62,8 +62,9 @@ And it throws with retriable: false if aborted
 ### Scenario: Conforms to pipeline agent interface
 Given the polish-agent definition
 Then it has name "polish-agent"
-And it has dependencies ["data-analyst", "insight-generator"]
+And it has dependencies ["insight-generator"]
 And its execute function returns AgentResult with sections and metadata
+# Note: Data arrives via `computedAnalytics` instead of data-analyst upstream (v2 architecture)
 
 ## Data Flow
 

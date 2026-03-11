@@ -9,7 +9,7 @@ personas:
   - primary
 status: implemented
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # Forecast Modeler Agent
@@ -69,9 +69,10 @@ And it throws an error with retriable: false if aborted
 ### Scenario: Conforms to pipeline agent interface
 Given the forecast-modeler agent definition
 Then it has name "forecast-modeler"
-And it has dependencies ["data-analyst"]
+And it has dependencies []
 And its execute function accepts AgentContext
 And its execute function returns AgentResult with sections and metadata
+# Note: Data arrives via `computedAnalytics` in the agent context (v2 architecture)
 
 ## Data Flow
 

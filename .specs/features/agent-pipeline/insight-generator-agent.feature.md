@@ -9,7 +9,7 @@ personas:
   - primary
 status: implemented
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # Insight Generator Agent
@@ -62,9 +62,10 @@ And it throws an error with retriable: false if aborted
 ### Scenario: Conforms to pipeline agent interface
 Given the insight-generator agent definition
 Then it has name "insight-generator"
-And it has dependencies ["data-analyst"]
+And it has dependencies []
 And its execute function accepts AgentContext
 And its execute function returns AgentResult with sections and metadata
+# Note: Data arrives via `computedAnalytics` in the agent context (v2 architecture)
 
 ### Scenario: Includes market context in Claude prompt
 Given the agent context contains market geography and luxury tier

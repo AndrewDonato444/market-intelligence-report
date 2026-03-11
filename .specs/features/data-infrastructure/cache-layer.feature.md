@@ -11,7 +11,7 @@ personas:
   - legacy-agent
 status: implemented
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # Cache Layer — DB-backed with TTL by Data Type
@@ -78,7 +78,8 @@ Given the TTL configuration defines different durations per source
 When data from different sources is cached
 Then RealEstateAPI data uses 24h TTL (transaction data)
 And ScrapingDog data uses 7d TTL (neighborhood context is stable)
-And Anthropic/agent output uses 0 TTL (never cached)
+And Anthropic data uses 0 TTL (never cached)
+And agent-output data uses 7d TTL (only changes when source data hash changes)
 
 ### Scenario: API usage is logged on external call
 Given an API call is made to RealEstateAPI
@@ -109,6 +110,7 @@ And the key is human-readable for debugging
 | `realestateapi` | 86400s (24h) | Transaction data is stable within a day |
 | `scrapingdog` | 604800s (7d) | Neighborhood context changes slowly |
 | `anthropic` | 0 (never) | AI outputs should always be fresh |
+| `agent-output` | 604800s (7d) | Agent outputs only change when source data changes (new hash) |
 
 ### Cache Key Format
 
@@ -125,9 +127,9 @@ Examples:
 // lib/services/cache.ts
 get(key: string): Promise<unknown | null>
 set(key: string, source: string, data: unknown, ttlSeconds?: number): Promise<void>
-delete(key: string): Promise<void>
-deleteBySource(source: string): Promise<number>
-cleanup(): Promise<number>
+del(key: string): Promise<void>
+deleteBySource(source: string): Promise<void>
+cleanup(): Promise<void>
 buildKey(source: string, endpoint: string, params: Record<string, unknown>): string
 
 // lib/services/api-usage.ts

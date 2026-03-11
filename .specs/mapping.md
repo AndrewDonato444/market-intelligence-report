@@ -50,7 +50,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | foundation | [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md) | `app/layout.tsx, app/page.tsx, tailwind.config.ts, app/globals.css` | see spec | see spec | implemented |
 | marketing | [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md) | `app/page.tsx` | see spec | see spec | implemented |
 | pipeline | [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md) | `lib/services/data-source-registry.ts` | see spec | see spec | implemented |
-| pipeline | [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md) | `lib/services/pipeline-executor.ts` | see spec | see spec | specced |
+| pipeline | [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md) | `lib/services/pipeline-executor.ts` | see spec | see spec | implemented |
 | report-builder | [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
 | report-builder | [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md) | `components/reports/report-wizard.tsx` | see spec | see spec | implemented |
 | report-builder | [Report Preview](.specs/features/report-builder/report-preview.feature.md) | `components/reports/report-preview.tsx` | see spec | see spec | implemented |
@@ -77,9 +77,9 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 4 |
+| specced | 3 |
 | tested | 0 |
-| implemented | 46 |
+| implemented | 47 |
 | **Total** | **51** |
 
 ---
@@ -95,7 +95,6 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
-- [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md)
 
 ### Tested
 
@@ -131,6 +130,7 @@ _None_
 - [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md)
 - [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md)
 - [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md)
+- [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md)
 - [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md)
 - [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md)
 - [Report Preview](.specs/features/report-builder/report-preview.feature.md)

@@ -7,9 +7,9 @@ tests:
 components: []
 personas:
   - primary
-status: specced
+status: implemented
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # Pipeline Execution Service
@@ -51,7 +51,7 @@ And the error message indicates "Market not found"
 ### Scenario: Section persistence
 Given the pipeline produces sections with sectionType, title, content
 When sections are saved to the database
-Then each section gets the correct sortOrder from SECTION_REGISTRY
+Then each section gets the correct sortOrder from SECTION_REGISTRY_V2 (10 sections)
 And each section has the agentName that produced it
 And the generatedAt timestamp is set
 
@@ -87,12 +87,16 @@ POST /api/reports/[id]/generate
        ├─ Convert market DB row → MarketData
        ├─ Build PipelineOptions
        │
-       ├─ createPipelineRunner(ALL_AGENTS)
-       ├─ runner.run(reportId, options)
+       ├─ 4-Layer Pipeline:
        │     │
-       │     ├─ Layer 1: data-analyst
-       │     ├─ Layer 2: insight-generator, competitive-analyst, forecast-modeler
-       │     └─ Layer 3: polish-agent
+       │     ├─ Layer 0: fetchAllMarketData() → CompiledMarketData
+       │     ├─ Layer 1: computeMarketAnalytics() → ComputedAnalytics
+       │     ├─ Layer 2: Claude agents (insight-generator, forecast-modeler, polish-agent, persona-intelligence)
+       │     └─ Layer 3: assembleReport() → ReportData
+       │
+       │  Note: data-analyst functions are used in Layer 0/1 (not a separate pipeline agent).
+       │  competitive-analyst is deprecated and folded into Layer 1 computations.
+       │  The v2 pipeline uses SECTION_REGISTRY_V2 with 10 sections.
        │
        ├─ For each section in result:
        │     INSERT INTO report_sections (reportId, sectionType, title, content, agentName, sortOrder)

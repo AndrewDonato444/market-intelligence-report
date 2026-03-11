@@ -10,7 +10,7 @@ personas:
   - competitive-veteran
 status: implemented
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # Agent Orchestration Framework
@@ -27,7 +27,7 @@ The agent orchestration framework coordinates specialized AI agents (Claude-powe
 Given a report is queued with a valid market definition
 And all required data sources are cached
 When the pipeline runner starts the report
-Then it transitions the report status to "generating"
+Then it transitions the report status to "running"
 And it executes agents in dependency order: data-analyst → insight-generator, competitive-analyst, forecast-modeler (parallel) → polish
 And each agent receives output from its upstream dependencies
 And the report status transitions to "completed" when all agents finish
@@ -61,7 +61,7 @@ And agents wait for their dependencies to complete before starting
 Given a pipeline is started for a specific report and market
 When each agent executes
 Then it receives the market definition, report config, and outputs from upstream agents
-And it has access to the data connectors (RealEstateAPI, ScrapingDog)
+And it receives `computedAnalytics` (optional pre-computed Layer 1 output) if provided in pipeline options
 
 ### Scenario: Cancel a running pipeline
 Given a pipeline is in progress
@@ -118,13 +118,14 @@ interface AgentDefinition {
 }
 
 // Context passed to each agent
-interface AgentContext {
+export interface AgentContext {
   reportId: string;
   userId: string;
   market: MarketData;
   reportConfig: ReportConfig;
   upstreamResults: Record<string, AgentResult>;
   abortSignal: AbortSignal;
+  computedAnalytics?: ComputedAnalytics;
 }
 
 // Result from each agent
@@ -157,10 +158,15 @@ interface PipelineRunner {
   getProgress(reportId: string): PipelineProgress;
 }
 
-interface PipelineOptions {
-  maxRetries?: number;       // default: 2
-  retryDelayMs?: number;     // default: 1000 (base for exponential backoff)
+export interface PipelineOptions {
+  userId: string;
+  market: MarketData;
+  reportConfig: ReportConfig;
+  maxRetries?: number;
+  retryDelayMs?: number;
   onEvent?: (event: PipelineEvent) => void;
+  computedAnalytics?: ComputedAnalytics;
+  bypassAgentCache?: boolean;
 }
 
 interface PipelineProgress {
@@ -173,12 +179,13 @@ interface PipelineProgress {
   events: PipelineEvent[];
 }
 
-interface PipelineResult {
+export interface PipelineResult {
   reportId: string;
   status: "completed" | "failed";
   sections: SectionOutput[];
   totalDurationMs: number;
   agentTimings: Record<string, number>;
+  agentResults?: Record<string, AgentResult>;
   error?: string;
 }
 ```
@@ -203,6 +210,9 @@ const DEFAULT_AGENTS: AgentDefinition[] = [
 - Non-retryable errors: Invalid data, missing required fields, schema validation failures
 - Exponential backoff: delay * 2^attempt (1s, 2s, 4s)
 - Max retries configurable per pipeline run (default: 2)
+
+### Agent Output Cache Integration
+The orchestrator integrates with the agent output cache (`lib/services/agent-cache.ts`). Before executing each agent, it computes a SHA-256 hash of the agent's input and checks the cache. On cache hit, the agent's `execute` function is skipped. On miss, the result is stored after execution. The `bypassAgentCache` option skips the cache lookup but still stores fresh results. See `agent-output-cache.feature.md` for full details.
 
 ## User Journey
 

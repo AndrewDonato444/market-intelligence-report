@@ -51,6 +51,14 @@ Then it returns an empty AgentResult with no sections
 And metadata contains { skipped: true, reason: "no_personas_selected" }
 And the pipeline continues normally without persona content
 
+### Scenario: Agent calibrates persona specs to local market data
+Given the report has personas selected and computedAnalytics is available
+When the agent prepares persona data for the Claude prompt
+Then it calls calibratePersonasToMarket() from lib/services/market-calibration.ts
+And it calls mergeCalibrationOverrides() to adjust persona specs (e.g., price ranges, property filters) to the local market
+And the calibrated persona specs are used in the prompt instead of the raw database values
+And this ensures talking points and metric emphasis reflect actual local conditions
+
 ### Scenario: Agent generates persona-specific talking points from market data
 Given the report has "The Business Mogul" selected (primary)
 And computedAnalytics contains median price $8.2M, YoY price change +12.4%, 87% cash transactions
@@ -406,7 +414,7 @@ Return JSON in this exact structure:
 
 - Model: `claude-sonnet-4-6` (consistent with other narrative agents)
 - Temperature: 0.6 (slightly lower than insight-generator — persona vocabulary must be precise)
-- Max tokens: 8000 (multi-persona output is larger than single-narrative agents)
+- Max tokens: 16000 (multi-persona output is larger than single-narrative agents)
 
 ## User Journey
 
@@ -435,7 +443,7 @@ Return JSON in this exact structure:
 ### 2026-03-10
 - **Pattern**: Agent follows the same structure as insight-generator: output types → helpers → buildSystemPrompt() → buildUserPrompt() → executeX() → agent definition export. This pattern is the canonical agent template.
 - **Decision**: Temperature 0.6 (vs 0.7 for insight-generator) — persona content needs to be faithful to persona specs (vocabulary, avoid lists), so slightly less creative variance.
-- **Decision**: max_tokens 8000 (vs 4096 for insight-generator) — persona agent outputs per-persona content for up to 3 personas plus blended content, roughly 2x the output volume.
+- **Decision**: max_tokens 16000 (vs 4096 for insight-generator) — persona agent outputs per-persona content for up to 3 personas plus blended content, roughly 2x the output volume.
 - **Pattern**: When an agent depends on upstream agents but upstream may fail, check for missing upstreams and note them in the prompt rather than throwing. The agent can still generate useful output with partial context.
 - **Decision**: `blended` is null for single-persona reports (no blending needed). The spec defines 5 blending rules (Metric Union, Filter Intersection, Narrative Hierarchy, Blended Talking Points max 7, De-Emphasis Conflicts) but these are instructions to Claude, not code-level logic.
 - **Gotcha**: The `getReportPersonas()` function returns `{ selectionOrder, persona }[]` — the persona object is nested under `.persona`, not at the top level. Must destructure correctly when building the prompt.

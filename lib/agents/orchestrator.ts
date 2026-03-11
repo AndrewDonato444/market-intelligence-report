@@ -446,13 +446,14 @@ export function createPipelineRunner(agents: AgentDefinition[]): PipelineRunner 
       } catch (err) {
         const error = err instanceof Error ? err : new Error(String(err));
         const totalDurationMs = Date.now() - pipelineStart;
+        const failedAgent = progress.currentAgents[0] ?? "";
         progress.status = "failed";
         progress.currentAgents = [];
 
         emitEvent({
           type: "pipeline_failed",
           error: error.message,
-          failedAgent: progress.currentAgents[0] ?? "",
+          failedAgent,
           timestamp: new Date(),
         });
 
