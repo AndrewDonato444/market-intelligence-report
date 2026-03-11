@@ -1,7 +1,7 @@
 ---
 feature: Report Builder Wizard
 domain: report-builder
-source: components/reports/report-wizard.tsx
+source: (deleted — replaced by unified-report-entry)
 tests:
   - __tests__/reports/report-wizard.test.tsx
 components:
@@ -9,7 +9,7 @@ components:
   - StepIndicator
 personas:
   - primary
-status: implemented
+status: archived
 created: 2026-03-09
 updated: 2026-03-10
 ---

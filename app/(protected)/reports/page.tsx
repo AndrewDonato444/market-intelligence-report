@@ -29,7 +29,7 @@ export default async function ReportsPage() {
           </p>
         </div>
         <Link
-          href="/reports/new"
+          href="/reports/create"
           className="px-4 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
         >
           Generate New Report
@@ -42,7 +42,7 @@ export default async function ReportsPage() {
             No reports yet. Generate your first market intelligence report.
           </p>
           <Link
-            href="/reports/new"
+            href="/reports/create"
             className="inline-block mt-4 px-6 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
           >
             Generate New Report
