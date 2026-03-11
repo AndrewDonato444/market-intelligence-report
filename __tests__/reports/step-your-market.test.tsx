@@ -78,7 +78,7 @@ describe("Step 1: Your Market (#152)", () => {
   describe("StepYourMarket", () => {
     let StepYourMarket: React.ComponentType<{
       markets: typeof MOCK_MARKETS;
-      onStepComplete: (data: Record<string, unknown>) => void;
+      onStepComplete: (data: import("@/components/reports/steps/step-your-market").StepMarketData) => void;
       onValidationChange?: (valid: boolean) => void;
     }>;
 
