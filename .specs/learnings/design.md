@@ -69,6 +69,11 @@ Patterns for UI and design system in this codebase.
 
 ## Editorial Landing Page Patterns
 
+### 2026-03-11 — Landing Page v2 Redesign
+- **Pattern**: Mock report card as hero element — a styled card showing real-looking data (agent name, brokerage, index scores, segment grades) acts as both product preview and social proof. Uses `bg-[var(--color-primary)]` dark card with gold accent metrics. More effective than screenshots because it's responsive and always pixel-perfect.
+- **Decision**: CTA verb upgraded from "Request" to "Commission" for v2 — aligns with advisory/luxury vocabulary. "Commission a Report" on nav CTA, "Commission Your First Report" on hero CTA. The verb implies bespoke work, not self-service SaaS.
+- **Pattern**: Section alternation rhythm for v2: dark hero → light credibility strip → white gap section → warm surface for process steps → white for report breakdown → dark testimonials → warm pricing → dark final CTA. Alternating `color-primary` (dark) and `color-report-bg`/`color-surface` (light) backgrounds create visual chapters.
+
 ### 2026-03-10
 - **Pattern**: "Data as Art" callouts — oversized Playfair numbers (`text-5xl`, `color-accent`) with a small gold accent line (`w-6 h-0.5`) and supporting context in `text-sm` Inter. These turn statistics into narrative moments per the Knox Brothers creative brief.
 - **Pattern**: Full-bleed photography sections use `relative` container with an `absolute inset-0` overlay div at 85% opacity over `color-primary`. The text sits in a `relative z-10` inner container. This pattern works for hero and closing sections. When real images are added, swap the overlay's bg-color div for a `next/image` with `fill` prop + the same overlay on top.

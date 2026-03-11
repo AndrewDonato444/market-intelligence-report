@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Landing Page v2 Redesign
+
+- **Mock report card text collisions** (`testing.md`): Shared text between hero mock card and other sections (metrics, labels) causes `getByText` failures. Always scope with `within(screen.getByTestId(...))` or use exact-match regex anchors
+- **Commission verb for luxury CTA** (`design.md`): "Commission a Report" outperforms "Request" or "Get Started" for advisory positioning — implies bespoke work
+- **Split hero with product preview** (`design.md`): Copy left + mock report card right works for product-led pages without needing real screenshots
+- **Anchor nav with scroll-mt-16** (feature spec): Only 3 nav links keeps header clean; `scroll-mt-16` clears the fixed nav on anchor scroll
+
 ### 2026-03-11 — Report Eval Dashboard (#142)
 
 - **Eval dashboard mirroring pattern** (`general.md`): The report eval dashboard mirrors the agent eval dashboard architecture (localStorage, batch execution with concurrency pool, AbortController, JSON export) but adds criterion/fixture filter dropdowns and two new breakdown panels. Mirror-and-extend is faster than abstracting prematurely

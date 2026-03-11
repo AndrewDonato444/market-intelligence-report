@@ -51,6 +51,10 @@ Patterns for testing in this codebase.
 
 <!-- Common assertion patterns, custom matchers -->
 
+### 2026-03-11 — Landing Page v2 test scoping
+- **Gotcha**: When a mock report card in the hero shares text with other sections (e.g., "Ultra-Luxury" label appears in both metric card and segment grade row, "10" appears in credibility strip and report section numbering), `getByText` throws "multiple elements found". Fix with `within(screen.getByTestId("data-callouts"))` for section scoping, or `getAllByText(/^The Narrative$/i)` with exact-match anchors + length assertion.
+- **Pattern**: For pages with many sections sharing vocabulary (e.g., report card preview + report breakdown), assign `data-testid` to every section container and always use `within()` for assertions. This is more resilient than text-based queries as content evolves.
+
 ### 2026-03-10
 - **Gotcha**: `screen.getByText(/CAGR/)` throws when multiple elements match the regex (e.g., CAGR appears in talking points, metric names, and emphasis lists). Use `screen.getAllByText(/CAGR/).length` with `toBeGreaterThan(0)` for presence checks when duplicates are expected.
 - **Pattern**: For PDF renderer tests with rich content, use factory functions (`makePersonaContent()`, `makeBlendedContent()`) with `overrides` parameter. This keeps test data realistic while allowing per-test customization via spread.
