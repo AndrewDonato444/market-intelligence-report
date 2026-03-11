@@ -1,11 +1,13 @@
 ---
 feature: Admin User List
 domain: admin
-source: app/admin/users/page.tsx, components/admin/user-list-dashboard.tsx, app/api/admin/users/route.ts
+source: app/admin/users/page.tsx, components/admin/user-list-dashboard.tsx, app/api/admin/users/route.ts, components/layout/admin-sidebar.tsx
 tests:
   - __tests__/admin/user-list-dashboard.test.tsx
+  - __tests__/admin/admin-sidebar.test.tsx
 components:
   - UserListDashboard
+  - AdminSidebar
 personas:
   - internal-developer
 status: implemented
@@ -32,7 +34,7 @@ And users are sorted by most recent activity by default
 ### Scenario: Admin searches users by name or email
 Given the admin is on the user list page
 When they type "john" in the search box
-Then the table filters to show only users whose name or email contains "john"
+Then after a 300ms debounce the table filters to show only users whose name or email contains "john"
 
 ### Scenario: Admin filters by status
 Given the admin is on the user list page
@@ -86,22 +88,28 @@ Then they are redirected to `/dashboard`
 ```
 ┌──────────────────────────────────────────────────────────┐
 │ Users                                         [Search... ]│
+│ Manage platform accounts                                  │
 ├──────────────────────────────────────────────────────────┤
 │ [All (47)]  [Active (44)]  [Suspended (2)]  [Deleted (1)]│
 ├──────────────────────────────────────────────────────────┤
-│ Name ↓      │ Email        │ Company  │Status│Last Login │
-│─────────────┼──────────────┼──────────┼──────┼───────────│
-│ Jane Smith  │ jane@...     │ Acme RE  │ ●    │ Mar 10    │
-│ John Doe    │ john@...     │ Lux Grp  │ ●    │ Mar 9     │
-│ ...         │ ...          │ ...      │ ...  │ ...       │
+│ Name        │ Email        │ Company  │Status    │Last Login ↓│Created│
+│─────────────┼──────────────┼──────────┼──────────┼────────────┼───────│
+│ Jane Smith  │ jane@...     │ Acme RE  │[active]  │ Mar 10, 2026│Jan 15│
+│ John Doe    │ john@...     │ Lux Grp  │[active]  │ Mar 9, 2026│Feb 1 │
+│ Bob Wilson  │ bob@...      │ —        │[suspended]│ Feb 20    │Jan 1 │
 ├──────────────────────────────────────────────────────────┤
-│ Showing 1-20 of 47                  [← Prev] [Next →]   │
+│ Showing 1–20 of 47                  [Prev]  [Next]       │
 └──────────────────────────────────────────────────────────┘
 
-Status indicators:
-  ● green  = active
-  ● yellow = suspended
-  ● red    = deleted
+Status badges (colored text on tinted background):
+  [active]    = green text on green-tint background
+  [suspended] = yellow text on yellow-tint background
+  [deleted]   = red text on red-tint background
+
+Default sort: Last Login descending (most recent activity first).
+Column headers Name, Email, Last Login, Created are clickable to sort.
+Company and Status columns are not sortable.
+Null company displays as em-dash (—).
 ```
 
 ## Component References
