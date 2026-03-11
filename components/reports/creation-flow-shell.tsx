@@ -5,7 +5,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import { pageTransition } from "@/lib/animations";
 import { CreationStepIndicator } from "./creation-step-indicator";
 import { StepYourMarket } from "./steps/step-your-market";
+import { StepYourTier } from "./steps/step-your-tier";
 import type { StepMarketData } from "./steps/step-your-market";
+import type { StepTierData } from "./steps/step-your-tier";
 import type { PageDirection } from "@/lib/animations";
 
 const STEPS = [
@@ -54,6 +56,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   const [direction, setDirection] = useState<PageDirection>("forward");
   const [stepValid, setStepValid] = useState(false);
   const marketDataRef = useRef<StepMarketData | null>(null);
+  const tierDataRef = useRef<StepTierData | null>(null);
 
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
@@ -82,6 +85,14 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     setStepValid(valid);
   }, []);
 
+  const handleTierStepComplete = useCallback((data: StepTierData) => {
+    tierDataRef.current = data;
+  }, []);
+
+  const handleTierValidation = useCallback((valid: boolean) => {
+    setStepValid(valid);
+  }, []);
+
   const step = STEPS[currentStep];
 
   const renderStepContent = () => {
@@ -95,7 +106,16 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    // Placeholder for steps 1-5 (features #153-#157)
+    if (currentStep === 1) {
+      return (
+        <StepYourTier
+          onStepComplete={handleTierStepComplete}
+          onValidationChange={handleTierValidation}
+        />
+      );
+    }
+
+    // Placeholder for steps 2-5 (features #154-#157)
     return (
       <div className="py-8 text-center">
         <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-2">

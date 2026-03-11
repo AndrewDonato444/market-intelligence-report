@@ -300,7 +300,7 @@ describe("Unified Creation Flow Shell (#151)", () => {
       ).toBeInTheDocument();
     });
 
-    it("step 0 shows StepYourMarket content, step 1 shows placeholder", () => {
+    it("step 0 shows StepYourMarket content, step 1 shows StepYourTier content", () => {
       render(
         React.createElement(CreationFlowShell, { markets: mockMarkets })
       );
@@ -311,7 +311,7 @@ describe("Unified Creation Flow Shell (#151)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /next/i }));
       const step2 = screen.getByTestId("step-content-1");
-      expect(step2.textContent).toContain("Your Tier");
+      expect(step2.textContent).toContain("What's your price point?");
     });
   });
 });
