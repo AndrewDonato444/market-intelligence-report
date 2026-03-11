@@ -61,6 +61,10 @@ const STEP_NAMES = [
 ];
 
 describe("Unified Creation Flow Shell (#151)", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   describe("File structure", () => {
     it("has creation flow route page", () => {
       expect(
