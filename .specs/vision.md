@@ -60,9 +60,22 @@ The example Naples Intelligence Report is stored at `.specs/reference/naples-int
 | **Report Preview** | Live preview of the generated report as it's being assembled | Core |
 | **Report Editor** | Post-generation editing — adjust narratives, swap photos, refine insights | Core |
 | **Report Export** | PDF generation, digital sharing links, print-ready output | Core |
-| **Data Cache Dashboard** | Admin view of cached API data, freshness, cost tracking | Secondary |
 | **Report History** | Past reports, templates, versioning | Secondary |
 | **Account & Billing** | Subscription management, usage tracking (API costs are real) | Secondary |
+
+### Admin Platform
+
+| Screen | Purpose | Priority |
+|--------|---------|----------|
+| **Admin: User Management** | View all users, search/filter, suspend or delete accounts, view account status and activity | Core |
+| **Admin: Report Registry** | Browse all reports across all users — filter by status (completed, failed, generating), view report details, identify errors that need intervention | Core |
+| **Admin: Error Triage** | Surface reports with errors or pipeline failures, show error details, allow admin to re-trigger or manually intervene | Core |
+| **Admin: Analytics Dashboard** | Usage statistics — report volume over time, geographic breakdowns (by state, city, market), segment distribution, user activity trends | Core |
+| **Admin: Report Eval Suite** | End-to-end eval scoring of finished reports (not just individual agents) — data accuracy, narrative quality, completeness, formatting, actionability | Core |
+| **Admin: Agent Eval Suite** | Existing per-agent eval suite — test cases for insight-generator, forecast-modeler, polish-agent | Implemented |
+| **Admin: Pipeline Visualizer** | Existing pipeline execution visualization | Implemented |
+| **Admin: System Monitoring** | Existing cache stats, API costs, pipeline health dashboard | Implemented |
+| **Admin: Data Sources** | Existing data source registry and health checks | Implemented |
 
 ---
 
@@ -183,6 +196,63 @@ APIs for luxury real estate data are expensive. The backend must be built around
 
 ---
 
+## Admin Platform
+
+The admin platform is the internal operations center for Modern Signal Advisory. It enables the MSA team to manage users, monitor report quality, triage errors, and understand platform usage patterns. All admin screens are behind role-based auth (`requireAdmin()`).
+
+### User Management
+
+Full lifecycle management of agent accounts:
+- **User list** with search, filter by status (active, suspended), sort by last activity
+- **Suspend accounts** — temporarily disable access without deleting data. Suspended users see a "contact support" message on login
+- **Delete accounts** — permanent removal with confirmation. Cascades to orphan reports (kept for analytics but de-linked from user)
+- **Account detail view** — registration date, last login, total reports generated, current subscription status, market(s) configured
+- **Activity timeline** — chronological log of user actions (report created, report exported, market changed)
+
+### Report Registry & Error Triage
+
+Visibility into every report generated across the platform:
+- **Report list** — all reports across all users, filterable by status (queued, generating, completed, failed), date range, user, market
+- **Error triage** — dedicated view surfacing failed reports and pipeline errors. For each error: which agent failed, error message, stack trace, input data. Admin can re-trigger the pipeline or mark as "needs manual fix"
+- **Report detail** — view the full generated report, see which agents ran, execution time per agent, cache hit rates, API costs incurred
+- **Intervention workflow** — when a user's report has errors, admin can investigate, fix underlying data issues, and re-run. User gets notified when their report is ready
+
+### Analytics Dashboard
+
+Operational intelligence for the MSA team:
+- **Volume metrics** — total reports generated (daily, weekly, monthly), trend over time
+- **Geographic breakdown** — reports by state, city, and market. Heat map or ranked list showing where demand is concentrated
+- **Segment analysis** — which luxury tiers are most requested (high-luxury vs ultra-luxury), which buyer personas are most selected
+- **User analytics** — active users, churn indicators, power users (most reports), new signups over time
+- **Pipeline performance** — average generation time, cache hit rates, API cost per report, error rates by agent
+- **Data export** — CSV/JSON export of analytics data for external analysis
+
+### Report Eval Suite
+
+End-to-end quality scoring of finished reports (complements the existing per-agent eval suite):
+- **Report-level test cases** — score the full assembled report, not individual agent outputs. Criteria include:
+  - **Data accuracy** — do the numbers in the narrative match the underlying data?
+  - **Completeness** — are all expected sections present and substantive?
+  - **Narrative quality** — is the writing strategic, not generic? Does it reference specific data?
+  - **Formatting & structure** — does the report follow the reference layout?
+  - **Actionability** — does each section include timing recommendations and strategic positioning?
+  - **Persona alignment** — if personas were selected, does the content reflect their vocabulary and priorities?
+- **Scoring rubric** — LLM-as-judge scoring (1–5) with breakdown by criterion, mirroring the existing agent eval pattern
+- **Regression tracking** — track report quality scores over time to catch pipeline degradation
+- **Sample report library** — curated set of "golden" reports that represent the quality bar
+
+### Existing Admin Features (Implemented)
+
+| Feature | Status | Location |
+|---------|--------|----------|
+| Agent Eval Suite | Implemented | `/admin/eval` — 24 test cases across insight-generator, forecast-modeler, polish-agent |
+| Pipeline Visualizer | Implemented | `/admin/pipeline` — execution flow visualization |
+| System Monitoring | Implemented | `/admin/monitoring` — cache stats, API costs, pipeline health |
+| Data Source Registry | Implemented | `/admin/data-sources` — connector management, health checks |
+| Role-based Auth | Implemented | `requireAdmin()` — auth ID + role check |
+
+---
+
 ## Out of Scope (for now)
 
 - Mobile native apps (web-responsive is sufficient)
@@ -192,6 +262,8 @@ APIs for luxury real estate data are expensive. The backend must be built around
 - Direct MLS integration (start with manual data upload + API where available)
 - Real-time market alerts / notifications
 - Client-facing portal (agents share PDFs, not app access)
+- Public-facing admin API (admin functions are internal UI only)
+- Automated user suspension rules (manual admin action only for now)
 
 ---
 
