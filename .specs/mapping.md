@@ -70,11 +70,14 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | user-setup | [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md) | `app/(protected)/markets/[id]/edit/page.tsx, app/api/markets/[id]/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | user-setup | [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md) | `app/(protected)/markets/[id]/peers/page.tsx, app/api/markets/[id]/peers/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | ux-redesign | [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md) | `components/ui/tooltip.tsx, lib/animations.ts` | see spec | see spec | implemented |
+| ux-redesign | [Dashboard Redesign](.specs/features/ux-redesign/dashboard-redesign.feature.md) | `app/(protected)/dashboard/page.tsx` | see spec | see spec | implemented |
+| ux-redesign | [Flow Persistence & Returning User Shortcuts](.specs/features/ux-redesign/flow-persistence.feature.md) | `components/reports/creation-flow-shell.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md) | `components/reports/steps/step-your-market.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 2: Your Tier](.specs/features/ux-redesign/step-2-your-tier.feature.md) | `components/reports/steps/step-your-tier.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 3: Your Focus](.specs/features/ux-redesign/step-3-your-focus.feature.md) | `components/reports/steps/step-your-focus.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 4: Your Audience](.specs/features/ux-redesign/step-4-your-audience.feature.md) | `components/reports/steps/step-your-audience.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 5: Review & Generate](.specs/features/ux-redesign/step-5-review-and-generate.feature.md) | `components/reports/steps/step-your-review.tsx` | see spec | see spec | implemented |
+| ux-redesign | [Step 6: Generating](.specs/features/ux-redesign/step-6-generating.feature.md) | `components/reports/steps/step-generating.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Unified Creation Flow Shell](.specs/features/ux-redesign/unified-creation-flow-shell.feature.md) | `app/(protected)/reports/create/page.tsx` | see spec | see spec | implemented |
 
 ---
@@ -86,8 +89,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 54 |
-| **Total** | **58** |
+| implemented | 57 |
+| **Total** | **61** |
 
 ---
 
@@ -157,11 +160,14 @@ _None_
 - [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md)
 - [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md)
 - [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md)
+- [Dashboard Redesign](.specs/features/ux-redesign/dashboard-redesign.feature.md)
+- [Flow Persistence & Returning User Shortcuts](.specs/features/ux-redesign/flow-persistence.feature.md)
 - [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md)
 - [Step 2: Your Tier](.specs/features/ux-redesign/step-2-your-tier.feature.md)
 - [Step 3: Your Focus](.specs/features/ux-redesign/step-3-your-focus.feature.md)
 - [Step 4: Your Audience](.specs/features/ux-redesign/step-4-your-audience.feature.md)
 - [Step 5: Review & Generate](.specs/features/ux-redesign/step-5-review-and-generate.feature.md)
+- [Step 6: Generating](.specs/features/ux-redesign/step-6-generating.feature.md)
 - [Unified Creation Flow Shell](.specs/features/ux-redesign/unified-creation-flow-shell.feature.md)
 
 ---

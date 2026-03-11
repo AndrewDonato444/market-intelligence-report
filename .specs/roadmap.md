@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 59 |
+| ✅ Completed | 60 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 26 |
+| ⬜ Pending | 25 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-11
@@ -216,7 +216,7 @@
 | 156 | Step 5: Review & Generate — beautiful summary card with edit-back links to each step, auto-generated editable title, estimated generation time, premium "Generate Report" CTA | vision | M | 151 | ✅ |
 | 157 | Step 6: Generating — pipeline progress integrated into flow (not separate page), contextual stage descriptions ("Analyzing 2,234 transactions..."), animated progress indicators, time remaining | vision | M | 151, 80 | ✅ |
 | 158 | Flow persistence + returning user shortcuts — save/resume mid-flow state, existing-market users skip to Step 4, market editing inline (not separate page) | vision | M | 151 | ✅ |
-| 159 | Dashboard redesign — market cards with "New Report" quick-start action, recent reports list, empty state artistry, animated entrance | vision | M | 150, 4 | ⬜ |
+| 159 | Dashboard redesign — market cards with "New Report" quick-start action, recent reports list, empty state artistry, animated entrance | vision | M | 150, 4 | ✅ |
 
 **Goal**: The market definition and report generation flow is a single, beautiful guided experience. Agents feel walked through something special — visual card selectors, smooth animations, contextual help at every step, and a refined progress indicator. Returning users skip ahead seamlessly.
 
