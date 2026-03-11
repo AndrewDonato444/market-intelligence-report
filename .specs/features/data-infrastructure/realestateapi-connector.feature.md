@@ -10,7 +10,7 @@ personas:
   - legacy-agent
 status: implemented
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # RealEstateAPI Connector
@@ -28,6 +28,13 @@ Given a market definition for Naples, FL with luxury tier ($6M+)
 When the connector searches properties matching those filters
 Then it returns a list of matching properties with key fields (address, price, sqft, bedrooms, property type, sale date)
 And the results are paginated
+
+### Scenario: Search properties with date bounds
+Given search params include lastSaleDateMin and lastSaleDateMax (YYYY-MM-DD)
+When the connector searches properties
+Then it sends `last_sale_date_min` and `last_sale_date_max` in the API request body
+And the date params are included in the cache key for separate caching per period
+And when date params are not provided, they are omitted from the request body
 
 ### Scenario: Search with cache integration
 Given the cache layer is available
@@ -105,6 +112,8 @@ interface PropertySearchParams {
   propertyTypes?: string[];
   limit?: number;
   offset?: number;
+  lastSaleDateMin?: string; // YYYY-MM-DD
+  lastSaleDateMax?: string; // YYYY-MM-DD
 }
 
 interface PropertySummary {
@@ -169,7 +178,7 @@ buildSearchParamsFromMarket(market: Market): PropertySearchParams
 
 ### Caching Strategy
 
-- Search key: `reapi:property-search:{sorted-params-hash}`
+- Search key: `reapi:property-search:{sorted-params-hash}` (includes date bounds when provided)
 - Detail key: `reapi:property-detail:{propertyId}`
 - Comps key: `reapi:property-comps:{address-hash}`
 - TTL: 86400s (24h) per SOURCE_TTLS config

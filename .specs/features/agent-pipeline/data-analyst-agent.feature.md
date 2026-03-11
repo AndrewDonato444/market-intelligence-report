@@ -10,7 +10,7 @@ personas:
   - competitive-veteran
 status: implemented
 created: 2026-03-09
-updated: 2026-03-09
+updated: 2026-03-10
 ---
 
 # Data Analyst Agent
@@ -41,8 +41,9 @@ And segments with fewer than 3 properties are flagged as "low_sample"
 ### Scenario: Calculate YoY changes
 Given property data with lastSaleDate spanning the current and prior year
 When the data-analyst computes YoY metrics
-Then it calculates year-over-year change for median price, volume, and days-on-market
+Then it calculates year-over-year change for median price, volume, price-per-sqft, average price, and total volume
 And the YoY values are expressed as decimal percentages (e.g., 0.12 for 12%)
+And domChange and listToSaleChange are initialized as null (set later from PropertyDetail cohort data by market-analytics)
 
 ### Scenario: Generate intelligence ratings
 Given computed segment metrics and YoY changes
@@ -107,6 +108,10 @@ interface DataAnalystOutput {
     medianPriceChange: number | null;  // decimal percentage
     volumeChange: number | null;
     pricePerSqftChange: number | null;
+    averagePriceChange: number | null;
+    totalVolumeChange: number | null;
+    domChange: number | null;          // set from PropertyDetail cohort data
+    listToSaleChange: number | null;   // set from PropertyDetail cohort data
   };
   // Confidence and freshness
   confidence: {
@@ -142,7 +147,7 @@ const dataAnalystAgent: AgentDefinition = {
 ### Data Flow
 
 ```
-RealEstateAPI.searchProperties(market)
+data-fetcher: two date-bounded searchProperties() calls (current + prior 12-month periods)
     │
     ▼
 Parse & group by property type
@@ -151,13 +156,16 @@ Parse & group by property type
 Compute per-segment metrics (median, avg, min/max, per-sqft)
     │
     ▼
-Split by year → compute YoY changes
+Split by year → compute YoY changes (5 search-derived metrics)
+    │
+    ▼
+market-analytics: computeDetailYoY() → DOM + list-to-sale ratio changes
     │
     ▼
 Apply rating logic per segment + overall
     │
     ▼
-Package as AgentResult { sections, metadata }
+Package as ComputedAnalytics for all 9 report sections
 ```
 
 ## User Journey
