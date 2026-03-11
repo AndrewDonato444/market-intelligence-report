@@ -47,8 +47,8 @@ const MOCK_TIER_DATA = {
 };
 
 const MOCK_FOCUS_DATA = {
-  selectedSegments: ["waterfront", "golf course"],
-  selectedPropertyTypes: ["single_family", "estate"],
+  segments: ["waterfront", "golf course"],
+  propertyTypes: ["single_family", "estate"],
 };
 
 const MOCK_AUDIENCE_DATA = {

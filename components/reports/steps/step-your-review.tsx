@@ -230,14 +230,14 @@ export function StepYourReview({
             geography: {
               city: marketData.city,
               state: marketData.state,
-              county: (marketData as Record<string, unknown>).county || undefined,
-              region: (marketData as Record<string, unknown>).region || undefined,
+              county: marketData.county || undefined,
+              region: marketData.region || undefined,
             },
             luxuryTier: tierData?.luxuryTier || "luxury",
             priceFloor: tierData?.priceFloor || 1000000,
             priceCeiling: tierData?.priceCeiling || undefined,
-            segments: focusData?.selectedSegments || [],
-            propertyTypes: focusData?.selectedPropertyTypes || [],
+            segments: focusData?.segments || [],
+            propertyTypes: focusData?.propertyTypes || [],
           }),
         });
 
@@ -245,7 +245,7 @@ export function StepYourReview({
         const marketJson = await marketRes.json();
         marketId = marketJson.market.id;
       } else {
-        marketId = (marketData as Record<string, unknown>)?.existingMarketId as string || "";
+        marketId = marketData?.existingMarketId || "";
       }
 
       // Create report
@@ -317,14 +317,14 @@ export function StepYourReview({
         {/* Your Focus */}
         <ReviewSectionCard label="Your Focus" onEdit={() => onNavigateToStep(2)}>
           <div className="mb-1">
-            {(focusData?.selectedSegments || []).map((s) => (
+            {(focusData?.segments || []).map((s: string) => (
               <Tag key={s} variant="primary">
                 {SEGMENT_LABELS[s] || s}
               </Tag>
             ))}
           </div>
           <div>
-            {(focusData?.selectedPropertyTypes || []).map((pt) => (
+            {(focusData?.propertyTypes || []).map((pt: string) => (
               <Tag key={pt} variant="accent">
                 {PROPERTY_TYPE_LABELS[pt] || pt}
               </Tag>
