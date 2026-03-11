@@ -10,7 +10,7 @@ personas:
   - team-leader
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-12
 ---
 
 # Activity Log Schema
@@ -36,7 +36,7 @@ And there is a composite index on userId + createdAt
 Given an agent creates a new report
 When the report is saved to the database
 Then an activity record is inserted with action report_created, entityType report, entityId the reportId
-And the metadata contains relevant context (report title, market name)
+And the metadata contains the report title
 
 ### Scenario: Log login activity
 Given an agent authenticates successfully
@@ -51,7 +51,7 @@ Then activities are returned in reverse chronological order (newest first)
 ### Scenario: Query activity by entity
 Given an admin wants to see all activity on a specific report
 When they query by entityType report and entityId the reportId
-Then all activities related to that report are returned
+Then all activities related to that report are returned in reverse chronological order, up to 100 results
 
 ### Scenario: Activity log does not block the parent action
 Given an agent is creating a report
@@ -77,13 +77,13 @@ Composite index on (userId, createdAt) for timeline queries.
 
 | Action | Entity Type | When | Metadata |
 |--------|-------------|------|----------|
-| login | user | Auth callback | {} |
-| report_created | report | Report inserted | { title, marketName } |
+| login | user | Auth callback (pending) | {} |
+| report_created | report | Report inserted | { title } |
 | report_completed | report | Pipeline finishes | { title } |
-| report_exported | report | PDF downloaded/shared | { format } |
-| report_deleted | report | Report deleted | { title } |
-| market_created | market | Market saved | { name, city, state } |
-| market_updated | market | Market edited | { name, fieldsChanged } |
+| report_exported | report | PDF downloaded/shared (pending) | { format } |
+| report_deleted | report | Report deleted (pending) | { title } |
+| market_created | market | Market saved | { name } |
+| market_updated | market | Market edited (pending) | { name, fieldsChanged } |
 | profile_updated | user | Profile saved | { fieldsChanged } |
 
 ## Service Functions
