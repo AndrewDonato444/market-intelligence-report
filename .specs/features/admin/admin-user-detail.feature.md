@@ -29,18 +29,22 @@ When the page loads
 Then the admin sees the user's name, email, company, title, phone
 And the admin sees the user's account status badge (active/suspended/deleted)
 And the admin sees the user's creation date and last login date
+And if the user is suspended, the admin also sees the suspended date
+And if the user is deleted, the admin also sees the deleted date
 
 ### Scenario: Admin views user's report count
 Given the admin is on the user detail page
 When the page loads
 Then the admin sees the total number of reports the user has generated
 And the admin sees the count broken down by status (completed, failed, generating, queued)
+And the status breakdown is only shown when the user has at least one report
 
 ### Scenario: Admin views user's markets
 Given the admin is on the user detail page
 When the page loads
 Then the admin sees a list of the user's defined markets
-And each market shows its name, city/state, and luxury tier
+And each market shows its city/state, luxury tier, and price floor
+And if no markets are defined, the admin sees "No markets defined"
 
 ### Scenario: Admin views activity timeline
 Given the admin is on the user detail page
@@ -48,6 +52,7 @@ When the page loads
 Then the admin sees the user's recent activity entries (newest first)
 And each entry shows the action, entity type, and timestamp
 And the timeline shows up to 50 entries
+And if no activity exists, the admin sees "No activity recorded"
 
 ### Scenario: Admin navigates back to user list
 Given the admin is on the user detail page
