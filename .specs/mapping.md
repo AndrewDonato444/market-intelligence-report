@@ -32,11 +32,14 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md) | `app/api/admin/analytics/route.ts, app/api/admin/analytics/volume/route.ts, app/api/admin/analytics/users/route.ts, app/api/admin/analytics/errors/route.ts` | see spec | see spec | implemented |
 | admin | [Delete Account](.specs/features/admin/delete-account.feature.md) | `app/api/admin/users/[id]/delete/route.ts` | see spec | see spec | implemented |
 | admin | [Error Triage View](.specs/features/admin/error-triage-view.feature.md) | `app/admin/error-triage/page.tsx, components/admin/error-triage-dashboard.tsx, app/api/admin/reports/errors/route.ts` | see spec | see spec | implemented |
+| admin | [Geographic Analytics](.specs/features/admin/geographic-analytics.feature.md) | `app/api/admin/analytics/geographic/route.ts, components/admin/geographic-analytics-dashboard.tsx, app/admin/analytics/geographic/page.tsx, components/admin/analytics-nav.tsx, app/admin/analytics/layout.tsx` | see spec | see spec | implemented |
 | admin | [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md) | `app/api/admin/reports/[id]/retry/route.ts` | see spec | see spec | implemented |
 | admin | [Report Error Tracking Schema](.specs/features/admin/report-error-tracking-schema.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | admin | [Suspend/Unsuspend Account](.specs/features/admin/suspend-unsuspend.feature.md) | `app/api/admin/users/[id]/status/route.ts` | see spec | see spec | implemented |
 | admin | [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md) | `app/admin/monitoring/page.tsx, components/admin/system-monitoring-dashboard.tsx, app/api/admin/monitoring/route.ts` | see spec | see spec | implemented |
+| admin | [User Analytics](.specs/features/admin/user-analytics.feature.md) | `app/admin/analytics/users/page.tsx, components/admin/user-analytics-dashboard.tsx, app/api/admin/analytics/users/route.ts` | see spec | see spec | implemented |
 | admin | [User Status Schema](.specs/features/admin/user-status-schema.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
+| admin | [Volume Metrics Dashboard](.specs/features/admin/volume-metrics-dashboard.feature.md) | `app/admin/analytics/page.tsx, components/admin/volume-metrics-dashboard.tsx` | see spec | see spec | implemented |
 | agent-pipeline | [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md) | `lib/agents/orchestrator.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Agent Output Schema + Validation](.specs/features/agent-pipeline/agent-output-schema.feature.md) | `lib/agents/schema.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Competitive Analyst Agent](.specs/features/agent-pipeline/competitive-analyst-agent.feature.md) | `lib/agents/competitive-analyst.ts` | see spec | see spec | deprecated |
@@ -103,8 +106,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 71 |
-| **Total** | **75** |
+| implemented | 74 |
+| **Total** | **78** |
 
 ---
 
@@ -137,11 +140,14 @@ _None_
 - [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md)
 - [Delete Account](.specs/features/admin/delete-account.feature.md)
 - [Error Triage View](.specs/features/admin/error-triage-view.feature.md)
+- [Geographic Analytics](.specs/features/admin/geographic-analytics.feature.md)
 - [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md)
 - [Report Error Tracking Schema](.specs/features/admin/report-error-tracking-schema.feature.md)
 - [Suspend/Unsuspend Account](.specs/features/admin/suspend-unsuspend.feature.md)
 - [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md)
+- [User Analytics](.specs/features/admin/user-analytics.feature.md)
 - [User Status Schema](.specs/features/admin/user-status-schema.feature.md)
+- [Volume Metrics Dashboard](.specs/features/admin/volume-metrics-dashboard.feature.md)
 - [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md)
 - [Agent Output Schema + Validation](.specs/features/agent-pipeline/agent-output-schema.feature.md)
 - [Data Analyst Agent](.specs/features/agent-pipeline/data-analyst-agent.feature.md)

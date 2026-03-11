@@ -90,6 +90,7 @@ export async function GET(request: NextRequest) {
     const now = new Date();
     const since30d = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const since60d = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+    const since90d = new Date(Date.now() - 90 * 24 * 60 * 60 * 1000);
     const trunc = getTruncFn(granularity as Granularity);
 
     // Signup time series
@@ -129,6 +130,57 @@ export async function GET(request: NextRequest) {
         )`
       );
 
+    // Power users: top 10 users by report count
+    const powerUsersRows = await db
+      .select({
+        id: schema.users.id,
+        name: schema.users.name,
+        email: schema.users.email,
+        reportCount: sql<number>`count(${schema.reports.id})::int`.as("report_count"),
+        lastReportDate: sql<string>`max(${schema.reports.createdAt})::text`.as("last_report_date"),
+      })
+      .from(schema.users)
+      .innerJoin(schema.reports, sql`${schema.users.id} = ${schema.reports.userId}`)
+      .groupBy(schema.users.id, schema.users.name, schema.users.email)
+      .orderBy(sql`count(${schema.reports.id}) desc`)
+      .limit(10);
+
+    const powerUsers = powerUsersRows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      reportCount: Number(row.reportCount),
+      lastReportDate: row.lastReportDate,
+    }));
+
+    // Churn risk: users who had a report in the 30d-90d window but NOT in the last 30d
+    const churnRiskRows = await db
+      .select({
+        id: schema.users.id,
+        name: schema.users.name,
+        email: schema.users.email,
+        lastReportDate: sql<string>`max(${schema.reports.createdAt})::text`.as("last_report_date"),
+        daysSinceLastReport: sql<number>`extract(day from now() - max(${schema.reports.createdAt}))::int`.as("days_since"),
+      })
+      .from(schema.users)
+      .innerJoin(schema.reports, sql`${schema.users.id} = ${schema.reports.userId}`)
+      .groupBy(schema.users.id, schema.users.name, schema.users.email)
+      .having(
+        and(
+          sql`max(${schema.reports.createdAt}) < ${since30d}`,
+          sql`max(${schema.reports.createdAt}) >= ${since90d}`
+        )
+      )
+      .orderBy(sql`max(${schema.reports.createdAt}) asc`);
+
+    const churnRisk = churnRiskRows.map((row) => ({
+      id: row.id,
+      name: row.name,
+      email: row.email,
+      lastReportDate: row.lastReportDate,
+      daysSinceLastReport: Number(row.daysSinceLastReport),
+    }));
+
     // Zero-fill signups
     const dateBuckets = generateDateBuckets(since, now, granularity as Granularity);
     const rowMap = new Map<string, number>();
@@ -149,6 +201,8 @@ export async function GET(request: NextRequest) {
         newSignups: Number(newSignups?.count ?? 0),
         inactiveOver60d: Number(inactiveResult?.count ?? 0),
       },
+      powerUsers,
+      churnRisk,
       period,
       granularity,
     });

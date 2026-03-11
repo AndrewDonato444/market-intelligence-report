@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const TABS = [
   { label: "Volume", href: "/admin/analytics" },
   { label: "Geographic", href: "/admin/analytics/geographic" },
+  { label: "Users", href: "/admin/analytics/users" },
 ];
 
 export function AnalyticsNav() {
