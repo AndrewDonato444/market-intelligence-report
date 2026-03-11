@@ -6,8 +6,7 @@ tests:
   - __tests__/reports/step-your-focus.test.tsx
 components:
   - StepYourFocus
-  - SegmentCard
-  - PropertyTypeCard
+  - ToggleCard
 personas:
   - rising-star-agent
   - legacy-agent
@@ -249,16 +248,15 @@ Empty state (no selections, no smart defaults):
 ### Component Architecture
 
 - **StepYourFocus** -- Main step component, rendered by CreationFlowShell when step index is 2
-  - Receives `marketData` (city, state from Step 1) and `tierData` (tier from Step 2) to compute smart defaults
+  - Receives `marketData` (city, state from Step 1) to compute smart defaults
   - Manages local state: `{ selectedSegments: string[], selectedPropertyTypes: string[] }`
   - Emits step data upward via `onStepComplete` callback
   - Reports validity via `onValidationChange` callback
 
-- **SegmentCard** / **PropertyTypeCard** -- Reusable toggleable card components
-  - Props: `{ value: string, label: string, description: string, icon: string, selected: boolean, popular: boolean, onToggle: (value: string) => void }`
-  - Framer Motion for selection animation: `whileTap={{ scale: 0.98 }}`, selected state transitions with `duration-default`
+- **ToggleCard** -- Single reusable toggleable card component used for both segments and property types (inline in `step-your-focus.tsx`)
+  - Props: `{ value: string, label: string, description?: string, icon: string, selected: boolean, popular: boolean, onToggle: (value: string) => void }`
+  - Framer Motion for selection animation: `whileTap` via `selectionVariant.tap`, `variants={scaleVariant}`
   - "Popular in your area" badge rendered when `popular` is true
-  - Can be a single `ToggleCard` component used by both sections
 
 ### Smart Default Logic
 
@@ -343,7 +341,6 @@ Values use the same string identifiers from `AVAILABLE_SEGMENTS` and `AVAILABLE_
 CreationFlowShell
   +-- StepYourFocus
         |-- marketData (from Step 1 via props -- city, state)
-        |-- tierData (from Step 2 via props)
         |-- selectedSegments: string[]
         |-- selectedPropertyTypes: string[]
         |-- smartDefaults (computed from state)
@@ -369,7 +366,7 @@ CreationFlowShell
 
 ## Component References
 
-- ToggleCard: `.specs/design-system/components/toggle-card.md` (stub -- new)
+- ToggleCard: `.specs/design-system/components/toggle-card.md` (inline in step-your-focus.tsx — not a separate file)
 - AnimatedContainer: `.specs/design-system/components/animated-container.md`
 - Tooltip: `.specs/design-system/components/tooltip.md`
 
