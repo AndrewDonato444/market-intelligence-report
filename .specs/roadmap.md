@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 72 |
+| ✅ Completed | 73 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 21 |
 | ⏸️ Blocked | 0 |
@@ -251,7 +251,7 @@
 | 122 | Admin report detail page — full report view, agent execution breakdown (which agents ran, timing, cache hits, API costs) | vision | M | 121, 80 | ✅ |
 | 123 | Error triage view — dedicated filtered view of failed/errored reports with error details, agent failure info, input data | vision | M | 121, 120 | ✅ |
 | 124 | Pipeline re-trigger — admin can re-run a failed report's pipeline (full or from failed agent), with audit trail | vision | M | 123, 80 | ✅ |
-| 125 | Admin sidebar update — add Report Registry + Error Triage nav items | vision | S | 121 | ⬜ |
+| 125 | Admin sidebar update — add Report Registry + Error Triage nav items | vision | S | 121 | ✅ |
 
 **Goal**: Admin can browse all platform reports, quickly identify failures, see exactly which agent failed and why, and re-trigger the pipeline to fix user-facing issues.
 

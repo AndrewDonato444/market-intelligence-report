@@ -23,11 +23,15 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | account | [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md) | `app/(protected)/settings/usage/page.tsx` | see spec | see spec | specced |
 | admin | [Activity Log Schema](.specs/features/admin/activity-log-schema.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | admin | [Admin Dashboard](.specs/features/admin/admin-dashboard.feature.md) | `app/admin/layout.tsx, app/admin/eval/page.tsx, components/layout/admin-sidebar.tsx, lib/supabase/admin-auth.ts` | see spec | see spec | implemented |
+| admin | [Admin Report Detail](.specs/features/admin/admin-report-detail.feature.md) | `app/admin/reports/[id]/page.tsx, components/admin/report-detail-panel.tsx, app/api/admin/reports/[id]/route.ts` | see spec | see spec | implemented |
 | admin | [Admin Report List](.specs/features/admin/admin-report-list.feature.md) | `app/admin/reports/page.tsx, components/admin/report-list-dashboard.tsx, app/api/admin/reports/route.ts` | see spec | see spec | implemented |
+| admin | [Admin Sidebar — Report Registry & Error Triage Nav](.specs/features/admin/admin-sidebar-report-registry.feature.md) | `components/layout/admin-sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Admin Sidebar Update](.specs/features/admin/admin-sidebar-update.feature.md) | `components/layout/admin-sidebar.tsx, components/layout/sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md) | `app/admin/users/[id]/page.tsx` | see spec | see spec | implemented |
 | admin | [Admin User List](.specs/features/admin/admin-user-list.feature.md) | `app/admin/users/page.tsx, components/admin/user-list-dashboard.tsx, app/api/admin/users/route.ts, components/layout/admin-sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Delete Account](.specs/features/admin/delete-account.feature.md) | `app/api/admin/users/[id]/delete/route.ts` | see spec | see spec | implemented |
+| admin | [Error Triage View](.specs/features/admin/error-triage-view.feature.md) | `app/admin/error-triage/page.tsx, components/admin/error-triage-dashboard.tsx, app/api/admin/reports/errors/route.ts` | see spec | see spec | implemented |
+| admin | [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md) | `app/api/admin/reports/[id]/retry/route.ts` | see spec | see spec | implemented |
 | admin | [Report Error Tracking Schema](.specs/features/admin/report-error-tracking-schema.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | admin | [Suspend/Unsuspend Account](.specs/features/admin/suspend-unsuspend.feature.md) | `app/api/admin/users/[id]/status/route.ts` | see spec | see spec | implemented |
 | admin | [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md) | `app/admin/monitoring/page.tsx, components/admin/system-monitoring-dashboard.tsx, app/api/admin/monitoring/route.ts` | see spec | see spec | implemented |
@@ -98,8 +102,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 66 |
-| **Total** | **70** |
+| implemented | 70 |
+| **Total** | **74** |
 
 ---
 
@@ -123,11 +127,15 @@ _None_
 
 - [Activity Log Schema](.specs/features/admin/activity-log-schema.feature.md)
 - [Admin Dashboard](.specs/features/admin/admin-dashboard.feature.md)
+- [Admin Report Detail](.specs/features/admin/admin-report-detail.feature.md)
 - [Admin Report List](.specs/features/admin/admin-report-list.feature.md)
+- [Admin Sidebar — Report Registry & Error Triage Nav](.specs/features/admin/admin-sidebar-report-registry.feature.md)
 - [Admin Sidebar Update](.specs/features/admin/admin-sidebar-update.feature.md)
 - [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md)
 - [Admin User List](.specs/features/admin/admin-user-list.feature.md)
 - [Delete Account](.specs/features/admin/delete-account.feature.md)
+- [Error Triage View](.specs/features/admin/error-triage-view.feature.md)
+- [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md)
 - [Report Error Tracking Schema](.specs/features/admin/report-error-tracking-schema.feature.md)
 - [Suspend/Unsuspend Account](.specs/features/admin/suspend-unsuspend.feature.md)
 - [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md)

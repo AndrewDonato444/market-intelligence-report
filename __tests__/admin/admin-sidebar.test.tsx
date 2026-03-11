@@ -4,7 +4,9 @@
  * Tests for the AdminSidebar component and the removal of Eval
  * from the user-facing Sidebar.
  *
- * Spec: .specs/features/admin/admin-sidebar-update.feature.md
+ * Specs:
+ *   .specs/features/admin/admin-sidebar-update.feature.md
+ *   .specs/features/admin/admin-sidebar-report-registry.feature.md
  */
 
 import React from "react";
@@ -25,18 +27,20 @@ describe("AdminSidebar", () => {
     mockPathname.mockReturnValue("/admin/eval");
   });
 
-  // Scenario: All nav items present
-  it("should render nav items: Back to App, User Management, Eval Suite, Data Sources, Pipeline, and System Monitor", () => {
+  // Scenario: All nav items present (updated for Report Registry & Error Triage)
+  it("should render all 8 nav items in correct order", () => {
     render(<AdminSidebar />);
 
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(6);
+    expect(links).toHaveLength(8);
     expect(links[0]).toHaveTextContent("Back to App");
     expect(links[1]).toHaveTextContent("User Management");
-    expect(links[2]).toHaveTextContent("Eval Suite");
-    expect(links[3]).toHaveTextContent("Data Sources");
-    expect(links[4]).toHaveTextContent("Pipeline");
-    expect(links[5]).toHaveTextContent("System Monitor");
+    expect(links[2]).toHaveTextContent("Report Registry");
+    expect(links[3]).toHaveTextContent("Error Triage");
+    expect(links[4]).toHaveTextContent("Eval Suite");
+    expect(links[5]).toHaveTextContent("Data Sources");
+    expect(links[6]).toHaveTextContent("Pipeline");
+    expect(links[7]).toHaveTextContent("System Monitor");
   });
 
   it("should link Back to App to /dashboard", () => {
@@ -98,6 +102,90 @@ describe("AdminSidebar", () => {
 
     const backLink = screen.getByText("Back to App").closest("a");
     expect(backLink?.className).toContain("color-text-secondary");
+  });
+
+  // === Report Registry & Error Triage Nav (Feature #125) ===
+
+  // Scenario: Report Registry nav item is visible
+  it("should show Report Registry linking to /admin/reports", () => {
+    render(<AdminSidebar />);
+
+    const link = screen.getByText("Report Registry").closest("a");
+    expect(link).toHaveAttribute("href", "/admin/reports");
+  });
+
+  // Scenario: Error Triage nav item is visible
+  it("should show Error Triage linking to /admin/error-triage", () => {
+    render(<AdminSidebar />);
+
+    const link = screen.getByText("Error Triage").closest("a");
+    expect(link).toHaveAttribute("href", "/admin/error-triage");
+  });
+
+  // Scenario: Report Registry active state on list page
+  it("should mark Report Registry as active when on /admin/reports", () => {
+    mockPathname.mockReturnValue("/admin/reports");
+    render(<AdminSidebar />);
+
+    const link = screen.getByText("Report Registry").closest("a");
+    expect(link?.className).toContain("color-primary");
+  });
+
+  // Scenario: Report Registry active state on detail sub-page
+  it("should mark Report Registry as active when on /admin/reports/abc123", () => {
+    mockPathname.mockReturnValue("/admin/reports/abc123");
+    render(<AdminSidebar />);
+
+    const link = screen.getByText("Report Registry").closest("a");
+    expect(link?.className).toContain("color-primary");
+  });
+
+  // Scenario: Error Triage active state
+  it("should mark Error Triage as active when on /admin/error-triage", () => {
+    mockPathname.mockReturnValue("/admin/error-triage");
+    render(<AdminSidebar />);
+
+    const link = screen.getByText("Error Triage").closest("a");
+    expect(link?.className).toContain("color-primary");
+
+    // Other nav items should not be active
+    const reportLink = screen.getByText("Report Registry").closest("a");
+    expect(reportLink?.className).toContain("color-text-secondary");
+  });
+
+  // Scenario: Error Triage does not match report registry routes
+  it("should not mark Error Triage as active when on /admin/reports", () => {
+    mockPathname.mockReturnValue("/admin/reports");
+    render(<AdminSidebar />);
+
+    const link = screen.getByText("Error Triage").closest("a");
+    expect(link?.className).toContain("color-text-secondary");
+  });
+
+  // Scenario: Report Registry does not match error triage route
+  it("should not mark Report Registry as active when on /admin/error-triage", () => {
+    mockPathname.mockReturnValue("/admin/error-triage");
+    render(<AdminSidebar />);
+
+    const link = screen.getByText("Report Registry").closest("a");
+    expect(link?.className).toContain("color-text-secondary");
+  });
+
+  // Scenario: Icons are consistent with existing sidebar style
+  it("should render file-text icon for Report Registry and alert-triangle icon for Error Triage", () => {
+    render(<AdminSidebar />);
+
+    const reportLink = screen.getByText("Report Registry").closest("a");
+    const reportSvg = reportLink?.querySelector("svg");
+    expect(reportSvg).toBeTruthy();
+    expect(reportSvg?.getAttribute("width")).toBe("18");
+    expect(reportSvg?.getAttribute("height")).toBe("18");
+
+    const errorLink = screen.getByText("Error Triage").closest("a");
+    const errorSvg = errorLink?.querySelector("svg");
+    expect(errorSvg).toBeTruthy();
+    expect(errorSvg?.getAttribute("width")).toBe("18");
+    expect(errorSvg?.getAttribute("height")).toBe("18");
   });
 
   // Scenario: Footer
