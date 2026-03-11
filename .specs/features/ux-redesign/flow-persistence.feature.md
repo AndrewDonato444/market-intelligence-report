@@ -62,6 +62,9 @@ Then the stale state is discarded and a fresh flow begins
 ## Technical Design
 
 - Storage: localStorage with key `mir-creation-flow-draft`
-- Hook: `useFlowPersistence` in `lib/hooks/use-flow-persistence.ts`
-- Quick Start: Show existing market cards when markets.length > 0
-- Step `initialData` props for restoring state
+- Utility functions in `lib/hooks/use-flow-persistence.ts`: `loadDraft`, `saveDraft`, `clearDraft` — used directly by `CreationFlowShell`
+- `useFlowPersistence` hook also exported from the same file (auto-save via `useEffect`) but not currently used by the shell
+- Restore boundary: drafts at `currentStep >= 5` are not restored (Generating step; pipeline already running)
+- Quick Start: Show existing market cards when `markets.length > 0` and no active draft
+- Quick Start pre-fill: marketData from selected market, tierData from `TIER_DEFAULTS[luxuryTier]`, focusData defaults to `{ segments: [], propertyTypes: [] }`, audienceData = null
+- Jumps to step index 3 (Your Audience, Step 4 in 1-based labeling)
