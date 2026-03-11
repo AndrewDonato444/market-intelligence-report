@@ -166,7 +166,7 @@ export default function Home() {
 
             <div className="flex flex-col sm:flex-row items-center md:items-start gap-4 mt-[var(--spacing-8)]">
               <Link
-                href="/reports/create"
+                href="/sign-up"
                 className="inline-block bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-inter)] text-sm font-medium uppercase tracking-widest px-8 py-3 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)]"
               >
                 Commission Your First Report
@@ -493,7 +493,7 @@ export default function Home() {
           </p>
 
           <Link
-            href="/reports/create"
+            href="/sign-up"
             className="inline-block mt-[var(--spacing-8)] bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-inter)] text-sm font-medium uppercase tracking-widest px-8 py-3 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)]"
           >
             Commission Your Report
@@ -524,7 +524,7 @@ export default function Home() {
           </p>
 
           <Link
-            href="/reports/create"
+            href="/sign-up"
             className="inline-block mt-[var(--spacing-8)] bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-inter)] text-sm font-medium uppercase tracking-widest px-8 py-3 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)]"
           >
             Commission Your Intelligence Report

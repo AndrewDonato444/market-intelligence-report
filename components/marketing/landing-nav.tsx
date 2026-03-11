@@ -90,7 +90,7 @@ export function LandingNav() {
 
           {/* CTA */}
           <Link
-            href="/reports/create"
+            href="/sign-up"
             className={`hidden md:inline-block font-[family-name:var(--font-inter)] text-sm font-medium transition-all duration-[var(--duration-default)] ${
               scrolled
                 ? "bg-[var(--color-accent)] text-[var(--color-primary)] px-5 py-2 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)]"
@@ -116,7 +116,7 @@ export function LandingNav() {
             </a>
           ))}
           <Link
-            href="/reports/create"
+            href="/sign-up"
             onClick={() => setMobileOpen(false)}
             className="block font-[family-name:var(--font-inter)] text-sm font-medium text-[var(--color-accent)]"
           >
