@@ -14,7 +14,7 @@ personas:
   - team-leader
 status: implemented
 created: 2026-03-10
-updated: 2026-03-10
+updated: 2026-03-11
 ---
 
 # Step 1: Your Market
@@ -64,8 +64,8 @@ And the preview animates with a slide-up + fade entrance (duration-slow)
 ### Scenario: Agent expands optional fields to refine their area
 Given the agent has entered city and state
 When they click "Refine your area"
-Then county and region fields slide into view with an animation
-And a tooltip explains "County narrows the search area. Region is for your report title."
+Then county and region fields appear below the toggle
+Note: Tooltip for county/region guidance is not implemented in v1; fields are self-explanatory via placeholder text
 
 ### Scenario: Agent provides a market name
 Given the agent has selected geography
@@ -75,10 +75,9 @@ And the name is used as the display label for this market throughout the flow
 
 ### Scenario: Validation prevents proceeding without required fields
 Given the agent has not entered a city or state
-When they click "Next"
-Then a friendly validation message appears: "We need a city to find your market data"
-And the city field is highlighted with the warning color
-And the step does not advance
+Then the step reports invalid via the onValidationChange(false) callback
+And the parent shell (CreationFlowShell) disables "Next" navigation
+Note: Inline error messages ("We need a city to find your market data") and warning-color field highlighting are delegated to the shell, not rendered by StepYourMarket directly
 
 ### Scenario: Agent can select an existing market instead
 Given the agent has previously created markets
@@ -90,8 +89,9 @@ And the agent can proceed to step 2 immediately
 ### Scenario: Existing market selection skips market creation
 Given the agent selects an existing market card
 Then all geography fields are populated from that market
-And a "Using your saved market" indicator appears
-And the agent can still edit any field (which switches to "creating new market" mode)
+And the selected card is visually highlighted (accent border + accent-light background)
+And the agent can still edit any field (which clears selectedExistingId, switching to "creating new market" mode)
+Note: A text "Using your saved market" indicator is not rendered in v1; selection state is communicated via button styling only
 
 ### Scenario: Agent with no existing markets sees only the creation form
 Given the agent has no previously created markets
