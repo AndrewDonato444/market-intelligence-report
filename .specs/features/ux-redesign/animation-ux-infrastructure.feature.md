@@ -78,7 +78,7 @@ And the transition uses `duration-default` (200ms) with `easing-default`
 Given a container uses the `staggerContainer` variant with 3 child items
 When the container enters
 Then each child animates in sequence with a 50ms stagger delay
-And the container waits for all children to finish before marking complete
+And the container completes its own animation before children start (`when: "beforeChildren"`)
 
 ### Scenario: Page transition variant handles step-to-step navigation
 Given the creation flow moves from Step 1 to Step 2
@@ -138,6 +138,11 @@ Given a tooltip is configured with placement "right"
 When the tooltip is triggered
 Then it appears to the right of the trigger element
 
+### Scenario: Tooltip supports left placement
+Given a tooltip is configured with placement "left"
+When the tooltip is triggered
+Then it appears to the left of the trigger element
+
 ### Scenario: Tooltip does not overflow the viewport
 Given a tooltip trigger is near the right edge of the screen
 When the tooltip is triggered with placement "right"
@@ -177,6 +182,11 @@ Given an AnimatedContainer wraps a list of 5 market cards
 When the container mounts
 Then each card animates in sequence with stagger delay
 And the visual effect is a cascading entrance
+
+### Scenario: AnimatedContainer passes className to the wrapper
+Given an AnimatedContainer is configured with a className prop
+When the container mounts
+Then the wrapper element includes the provided class name
 
 ---
 
