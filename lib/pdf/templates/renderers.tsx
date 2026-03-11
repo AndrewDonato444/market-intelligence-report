@@ -71,7 +71,7 @@ export const KeyDriversPdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {content.themes?.map((theme, i) => (
-        <View key={i} style={styles.card}>
+        <View key={i} style={styles.card} wrap={false}>
           <View
             style={{
               flexDirection: "row",
@@ -173,7 +173,7 @@ export const ForecastsPdf: SectionRenderer = ({ section }) => {
             const scenario = content.scenarios?.[scenarioKey];
             if (!scenario) return null;
             return (
-              <View key={scenarioKey} style={styles.card}>
+              <View key={scenarioKey} style={styles.card} wrap={false}>
                 <Text style={{ ...styles.subheading, textTransform: "capitalize" }}>
                   {scenarioKey} Case
                 </Text>
@@ -336,7 +336,7 @@ export const CompetitiveAnalysisPdf: SectionRenderer = ({ section }) => {
         <View style={{ marginTop: 16 }}>
           <Text style={styles.subheading}>Peer Market Comparison</Text>
           {content.comparisons.map((comp, i) => (
-            <View key={i} style={styles.card}>
+            <View key={i} style={styles.card} wrap={false}>
               <Text style={styles.subheading}>{comp.market}</Text>
               {comp.medianPrice && (
                 <Text style={styles.bodySmall}>
@@ -514,7 +514,7 @@ function TalkingPointPdf({ tp }: { tp: { headline: string; detail: string; dataS
 function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["personas"][0] }) {
   const isPrimary = persona.selectionOrder === 1;
   return (
-    <View style={isPrimary ? styles.personaCardPrimary : styles.personaCard}>
+    <View style={isPrimary ? styles.personaCardPrimary : styles.personaCard} wrap={false}>
       {/* Persona name */}
       <Text style={styles.personaName}>{persona.personaName}</Text>
       {isPrimary && <Text style={styles.primaryPersonaLabel}>PRIMARY PERSONA</Text>}
@@ -730,19 +730,19 @@ export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
     <View>
       {/* Headline metrics row */}
       <View style={{ flexDirection: "row", marginBottom: 16, gap: 12 }}>
-        <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+        <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Market Rating</Text>
           <Text style={{ fontFamily: "Playfair Display", fontSize: 28, color: getRatingColor(h.rating) }}>{h.rating}</Text>
         </View>
-        <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+        <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Median Price</Text>
           <Text style={{ fontFamily: "Playfair Display", fontSize: 20, color: COLORS.primary }}>{priceFmt}</Text>
         </View>
-        <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+        <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>YoY Change</Text>
           <Text style={{ fontFamily: "Inter", fontSize: 16, color: h.yoyPriceChange >= 0 ? COLORS.success : COLORS.error }}>{yoyDir} {yoyPct}%</Text>
         </View>
-        <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+        <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Properties</Text>
           <Text style={{ fontFamily: "Inter", fontSize: 16, color: COLORS.primary }}>{h.totalProperties}</Text>
         </View>
@@ -784,7 +784,7 @@ export const MarketInsightsIndexPdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {dimensions.map(({ key, data }) => (
-        <View key={key} style={styles.card}>
+        <View key={key} style={styles.card} wrap={false}>
           <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
             <Text style={styles.subheading}>{key.charAt(0).toUpperCase() + key.slice(1)}</Text>
             <Text style={{ ...styles.badge, backgroundColor: data.score != null && data.score >= 7 ? COLORS.success : data.score != null && data.score >= 4 ? COLORS.warning : COLORS.textSecondary }}>
@@ -987,13 +987,13 @@ export const TheNarrativePdf: SectionRenderer = ({ section }) => {
             // Handle both string themes (legacy) and object themes
             if (typeof theme === "string") {
               return (
-                <View key={i} style={styles.card}>
+                <View key={i} style={styles.card} wrap={false}>
                   <Text style={{ ...styles.subheading, marginBottom: 0 }}>{theme}</Text>
                 </View>
               );
             }
             return (
-              <View key={i} style={styles.card}>
+              <View key={i} style={styles.card} wrap={false}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
                   <Text style={{ ...styles.subheading, marginBottom: 0 }}>{theme.name}</Text>
                   <Text style={{ ...styles.badge, backgroundColor: theme.impact === "high" ? COLORS.success : theme.impact === "medium" ? COLORS.warning : COLORS.textSecondary }}>
@@ -1112,7 +1112,7 @@ export const ComparativePositioningPdf: SectionRenderer = ({ section }) => {
         <View>
           <Text style={styles.subheading}>Peer Markets</Text>
           {c.peerComparisons.map((peer, i) => (
-            <View key={i} style={styles.card}>
+            <View key={i} style={styles.card} wrap={false}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
                 <Text style={styles.subheading}>{peer.name}, {peer.geography.state}</Text>
                 <Text style={{ ...styles.badge, backgroundColor: getRatingColor(peer.rating) }}>{peer.rating}</Text>

@@ -1,5 +1,10 @@
 /**
  * PDF section page — wraps each report section with header, accent line, and footer.
+ *
+ * Uses a single <Page wrap> so content flows naturally across multiple PDF pages
+ * instead of being squeezed into one page (which causes blank space on short sections
+ * and clipping on long ones). The `break` prop on the outer Page forces a new page
+ * before each section starts.
  */
 
 import React from "react";
@@ -41,13 +46,14 @@ export function SectionPage({ section, reportTitle, companyName }: SectionPagePr
       : null;
 
   return (
-    <Page size="LETTER" style={styles.page}>
-      <View>
+    <Page size="LETTER" style={styles.page} wrap>
+      {/* Section header — minPresenceAhead keeps it with at least some content */}
+      <View minPresenceAhead={120}>
         <Text style={styles.heading}>{section.title}</Text>
         <View style={styles.accentLine} />
-        <Renderer section={section} />
-        <PersonaFramingCallout personaFraming={personaFraming} />
       </View>
+      <Renderer section={section} />
+      <PersonaFramingCallout personaFraming={personaFraming} />
       <View style={styles.pageFooter} fixed>
         <Text style={styles.pageNumber}>{footerLeft}</Text>
         <Text

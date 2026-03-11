@@ -28,7 +28,7 @@ export function MetadataPage({
   const durationSeconds = Math.round(metadata.totalDurationMs / 1000);
 
   return (
-    <Page size="LETTER" style={styles.page}>
+    <Page size="LETTER" style={styles.page} wrap>
       <View>
         <Text style={styles.heading}>Report Information</Text>
         <View style={styles.accentLine} />
@@ -38,7 +38,7 @@ export function MetadataPage({
           <View style={{ marginBottom: 24 }}>
             <Text style={styles.subheading}>Key Insights</Text>
             {pullQuotes.map((quote, i) => (
-              <View key={i} style={styles.pullQuote}>
+              <View key={i} style={styles.pullQuote} wrap={false}>
                 <Text style={styles.pullQuoteText}>
                   &ldquo;{quote.text}&rdquo;
                 </Text>
@@ -49,7 +49,7 @@ export function MetadataPage({
         )}
 
         {/* Metadata */}
-        <View style={styles.card}>
+        <View style={styles.card} wrap={false}>
           <Text style={styles.metadataLabel}>Confidence Level</Text>
           <Text style={styles.metadataValue}>
             {metadata.confidence.level.charAt(0).toUpperCase() +

@@ -47,7 +47,7 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
   } | undefined;
 
   return (
-    <Page size="LETTER" style={styles.page}>
+    <Page size="LETTER" style={styles.page} wrap>
       <View>
         <Text style={styles.heading}>Market Intelligence Summary</Text>
         <View style={styles.accentLine} />
@@ -61,7 +61,7 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
           }}
         >
           {/* Confidence Badge */}
-          <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+          <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
             <Text style={styles.metadataLabel}>Confidence Level</Text>
             <Text
               style={{
@@ -77,7 +77,7 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
           </View>
 
           {/* Sample Size */}
-          <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+          <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
             <Text style={styles.metadataLabel}>Sample Size</Text>
             <Text
               style={{
@@ -92,7 +92,7 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
           </View>
 
           {/* Generation Date */}
-          <View style={{ ...styles.card, flex: 1, alignItems: "center" }}>
+          <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
             <Text style={styles.metadataLabel}>Report Date</Text>
             <Text
               style={{
@@ -153,6 +153,7 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
               borderColor: COLORS.warning,
               borderWidth: 1,
             }}
+            wrap={false}
           >
             <Text style={{ ...styles.metadataLabel, color: COLORS.warning }}>
               Data Freshness Notice
