@@ -45,7 +45,8 @@ Given the agent is on Step 2 with no tier selected
 When they click the "Luxury" tier card
 Then the card is visually highlighted (accent border + accent-light background)
 And the price floor is set to $1,000,000
-And the step becomes valid (Next button enabled)
+And the step reports valid via onValidationChange(true)
+Note: The Next button is always clickable in the shell; validation state is tracked but does not gate navigation
 
 ### Scenario: Selecting a different tier updates defaults
 Given the agent has selected "Luxury" tier
