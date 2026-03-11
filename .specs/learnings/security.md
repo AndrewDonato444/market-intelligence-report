@@ -14,6 +14,11 @@ Security patterns for this codebase.
 
 ---
 
+### 2026-03-11 — User Status Auth Gate
+- **Gotcha**: Next.js Edge middleware cannot import Drizzle ORM or `postgres-js` — they rely on Node.js-specific APIs unavailable in the Edge runtime. For the user status check in middleware, use the Supabase REST API directly (`fetch` to `/rest/v1/users`) with the `SUPABASE_SERVICE_ROLE_KEY`. This is Edge-compatible.
+- **Decision**: Fail-open on status check errors. If the REST API call fails (network, missing env var), return `null` and allow access. Rationale: locking ALL users out due to a transient status-check failure is worse than briefly allowing a suspended user through. The auth gate is defense-in-depth, not the only barrier.
+- **Gotcha**: Status pages (`/suspended`, `/account-inactive`) must be marked as `isStatusPage` and exempted from the status redirect check. Otherwise, a suspended user gets redirected to `/suspended`, which triggers the middleware again, which redirects to `/suspended` — infinite loop. Same pattern as `isPublicRoute` for `/sign-in`.
+
 ## Cookies & Tokens
 
 <!-- Cookie settings, token storage, refresh patterns -->

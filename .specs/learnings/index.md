@@ -19,6 +19,14 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — User Status Schema (#110)
+
+- **Edge middleware + Drizzle incompatibility** (`security.md`): Edge middleware can't import Drizzle/postgres-js. Use Supabase REST API with service role key for status checks in middleware
+- **Fail-open for status checks** (`security.md`): If status query fails, allow access rather than locking everyone out. Availability > security for a non-critical check
+- **Redirect loop prevention** (`security.md`): Status pages (`/suspended`, `/account-inactive`) must be excluded from the status check, otherwise suspended users get infinite redirects
+- **Schema migration with safe defaults** (`general.md`): Add columns with `DEFAULT 'active'` and `NOT NULL` — existing rows get backfilled automatically, no multi-step migration needed
+- **Drizzle DB mock pattern for service tests** (`testing.md`): Chain mock fns (`mockDbSelect → mockDbFrom → mockDbWhere → mockDbLimit`) to simulate Drizzle's fluent API. Use `jest.requireActual` for schema to get real column definitions while mocking `db`
+
 ### 2026-03-11 — Step 4: Your Audience (fetch-driven step with selection order)
 
 - **Nested button gotcha** (`design.md`): HTML forbids `<button>` inside `<button>` — use `<span role="link" tabIndex={0}>` for interactive children inside `<motion.button>` cards

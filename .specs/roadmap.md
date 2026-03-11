@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 60 |
+| ✅ Completed | 61 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 25 |
 | ⏸️ Blocked | 0 |
@@ -228,7 +228,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 110 | User status schema — add `status` enum (active/suspended/deleted), `suspendedAt`, `deletedAt`, `lastLoginAt` columns to users table | vision | S | 2 | ⬜ |
+| 110 | User status schema — add `status` enum (active/suspended/deleted), `suspendedAt`, `deletedAt`, `lastLoginAt` columns to users table | vision | S | 2 | ✅ |
 | 111 | Activity log schema — `user_activity` table (userId, action, entityType, entityId, metadata, timestamp) + insert hooks | vision | M | 110 | ⬜ |
 | 112 | Admin user list page — search, filter by status, sort by last activity, pagination | vision | M | 110, 83 | ⬜ |
 | 113 | Admin user detail page — profile info, account status, report count, market(s), activity timeline | vision | M | 112, 111 | ⬜ |

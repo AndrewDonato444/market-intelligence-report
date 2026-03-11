@@ -62,6 +62,7 @@ export async function upsertProfile(
       bio: data.bio || null,
       logoUrl: data.logoUrl || null,
       brandColors: data.brandColors || null,
+      lastLoginAt: new Date(),
     })
     .returning();
   return created;

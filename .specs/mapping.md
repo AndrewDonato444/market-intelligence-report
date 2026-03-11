@@ -23,6 +23,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | account | [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md) | `app/(protected)/settings/usage/page.tsx` | see spec | see spec | specced |
 | admin | [Admin Dashboard](.specs/features/admin/admin-dashboard.feature.md) | `app/admin/layout.tsx, app/admin/eval/page.tsx, components/layout/admin-sidebar.tsx, lib/supabase/admin-auth.ts` | see spec | see spec | implemented |
 | admin | [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md) | `app/admin/monitoring/page.tsx, components/admin/system-monitoring-dashboard.tsx, app/api/admin/monitoring/route.ts` | see spec | see spec | implemented |
+| admin | [User Status Schema](.specs/features/admin/user-status-schema.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md) | `lib/agents/orchestrator.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Agent Output Schema + Validation](.specs/features/agent-pipeline/agent-output-schema.feature.md) | `lib/agents/schema.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Competitive Analyst Agent](.specs/features/agent-pipeline/competitive-analyst-agent.feature.md) | `lib/agents/competitive-analyst.ts` | see spec | see spec | deprecated |
@@ -89,8 +90,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 57 |
-| **Total** | **61** |
+| implemented | 58 |
+| **Total** | **62** |
 
 ---
 
@@ -114,6 +115,7 @@ _None_
 
 - [Admin Dashboard](.specs/features/admin/admin-dashboard.feature.md)
 - [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md)
+- [User Status Schema](.specs/features/admin/user-status-schema.feature.md)
 - [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md)
 - [Agent Output Schema + Validation](.specs/features/agent-pipeline/agent-output-schema.feature.md)
 - [Data Analyst Agent](.specs/features/agent-pipeline/data-analyst-agent.feature.md)

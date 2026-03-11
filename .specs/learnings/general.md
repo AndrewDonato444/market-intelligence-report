@@ -53,6 +53,11 @@ _No learnings yet._
 
 <!-- Miscellaneous patterns -->
 
+### 2026-03-11 — User Status Schema (#110)
+- **Pattern**: Schema migration with safe defaults — add columns with `DEFAULT 'active'` and `NOT NULL` so existing rows get backfilled automatically. No need for a separate backfill step (though explicit `UPDATE` in migration is good for safety). The migration is non-breaking: all new columns are either defaulted or nullable.
+- **Pattern**: User account lifecycle as a service module: `lib/services/user-status.ts` groups all status-related operations (suspend, unsuspend, softDelete, updateLastLogin, getUsersByStatus, getUserStatus). Each function operates on a single user and returns the updated row. Status changes always update `updatedAt` alongside the status-specific timestamp.
+- **Decision**: `lastLoginAt` is set on profile creation (in `upsertProfile`) and updated via `updateLastLogin` called from the auth callback. Not updated on every middleware hit (too expensive). This gives accurate "last login" without the per-request overhead.
+
 ### 2026-03-11 — Step 4: Fetch-driven step with selection order
 - **Pattern**: For step components with real API data, fetch on mount via `useCallback` + `useEffect([], [])`. Store loading/error/data in separate state variables. On error, set `onValidationChange(true)` to allow skipping rather than blocking the wizard.
 - **Pattern**: Selection order via array position: `selectedIds.indexOf(id) + 1` gives the 1-based position. `filter()` on deselect automatically renumbers since it preserves relative order of remaining elements — no need for a separate order counter or map.

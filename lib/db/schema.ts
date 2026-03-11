@@ -53,6 +53,12 @@ export const luxuryTierEnum = pgEnum("luxury_tier", [
   "ultra_luxury",
 ]);
 
+export const userAccountStatusEnum = pgEnum("user_account_status", [
+  "active",
+  "suspended",
+  "deleted",
+]);
+
 // --- Tables ---
 
 export const users = pgTable("users", {
@@ -71,13 +77,20 @@ export const users = pgTable("users", {
   title: varchar("title", { length: 255 }),
   bio: text("bio"),
   role: userRoleEnum("role").notNull().default("user"),
+  status: userAccountStatusEnum("status").notNull().default("active"),
+  suspendedAt: timestamp("suspended_at", { withTimezone: true }),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
-});
+},
+(table) => [
+  index("users_status_idx").on(table.status),
+]);
 
 export const subscriptions = pgTable("subscriptions", {
   id: uuid("id").primaryKey().defaultRandom(),

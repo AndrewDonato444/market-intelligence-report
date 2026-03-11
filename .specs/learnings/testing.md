@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Drizzle DB mock for service unit tests
+- **Pattern**: To test Drizzle service functions without a DB, mock `@/lib/db` with chained mock functions that mirror the fluent API: `db.select() → .from() → .where() → .limit()` and `db.update() → .set() → .where() → .returning()`. Use `jest.requireActual("@/lib/db/schema")` for the schema export so column definitions and enum values are real. Control return values via `mockDbReturning.mockReturnValue([...])` or `mockDbLimit.mockReturnValue([...])` per test.
+- **Gotcha**: When using `jest.useFakeTimers({ now })` in Drizzle service tests, remember to call `jest.useRealTimers()` in cleanup. Otherwise, subsequent tests that use `Date` may get stale timestamps.
+
 ### 2026-03-11 — Fetch-driven component testing
 - **Pattern**: For components that fetch data on mount, create `mockFetchSuccess`/`mockFetchEmpty`/`mockFetchError` helpers that configure `global.fetch` per test. Use `await act(async () => { render(...) })` + `await waitFor(() => { expect(screen.getByText("...")).toBeInTheDocument() })` to wait for the fetch-then-render cycle. This pattern avoids `act()` warnings from async state updates.
 - **Gotcha**: When a preview panel shows the same persona name as the card grid, `screen.getByText("Name")` throws on multiple matches. Use `screen.getAllByTestId("audience-persona-card")[0]` to target the card directly instead of finding by text content.
