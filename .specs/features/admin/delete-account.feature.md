@@ -11,7 +11,7 @@ personas:
   - anti-persona
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-12
 ---
 
 # Delete Account
@@ -51,7 +51,8 @@ Then the Delete Account button is not shown
 Given the admin is on the user detail page for an active user
 When the admin clicks Delete Account
 Then a confirmation dialog appears with the user's name
-And the dialog warns that reports will be orphaned
+And the dialog warns that reports will be kept for analytics but de-linked from their profile
+And the dialog states "This action cannot be undone"
 And the admin must confirm before the action proceeds
 
 ### Scenario: Cancel hides confirmation dialog
