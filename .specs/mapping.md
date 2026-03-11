@@ -30,11 +30,16 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md) | `app/admin/users/[id]/page.tsx` | see spec | see spec | implemented |
 | admin | [Admin User List](.specs/features/admin/admin-user-list.feature.md) | `app/admin/users/page.tsx, components/admin/user-list-dashboard.tsx, app/api/admin/users/route.ts, components/layout/admin-sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md) | `app/api/admin/analytics/route.ts, app/api/admin/analytics/volume/route.ts, app/api/admin/analytics/users/route.ts, app/api/admin/analytics/errors/route.ts` | see spec | see spec | implemented |
+| admin | [Analytics Data Export](.specs/features/admin/analytics-data-export.feature.md) | `lib/utils/analytics-export.ts, components/admin/export-button.tsx` | see spec | see spec | implemented |
 | admin | [Delete Account](.specs/features/admin/delete-account.feature.md) | `app/api/admin/users/[id]/delete/route.ts` | see spec | see spec | implemented |
 | admin | [Error Triage View](.specs/features/admin/error-triage-view.feature.md) | `app/admin/error-triage/page.tsx, components/admin/error-triage-dashboard.tsx, app/api/admin/reports/errors/route.ts` | see spec | see spec | implemented |
 | admin | [Geographic Analytics](.specs/features/admin/geographic-analytics.feature.md) | `app/api/admin/analytics/geographic/route.ts, components/admin/geographic-analytics-dashboard.tsx, app/admin/analytics/geographic/page.tsx, components/admin/analytics-nav.tsx, app/admin/analytics/layout.tsx` | see spec | see spec | implemented |
+| admin | [Pipeline Performance Metrics](.specs/features/admin/pipeline-performance.feature.md) | `app/admin/analytics/performance/page.tsx, components/admin/pipeline-performance-dashboard.tsx, app/api/admin/analytics/performance/route.ts` | see spec | see spec | implemented |
 | admin | [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md) | `app/api/admin/reports/[id]/retry/route.ts` | see spec | see spec | implemented |
 | admin | [Report Error Tracking Schema](.specs/features/admin/report-error-tracking-schema.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
+| admin | [Report Eval Dashboard](.specs/features/admin/report-eval-dashboard.feature.md) | `app/admin/eval/report/page.tsx, components/eval/report-eval-dashboard.tsx` | see spec | see spec | implemented |
+| admin | [Report Eval Runner](.specs/features/admin/report-eval-runner.feature.md) | `lib/eval/report-eval/runner.ts, lib/eval/report-eval/judge.ts` | see spec | see spec | implemented |
+| admin | [Report Eval Test Cases](.specs/features/admin/report-eval-test-cases.feature.md) | `lib/eval/report-eval/types.ts, lib/eval/report-eval/test-cases.ts, lib/eval/report-eval/fixtures.ts` | see spec | see spec | implemented |
 | admin | [Suspend/Unsuspend Account](.specs/features/admin/suspend-unsuspend.feature.md) | `app/api/admin/users/[id]/status/route.ts` | see spec | see spec | implemented |
 | admin | [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md) | `app/admin/monitoring/page.tsx, components/admin/system-monitoring-dashboard.tsx, app/api/admin/monitoring/route.ts` | see spec | see spec | implemented |
 | admin | [User Analytics](.specs/features/admin/user-analytics.feature.md) | `app/admin/analytics/users/page.tsx, components/admin/user-analytics-dashboard.tsx, app/api/admin/analytics/users/route.ts` | see spec | see spec | implemented |
@@ -106,8 +111,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 74 |
-| **Total** | **78** |
+| implemented | 79 |
+| **Total** | **83** |
 
 ---
 
@@ -138,11 +143,16 @@ _None_
 - [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md)
 - [Admin User List](.specs/features/admin/admin-user-list.feature.md)
 - [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md)
+- [Analytics Data Export](.specs/features/admin/analytics-data-export.feature.md)
 - [Delete Account](.specs/features/admin/delete-account.feature.md)
 - [Error Triage View](.specs/features/admin/error-triage-view.feature.md)
 - [Geographic Analytics](.specs/features/admin/geographic-analytics.feature.md)
+- [Pipeline Performance Metrics](.specs/features/admin/pipeline-performance.feature.md)
 - [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md)
 - [Report Error Tracking Schema](.specs/features/admin/report-error-tracking-schema.feature.md)
+- [Report Eval Dashboard](.specs/features/admin/report-eval-dashboard.feature.md)
+- [Report Eval Runner](.specs/features/admin/report-eval-runner.feature.md)
+- [Report Eval Test Cases](.specs/features/admin/report-eval-test-cases.feature.md)
 - [Suspend/Unsuspend Account](.specs/features/admin/suspend-unsuspend.feature.md)
 - [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md)
 - [User Analytics](.specs/features/admin/user-analytics.feature.md)

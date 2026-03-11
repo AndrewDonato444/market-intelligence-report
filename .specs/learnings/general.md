@@ -8,6 +8,10 @@ Patterns that don't fit other categories.
 
 <!-- Conventions, naming, organization -->
 
+### 2026-03-11 — Report Eval Dashboard (#142)
+- **Pattern**: When building a second dashboard that mirrors an existing one (e.g., report eval mirrors agent eval), copy the architecture wholesale (localStorage persistence, batch execution with concurrency pool, AbortController cancellation, JSON export) and extend with new panels. The 6 components (dashboard, summary panel, test case table, test case row, criterion breakdown, fixture comparison) follow the same decomposition. Abstracting into a shared base is premature — the differences (6 vs 4 dimensions, fixture vs agent grouping, criterion filter vs agent filter) make the components just different enough to warrant separate files.
+- **Pattern**: For breakdown panels that aggregate results by a grouping key (criterion, fixture), compute the aggregation client-side from the results Map rather than calling a separate API. The `byCriterion` and `byFixture` summaries use simple loops over results — no need for `buildReportEvalSummary()` on the client since the dashboard already has all results in state.
+
 ### 2026-03-11 — Admin Report List (#121)
 - **Pattern**: Admin list pages follow a consistent three-file pattern: (1) API route at `app/api/admin/{resource}/route.ts` with `requireAdmin()` gate, filter/sort/pagination params, status counts, and joined data; (2) Client component at `components/admin/{resource}-list-dashboard.tsx` with fetch + debounced search + status filter tabs + dropdown filters + sortable column headers + pagination + empty/loading/error states; (3) Server page at `app/admin/{resource}/page.tsx` that checks admin auth and renders the dashboard component. Follow `user-list-dashboard` as the canonical reference.
 - **Pattern**: For admin list APIs with joins, compute `generationTimeMs` server-side from timestamp deltas rather than storing a separate column. This keeps the schema simpler and the computation always fresh.

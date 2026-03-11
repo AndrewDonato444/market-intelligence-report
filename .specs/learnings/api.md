@@ -67,6 +67,9 @@ The RealEstateAPI has free/cheap query modes to use before full data pulls:
 
 ## Data Shapes
 
+### 2026-03-11 — Report Eval Dashboard (#142)
+- **Pattern**: When an API strips a large object from its response (e.g., the full `report` from eval results) and adds derived fields (`reportSectionCount`, `reportConfidence`), define a separate client-side interface (`ReportEvalDashboardResult`) that matches the API response shape. Don't try to reuse the server-side type (`ReportEvalRunResult`) which includes the stripped field.
+
 - RealEstateAPI returns nested objects: `data[].address.full`, `data[].summary.sqft`, etc.
 - Connector normalizes to flat `PropertySummary` interface
 - ScrapingDog Google Local returns business objects with name, category, rating, reviewCount

@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Report Eval Dashboard (#142)
+- **Gotcha**: `(4.2 / 5) * 100` evaluates to `84.00000000000001` due to floating-point arithmetic. Always use `toBeCloseTo()` instead of `toBe()` when asserting on division-derived percentages in tests.
+- **Pattern**: For admin page server component tests with `requireAdmin()`, the three-mock pattern is reliable: mock `next/navigation` (redirect throws), mock `@/lib/supabase/admin-auth` (returns admin ID or null), mock the client component (returns string). This pattern is now used identically for `/admin/eval` and `/admin/eval/report` pages.
+
 ### 2026-03-11 — Admin Report List API + Component (#121)
 - **Pattern**: For Next.js API route tests that import `NextRequest`, use `@jest-environment node` docblock at the top of the test file. The default jsdom environment doesn't define `Request` globally, causing import failures.
 - **Pattern**: When the Drizzle query chain is complex (many joins, where, orderBy, limit, offset), use a JS `Proxy` object that returns itself for any method call and implements a `then` method to make it thenable. This avoids maintaining brittle mock chains that break when the query structure changes. Set `mockDbSelectResult` and `mockDbError` module-level variables to control what the proxy resolves to.

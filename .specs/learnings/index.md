@@ -19,6 +19,12 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Report Eval Dashboard (#142)
+
+- **Eval dashboard mirroring pattern** (`general.md`): The report eval dashboard mirrors the agent eval dashboard architecture (localStorage, batch execution with concurrency pool, AbortController, JSON export) but adds criterion/fixture filter dropdowns and two new breakdown panels. Mirror-and-extend is faster than abstracting prematurely
+- **Dashboard result type vs runner result type** (`api.md`): The API strips the full `report` object and adds `reportSectionCount` + `reportConfidence` fields. The dashboard uses its own `ReportEvalDashboardResult` interface that matches the API response shape, not the runner's `ReportEvalRunResult` type
+- **Floating-point assertion gotcha** (`testing.md`): `(4.2 / 5) * 100` evaluates to `84.00000000000001` in JS, not `84`. Use `toBeCloseTo()` instead of `toBe()` for division-derived percentages
+
 ### 2026-03-11 — Admin Report List (#121)
 
 - **Proxy-based Drizzle mock for API route tests** (`testing.md`): When the query chain is complex (select → from → innerJoin → innerJoin → where → orderBy → limit → offset), use a JS Proxy that returns itself for any method call and resolves as a thenable. Avoids maintaining brittle mock chains
