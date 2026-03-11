@@ -94,6 +94,8 @@ export interface DimensionScore {
   score: number;
   label: string;
   components: Record<string, number | null>;
+  /** Plain-language interpretation of what drives this score */
+  interpretation?: string;
 }
 
 export interface DashboardIndicator {
@@ -399,12 +401,48 @@ export function computeInsightsIndex(
   detailMetrics: DetailDerivedMetrics,
   segments: SegmentMetrics[]
 ): ComputedAnalytics["insightsIndex"] {
-  return {
+  const raw = {
     liquidity: computeLiquidityScore(detailMetrics, market),
     timing: computeTimingScore(yoy, detailMetrics),
     risk: computeRiskScore(detailMetrics, segments),
     value: computeValueScore(yoy, segments),
   };
+
+  // Enforce score variance: no more than 2 of 4 dimensions may score 8+.
+  // If 3+ score 8+, pull the weakest ones down to 7 to produce realistic spread.
+  return enforceScoreVariance(raw);
+}
+
+function enforceScoreVariance(
+  index: ComputedAnalytics["insightsIndex"]
+): ComputedAnalytics["insightsIndex"] {
+  const entries = Object.entries(index) as [string, DimensionScore][];
+  const high = entries.filter(([, d]) => d.score >= 8);
+
+  if (high.length <= 2) return index; // Already has enough variance
+
+  // Sort high-scorers by score ascending (weakest first), cap extras at 7
+  const sorted = [...high].sort((a, b) => a[1].score - b[1].score);
+  const toCap = sorted.slice(0, high.length - 2); // Keep only the top 2
+
+  const result = { ...index };
+  for (const [key, dim] of toCap) {
+    const label = dim.score >= 7 ? dim.label : dim.label; // Keep original label mapping
+    (result as Record<string, DimensionScore>)[key] = {
+      ...dim,
+      score: 7,
+      label: relabelScore(key, 7),
+    };
+  }
+  return result;
+}
+
+function relabelScore(dimension: string, score: number): string {
+  if (dimension === "liquidity") return score >= 7 ? "Strong" : score >= 4 ? "Moderate" : "Weak";
+  if (dimension === "timing") return score >= 7 ? "Favorable" : score >= 4 ? "Neutral" : "Challenging";
+  if (dimension === "risk") return score >= 7 ? "Low Risk" : score >= 4 ? "Moderate Risk" : "Elevated Risk";
+  if (dimension === "value") return score >= 7 ? "Strong Opportunity" : score >= 4 ? "Moderate Opportunity" : "Limited Opportunity";
+  return "Moderate";
 }
 
 function computeLiquidityScore(
@@ -424,6 +462,15 @@ function computeLiquidityScore(
 
   const score = clamp(Math.round((cashScore + volumeScore + freeClearScore) / 3), 1, 10);
 
+  // Build plain-language interpretation
+  const parts: string[] = [];
+  if (detail.cashBuyerPercentage != null) {
+    const pct = Math.round(detail.cashBuyerPercentage * 100);
+    parts.push(pct >= 40 ? `High cash-buyer concentration (${pct}%) signals strong capital flow` : pct >= 20 ? `${pct}% cash buyers — moderate capital independence` : `Low cash-buyer share (${pct}%) — financing-dependent market`);
+  }
+  if (market.totalProperties > 50) parts.push(`${market.totalProperties} transactions indicate active trading volume`);
+  else if (market.totalProperties > 0) parts.push(`Limited transaction count (${market.totalProperties}) — thinner market`);
+
   return {
     score,
     label: score >= 7 ? "Strong" : score >= 4 ? "Moderate" : "Weak",
@@ -432,6 +479,7 @@ function computeLiquidityScore(
       transactionVolume: market.totalProperties,
       freeClearPct: detail.freeClearPercentage,
     },
+    interpretation: parts.join(". ") || undefined,
   };
 }
 
@@ -451,6 +499,20 @@ function computeTimingScore(yoy: YoYMetrics, detail: DetailDerivedMetrics): Dime
 
   const score = clamp(Math.round((momentumScore + domScore + ratioScore) / 3), 1, 10);
 
+  const parts: string[] = [];
+  if (yoy.medianPriceChange != null) {
+    const pct = Math.round(yoy.medianPriceChange * 100);
+    parts.push(pct > 5 ? `Strong price momentum (+${pct}% YoY) favors sellers` : pct > 0 ? `Modest price growth (+${pct}% YoY) — balanced conditions` : pct > -5 ? `Flat pricing (${pct}% YoY) — buyers gaining leverage` : `Declining prices (${pct}% YoY) — buyer's market conditions`);
+  }
+  if (detail.medianDaysOnMarket != null) {
+    const dom = Math.round(detail.medianDaysOnMarket);
+    parts.push(dom < 30 ? `Fast-moving inventory (${dom} days median) — urgency required` : dom < 90 ? `${dom}-day median time on market — measured pace` : `Extended marketing times (${dom} days) — patience rewarded`);
+  }
+  if (detail.listToSaleRatio != null) {
+    const ratio = Math.round(detail.listToSaleRatio * 100);
+    parts.push(ratio >= 98 ? `Sellers achieving ${ratio}% of ask — strong pricing power` : ratio >= 93 ? `${ratio}% list-to-sale ratio — moderate negotiation room` : `Significant discounting (${ratio}% of ask) — negotiation leverage for buyers`);
+  }
+
   return {
     score,
     label: score >= 7 ? "Favorable" : score >= 4 ? "Neutral" : "Challenging",
@@ -459,6 +521,7 @@ function computeTimingScore(yoy: YoYMetrics, detail: DetailDerivedMetrics): Dime
       medianDOM: detail.medianDaysOnMarket,
       listToSaleRatio: detail.listToSaleRatio,
     },
+    interpretation: parts.join(". ") || undefined,
   };
 }
 
@@ -475,6 +538,14 @@ function computeRiskScore(detail: DetailDerivedMetrics, segments: SegmentMetrics
 
   const score = clamp(Math.round((floodScore + diversityScore) / 2), 1, 10);
 
+  const parts: string[] = [];
+  if (detail.floodZonePercentage != null) {
+    const pct = Math.round(detail.floodZonePercentage * 100);
+    parts.push(pct === 0 ? "No flood zone exposure — minimal climate risk" : pct <= 10 ? `Low flood zone exposure (${pct}%) — manageable climate risk` : `${pct}% of properties in flood zones — elevated climate risk`);
+  }
+  const concPct = Math.round(concentrationPct * 100);
+  parts.push(concPct <= 40 ? `Diversified property mix (${concPct}% top segment) — balanced portfolio risk` : concPct <= 60 ? `Moderate concentration (${concPct}% in top segment)` : `High segment concentration (${concPct}% in one type) — limited diversification`);
+
   return {
     score,
     label: score >= 7 ? "Low Risk" : score >= 4 ? "Moderate Risk" : "Elevated Risk",
@@ -482,6 +553,7 @@ function computeRiskScore(detail: DetailDerivedMetrics, segments: SegmentMetrics
       floodZonePct: detail.floodZonePercentage,
       concentrationPct,
     },
+    interpretation: parts.join(". ") || undefined,
   };
 }
 
@@ -501,6 +573,14 @@ function computeValueScore(yoy: YoYMetrics, segments: SegmentMetrics[]): Dimensi
 
   const score = clamp(Math.round((growthScore + spreadScore) / 2), 1, 10);
 
+  const parts: string[] = [];
+  if (yoy.medianPriceChange != null) {
+    const pct = Math.round(yoy.medianPriceChange * 100);
+    parts.push(pct > 5 ? `${pct}% appreciation suggests continued value growth` : pct > 0 ? `Modest ${pct}% growth — steady value trajectory` : `${pct}% price movement — value stabilization phase`);
+  }
+  if (psfSpread > 0.3) parts.push("Wide price-per-sqft range across segments creates entry-point diversity");
+  else if (psfSpread > 0) parts.push("Narrow pricing spread — fewer value arbitrage opportunities");
+
   return {
     score,
     label: score >= 7 ? "Strong Opportunity" : score >= 4 ? "Moderate Opportunity" : "Limited Opportunity",
@@ -508,6 +588,7 @@ function computeValueScore(yoy: YoYMetrics, segments: SegmentMetrics[]): Dimensi
       yoyGrowth: yoy.medianPriceChange,
       psfSpread,
     },
+    interpretation: parts.join(". ") || undefined,
   };
 }
 

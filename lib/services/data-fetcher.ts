@@ -375,13 +375,73 @@ async function fetchPropertyComps(
   return { records, callCount, stale: anyStale };
 }
 
+/**
+ * Minimum peer markets for comparative positioning. If the user configured
+ * fewer, we auto-source additional peers from neighboring cities in the
+ * same state at the same price tier.
+ */
+const MIN_PEER_MARKETS = 3;
+
+/**
+ * Adjacent-city lookup by state. Used to auto-fill peer markets when user
+ * configured fewer than MIN_PEER_MARKETS. Maps state abbreviations to
+ * arrays of luxury-market cities (ordered by relevance). The target city
+ * is excluded automatically.
+ */
+const STATE_LUXURY_CITIES: Record<string, string[]> = {
+  FL: ["Naples", "Miami Beach", "Palm Beach", "Fort Lauderdale", "Sarasota", "Jupiter", "Boca Raton", "Key Biscayne", "Coral Gables", "St. Petersburg"],
+  NY: ["Manhattan", "Hamptons", "Scarsdale", "Rye", "Westchester", "Great Neck", "Garden City", "Cold Spring Harbor", "Sag Harbor", "Brooklyn Heights"],
+  CA: ["Beverly Hills", "Malibu", "Pacific Palisades", "La Jolla", "Montecito", "Newport Beach", "Palo Alto", "Atherton", "San Francisco", "Santa Barbara"],
+  TX: ["Highland Park", "River Oaks", "West Lake Hills", "Alamo Heights", "Southlake", "The Woodlands", "University Park", "Westlake", "Preston Hollow"],
+  CO: ["Aspen", "Vail", "Cherry Hills Village", "Telluride", "Steamboat Springs", "Boulder", "Castle Pines", "Greenwood Village"],
+  AZ: ["Scottsdale", "Paradise Valley", "Sedona", "Carefree", "Fountain Hills", "Cave Creek"],
+  NJ: ["Alpine", "Short Hills", "Rumson", "Saddle River", "Englewood Cliffs", "Bernardsville", "Princeton", "Montclair"],
+  CT: ["Greenwich", "Darien", "New Canaan", "Westport", "Old Greenwich", "Fairfield"],
+  MA: ["Wellesley", "Newton", "Brookline", "Nantucket", "Weston", "Concord", "Hingham"],
+  NC: ["Charlotte", "Raleigh", "Asheville", "Wilmington", "Chapel Hill", "Pinehurst"],
+  TN: ["Nashville", "Franklin", "Brentwood", "Germantown", "Chattanooga"],
+  GA: ["Buckhead", "Alpharetta", "Sea Island", "Savannah", "Roswell"],
+  SC: ["Charleston", "Kiawah Island", "Hilton Head", "Greenville", "Mount Pleasant"],
+  IL: ["Winnetka", "Lake Forest", "Hinsdale", "Glencoe", "Highland Park", "Naperville"],
+  WA: ["Mercer Island", "Medina", "Bellevue", "Bainbridge Island", "Kirkland"],
+  HI: ["Kailua", "Honolulu", "Kapalua", "Wailea", "Princeville"],
+  NV: ["Las Vegas", "Henderson", "Summerlin", "Incline Village"],
+  UT: ["Park City", "Salt Lake City", "Deer Valley"],
+  MT: ["Big Sky", "Whitefish", "Bozeman"],
+  ID: ["Sun Valley", "Ketchum", "Boise", "Coeur d'Alene"],
+};
+
+function autoSourcePeerCities(
+  market: MarketData
+): Array<{ name: string; geography: { city: string; state: string } }> {
+  const state = market.geography.state;
+  const targetCity = market.geography.city.toLowerCase();
+  const cities = STATE_LUXURY_CITIES[state] ?? [];
+
+  return cities
+    .filter((c) => c.toLowerCase() !== targetCity)
+    .map((city) => ({
+      name: `${city} Luxury`,
+      geography: { city, state },
+    }));
+}
+
 async function fetchPeerMarkets(
   market: MarketData,
   connectorOpts: { userId: string; reportId: string },
   abortSignal: AbortSignal,
   errors: FetchError[]
 ): Promise<{ records: PeerMarketData[]; callCount: number; stale: boolean }> {
-  const peers = market.peerMarkets ?? [];
+  let peers = [...(market.peerMarkets ?? [])];
+
+  // Auto-fill if fewer than MIN_PEER_MARKETS configured
+  if (peers.length < MIN_PEER_MARKETS) {
+    const existingCities = new Set(peers.map((p) => p.geography.city.toLowerCase()));
+    const autoPeers = autoSourcePeerCities(market)
+      .filter((p) => !existingCities.has(p.geography.city.toLowerCase()));
+    peers = [...peers, ...autoPeers.slice(0, MIN_PEER_MARKETS - peers.length)];
+  }
+
   if (peers.length === 0) {
     return { records: [], callCount: 0, stale: false };
   }

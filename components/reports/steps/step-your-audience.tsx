@@ -36,6 +36,79 @@ interface PersonaDetail {
 }
 
 // ---------------------------------------------------------------------------
+// Qualifier questions → persona mapping
+// ---------------------------------------------------------------------------
+
+interface QualifierOption {
+  label: string;
+  value: string;
+  /** Persona slugs this answer maps to (scored) */
+  slugs: string[];
+}
+
+interface QualifierQuestion {
+  id: string;
+  question: string;
+  options: QualifierOption[];
+}
+
+const QUALIFIER_QUESTIONS: QualifierQuestion[] = [
+  {
+    id: "motivation",
+    question: "What is your client primarily motivated by?",
+    options: [
+      { label: "Financial return / investment growth", value: "financial", slugs: ["business-mogul", "tech-founder"] },
+      { label: "Lifestyle / personal enjoyment", value: "lifestyle", slugs: ["coastal-escape-seeker", "seasonal-second-home"] },
+      { label: "Family legacy / generational wealth", value: "legacy", slugs: ["legacy-builder"] },
+      { label: "Portfolio diversification / relocation", value: "portfolio", slugs: ["corporate-executive", "international-buyer"] },
+    ],
+  },
+  {
+    id: "use",
+    question: "How will the property be used?",
+    options: [
+      { label: "Primary residence", value: "primary", slugs: ["legacy-builder", "corporate-executive"] },
+      { label: "Vacation / seasonal home", value: "vacation", slugs: ["coastal-escape-seeker", "seasonal-second-home"] },
+      { label: "Investment / rental income", value: "investment", slugs: ["business-mogul", "tech-founder"] },
+      { label: "Mixed use / multiple properties", value: "mixed", slugs: ["international-buyer", "celebrity-public-figure"] },
+    ],
+  },
+  {
+    id: "privacy",
+    question: "How important is privacy and discretion?",
+    options: [
+      { label: "Critical — NDAs, off-market preferred", value: "critical", slugs: ["celebrity-public-figure", "international-buyer"] },
+      { label: "Important but standard", value: "standard", slugs: ["business-mogul", "corporate-executive", "tech-founder"] },
+      { label: "Not a primary concern", value: "low", slugs: ["coastal-escape-seeker", "legacy-builder", "seasonal-second-home"] },
+    ],
+  },
+  {
+    id: "timeline",
+    question: "What is their purchase timeline?",
+    options: [
+      { label: "Immediate — within 3 months", value: "immediate", slugs: ["business-mogul", "corporate-executive"] },
+      { label: "Near-term — within 6 months", value: "near", slugs: ["tech-founder", "coastal-escape-seeker"] },
+      { label: "Flexible — exploring the market", value: "flexible", slugs: ["legacy-builder", "seasonal-second-home", "international-buyer"] },
+    ],
+  },
+];
+
+/** Score personas by counting how many qualifier answers map to each slug */
+function scorePersonas(answers: Record<string, string>): Record<string, number> {
+  const scores: Record<string, number> = {};
+  for (const q of QUALIFIER_QUESTIONS) {
+    const answer = answers[q.id];
+    if (!answer) continue;
+    const option = q.options.find((o) => o.value === answer);
+    if (!option) continue;
+    for (const slug of option.slugs) {
+      scores[slug] = (scores[slug] ?? 0) + 1;
+    }
+  }
+  return scores;
+}
+
+// ---------------------------------------------------------------------------
 // Data contract
 // ---------------------------------------------------------------------------
 
@@ -289,8 +362,14 @@ export function StepYourAudience({
   );
   const [previewLoading, setPreviewLoading] = useState(false);
 
+  // Qualifier phase
+  const [qualifierAnswers, setQualifierAnswers] = useState<Record<string, string>>({});
+  const [qualifierDone, setQualifierDone] = useState(false);
+  const [recommendedSlugs, setRecommendedSlugs] = useState<string[]>([]);
+
   const isMaxed = selectedIds.length >= 3;
   const isValid = selectedIds.length > 0;
+  const allQuestionsAnswered = Object.keys(qualifierAnswers).length === QUALIFIER_QUESTIONS.length;
 
   // Fetch personas
   const fetchPersonas = useCallback(async () => {
@@ -378,6 +457,45 @@ export function StepYourAudience({
     setPreviewPersona(null);
   }, []);
 
+  // Qualifier handlers
+  const handleQualifierAnswer = useCallback((questionId: string, value: string) => {
+    setQualifierAnswers((prev) => ({ ...prev, [questionId]: value }));
+  }, []);
+
+  const handleQualifierSubmit = useCallback(() => {
+    const scores = scorePersonas(qualifierAnswers);
+    // Sort slugs by score descending, take top 3
+    const sorted = Object.entries(scores)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 3)
+      .map(([slug]) => slug);
+    setRecommendedSlugs(sorted);
+
+    // Auto-select recommended personas
+    const recommendedIds = sorted
+      .map((slug) => personas.find((p) => p.slug === slug)?.id)
+      .filter((id): id is string => !!id);
+    setSelectedIds(recommendedIds);
+    setQualifierDone(true);
+  }, [qualifierAnswers, personas]);
+
+  const handleSkipQualifier = useCallback(() => {
+    setQualifierDone(true);
+  }, []);
+
+  // Sort personas: recommended first, then rest by displayOrder
+  const sortedPersonas = React.useMemo(() => {
+    if (recommendedSlugs.length === 0) return personas;
+    return [...personas].sort((a, b) => {
+      const aRec = recommendedSlugs.indexOf(a.slug);
+      const bRec = recommendedSlugs.indexOf(b.slug);
+      if (aRec >= 0 && bRec >= 0) return aRec - bRec;
+      if (aRec >= 0) return -1;
+      if (bRec >= 0) return 1;
+      return a.displayOrder - b.displayOrder;
+    });
+  }, [personas, recommendedSlugs]);
+
   return (
     <div className="py-4">
       {/* Heading */}
@@ -385,7 +503,9 @@ export function StepYourAudience({
         Who are you advising?
       </h2>
       <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-        Select up to 3 buyer personas &mdash; we&apos;ll tailor insights, talking points, and narrative framing to match their priorities
+        {!qualifierDone
+          ? "Answer a few quick questions so we can recommend the right buyer profiles for your client"
+          : "Select up to 3 buyer personas \u2014 we\u2019ll tailor insights, talking points, and narrative framing to match their priorities"}
       </p>
 
       <div className="w-8 h-0.5 bg-[var(--color-accent)] mt-4 mb-6" />
@@ -430,9 +550,86 @@ export function StepYourAudience({
         </p>
       )}
 
-      {/* Persona cards */}
-      {!loading && !error && personas.length > 0 && (
+      {/* Phase 1: Qualifier questions */}
+      {!loading && !error && personas.length > 0 && !qualifierDone && (
+        <motion.div
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+          className="space-y-6"
+        >
+          {QUALIFIER_QUESTIONS.map((q) => (
+            <motion.fieldset
+              key={q.id}
+              variants={fadeVariant}
+              className="space-y-2"
+            >
+              <legend className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+                {q.question}
+              </legend>
+              <div className="grid grid-cols-2 gap-2">
+                {q.options.map((opt) => {
+                  const isChosen = qualifierAnswers[q.id] === opt.value;
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => handleQualifierAnswer(q.id, opt.value)}
+                      className={`text-left px-3 py-2 rounded-[var(--radius-sm)] border font-[family-name:var(--font-sans)] text-sm transition-all duration-[var(--duration-default)] ${
+                        isChosen
+                          ? "border-[var(--color-accent)] bg-[var(--color-accent-light)] text-[var(--color-text)] font-medium"
+                          : "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:border-[var(--color-border-strong)]"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.fieldset>
+          ))}
+
+          <div className="flex items-center gap-3 pt-2">
+            <button
+              type="button"
+              onClick={handleQualifierSubmit}
+              disabled={!allQuestionsAnswered}
+              className={`px-5 py-2 rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] font-semibold text-sm transition-colors duration-[var(--duration-default)] ${
+                allQuestionsAnswered
+                  ? "bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] cursor-pointer"
+                  : "bg-[var(--color-border)] text-[var(--color-text-tertiary)] cursor-not-allowed"
+              }`}
+            >
+              See Recommendations
+            </button>
+            <button
+              type="button"
+              onClick={handleSkipQualifier}
+              className="px-4 py-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] transition-colors duration-[var(--duration-default)]"
+            >
+              Skip &mdash; I know who I want
+            </button>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Phase 2: Persona cards (after qualifier or skip) */}
+      {!loading && !error && personas.length > 0 && qualifierDone && (
         <>
+          {/* Recommendation banner */}
+          {recommendedSlugs.length > 0 && (
+            <motion.div
+              variants={fadeVariant}
+              initial="initial"
+              animate="animate"
+              className="mb-4 px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-accent-light)] border border-[var(--color-accent)]"
+            >
+              <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)]">
+                <span className="font-semibold">Based on your answers</span>, we recommend the highlighted personas below. You can adjust the selection if needed.
+              </p>
+            </motion.div>
+          )}
+
           <div className={previewSlug && previewPersona ? "flex gap-4" : ""}>
             <motion.div
               className={`grid ${previewSlug && previewPersona ? "grid-cols-1 w-1/2" : "grid-cols-2"} gap-3`}
@@ -440,7 +637,7 @@ export function StepYourAudience({
               initial="initial"
               animate="animate"
             >
-              {personas.map((persona) => {
+              {sortedPersonas.map((persona) => {
                 const idx = selectedIds.indexOf(persona.id);
                 const selectionOrder = idx >= 0 ? idx + 1 : null;
                 const cardIsMaxed = isMaxed && !selectedIds.includes(persona.id);

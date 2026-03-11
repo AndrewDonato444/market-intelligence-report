@@ -45,6 +45,8 @@ export interface PolishAgentOutput {
     contradictions: string[];
     notes: string[];
   };
+  /** Advisor's Strategic Brief — concrete directional recommendation, not a data recap */
+  strategicBrief?: string;
 }
 
 // --- Helpers ---
@@ -165,6 +167,7 @@ Respond with a JSON object matching this exact schema:
       "source": "sectionType it came from"
     }
   ],
+  "strategicBrief": "1-2 paragraph Advisor's Strategic Brief. CRITICAL RULES: (1) Lead with a single concrete directional recommendation — 'My recommendation for your search is X' — not a market summary. (2) The brief must take a POSITION that isn't already stated in The Narrative or Forward Look. (3) Do NOT repeat any sentence or data point already present in other sections. (4) Write as the agent's own professional recommendation to their client, not as a data recap.",
   "methodology": {
     "narrative": "1-2 paragraph methodology description",
     "sources": ["list of data sources used"],
@@ -180,7 +183,7 @@ Respond with a JSON object matching this exact schema:
   }
 }
 
-Generate 3-5 pull quotes. Polish all available section narratives.`;
+Generate 3-5 pull quotes. Polish all available section narratives. The strategicBrief MUST be a distinct recommendation, not a summary of existing sections.`;
 }
 
 // --- Main execution ---
@@ -351,9 +354,10 @@ export async function executePolishAgent(
       polishOutput,
       missingSections: missingSections.length > 0 ? missingSections : undefined,
       // Keys for report-assembler (Layer 3)
-      strategicBrief: polishOutput.polishedSections
-        .find((s) => s.sectionType === "executive_summary" || s.sectionType === "executive_briefing")
-        ?.revisedNarrative ?? polishOutput.polishedSections[0]?.revisedNarrative ?? null,
+      strategicBrief: polishOutput.strategicBrief
+        ?? polishOutput.polishedSections
+          .find((s) => s.sectionType === "executive_summary" || s.sectionType === "executive_briefing")
+          ?.revisedNarrative ?? null,
       methodology: polishOutput.methodology.narrative,
     },
     durationMs: Date.now() - start,

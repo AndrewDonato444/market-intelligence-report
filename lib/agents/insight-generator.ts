@@ -37,6 +37,12 @@ export interface InsightGeneratorOutput {
       sellers: string;
     };
   };
+  neighborhoodAnalysis: {
+    narrative: string;
+  };
+  editorial: {
+    narrative: string;
+  };
 }
 
 export interface InsightTheme {
@@ -98,6 +104,17 @@ OUTPUT RULES:
 - Must avoid: Generic language ("the market is healthy"), promotional tone, restating raw metrics without strategic interpretation, hedging language that adds no value ("it remains to be seen")
 - CRITICAL: Only reference numbers that appear in the input data. Do NOT fabricate, extrapolate, or invent metrics that were not provided (e.g., do not create price-per-sqft figures, property counts, or volume numbers unless they are explicitly in the input). When a metric is not available, either omit it or note its absence.
 - When news articles are provided, reference specific news developments to ground themes in current events. Cite the source name when referencing a news item.
+
+SECTION DIFFERENTIATION RULES (CRITICAL — each output field has a distinct analytical job):
+- "overview" = Executive Briefing: The 30-second board-room summary. Lead with the single most important finding, then market vital signs. This is the WHAT.
+- "neighborhoodAnalysis" = Neighborhood Intelligence: Ground-level data. Specific neighborhoods, property-type breakdowns, micro-market patterns. This is the RAW EVIDENCE.
+- "editorial" = The Narrative: Strategic interpretation and thematic synthesis. Connect the dots between segments. Explain WHY the data looks the way it does. This is the INTERPRETATION.
+- "executiveSummary" = Executive Summary: Actionable conclusions and timing. What should the agent DO with this information? This is the SO-WHAT.
+- DO NOT repeat the same finding, sentence, or data point across sections. Each section must advance the analysis. If a metric appears in the overview, the editorial must interpret it differently, not restate it.
+
+DATA GAP HANDLING:
+- If a segment category is undefined or has missing data (e.g., "Other" property types with no square footage), flag the limitation ONCE in the most relevant section, then move on. Do NOT repeat the same data gap caveat across multiple sections.
+- When a segment like "Other" dominates the data (>40% of transactions), note this once and focus analysis on the segments that DO have complete data.
 
 EXAMPLES OF GOOD OUTPUT:
 
@@ -178,7 +195,7 @@ ${news && news.targetMarket.length > 0 ? `\nRECENT NEWS:\n${formatNewsForPrompt(
 Respond with a JSON object matching this exact schema:
 {
   "overview": {
-    "narrative": "1-2 paragraph strategic market overview",
+    "narrative": "1-2 paragraph executive briefing — the WHAT (30-second board-room summary, lead with single most important finding)",
     "highlights": ["3-5 key metrics/findings as bullet points"],
     "recommendations": ["2-3 actionable recommendations"]
   },
@@ -190,8 +207,14 @@ Respond with a JSON object matching this exact schema:
       "narrative": "1-2 paragraph analysis of this theme"
     }
   ],
+  "neighborhoodAnalysis": {
+    "narrative": "1-2 paragraphs of ground-level neighborhood intelligence — the RAW EVIDENCE (specific neighborhoods, property-type breakdowns, micro-market patterns, data-dense). Do NOT repeat the overview narrative."
+  },
+  "editorial": {
+    "narrative": "2-3 paragraphs of strategic interpretation — the WHY (connect dots between segments, explain what drives the patterns, thematic synthesis). Do NOT repeat the overview or neighborhood narratives."
+  },
   "executiveSummary": {
-    "narrative": "1-2 paragraph executive summary",
+    "narrative": "1-2 paragraph executive summary — the SO-WHAT (actionable conclusions, what should the agent DO with this)",
     "highlights": ["3-5 performance highlights"],
     "timing": {
       "buyers": "Timing recommendation for buyers",
@@ -199,6 +222,8 @@ Respond with a JSON object matching this exact schema:
     }
   }
 }
+
+REMINDER: Each section above must contain DIFFERENT content. overview = WHAT, neighborhoodAnalysis = EVIDENCE, editorial = WHY, executiveSummary = SO-WHAT. No sentence or finding should appear in more than one section.
 
 ${insufficientData ? "Since data is insufficient, provide honest caveats. Use 0-1 themes." : "Identify 3-5 strategic themes from the segment and YoY data."}`;
 }
@@ -325,10 +350,10 @@ export async function executeInsightGenerator(
     metadata: {
       insights,
       lowConfidence: insufficientData || analysis.confidence.level === "low",
-      // Keys for report-assembler (Layer 3)
+      // Keys for report-assembler (Layer 3) — each is a DISTINCT narrative
       executiveBriefing: insights.overview.narrative,
-      neighborhoodAnalysis: insights.executiveSummary.narrative,
-      editorial: insights.executiveSummary.narrative,
+      neighborhoodAnalysis: insights.neighborhoodAnalysis?.narrative ?? insights.executiveSummary.narrative,
+      editorial: insights.editorial?.narrative ?? insights.executiveSummary.narrative,
       themes: insights.themes,
     },
     durationMs: Date.now() - start,
