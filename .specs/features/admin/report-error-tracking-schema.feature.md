@@ -101,9 +101,9 @@ retriedBy: text("retried_by"),
 Given a report pipeline is running for an agent's intelligence brief
 When the data analyst agent fails with an error
 Then the report's `status` is set to `failed`
-And `errorDetails` is populated with the agent name, error message, stack trace, and input snapshot
+And `errorDetails` is populated with the agent name, error message, and stack trace
 And `errorDetails.occurredAt` records the exact failure timestamp
-And `errorDetails.stageIndex` records which stage failed
+And `errorDetails.stageIndex` is populated when the caller provides it (optional — the v2 orchestrator does not currently expose the stage index in its failure result)
 
 ### Scenario: Error details include the failing agent's identity
 Given a report has failed during pipeline execution
@@ -113,10 +113,11 @@ And admin does not need to parse log files to determine the failure point
 
 ### Scenario: Input snapshot captures what the agent received
 Given a pipeline agent fails
-When error details are recorded
+When error details are recorded with an input snapshot provided by the caller
 Then `errorDetails.inputSnapshot` contains a serialized copy of the input data the agent received
 And the snapshot is truncated if it exceeds 50KB to prevent database bloat
 And the snapshot enables admin to reproduce the failure
+Note: The v2 pipeline orchestrator does not currently pass `inputSnapshot` to the error recording call (the orchestrator result does not expose agent inputs). The `truncateSnapshot` helper is implemented and ready for use when callers provide input data.
 
 ### Scenario: Existing error messages are migrated to structured format
 Given reports exist with a flat `errorMessage` but no `errorDetails`
@@ -130,8 +131,9 @@ Given a report has `status = 'failed'` with populated `errorDetails`
 When an admin triggers a pipeline retry
 Then `retriedAt` is set to the current timestamp
 And `retriedBy` is set to the admin's auth ID
-And the current `errorDetails` are moved to `errorDetails.previousErrors`
+And the current error is moved into a `_previousErrors` array inside `errorDetails` (temporary storage until next failure)
 And `status` is set back to `queued`
+And `errorMessage` is cleared to null
 
 ### Scenario: Retry preserves error history
 Given a report was retried once but failed again
@@ -161,43 +163,54 @@ And if JSONB serialization fails (e.g., circular reference in input), a fallback
 The pipeline execution service (`lib/services/pipeline-execution.ts` or equivalent) needs to catch agent failures and write structured error details:
 
 ```typescript
-// In the pipeline runner's catch block:
-await db
-  .update(reports)
-  .set({
-    status: "failed",
-    errorMessage: error.message, // backward compat
-    errorDetails: {
-      agent: currentAgent.name,
-      message: error.message,
-      stack: error.stack?.substring(0, 4000),
-      inputSnapshot: truncateSnapshot(currentAgent.input, 50_000),
-      occurredAt: new Date().toISOString(),
-      stageIndex: currentStageIndex,
-      totalStages: pipeline.stages.length,
-    },
-  })
-  .where(eq(reports.id, reportId));
+// Actual implementation — uses buildErrorDetails + recordErrorDetails helpers:
+
+// Agent result failure path (orchestrator returned status: "failed"):
+const failedAgent = Object.keys(agentResult.agentTimings).pop() ?? "unknown";
+const previousErrors = extractPreviousErrors(report.errorDetails);
+const errorDetails = buildErrorDetails({
+  agent: failedAgent,
+  error: agentResult.error ?? "Pipeline failed",
+  totalStages: ALL_AGENTS.length,
+  // stageIndex: not available from orchestrator result
+  // inputSnapshot: not available from orchestrator result
+  previousErrors: previousErrors ?? undefined,
+});
+await recordErrorDetails(reportId, errorDetails);
+
+// Exception (catch block) — unhandled pipeline error:
+const errorDetails = buildErrorDetails({
+  agent: "pipeline-executor",
+  error: err instanceof Error ? err : String(err),
+  previousErrors: extractPreviousErrors(report.errorDetails) ?? undefined,
+});
+await recordErrorDetails(reportId, errorDetails);
 ```
 
 ### Where retry is triggered
 
-The admin retry endpoint (built in #124) will:
+The admin retry endpoint (built in #124) calls `prepareRetry(reportId, adminAuthId)`:
 
 ```typescript
-// Move current error to history, reset status
-const currentError = report.errorDetails;
+// Actual implementation in lib/services/report-error-tracking.ts:
+// 1. Fetch current report.errorDetails
+// 2. Build previousErrors array from current error + any existing previousErrors
+// 3. Store as { _previousErrors: [...] } in errorDetails (temp storage)
+// 4. Reset status to "queued", clear errorMessage, set retriedAt + retriedBy
 await db
   .update(reports)
   .set({
     status: "queued",
     errorMessage: null,
-    errorDetails: null,
+    errorDetails: previousErrors.length > 0
+      ? { _previousErrors: previousErrors }
+      : null,
     retriedAt: new Date(),
     retriedBy: adminAuthId,
   })
   .where(eq(reports.id, reportId));
-// previousErrors accumulation happens on the next failure
+// On next failure, extractPreviousErrors() reads _previousErrors and passes
+// them into buildErrorDetails(), which stores them as errorDetails.previousErrors
 ```
 
 ## User Journey
