@@ -56,7 +56,7 @@ And it has an "Edit" link that navigates back to Step 4
 
 ### Scenario: No personas selected shows fallback
 Given the agent is on Step 5 and did not select any personas
-Then the audience section shows "No buyer personas selected"
+Then the audience section shows "No buyer personas selected — report will use general framing"
 
 ### Scenario: Report title is auto-generated and editable
 Given the agent is on Step 5
