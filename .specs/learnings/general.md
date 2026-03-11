@@ -53,6 +53,11 @@ _No learnings yet._
 
 <!-- Miscellaneous patterns -->
 
+### 2026-03-11 — Step 4: Fetch-driven step with selection order
+- **Pattern**: For step components with real API data, fetch on mount via `useCallback` + `useEffect([], [])`. Store loading/error/data in separate state variables. On error, set `onValidationChange(true)` to allow skipping rather than blocking the wizard.
+- **Pattern**: Selection order via array position: `selectedIds.indexOf(id) + 1` gives the 1-based position. `filter()` on deselect automatically renumbers since it preserves relative order of remaining elements — no need for a separate order counter or map.
+- **Decision**: Preview panel detail is fetched lazily per-click (`/api/buyer-personas/[slug]`) rather than pre-fetching all 8 persona details. This keeps the initial page load to one lightweight list call.
+
 ### 2026-03-11 — Step 3: Smart defaults and multi-select validation
 - **Pattern**: Smart defaults via static state-to-selections mapping (`STATE_SEGMENT_DEFAULTS`, `STATE_PROPERTY_DEFAULTS`) with `_default` fallback key. Compute once with `useMemo` keyed on `marketData`, use result as `useState` initializer. The "popular" set is separate from selection state — tracked via `useMemo(() => new Set(defaults))` so badges persist after deselection.
 - **Pattern**: For multi-select step validation (at least one of N categories), derive `isValid` directly from state (`segments.length > 0 || propertyTypes.length > 0`). Two `useEffect` hooks: one reports `onValidationChange(isValid)`, one calls `onStepComplete(data)` only when valid. This matches the Step 2 pattern but adapted for toggle-based (not radio-based) selection.

@@ -73,6 +73,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | ux-redesign | [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md) | `components/reports/steps/step-your-market.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 2: Your Tier](.specs/features/ux-redesign/step-2-your-tier.feature.md) | `components/reports/steps/step-your-tier.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 3: Your Focus](.specs/features/ux-redesign/step-3-your-focus.feature.md) | `components/reports/steps/step-your-focus.tsx` | see spec | see spec | implemented |
+| ux-redesign | [Step 4: Your Audience](.specs/features/ux-redesign/step-4-your-audience.feature.md) | `components/reports/steps/step-your-audience.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Unified Creation Flow Shell](.specs/features/ux-redesign/unified-creation-flow-shell.feature.md) | `app/(protected)/reports/create/page.tsx` | see spec | see spec | implemented |
 
 ---
@@ -84,8 +85,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 52 |
-| **Total** | **56** |
+| implemented | 53 |
+| **Total** | **57** |
 
 ---
 
@@ -158,6 +159,7 @@ _None_
 - [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md)
 - [Step 2: Your Tier](.specs/features/ux-redesign/step-2-your-tier.feature.md)
 - [Step 3: Your Focus](.specs/features/ux-redesign/step-3-your-focus.feature.md)
+- [Step 4: Your Audience](.specs/features/ux-redesign/step-4-your-audience.feature.md)
 - [Unified Creation Flow Shell](.specs/features/ux-redesign/unified-creation-flow-shell.feature.md)
 
 ---

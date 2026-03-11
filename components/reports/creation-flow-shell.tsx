@@ -7,9 +7,11 @@ import { CreationStepIndicator } from "./creation-step-indicator";
 import { StepYourMarket } from "./steps/step-your-market";
 import { StepYourTier } from "./steps/step-your-tier";
 import { StepYourFocus } from "./steps/step-your-focus";
+import { StepYourAudience } from "./steps/step-your-audience";
 import type { StepMarketData } from "./steps/step-your-market";
 import type { StepTierData } from "./steps/step-your-tier";
 import type { StepFocusData } from "./steps/step-your-focus";
+import type { StepAudienceData } from "./steps/step-your-audience";
 import type { PageDirection } from "@/lib/animations";
 
 const STEPS = [
@@ -60,6 +62,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   const marketDataRef = useRef<StepMarketData | null>(null);
   const tierDataRef = useRef<StepTierData | null>(null);
   const focusDataRef = useRef<StepFocusData | null>(null);
+  const audienceDataRef = useRef<StepAudienceData | null>(null);
 
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
@@ -104,6 +107,14 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     setStepValid(valid);
   }, []);
 
+  const handleAudienceStepComplete = useCallback((data: StepAudienceData) => {
+    audienceDataRef.current = data;
+  }, []);
+
+  const handleAudienceValidation = useCallback((valid: boolean) => {
+    setStepValid(valid);
+  }, []);
+
   const step = STEPS[currentStep];
 
   const renderStepContent = () => {
@@ -140,7 +151,16 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    // Placeholder for steps 3-5 (features #155-#157)
+    if (currentStep === 3) {
+      return (
+        <StepYourAudience
+          onStepComplete={handleAudienceStepComplete}
+          onValidationChange={handleAudienceValidation}
+        />
+      );
+    }
+
+    // Placeholder for steps 4-5 (features #156-#157)
     return (
       <div className="py-8 text-center">
         <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-2">

@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Fetch-driven component testing
+- **Pattern**: For components that fetch data on mount, create `mockFetchSuccess`/`mockFetchEmpty`/`mockFetchError` helpers that configure `global.fetch` per test. Use `await act(async () => { render(...) })` + `await waitFor(() => { expect(screen.getByText("...")).toBeInTheDocument() })` to wait for the fetch-then-render cycle. This pattern avoids `act()` warnings from async state updates.
+- **Gotcha**: When a preview panel shows the same persona name as the card grid, `screen.getByText("Name")` throws on multiple matches. Use `screen.getAllByTestId("audience-persona-card")[0]` to target the card directly instead of finding by text content.
+
 ### 2026-03-11 — Framer Motion mock completeness
 - **Gotcha**: When a new component uses `motion.button` (or any `motion.X` element not yet in the mock), ALL test files that render that component — including parent component tests like `creation-flow-shell.test.tsx` — must add that element to their framer-motion mock. Otherwise the mock returns `undefined` for the missing element, causing "Element type is invalid: got undefined" in `ToggleCard`. Always check parent test mocks when adding new `motion.*` elements.
 

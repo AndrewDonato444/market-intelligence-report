@@ -19,6 +19,14 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Step 4: Your Audience (fetch-driven step with selection order)
+
+- **Nested button gotcha** (`design.md`): HTML forbids `<button>` inside `<button>` — use `<span role="link" tabIndex={0}>` for interactive children inside `<motion.button>` cards
+- **Fetch-driven step pattern** (`general.md`): For API-backed steps, fetch on mount, show loading skeleton, allow skipping on error/empty. Validation = `true` on error so wizard isn't blocked
+- **Selection order via array index** (`general.md`): `selectedIds.indexOf(id) + 1` gives 1-based order; `filter()` on deselect auto-renumbers. No separate counter needed
+- **Fetch mock helpers for tests** (`testing.md`): `mockFetchSuccess`/`mockFetchEmpty`/`mockFetchError` configure `global.fetch` per test. Use `act(async () => render(...))` + `waitFor` for the fetch-then-render cycle
+- **getByText collision with preview** (`testing.md`): When preview panel duplicates card text, use `getAllByTestId("audience-persona-card")[0]` instead of `getByText("Name")`
+
 ### 2026-03-11 — Step 3: Your Focus (ToggleCard pattern)
 
 - **Framer Motion mock must include all element types** (`testing.md`): When adding `motion.button` to a component, ALL test files that render that component (including parent shell tests) must include `motion.button` in their framer-motion mock. Missing element types cause "Element type is invalid: got undefined" errors

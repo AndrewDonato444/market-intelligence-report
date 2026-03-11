@@ -18,6 +18,10 @@ Patterns for UI and design system in this codebase.
 
 <!-- Common component structures, composition -->
 
+### 2026-03-11 — AudiencePersonaCard pattern
+- **Gotcha**: HTML spec forbids `<button>` inside `<button>`. When a card is a `<motion.button>` with `role="switch"`, any interactive child (like "Preview") must be a `<span role="link" tabIndex={0}>` with its own click/keydown handlers, not a nested `<button>`. React emits a console.error warning in dev and tests.
+- **Pattern**: For step components fetching from an API (vs static data like Steps 1-3), implement three states: loading skeleton (`animate-pulse` divs), error with Retry button, and empty state. Validation should be `true` on error/empty (allows user to skip) and track selection state only after data loads.
+
 ### 2026-03-11 — ToggleCard pattern
 - **Pattern**: A single `ToggleCard` component serves both segments and property types — use `role="switch"` with `aria-checked` instead of radio/checkbox. Props: `value`, `label`, `description?`, `icon`, `selected`, `popular`, `onToggle`. The `popular` flag drives a "Popular in your area" badge that persists even after deselection (tied to smart defaults, not selection state).
 - **Pattern**: Card toggle styling uses CSS variable references: selected = `border-[var(--color-accent)] bg-[var(--color-accent-light)]`, hover = `border-[var(--color-border-strong)] shadow-[var(--shadow-md)]`. Matches the tier card pattern from Step 2 but uses `role="switch"` instead of `role="radio"` since multiple selections are allowed.
