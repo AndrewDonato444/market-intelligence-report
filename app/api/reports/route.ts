@@ -68,6 +68,12 @@ export async function POST(request: Request) {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Failed to create report";
+    console.error("[POST /api/reports] createReport failed:", {
+      authId: userId,
+      marketId: validation.data?.marketId,
+      error: message,
+      stack: err instanceof Error ? err.stack : undefined,
+    });
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
