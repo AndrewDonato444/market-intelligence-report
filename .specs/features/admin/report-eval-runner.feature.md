@@ -9,7 +9,7 @@ personas:
   - internal-developer
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-12
 ---
 
 # Report Eval Runner
@@ -35,7 +35,7 @@ Given test case ID "rtc-01"
 When `runSingleReportTestCase("rtc-01")` is called
 Then it loads the fixture via `getReportFixture()`
 And calls the report judge
-And returns a `ReportEvalRunResult` with score, reason, breakdown, duration, timestamp
+And returns a `ReportEvalRunResult` with `judgeScore`, `judgeReason`, `judgeBreakdown`, `durationMs`, `timestamp`, `testCaseId`, `description`, `criterion`, and `report`
 
 ### Scenario: Batch runner executes all 18 test cases
 
@@ -49,14 +49,15 @@ And returns 18 `ReportEvalRunResult` objects
 
 Given a set of completed `ReportEvalRunResult` objects
 When `buildReportEvalSummary()` is called
-Then it produces pass rate, average score, per-criterion averages, per-fixture averages
+Then it produces `passRate`, `avgScore`, `avgBreakdown` (per-dimension averages across all 6 criteria), `byCriterion` (per-criterion pass rate and avg score), `byFixture` (per-fixture pass rate and avg score), and `byTestCase` (per-test-case score and pass/fail)
 
 ### Scenario: API endpoint runs a single report eval
 
 Given an admin user
 When POST `/api/eval/report/run` with `{ testCaseId: "rtc-01" }`
 Then it executes the report eval runner
-And returns the `ReportEvalRunResult` as JSON
+And returns the `ReportEvalRunResult` fields as JSON (excluding the full `report` to avoid large payloads)
+And adds `reportSectionCount` and `reportConfidence` derived from the report metadata
 
 ### Scenario: API endpoint lists report test cases
 
