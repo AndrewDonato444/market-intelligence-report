@@ -7,6 +7,7 @@ const TABS = [
   { label: "Volume", href: "/admin/analytics" },
   { label: "Geographic", href: "/admin/analytics/geographic" },
   { label: "Users", href: "/admin/analytics/users" },
+  { label: "Performance", href: "/admin/analytics/performance" },
 ];
 
 export function AnalyticsNav() {
