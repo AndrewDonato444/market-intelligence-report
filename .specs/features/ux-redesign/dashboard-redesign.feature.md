@@ -72,9 +72,9 @@ When they click on a report in the recent reports list
 Then they are navigated to the report detail view at `/reports/{reportId}`
 
 ### Scenario: Dashboard shows report status badges
-Given an agent has reports in various states (generating, completed, failed)
+Given an agent has reports in various states (queued, generating, completed, failed)
 When they view the recent reports list on the dashboard
-Then each report shows a status badge — "Generating" in gold, "Completed" in green, "Failed" in red
+Then each report shows a status badge — "Generating" in gold, "Completed" in green, "Failed" in red, "Queued" in muted text
 And generating reports show a subtle pulsing indicator
 
 ### Scenario: Dashboard entrance animations
