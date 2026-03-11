@@ -8,10 +8,12 @@ import { StepYourMarket } from "./steps/step-your-market";
 import { StepYourTier } from "./steps/step-your-tier";
 import { StepYourFocus } from "./steps/step-your-focus";
 import { StepYourAudience } from "./steps/step-your-audience";
+import { StepYourReview } from "./steps/step-your-review";
 import type { StepMarketData } from "./steps/step-your-market";
 import type { StepTierData } from "./steps/step-your-tier";
 import type { StepFocusData } from "./steps/step-your-focus";
 import type { StepAudienceData } from "./steps/step-your-audience";
+import type { StepReviewData } from "./steps/step-your-review";
 import type { PageDirection } from "@/lib/animations";
 
 const STEPS = [
@@ -115,6 +117,20 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     setStepValid(valid);
   }, []);
 
+  const handleReviewStepComplete = useCallback((data: StepReviewData) => {
+    // Report created — navigation handled by StepYourReview
+  }, []);
+
+  const handleReviewValidation = useCallback((valid: boolean) => {
+    setStepValid(valid);
+  }, []);
+
+  const handleNavigateToStep = useCallback((stepIndex: number) => {
+    setDirection("backward");
+    setCurrentStep(stepIndex);
+    setStepValid(false);
+  }, []);
+
   const step = STEPS[currentStep];
 
   const renderStepContent = () => {
@@ -160,7 +176,21 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    // Placeholder for steps 4-5 (features #156-#157)
+    if (currentStep === 4) {
+      return (
+        <StepYourReview
+          marketData={marketDataRef.current}
+          tierData={tierDataRef.current}
+          focusData={focusDataRef.current}
+          audienceData={audienceDataRef.current}
+          onStepComplete={handleReviewStepComplete}
+          onValidationChange={handleReviewValidation}
+          onNavigateToStep={handleNavigateToStep}
+        />
+      );
+    }
+
+    // Placeholder for step 5 (feature #157)
     return (
       <div className="py-8 text-center">
         <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-2">
@@ -218,7 +248,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
             )}
           </div>
           <div>
-            {isLastStep ? (
+            {currentStep === 4 ? null : isLastStep ? (
               <button
                 type="button"
                 className="px-8 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] shadow-[var(--shadow-sm)]"

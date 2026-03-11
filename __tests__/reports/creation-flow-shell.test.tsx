@@ -266,31 +266,34 @@ describe("Unified Creation Flow Shell (#151)", () => {
       expect(screen.getByTestId("step-content-0")).toBeInTheDocument();
     });
 
-    it("navigates through all 6 steps", () => {
+    it("navigates through steps 0-4, step 4 (Review) has Generate Report button", () => {
       render(
         React.createElement(CreationFlowShell, { markets: mockMarkets })
       );
 
-      for (let i = 0; i < 5; i++) {
+      // Navigate through steps 0-3 using Next button
+      for (let i = 0; i < 4; i++) {
         expect(screen.getByTestId(`step-content-${i}`)).toBeInTheDocument();
         fireEvent.click(screen.getByRole("button", { name: /next/i }));
       }
 
-      expect(screen.getByTestId("step-content-5")).toBeInTheDocument();
+      // Step 4 (Review) renders with its own Generate Report CTA
+      expect(screen.getByTestId("step-content-4")).toBeInTheDocument();
       expect(
         screen.getByRole("button", { name: /generate report/i })
       ).toBeInTheDocument();
+      // Shell's Next button is hidden on step 4
       expect(
         screen.queryByRole("button", { name: /^next$/i })
       ).not.toBeInTheDocument();
     });
 
-    it("shows Generate Report button on last step instead of Next", () => {
+    it("shows Generate Report button on step 4 (Review) instead of Next", () => {
       render(
         React.createElement(CreationFlowShell, { markets: mockMarkets })
       );
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 4; i++) {
         fireEvent.click(screen.getByRole("button", { name: /next/i }));
       }
 
@@ -299,12 +302,12 @@ describe("Unified Creation Flow Shell (#151)", () => {
       ).toBeInTheDocument();
     });
 
-    it("still shows Back button on last step", () => {
+    it("still shows Back button on step 4", () => {
       render(
         React.createElement(CreationFlowShell, { markets: mockMarkets })
       );
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 4; i++) {
         fireEvent.click(screen.getByRole("button", { name: /next/i }));
       }
 
