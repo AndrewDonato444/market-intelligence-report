@@ -10,7 +10,7 @@ personas:
   - internal-admin
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-12
 ---
 
 # Volume Metrics Dashboard
@@ -62,6 +62,12 @@ Then a loading spinner is displayed
 Given the analytics API is unreachable
 When an admin loads the dashboard
 Then an error message is displayed with a retry option
+
+### Scenario: Admin refreshes data manually
+Given an admin user is on the analytics dashboard with data loaded
+When they click the "Refresh" button
+Then the overview and volume APIs are called again
+And the dashboard updates with the latest data
 
 ### Scenario: Admin sidebar includes Analytics link
 Given an admin is viewing any admin page
