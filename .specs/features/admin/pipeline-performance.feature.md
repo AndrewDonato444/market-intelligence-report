@@ -27,7 +27,7 @@ Admin analytics view showing pipeline operational health: average report generat
 Given an admin navigates to `/admin/analytics/performance`
 When the page loads
 Then the performance analytics API is called with `period=30d&granularity=daily`
-And four KPI cards are displayed: Avg Generation Time, Cache Hit Rate, Avg Cost per Report, Error Rate
+And four KPI cards are displayed: Avg Generation Time, Cache Hit Rate, Avg Cost / Report, Error Rate
 
 ### Scenario: Generation time trend chart renders
 Given an admin is on the pipeline performance page
@@ -52,7 +52,7 @@ Then an "Errors by Agent" table shows each agent with failure count sorted desce
 ### Scenario: Cost breakdown section
 Given an admin is on the pipeline performance page
 When data loads
-Then a "Cost Breakdown" section shows cost grouped by provider
+Then a "Cost Breakdown by Provider" section shows cost grouped by provider with requests, total cost, and avg cost per request columns
 
 ### Scenario: Empty state
 Given no completed reports exist
