@@ -8,6 +8,10 @@ Patterns that don't fit other categories.
 
 <!-- Conventions, naming, organization -->
 
+### 2026-03-11 — Admin Report List (#121)
+- **Pattern**: Admin list pages follow a consistent three-file pattern: (1) API route at `app/api/admin/{resource}/route.ts` with `requireAdmin()` gate, filter/sort/pagination params, status counts, and joined data; (2) Client component at `components/admin/{resource}-list-dashboard.tsx` with fetch + debounced search + status filter tabs + dropdown filters + sortable column headers + pagination + empty/loading/error states; (3) Server page at `app/admin/{resource}/page.tsx` that checks admin auth and renders the dashboard component. Follow `user-list-dashboard` as the canonical reference.
+- **Pattern**: For admin list APIs with joins, compute `generationTimeMs` server-side from timestamp deltas rather than storing a separate column. This keeps the schema simpler and the computation always fresh.
+
 ### 2026-03-09
 - **Gotcha**: Next.js App Router route groups with parentheses (e.g., `app/(admin)/`) do NOT create URL segments. `app/(admin)/eval/page.tsx` resolves to `/eval`, NOT `/admin/eval`. This conflicts with other route groups at the same level. Use a real directory (`app/admin/`) when you need the URL segment.
 - **Pattern**: Admin routes live at `app/admin/` (real directory) with their own `layout.tsx` that swaps `AdminSidebar` for `Sidebar` while reusing `TopNav` and `PageShell`.

@@ -8,6 +8,12 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Admin Report List API + Component (#121)
+- **Pattern**: For Next.js API route tests that import `NextRequest`, use `@jest-environment node` docblock at the top of the test file. The default jsdom environment doesn't define `Request` globally, causing import failures.
+- **Pattern**: When the Drizzle query chain is complex (many joins, where, orderBy, limit, offset), use a JS `Proxy` object that returns itself for any method call and implements a `then` method to make it thenable. This avoids maintaining brittle mock chains that break when the query structure changes. Set `mockDbSelectResult` and `mockDbError` module-level variables to control what the proxy resolves to.
+- **Gotcha**: Table column headers ("Agent", "Market") also appear in filter dropdown `<option>` elements, causing `getByText` to throw "multiple elements found". Use `getAllByRole("columnheader")` to scope column header assertions, or `getAllByText(...).length >= 1` for presence checks.
+- **Gotcha**: `window.location.href` assignment in jsdom doesn't actually navigate. Instead of asserting the URL changed, verify the clickable row has `cursor: pointer` style and that `window.location.href` was written to (or mock it in `beforeEach`).
+
 ### 2026-03-11 — Error tracking service tests (#120)
 - **Pattern**: For services with multiple DB operations (read + write), build the mock chain with separate clear/reset functions per operation. `resetMocks()` in `beforeEach` clears all mock call history without resetting implementations. Use `mockDbLimit.mockResolvedValueOnce(...)` for per-test data, `mockDbWhere.mockRejectedValueOnce(...)` for simulating DB failures.
 - **Pattern**: Test never-throw guarantees by mocking sequential failures (first attempt + fallback both reject) and asserting `resolves.toBeUndefined()`. Spy on `console.error` to verify error logging without noise.

@@ -23,6 +23,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | account | [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md) | `app/(protected)/settings/usage/page.tsx` | see spec | see spec | specced |
 | admin | [Activity Log Schema](.specs/features/admin/activity-log-schema.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | admin | [Admin Dashboard](.specs/features/admin/admin-dashboard.feature.md) | `app/admin/layout.tsx, app/admin/eval/page.tsx, components/layout/admin-sidebar.tsx, lib/supabase/admin-auth.ts` | see spec | see spec | implemented |
+| admin | [Admin Report List](.specs/features/admin/admin-report-list.feature.md) | `app/admin/reports/page.tsx, components/admin/report-list-dashboard.tsx, app/api/admin/reports/route.ts` | see spec | see spec | implemented |
 | admin | [Admin Sidebar Update](.specs/features/admin/admin-sidebar-update.feature.md) | `components/layout/admin-sidebar.tsx, components/layout/sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md) | `app/admin/users/[id]/page.tsx` | see spec | see spec | implemented |
 | admin | [Admin User List](.specs/features/admin/admin-user-list.feature.md) | `app/admin/users/page.tsx, components/admin/user-list-dashboard.tsx, app/api/admin/users/route.ts, components/layout/admin-sidebar.tsx` | see spec | see spec | implemented |
@@ -97,8 +98,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 65 |
-| **Total** | **69** |
+| implemented | 66 |
+| **Total** | **70** |
 
 ---
 
@@ -122,6 +123,7 @@ _None_
 
 - [Activity Log Schema](.specs/features/admin/activity-log-schema.feature.md)
 - [Admin Dashboard](.specs/features/admin/admin-dashboard.feature.md)
+- [Admin Report List](.specs/features/admin/admin-report-list.feature.md)
 - [Admin Sidebar Update](.specs/features/admin/admin-sidebar-update.feature.md)
 - [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md)
 - [Admin User List](.specs/features/admin/admin-user-list.feature.md)

@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Admin Report List (#121)
+
+- **Proxy-based Drizzle mock for API route tests** (`testing.md`): When the query chain is complex (select → from → innerJoin → innerJoin → where → orderBy → limit → offset), use a JS Proxy that returns itself for any method call and resolves as a thenable. Avoids maintaining brittle mock chains
+- **`getAllByText` for shared labels** (`testing.md`): When table column headers share names with filter dropdown options (e.g., "Agent", "Market"), use `getAllByRole("columnheader")` to scope to table headers, or `getAllByText().length` for presence checks
+- **`@jest-environment node` for Next.js API route tests** (`testing.md`): API routes that import `NextRequest` fail in jsdom because `Request` is undefined. Add `@jest-environment node` docblock to the test file
+- **Admin list dashboard pattern** (`general.md`): Consistent pattern for admin list pages: API route with filters/sort/pagination → client component with fetch + debounced search + status filter tabs + dropdown filters + sortable table + pagination + empty/loading/error states
+
 ### 2026-03-11 — Report Error Tracking Schema (#120)
 
 - **JSON snapshot truncation gotcha** (`general.md`): `JSON.parse(truncatedString)` always fails — iterate keys with byte budget instead

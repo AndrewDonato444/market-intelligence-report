@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 68 |
+| ✅ Completed | 69 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 22 |
 | ⏸️ Blocked | 0 |
@@ -247,7 +247,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 120 | Report error tracking schema — add `errorDetails` JSONB (agent, message, stack, input snapshot) to reports table, add `retriedAt`, `retriedBy` columns | vision | S | 2 | ✅ |
-| 121 | Admin report list page — all reports across all users, filterable by status (queued/generating/completed/failed), date range, user, market | vision | L | 120, 83 | ⬜ |
+| 121 | Admin report list page — all reports across all users, filterable by status (queued/generating/completed/failed), date range, user, market | vision | L | 120, 83 | ✅ |
 | 122 | Admin report detail page — full report view, agent execution breakdown (which agents ran, timing, cache hits, API costs) | vision | M | 121, 80 | ⬜ |
 | 123 | Error triage view — dedicated filtered view of failed/errored reports with error details, agent failure info, input data | vision | M | 121, 120 | ⬜ |
 | 124 | Pipeline re-trigger — admin can re-run a failed report's pipeline (full or from failed agent), with audit trail | vision | M | 123, 80 | ⬜ |
