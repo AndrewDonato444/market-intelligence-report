@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useMemo } from "react";
+import React, { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { fadeVariant, staggerContainer } from "@/lib/animations";
 import type { StepMarketData } from "./step-your-market";
@@ -180,6 +180,8 @@ export function StepYourReview({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [personaNames, setPersonaNames] = useState<Record<string, string>>({});
+  // Cache created market ID so retries don't create duplicates
+  const createdMarketIdRef = useRef<string | null>(null);
 
   // Report step 5 as always valid
   useEffect(() => {
@@ -217,30 +219,35 @@ export function StepYourReview({
     try {
       let marketId: string;
 
-      // Create market if new
+      // Create market if new (reuse cached ID on retry to avoid duplicates)
       if (marketData?.isNewMarket) {
-        const marketRes = await fetch("/api/markets", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: marketData.marketName || `${marketData.city} ${marketData.state}`,
-            geography: {
-              city: marketData.city,
-              state: marketData.state,
-              county: marketData.county || undefined,
-              region: marketData.region || undefined,
-            },
-            luxuryTier: tierData?.luxuryTier || "luxury",
-            priceFloor: tierData?.priceFloor || 1000000,
-            priceCeiling: tierData?.priceCeiling || undefined,
-            segments: focusData?.segments || [],
-            propertyTypes: focusData?.propertyTypes || [],
-          }),
-        });
+        if (createdMarketIdRef.current) {
+          marketId = createdMarketIdRef.current;
+        } else {
+          const marketRes = await fetch("/api/markets", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: marketData.marketName || `${marketData.city} ${marketData.state}`,
+              geography: {
+                city: marketData.city,
+                state: marketData.state,
+                county: marketData.county || undefined,
+                region: marketData.region || undefined,
+              },
+              luxuryTier: tierData?.luxuryTier || "luxury",
+              priceFloor: tierData?.priceFloor || 1000000,
+              priceCeiling: tierData?.priceCeiling || undefined,
+              segments: focusData?.segments || [],
+              propertyTypes: focusData?.propertyTypes || [],
+            }),
+          });
 
-        if (!marketRes.ok) throw new Error("Failed to create market");
-        const marketJson = await marketRes.json();
-        marketId = marketJson.market.id;
+          if (!marketRes.ok) throw new Error("Failed to create market");
+          const marketJson = await marketRes.json();
+          marketId = marketJson.market.id;
+          createdMarketIdRef.current = marketId;
+        }
       } else {
         marketId = marketData?.existingMarketId || "";
       }
