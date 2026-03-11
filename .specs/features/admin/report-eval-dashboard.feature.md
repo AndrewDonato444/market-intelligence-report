@@ -140,7 +140,7 @@ And the current sort direction is indicated by an arrow icon
 Given at least one report eval has been run
 When the admin clicks "Export JSON"
 Then a JSON file downloads with filename `report-eval-results-YYYY-MM-DD.json`
-And the file contains: `exportedAt`, `results` (array of all run results), and `summary` (total, passing count, pass rate, average score, by-criterion breakdown)
+And the file contains: `exportedAt`, `results` (array of all run results), and `summary` (total, passing count, pass rate, average score)
 
 ### Scenario: Admin cancels a running batch
 
