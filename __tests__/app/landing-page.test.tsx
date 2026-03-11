@@ -110,7 +110,7 @@ describe("Marketing Landing Page v2", () => {
       const nav = screen.getByRole("navigation");
       const cta = within(nav).getByText(/Commission a Report/i);
       expect(cta).toBeInTheDocument();
-      expect(cta.closest("a")).toHaveAttribute("href", "/create");
+      expect(cta.closest("a")).toHaveAttribute("href", "/reports/create");
     });
 
     it("PG-LAND-005b: nav is rendered as a fixed element", () => {
@@ -149,7 +149,7 @@ describe("Marketing Landing Page v2", () => {
       const cta = within(hero).getByRole("link", {
         name: /Commission Your First Report/i,
       });
-      expect(cta).toHaveAttribute("href", "/create");
+      expect(cta).toHaveAttribute("href", "/reports/create");
     });
 
     it("PG-LAND-009b: renders See how it works link to #how-it-works", () => {
@@ -385,7 +385,7 @@ describe("Marketing Landing Page v2", () => {
       const cta = within(section).getByRole("link", {
         name: /Commission Your Report/i,
       });
-      expect(cta).toHaveAttribute("href", "/create");
+      expect(cta).toHaveAttribute("href", "/reports/create");
     });
   });
 
@@ -406,7 +406,7 @@ describe("Marketing Landing Page v2", () => {
       const cta = within(closing).getByRole("link", {
         name: /Commission Your Intelligence Report/i,
       });
-      expect(cta).toHaveAttribute("href", "/create");
+      expect(cta).toHaveAttribute("href", "/reports/create");
     });
   });
 
