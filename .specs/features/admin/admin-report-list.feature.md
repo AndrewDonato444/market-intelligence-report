@@ -30,7 +30,7 @@ The admin persona here is the MSA operations team member. They think in terms of
 Given an admin user is signed in
 When they navigate to `/admin/reports`
 Then they see a page titled "Report Registry" with subtitle "All reports across the platform"
-And they see a table with columns: Title, Agent, Market, Status, Created, Generation Time
+And they see a table with columns: Title, Agent, Market, Status, Created, Gen Time
 And reports are sorted by most recently created first
 
 ### Scenario: Admin sees status counts in filter tabs
@@ -184,7 +184,7 @@ Queued reports show em-dash (—) for generation time.
 Table container: bg-surface, radius-md, shadow-sm, border color-border.
 Page title: font-sans, text-2xl, font-semibold, color-text.
 Subtitle: font-sans, text-sm, color-text-secondary.
-Filter tabs: font-sans, text-sm, font-medium. Selected = color-primary bg, color-text-inverse text.
+Filter tabs: font-sans, text-sm, font-medium. Selected = color-primary-light bg, color-primary text, semibold weight, color-primary border.
 Dropdown filters: radius-sm, border color-border, font-sans text-sm.
 Column headers: font-sans, text-xs, font-medium, color-text-secondary, uppercase, tracking-wide.
 Table rows: font-sans, text-sm, color-text. Hover = color-primary-light bg.
