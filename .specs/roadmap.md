@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 51 |
+| ✅ Completed | 52 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 30 |
+| ⬜ Pending | 29 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-10
@@ -208,7 +208,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 150 | Animation & UX infrastructure — install Framer Motion, create tooltip component, shared animation variants (fade, slide, scale), transition primitives | vision | S | 1 | ✅ |
-| 151 | Unified creation flow shell — new `/reports/create` route, step state machine (6 steps), refined progress indicator with step names + completion state, back/next with slide animations | vision | L | 150, 4, 11, 40 | ⬜ |
+| 151 | Unified creation flow shell — new `/reports/create` route, step state machine (6 steps), refined progress indicator with step names + completion state, back/next with slide animations | vision | L | 150, 4, 11, 40 | ✅ |
 | 152 | Step 1: Your Market — geography with smart autocomplete, contextual helper text ("We'll use this to find luxury transactions in your area"), animated market preview as user types | vision | M | 151, 11 | ⬜ |
 | 153 | Step 2: Your Tier — visual tier card selector (not radio buttons), animated price floor/ceiling with sensible defaults, data-driven tooltip hints ("Most agents in [city] focus on [tier]") | vision | M | 151 | ⬜ |
 | 154 | Step 3: Your Focus — segments + property types as visual toggleable cards with icons and descriptions, smart defaults based on market/tier, "Popular in your market" badges | vision | M | 151 | ⬜ |
