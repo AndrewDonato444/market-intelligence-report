@@ -126,7 +126,7 @@ export async function GET(request: NextRequest) {
       .where(
         sql`${schema.users.id} not in (
           select distinct ${schema.reports.userId} from ${schema.reports}
-          where ${schema.reports.createdAt} >= ${since60d}
+          where ${schema.reports.createdAt} >= ${since60d.toISOString()}
         )`
       );
 
@@ -167,8 +167,8 @@ export async function GET(request: NextRequest) {
       .groupBy(schema.users.id, schema.users.name, schema.users.email)
       .having(
         and(
-          sql`max(${schema.reports.createdAt}) < ${since30d}`,
-          sql`max(${schema.reports.createdAt}) >= ${since90d}`
+          sql`max(${schema.reports.createdAt}) < ${since30d.toISOString()}`,
+          sql`max(${schema.reports.createdAt}) >= ${since90d.toISOString()}`
         )
       )
       .orderBy(sql`max(${schema.reports.createdAt}) asc`);
