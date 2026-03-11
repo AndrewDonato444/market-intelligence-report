@@ -425,6 +425,30 @@ export const buyerPersonas = pgTable(
   ]
 );
 
+// --- User Activity Table ---
+
+export const userActivity = pgTable(
+  "user_activity",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    action: varchar("action", { length: 100 }).notNull(),
+    entityType: varchar("entity_type", { length: 50 }).notNull(),
+    entityId: uuid("entity_id"),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("user_activity_user_id_idx").on(table.userId),
+    index("user_activity_created_at_idx").on(table.createdAt),
+    index("user_activity_user_created_idx").on(table.userId, table.createdAt),
+  ]
+);
+
 // --- Report Personas Junction Table ---
 
 export const reportPersonas = pgTable(

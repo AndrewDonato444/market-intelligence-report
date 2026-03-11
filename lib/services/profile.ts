@@ -1,5 +1,6 @@
 import { db, schema } from "@/lib/db";
 import { eq } from "drizzle-orm";
+import { logActivity } from "@/lib/services/activity-log";
 
 // Re-export types and validation from pure module
 export type { ProfileData, ValidationResult } from "./profile-validation";
@@ -47,6 +48,16 @@ export async function upsertProfile(
       })
       .where(eq(schema.users.authId, authId))
       .returning();
+
+    // Log activity (fire-and-forget)
+    logActivity({
+      userId: updated.id,
+      action: "profile_updated",
+      entityType: "user",
+      entityId: updated.id,
+      metadata: { fieldsChanged: Object.keys(data) },
+    });
+
     return updated;
   }
 

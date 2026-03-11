@@ -8,6 +8,7 @@ import {
 // setReportPersonas is called internally by createReport when personaIds are provided
 import { setReportPersonas } from "@/lib/services/buyer-personas";
 import { executePipeline } from "@/lib/services/pipeline-executor";
+import { logActivity } from "@/lib/services/activity-log";
 
 export async function GET() {
   const userId = await getAuthUserId();
@@ -48,6 +49,15 @@ export async function POST(request: Request) {
     const personaIds = Array.isArray(body.personaIds) ? body.personaIds as string[] : undefined;
     const reportData = { ...validation.data!, personaIds };
     const report = await createReport(userId, reportData);
+
+    // Log activity (fire-and-forget)
+    logActivity({
+      userId,
+      action: "report_created",
+      entityType: "report",
+      entityId: report.id,
+      metadata: { title: report.title },
+    });
 
     // Fire-and-forget: trigger pipeline execution asynchronously
     executePipeline(report.id).catch((err) => {

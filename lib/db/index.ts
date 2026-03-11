@@ -39,3 +39,5 @@ export type BuyerPersona = typeof schema.buyerPersonas.$inferSelect;
 export type NewBuyerPersona = typeof schema.buyerPersonas.$inferInsert;
 export type ReportPersona = typeof schema.reportPersonas.$inferSelect;
 export type NewReportPersona = typeof schema.reportPersonas.$inferInsert;
+export type UserActivity = typeof schema.userActivity.$inferSelect;
+export type NewUserActivity = typeof schema.userActivity.$inferInsert;

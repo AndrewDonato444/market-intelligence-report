@@ -25,6 +25,7 @@ import {
   assembleReport as assembleV2Report,
   type AssemblyDurations,
 } from "@/lib/agents/report-assembler";
+import { logActivity } from "@/lib/services/activity-log";
 
 // Agent definitions — v2 pipeline uses 3 core Claude agents + persona intelligence
 import { insightGeneratorAgent } from "@/lib/agents/insight-generator";
@@ -221,6 +222,15 @@ export async function executePipeline(reportId: string): Promise<void> {
         generationCompletedAt: new Date(),
       })
       .where(eq(schema.reports.id, reportId));
+
+    // Log activity (fire-and-forget)
+    logActivity({
+      userId: report.userId,
+      action: "report_completed",
+      entityType: "report",
+      entityId: reportId,
+      metadata: { title: report.title },
+    });
   } catch (err) {
     // Pipeline threw an exception
     const errorMessage =

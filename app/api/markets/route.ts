@@ -5,6 +5,7 @@ import {
   createMarket,
   validateMarketData,
 } from "@/lib/services/market";
+import { logActivity } from "@/lib/services/activity-log";
 
 export async function GET() {
   const userId = await getAuthUserId();
@@ -42,6 +43,16 @@ export async function POST(request: Request) {
 
   try {
     const market = await createMarket(userId, validation.data!);
+
+    // Log activity (fire-and-forget)
+    logActivity({
+      userId,
+      action: "market_created",
+      entityType: "market",
+      entityId: market.id,
+      metadata: { name: market.name },
+    });
+
     return NextResponse.json({ market }, { status: 201 });
   } catch (err) {
     const message =

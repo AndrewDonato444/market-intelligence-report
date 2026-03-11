@@ -394,8 +394,8 @@ describe("Pipeline Executor Service (v2)", () => {
 
       await executePipeline(MOCK_REPORT_ID);
 
-      // Should insert 9 sections (one per assembled section)
-      expect(mockDb.insert).toHaveBeenCalledTimes(9);
+      // Should insert 9 sections + 1 activity log entry
+      expect(mockDb.insert).toHaveBeenCalledTimes(10);
     });
 
     it("SVC-PIPE-009: sets report status to completed on success", async () => {
