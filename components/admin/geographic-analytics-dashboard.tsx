@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { ExportButton } from "@/components/admin/export-button";
+import { exportMultiSectionCsv, exportJson } from "@/lib/utils/analytics-export";
 
 type Period = "7d" | "30d" | "90d" | "365d" | "all";
 
@@ -74,13 +76,27 @@ export function GeographicAnalyticsDashboard() {
             Report distribution by geography
           </p>
         </div>
-        <button
-          onClick={() => fetchData(period)}
-          disabled={loading}
-          className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
-        >
-          {loading ? "Loading..." : "Refresh"}
-        </button>
+        <div className="flex gap-[var(--spacing-2)]">
+          <ExportButton
+            disabled={loading || !data}
+            onExportCsv={() => {
+              if (data) exportMultiSectionCsv([
+                { title: "By State", rows: data.byState as unknown as Record<string, unknown>[], headers: ["state", "count", "percentage"] },
+                { title: "By City", rows: data.byCity as unknown as Record<string, unknown>[], headers: ["city", "state", "count", "percentage"] },
+              ], "geographic-analytics");
+            }}
+            onExportJson={() => {
+              if (data) exportJson(data, "geographic-analytics");
+            }}
+          />
+          <button
+            onClick={() => fetchData(period)}
+            disabled={loading}
+            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Loading..." : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {/* Error state */}

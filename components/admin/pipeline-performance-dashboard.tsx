@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { ExportButton } from "@/components/admin/export-button";
+import { exportMultiSectionCsv, exportJson } from "@/lib/utils/analytics-export";
 
 type Period = "7d" | "30d" | "90d" | "365d";
 type Granularity = "daily" | "weekly" | "monthly";
@@ -84,13 +86,28 @@ export function PipelinePerformanceDashboard() {
             Generation time, cache efficiency, API costs, and error rates
           </p>
         </div>
-        <button
-          onClick={() => fetchData(period, granularity)}
-          disabled={loading}
-          className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
-        >
-          {loading ? "Loading..." : "Refresh"}
-        </button>
+        <div className="flex gap-[var(--spacing-2)]">
+          <ExportButton
+            disabled={loading || !data}
+            onExportCsv={() => {
+              if (data) exportMultiSectionCsv([
+                { title: "Generation Time Series", rows: data.generationTimeSeries as unknown as Record<string, unknown>[], headers: ["date", "avgSeconds", "count"] },
+                { title: "Cost By Provider", rows: data.costByProvider as unknown as Record<string, unknown>[], headers: ["provider", "requests", "totalCost", "avgCostPerRequest"] },
+                { title: "Errors By Agent", rows: data.errorsByAgent as unknown as Record<string, unknown>[], headers: ["agent", "count"] },
+              ], "pipeline-performance");
+            }}
+            onExportJson={() => {
+              if (data) exportJson(data, "pipeline-performance");
+            }}
+          />
+          <button
+            onClick={() => fetchData(period, granularity)}
+            disabled={loading}
+            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Loading..." : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {/* Error state */}

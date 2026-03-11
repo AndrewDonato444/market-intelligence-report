@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { ExportButton } from "@/components/admin/export-button";
+import { exportMultiSectionCsv, exportJson } from "@/lib/utils/analytics-export";
 
 type Period = "7d" | "30d" | "90d" | "365d";
 type Granularity = "daily" | "weekly" | "monthly";
@@ -86,13 +88,28 @@ export function UserAnalyticsDashboard() {
             Active users, signups, power users, and churn indicators
           </p>
         </div>
-        <button
-          onClick={() => fetchData(period, granularity)}
-          disabled={loading}
-          className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
-        >
-          {loading ? "Loading..." : "Refresh"}
-        </button>
+        <div className="flex gap-[var(--spacing-2)]">
+          <ExportButton
+            disabled={loading || !data}
+            onExportCsv={() => {
+              if (data) exportMultiSectionCsv([
+                { title: "Signups Over Time", rows: data.signups as unknown as Record<string, unknown>[], headers: ["date", "count"] },
+                { title: "Power Users", rows: data.powerUsers as unknown as Record<string, unknown>[], headers: ["name", "email", "reportCount", "lastReportDate"] },
+                { title: "Churn Risk", rows: data.churnRisk as unknown as Record<string, unknown>[], headers: ["name", "email", "lastReportDate", "daysSinceLastReport"] },
+              ], "user-analytics");
+            }}
+            onExportJson={() => {
+              if (data) exportJson(data, "user-analytics");
+            }}
+          />
+          <button
+            onClick={() => fetchData(period, granularity)}
+            disabled={loading}
+            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Loading..." : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {/* Error state */}

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { ExportButton } from "@/components/admin/export-button";
+import { exportCsv, exportJson } from "@/lib/utils/analytics-export";
 
 type Period = "7d" | "30d" | "90d" | "365d";
 type Granularity = "daily" | "weekly" | "monthly";
@@ -97,13 +99,24 @@ export function VolumeMetricsDashboard() {
             Report generation trends and volume metrics
           </p>
         </div>
-        <button
-          onClick={() => fetchData(period, granularity)}
-          disabled={loading}
-          className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
-        >
-          {loading ? "Loading..." : "Refresh"}
-        </button>
+        <div className="flex gap-[var(--spacing-2)]">
+          <ExportButton
+            disabled={loading || !volume}
+            onExportCsv={() => {
+              if (volume) exportCsv(volume.timeSeries as unknown as Record<string, unknown>[], "volume-metrics", ["date", "total", "completed", "failed"]);
+            }}
+            onExportJson={() => {
+              if (volume) exportJson({ overview, volume }, "volume-metrics");
+            }}
+          />
+          <button
+            onClick={() => fetchData(period, granularity)}
+            disabled={loading}
+            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+          >
+            {loading ? "Loading..." : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {/* Error state */}
