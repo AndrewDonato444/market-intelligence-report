@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 64 |
+| ✅ Completed | 65 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 24 |
 | ⏸️ Blocked | 0 |
@@ -232,7 +232,7 @@
 | 111 | Activity log schema — `user_activity` table (userId, action, entityType, entityId, metadata, timestamp) + insert hooks | vision | M | 110 | ✅ |
 | 112 | Admin user list page — search, filter by status, sort by last activity, pagination | vision | M | 110, 83 | ✅ |
 | 113 | Admin user detail page — profile info, account status, report count, market(s), activity timeline | vision | M | 112, 111 | ✅ |
-| 114 | Suspend/unsuspend account — admin action + suspended user login gate ("contact support" message) | vision | M | 110, 3 | ⬜ |
+| 114 | Suspend/unsuspend account — admin action + suspended user login gate ("contact support" message) | vision | M | 110, 3 | ✅ |
 | 115 | Delete account — confirmation flow, cascade reports to orphan state (keep for analytics, de-link from user) | vision | M | 110, 114 | ⬜ |
 | 116 | Admin sidebar update — add User Management nav item, update active state highlighting | vision | S | 112 | ⬜ |
 

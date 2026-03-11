@@ -36,6 +36,7 @@ const mockDetailResponse = {
     createdAt: "2026-01-15T10:00:00Z",
     updatedAt: "2026-03-10T14:30:00Z",
   },
+  isOwnAccount: false,
   reportCounts: {
     total: 12,
     completed: 10,

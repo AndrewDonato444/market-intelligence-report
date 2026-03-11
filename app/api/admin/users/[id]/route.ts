@@ -22,6 +22,7 @@ export interface UserDetailResponse {
     createdAt: string;
     updatedAt: string;
   };
+  isOwnAccount: boolean;
   reportCounts: {
     total: number;
     completed: number;
@@ -63,6 +64,7 @@ export async function GET(
     const [user] = await db
       .select({
         id: schema.users.id,
+        authId: schema.users.authId,
         name: schema.users.name,
         email: schema.users.email,
         company: schema.users.company,
@@ -126,15 +128,27 @@ export async function GET(
     // Fetch activity timeline
     const activityRows = await getActivityByUser(id, { limit: 50 });
 
+    const isOwnAccount = user.authId === adminId;
+
     const response: UserDetailResponse = {
       user: {
-        ...user,
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        company: user.company,
+        title: user.title,
+        phone: user.phone,
+        bio: user.bio,
+        logoUrl: user.logoUrl,
+        status: user.status,
+        role: user.role,
         lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
         suspendedAt: user.suspendedAt?.toISOString() ?? null,
         deletedAt: user.deletedAt?.toISOString() ?? null,
         createdAt: user.createdAt.toISOString(),
         updatedAt: user.updatedAt.toISOString(),
       },
+      isOwnAccount,
       reportCounts,
       markets: markets.map((m) => ({
         id: m.id,

@@ -52,6 +52,9 @@ export function UserDetailPanel({ userId }: { userId: string }) {
   const [data, setData] = useState<UserDetailResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -71,6 +74,33 @@ export function UserDetailPanel({ userId }: { userId: string }) {
       setLoading(false);
     }
   }, [userId]);
+
+  const handleStatusAction = useCallback(async (action: "suspend" | "unsuspend") => {
+    setActionLoading(true);
+    setActionMessage(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/status`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to update status");
+      }
+      setActionMessage({
+        type: "success",
+        text: action === "suspend" ? "Account suspended" : "Account unsuspended",
+      });
+      setShowConfirm(false);
+      // Refresh data to reflect new status
+      await fetchDetail();
+    } catch (err) {
+      setActionMessage({ type: "error", text: (err as Error).message });
+    } finally {
+      setActionLoading(false);
+    }
+  }, [userId, fetchDetail]);
 
   useEffect(() => {
     fetchDetail();
@@ -250,6 +280,119 @@ export function UserDetailPanel({ userId }: { userId: string }) {
             <span>Deleted: {formatDate(user.deletedAt)}</span>
           )}
         </div>
+
+        {/* Action Message */}
+        {actionMessage && (
+          <div
+            style={{
+              marginTop: "var(--spacing-3)",
+              padding: "var(--spacing-2) var(--spacing-3)",
+              borderRadius: "var(--radius-sm)",
+              fontSize: "var(--text-sm)",
+              color: actionMessage.type === "success" ? "var(--color-success)" : "var(--color-error)",
+              background: actionMessage.type === "success"
+                ? "var(--color-success-light, rgba(34,197,94,0.1))"
+                : "var(--color-error-light, rgba(239,68,68,0.1))",
+            }}
+          >
+            {actionMessage.text}
+          </div>
+        )}
+
+        {/* Suspend / Unsuspend Actions */}
+        {!data.isOwnAccount && user.status !== "deleted" && (
+          <div style={{ marginTop: "var(--spacing-4)" }}>
+            {user.status === "active" && !showConfirm && (
+              <button
+                onClick={() => setShowConfirm(true)}
+                style={{
+                  padding: "var(--spacing-2) var(--spacing-4)",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--color-warning)",
+                  background: "var(--color-warning-light, rgba(234,179,8,0.1))",
+                  color: "var(--color-warning)",
+                  fontSize: "var(--text-sm)",
+                  fontWeight: "var(--font-medium)",
+                  cursor: "pointer",
+                }}
+              >
+                Suspend Account
+              </button>
+            )}
+
+            {user.status === "active" && showConfirm && (
+              <div
+                style={{
+                  padding: "var(--spacing-4)",
+                  background: "var(--color-warning-light, rgba(234,179,8,0.05))",
+                  border: "1px solid var(--color-warning)",
+                  borderRadius: "var(--radius-md)",
+                }}
+              >
+                <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-text)" }}>
+                  Suspend Account
+                </p>
+                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+                  Are you sure you want to suspend {user.name}&apos;s account? They will be unable to access the platform until unsuspended.
+                </p>
+                <div style={{ display: "flex", gap: "var(--spacing-2)", marginTop: "var(--spacing-3)" }}>
+                  <button
+                    onClick={() => setShowConfirm(false)}
+                    disabled={actionLoading}
+                    style={{
+                      padding: "var(--spacing-1) var(--spacing-3)",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface)",
+                      color: "var(--color-text-secondary)",
+                      fontSize: "var(--text-sm)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => handleStatusAction("suspend")}
+                    disabled={actionLoading}
+                    style={{
+                      padding: "var(--spacing-1) var(--spacing-3)",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--color-warning)",
+                      background: "var(--color-warning)",
+                      color: "#fff",
+                      fontSize: "var(--text-sm)",
+                      fontWeight: "var(--font-medium)",
+                      cursor: actionLoading ? "not-allowed" : "pointer",
+                      opacity: actionLoading ? 0.6 : 1,
+                    }}
+                  >
+                    {actionLoading ? "Suspending..." : "Suspend Account"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {user.status === "suspended" && (
+              <button
+                onClick={() => handleStatusAction("unsuspend")}
+                disabled={actionLoading}
+                style={{
+                  padding: "var(--spacing-2) var(--spacing-4)",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--color-primary)",
+                  background: "var(--color-primary)",
+                  color: "#fff",
+                  fontSize: "var(--text-sm)",
+                  fontWeight: "var(--font-medium)",
+                  cursor: actionLoading ? "not-allowed" : "pointer",
+                  opacity: actionLoading ? 0.6 : 1,
+                }}
+              >
+                {actionLoading ? "Unsuspending..." : "Unsuspend Account"}
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Stats Cards */}
