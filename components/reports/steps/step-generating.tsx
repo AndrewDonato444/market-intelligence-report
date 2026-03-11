@@ -36,11 +36,11 @@ export interface StepGeneratingProps {
 // ---------------------------------------------------------------------------
 
 const STAGE_ACTIVE_DESCRIPTIONS: Record<string, string> = {
-  "data-analyst": "Crunching segment metrics, ratings, and year-over-year comparisons...",
+  "data-fetch": "Fetching property data and computing market analytics...",
   "insight-generator": "Crafting strategic narratives and market themes...",
-  "competitive-analyst": "Comparing your market against peer luxury markets...",
   "forecast-modeler": "Building projections and scenario analysis...",
   "polish-agent": "Applying editorial polish and consistency checks...",
+  "persona-intelligence": "Tailoring insights for your buyer personas...",
 };
 
 // ---------------------------------------------------------------------------
@@ -70,15 +70,32 @@ function getStageStatus(
   const { reportStatus, pipeline } = progress;
 
   if (reportStatus === "completed") return "completed";
+
+  // "data-fetch" is a virtual stage for Layers 0+1 (not tracked by the orchestrator).
+  // It's "running" when the report is generating but no agents have started,
+  // and "completed" once any agent activity begins.
+  if (stage.agentName === "data-fetch") {
+    if (reportStatus === "queued") return "pending";
+    if (reportStatus === "failed" && pipeline.completedAgents === 0 && pipeline.currentAgents.length === 0) return "failed";
+    if (reportStatus === "failed") return "completed";
+    // generating — complete once any agent has started or finished
+    if (pipeline.completedAgents > 0 || pipeline.currentAgents.length > 0) return "completed";
+    return "running";
+  }
+
   if (reportStatus === "failed") {
-    if (stageIndex < pipeline.completedAgents) return "completed";
-    if (stageIndex === pipeline.completedAgents) return "failed";
+    // Offset by 1 to account for data-fetch virtual stage at index 0
+    const agentIndex = stageIndex - 1;
+    if (agentIndex < pipeline.completedAgents) return "completed";
+    if (agentIndex === pipeline.completedAgents) return "failed";
     return "pending";
   }
 
-  // generating or queued
+  // generating or queued — match against real agent names
   if (pipeline.currentAgents.includes(stage.agentName)) return "running";
-  if (stageIndex < pipeline.completedAgents) return "completed";
+  // Offset by 1 for the virtual data-fetch stage
+  const agentIndex = stageIndex - 1;
+  if (agentIndex < pipeline.completedAgents) return "completed";
   return "pending";
 }
 
@@ -136,7 +153,15 @@ export function StepGenerating({
 
   const isCompleted = progress?.reportStatus === "completed";
   const isFailed = progress?.reportStatus === "failed";
-  const percentComplete = progress?.pipeline.percentComplete ?? 0;
+  // Progress API tracks 4 agents (0-100%). We have 5 visual stages (data-fetch + 4 agents).
+  // data-fetch = first 20%, then agents split the remaining 80%.
+  const rawAgentPercent = progress?.pipeline.percentComplete ?? 0;
+  const hasAgentActivity = (progress?.pipeline.completedAgents ?? 0) > 0 || (progress?.pipeline.currentAgents?.length ?? 0) > 0;
+  const percentComplete = progress?.reportStatus === "generating"
+    ? hasAgentActivity
+      ? Math.round(20 + rawAgentPercent * 0.8)
+      : Math.min(18, rawAgentPercent || 10) // data-fetch phase: show 10-18%
+    : rawAgentPercent;
 
   const handleViewReport = useCallback(() => {
     router.push(`/reports/${reportId}`);

@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect, useRef, useCallback } from "react";
+
 export interface PipelineStage {
   agentName: string;
   label: string;
@@ -8,19 +10,14 @@ export interface PipelineStage {
 
 export const PIPELINE_STAGES: PipelineStage[] = [
   {
-    agentName: "data-analyst",
-    label: "Data Analysis",
-    description: "Segment metrics, ratings, YoY calculations",
+    agentName: "data-fetch",
+    label: "Data Collection",
+    description: "Fetching property data, comps, and market indicators",
   },
   {
     agentName: "insight-generator",
     label: "Insight Generation",
     description: "Strategic narratives and market themes",
-  },
-  {
-    agentName: "competitive-analyst",
-    label: "Competitive Analysis",
-    description: "Peer market comparisons",
   },
   {
     agentName: "forecast-modeler",
@@ -31,6 +28,11 @@ export const PIPELINE_STAGES: PipelineStage[] = [
     agentName: "polish-agent",
     label: "Editorial Polish",
     description: "Consistency, pull quotes, methodology",
+  },
+  {
+    agentName: "persona-intelligence",
+    label: "Persona Intelligence",
+    description: "Tailoring insights for your buyer personas",
   },
 ];
 
@@ -46,6 +48,20 @@ interface ReportStatusData {
   generationStartedAt: string | null;
   generationCompletedAt: string | null;
   errorMessage: string | null;
+}
+
+interface PipelineProgress {
+  status: string;
+  totalAgents: number;
+  completedAgents: number;
+  currentAgents: string[];
+  percentComplete: number;
+}
+
+interface ProgressResponse {
+  reportId: string;
+  reportStatus: "queued" | "generating" | "completed" | "failed";
+  pipeline: PipelineProgress;
 }
 
 interface PipelineStatusDashboardProps {
@@ -78,6 +94,8 @@ const STATUS_CONFIG: Record<
   },
 };
 
+const POLL_INTERVAL = 3000;
+
 function formatDuration(startIso: string, endIso: string): string {
   const start = new Date(startIso).getTime();
   const end = new Date(endIso).getTime();
@@ -90,34 +108,110 @@ function formatDuration(startIso: string, endIso: string): string {
   return `${minutes}m ${remainingSeconds}s`;
 }
 
-function getProgressPercent(
-  status: string
-): number {
-  switch (status) {
-    case "queued":
-      return 0;
-    case "completed":
-      return 100;
-    case "failed":
-      return 0;
-    case "generating":
-      return 50; // Indeterminate — will be refined when polling is added
-    default:
-      return 0;
+function getStageStatus(
+  stage: PipelineStage,
+  stageIndex: number,
+  reportStatus: string,
+  pipeline: PipelineProgress | null
+): "pending" | "running" | "completed" | "failed" {
+  if (reportStatus === "completed") return "completed";
+
+  // Virtual "data-fetch" stage — Layers 0+1, not tracked by orchestrator
+  if (stage.agentName === "data-fetch") {
+    if (reportStatus === "queued") return "pending";
+    if (reportStatus === "failed" && pipeline && pipeline.completedAgents === 0 && pipeline.currentAgents.length === 0) return "failed";
+    if (reportStatus === "failed") return "completed";
+    // generating — complete once any agent has started
+    if (pipeline && (pipeline.completedAgents > 0 || pipeline.currentAgents.length > 0)) return "completed";
+    if (reportStatus === "generating") return "running";
+    return "pending";
   }
+
+  if (!pipeline) {
+    // No pipeline data — fall back to simple status
+    if (reportStatus === "generating" && stageIndex === 0) return "running";
+    return "pending";
+  }
+
+  if (reportStatus === "failed") {
+    const agentIndex = stageIndex - 1; // offset for data-fetch
+    if (agentIndex < pipeline.completedAgents) return "completed";
+    if (agentIndex === pipeline.completedAgents) return "failed";
+    return "pending";
+  }
+
+  // generating or queued — match against real agent names
+  if (pipeline.currentAgents.includes(stage.agentName)) return "running";
+  const agentIndex = stageIndex - 1;
+  if (agentIndex < pipeline.completedAgents) return "completed";
+  return "pending";
 }
 
 export function PipelineStatusDashboard({
-  report,
+  report: initialReport,
 }: PipelineStatusDashboardProps) {
-  const statusConfig = STATUS_CONFIG[report.status] || STATUS_CONFIG.queued;
-  const percent = getProgressPercent(report.status);
+  const [reportStatus, setReportStatus] = useState(initialReport.status);
+  const [pipeline, setPipeline] = useState<PipelineProgress | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  const isTerminal = reportStatus === "completed" || reportStatus === "failed";
+
+  const fetchProgress = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/reports/${initialReport.id}/progress`);
+      if (!res.ok) return;
+      const data: ProgressResponse = await res.json();
+      setReportStatus(data.reportStatus);
+      setPipeline(data.pipeline);
+
+      if (data.reportStatus === "completed" || data.reportStatus === "failed") {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        // Reload to get full report data (sections, durations, etc.)
+        if (data.reportStatus === "completed") {
+          window.location.reload();
+        }
+      }
+    } catch {
+      // Silently retry on next interval
+    }
+  }, [initialReport.id]);
+
+  // Start polling if report is in-progress
+  useEffect(() => {
+    if (isTerminal) return;
+
+    fetchProgress();
+    intervalRef.current = setInterval(fetchProgress, POLL_INTERVAL);
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+  }, [fetchProgress, isTerminal]);
+
+  const statusConfig = STATUS_CONFIG[reportStatus] || STATUS_CONFIG.queued;
+
+  // Compute percent with data-fetch offset
+  const rawAgentPercent = pipeline?.percentComplete ?? 0;
+  const hasAgentActivity = (pipeline?.completedAgents ?? 0) > 0 || (pipeline?.currentAgents?.length ?? 0) > 0;
+  const percent =
+    reportStatus === "completed"
+      ? 100
+      : reportStatus === "generating"
+        ? hasAgentActivity
+          ? Math.round(20 + rawAgentPercent * 0.8)
+          : Math.min(18, rawAgentPercent || 10)
+        : 0;
 
   const totalDuration =
-    report.generationStartedAt && report.generationCompletedAt
+    initialReport.generationStartedAt && initialReport.generationCompletedAt
       ? formatDuration(
-          report.generationStartedAt,
-          report.generationCompletedAt
+          initialReport.generationStartedAt,
+          initialReport.generationCompletedAt
         )
       : null;
 
@@ -126,15 +220,15 @@ export function PipelineStatusDashboard({
       {/* Header */}
       <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
         <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
-          {report.title}
+          {initialReport.title}
         </h2>
         <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
-          {report.marketName}
-          {report.createdAt && (
+          {initialReport.marketName}
+          {initialReport.createdAt && (
             <>
               {" "}
               &middot; Created{" "}
-              {new Date(report.createdAt).toLocaleDateString()}
+              {new Date(initialReport.createdAt).toLocaleDateString()}
             </>
           )}
         </p>
@@ -163,12 +257,12 @@ export function PipelineStatusDashboard({
           <div className="w-full h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
             <div
               className={`h-full rounded-full transition-all duration-500 ${
-                report.status === "generating" ? "animate-pulse" : ""
+                reportStatus === "generating" ? "animate-pulse" : ""
               }`}
               style={{
                 width: `${percent}%`,
                 backgroundColor:
-                  report.status === "failed"
+                  reportStatus === "failed"
                     ? "var(--color-error)"
                     : "var(--color-accent)",
               }}
@@ -180,27 +274,27 @@ export function PipelineStatusDashboard({
         </div>
 
         {/* Status messages */}
-        {report.status === "queued" && (
+        {reportStatus === "queued" && (
           <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-4">
             Report is queued and waiting to begin generation.
           </p>
         )}
 
-        {report.status === "completed" && (
+        {reportStatus === "completed" && (
           <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-success)] mt-4">
             Report generation completed successfully
             {totalDuration ? ` in ${totalDuration}` : ""}.
           </p>
         )}
 
-        {report.status === "failed" && (
+        {reportStatus === "failed" && (
           <div className="mt-4">
             <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-error)]">
               Report generation failed.
             </p>
-            {report.errorMessage && (
+            {initialReport.errorMessage && (
               <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-error)] mt-1 bg-[var(--color-background)] p-2 rounded-[var(--radius-sm)]">
-                {report.errorMessage}
+                {initialReport.errorMessage}
               </p>
             )}
           </div>
@@ -208,70 +302,55 @@ export function PipelineStatusDashboard({
       </div>
 
       {/* Pipeline stages */}
-      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
-        <h3 className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)] mb-4">
-          Pipeline Stages
-        </h3>
-        <div className="space-y-3">
-          {PIPELINE_STAGES.map((stage, idx) => {
-            // Determine stage status based on report status
-            let stageStatus: "pending" | "running" | "completed" | "failed" =
-              "pending";
-            if (report.status === "completed") {
-              stageStatus = "completed";
-            } else if (report.status === "generating") {
-              // First stage is running, rest are pending
-              if (idx === 0) {
-                stageStatus = "running";
-              }
-            } else if (report.status === "failed") {
-              // Last stage is the failed one
-              if (idx === PIPELINE_STAGES.length - 1) {
-                stageStatus = "failed";
-              } else {
-                stageStatus = "pending";
-              }
-            }
+      {!isTerminal && (
+        <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
+          <h3 className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)] mb-4">
+            Pipeline Stages
+          </h3>
+          <div className="space-y-3">
+            {PIPELINE_STAGES.map((stage, idx) => {
+              const stageStatus = getStageStatus(stage, idx, reportStatus, pipeline);
 
-            return (
-              <div
-                key={stage.agentName}
-                className={`flex items-center gap-3 p-3 rounded-[var(--radius-sm)] border ${
-                  stageStatus === "completed"
-                    ? "border-[var(--color-success)] bg-[var(--color-background)]"
-                    : stageStatus === "running"
-                      ? "border-[var(--color-accent)] bg-[var(--color-accent-light)]"
-                      : stageStatus === "failed"
-                        ? "border-[var(--color-error)] bg-[var(--color-background)]"
-                        : "border-[var(--color-border)]"
-                }`}
-              >
-                {/* Status dot */}
+              return (
                 <div
-                  className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                  key={stage.agentName}
+                  className={`flex items-center gap-3 p-3 rounded-[var(--radius-sm)] border ${
                     stageStatus === "completed"
-                      ? "bg-[var(--color-success)]"
+                      ? "border-[var(--color-success)] bg-[var(--color-background)]"
                       : stageStatus === "running"
-                        ? "bg-[var(--color-accent)] animate-pulse"
+                        ? "border-[var(--color-accent)] bg-[var(--color-accent-light)]"
                         : stageStatus === "failed"
-                          ? "bg-[var(--color-error)]"
-                          : "bg-[var(--color-border)]"
+                          ? "border-[var(--color-error)] bg-[var(--color-background)]"
+                          : "border-[var(--color-border)]"
                   }`}
-                />
+                >
+                  {/* Status dot */}
+                  <div
+                    className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${
+                      stageStatus === "completed"
+                        ? "bg-[var(--color-success)]"
+                        : stageStatus === "running"
+                          ? "bg-[var(--color-accent)] animate-pulse"
+                          : stageStatus === "failed"
+                            ? "bg-[var(--color-error)]"
+                            : "bg-[var(--color-border)]"
+                    }`}
+                  />
 
-                <div className="flex-1">
-                  <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
-                    {stage.label}
-                  </span>
-                  <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
-                    {stage.description}
-                  </p>
+                  <div className="flex-1">
+                    <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+                      {stage.label}
+                    </span>
+                    <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+                      {stage.description}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
