@@ -23,7 +23,7 @@
 |--------|-------|
 | ✅ Completed | 83 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 15 |
+| ⬜ Pending | 21 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-11
@@ -289,6 +289,23 @@
 
 ---
 
+## Phase 17: Social Media Kit
+
+> A new agent-powered product that turns finalized reports into comprehensive social media content kits. Agents generate a kit after their report is complete and get platform-optimized posts, persona-targeted content, polls, stat callouts, and content calendar suggestions — all text-based, all grounded in their report data.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 160 | Social media kit data model — `social_media_kits` table (kitId, reportId, userId, status, content JSONB, generatedAt) + schema for kit content types (posts, captions, polls, stat callouts, calendar suggestions) | user-request | M | 2 | ⬜ |
+| 161 | Social Media Agent — Claude agent that reads a finalized report and generates the full kit: post ideas, platform-specific captions (LinkedIn, Instagram, X, Facebook), persona-targeted posts, poll ideas with data-backed context, conversation starters, stat callouts, content calendar suggestions | user-request | L | 30, 36, 160 | ⬜ |
+| 162 | Social media kit generation trigger — "Generate Social Media Kit" action on completed reports (report detail page + dashboard), triggers the Social Media Agent, shows generation progress | user-request | M | 161, 57 | ⬜ |
+| 163 | Social media kit viewer — browse generated kit organized by content type, filter by platform (LinkedIn/Instagram/X/Facebook) and persona, copy-to-clipboard on each item, expandable sections | user-request | L | 160, 162 | ⬜ |
+| 164 | Social media kit regeneration — regenerate the full kit or specific content types if the agent wants fresh alternatives | user-request | S | 162 | ⬜ |
+| 165 | Social media kit in admin — kits visible in admin report detail, generation stats in analytics (kit generation rate, most-used content types) | user-request | M | 160, 121, 130 | ⬜ |
+
+**Goal**: After generating a report, agents can generate a Social Media Kit — a comprehensive, text-based content package with posts, captions, polls, stat callouts, and content calendar suggestions, all grounded in their specific report data. Agents copy the content to their own social media tools and customize as needed.
+
+---
+
 ## Ad-hoc Requests
 
 > Features added from triage that don't fit a phase. Processed after current phase.
@@ -360,6 +377,16 @@
 4. **Phase 15** fourth — analytics dashboard benefits from data from Phases 13 + 14
 5. **Phase 16** last — report eval suite is important but less urgent than user-facing operational tools
 
+### Phase Dependencies (Phase 17 — Social Media Kit)
+- Phase 17 depends on having a finalized report, so it requires Phase 6 (#57 PDF export) and Phase 4 (#36 agent output schema) at minimum
+- #160 (data model) only needs the database (Phase 1)
+- #161 (Social Media Agent) needs the agent framework (#30) and agent output schema (#36)
+- #162 (generation trigger) needs the agent (#161) and report export (#57)
+- #163 (kit viewer) needs the data model (#160) and trigger (#162)
+- #164 (regeneration) is a small add-on to #162
+- #165 (admin) needs the data model (#160) plus admin report list (#121) and analytics (#130)
+- **Phase 17 is independent from Phases 12-16** — can run in parallel
+
 ### Parallelization Opportunities
 After Phase 1, multiple workstreams can run in parallel:
 - **Workstream A**: #10, #11, #12, #13 (user & market setup)
@@ -375,6 +402,7 @@ UX redesign + admin expansion (Phases 12–16):
 - **Workstream G**: #110-#116 (user management) + #120-#125 (report registry) — can run in parallel with F
 - **Workstream H**: #140-#143 (report eval) — independent, can run anytime
 - **Workstream I**: #130-#135 (analytics) — ideally after G completes for richer data
+- **Workstream J**: #160-#165 (social media kit) — independent, can run anytime after report pipeline is stable
 
 ---
 

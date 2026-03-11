@@ -50,6 +50,38 @@ The example Naples Intelligence Report is stored at `.specs/reference/naples-int
 
 ---
 
+## The Artifact: Social Media Kit
+
+The Social Media Kit is the second product. Once a report is finalized, agents can generate a companion Social Media Kit — a comprehensive, text-based content package that helps them talk about their market intelligence on social media. The kit turns the report into a marketing engine.
+
+The Social Media Kit is **text-only** — no image generation, no asset creation. Agents bring their own visuals; we give them the words, structure, and strategy.
+
+### Kit Contents
+
+| Content Type | Purpose | Example |
+|-------------|---------|---------|
+| **Post Ideas** | Ready-to-use social media post concepts tied to specific report insights | "3 reasons ultra-luxury waterfront is outperforming the broader market" |
+| **Captions** | Platform-optimized captions (Instagram, LinkedIn, X/Twitter, Facebook) with hashtag suggestions | LinkedIn-length thought leadership vs. Instagram-concise with hooks |
+| **Persona-Targeted Posts** | Posts written for specific buyer personas — using their vocabulary and addressing their concerns | Post targeting Tech Founders vs. post targeting Legacy Wealth families |
+| **Poll Ideas** | Engagement-driving polls tied to market data from the report | "Which luxury segment do you think will outperform in 2026?" with data-backed answer context |
+| **Conversation Starters** | DM/comment templates for engaging with prospects who interact with posts | "Great question — our latest market analysis shows..." |
+| **Content Calendar Suggestions** | Recommended posting cadence and sequence to maximize the report's content lifespan | "Week 1: headline stats → Week 2: deep dive on key driver → Week 3: persona-specific insight" |
+| **Stat Callouts** | Snackable, quotable statistics pulled directly from report data | "$6.58B in luxury transactions — here's what that means for your portfolio" |
+
+### Kit Quality Standards
+
+- **Report-grounded**: Every post, caption, and poll ties back to specific data or insights from the generated report — no generic social media advice
+- **Platform-aware**: Content is optimized for each platform's format, tone, and character limits
+- **Persona-aligned**: When the report includes buyer personas, the kit generates persona-specific content using the same vocabulary and framing
+- **Agent-voiced**: Content is written from the agent's perspective as a market expert, not from MSA's perspective
+- **Engagement-optimized**: Posts include hooks, questions, and CTAs designed to drive interaction
+
+### Paywall Strategy (Future)
+
+The Social Media Kit will eventually be a premium add-on or part of a higher subscription tier. No billing integration is needed now — just build the feature. Paywall gating will be added when Account & Billing (Phase 8) evolves.
+
+---
+
 ## Key Screens / Areas
 
 | Screen | Purpose | Priority |
@@ -59,6 +91,8 @@ The example Naples Intelligence Report is stored at `.specs/reference/naples-int
 | **Report Preview** | Live preview of the generated report as it's being assembled | Core |
 | **Report Editor** | Post-generation editing — adjust narratives, swap photos, refine insights | Core |
 | **Report Export** | PDF generation, digital sharing links, print-ready output | Core |
+| **Social Media Kit Generator** | Post-report action — generate a full social media content kit from the finalized report. Shows generation progress, then presents the kit organized by content type | Core |
+| **Social Media Kit Viewer** | Browse, copy, and customize generated social media content — organized by content type (posts, captions, polls, etc.) with platform filters and persona filters | Core |
 | **Dashboard** | Home base — recent reports, quick-start new report, market overview | Core — Redesign |
 | **Report History** | Past reports, templates, versioning | Secondary |
 | **Account & Billing** | Subscription management, usage tracking (API costs are real) | Secondary |
@@ -170,6 +204,7 @@ The report generation process is not a single API call — it's a pipeline of sp
 | **Persona Intelligence Agent** | Reframes data and insights through selected buyer persona lenses — generates persona-specific talking points, narrative framing, and metric emphasis | All prior agent outputs + selected persona specs | Persona-tailored content sections, blended talking points, persona-specific narrative overlays |
 | **Report Assembler** | Combines all outputs into the final report layout | All agent outputs (including persona content) + design tokens | Complete report draft |
 | **Polish Agent** | Final pass for consistency, tone, formatting, pull quotes | Draft report | Publication-ready report |
+| **Social Media Agent** | Reads the finalized report and generates a comprehensive social media content kit — post ideas, platform-specific captions, persona-targeted posts, polls, conversation starters, stat callouts, and content calendar suggestions | Finalized report (all sections) + selected personas | Complete social media kit (text-only, structured JSON) |
 
 ---
 
@@ -337,6 +372,8 @@ End-to-end quality scoring of finished reports (complements the existing per-age
 - Client-facing portal (agents share PDFs, not app access)
 - Public-facing admin API (admin functions are internal UI only)
 - Automated user suspension rules (manual admin action only for now)
+- Social media image/graphic generation (kit is text-only — agents bring their own visuals)
+- Social media scheduling or auto-posting (agents copy content to their own tools)
 
 ---
 
