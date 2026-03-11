@@ -29,6 +29,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [Admin Sidebar Update](.specs/features/admin/admin-sidebar-update.feature.md) | `components/layout/admin-sidebar.tsx, components/layout/sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md) | `app/admin/users/[id]/page.tsx` | see spec | see spec | implemented |
 | admin | [Admin User List](.specs/features/admin/admin-user-list.feature.md) | `app/admin/users/page.tsx, components/admin/user-list-dashboard.tsx, app/api/admin/users/route.ts, components/layout/admin-sidebar.tsx` | see spec | see spec | implemented |
+| admin | [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md) | `app/api/admin/analytics/route.ts, app/api/admin/analytics/volume/route.ts, app/api/admin/analytics/users/route.ts, app/api/admin/analytics/errors/route.ts` | see spec | see spec | implemented |
 | admin | [Delete Account](.specs/features/admin/delete-account.feature.md) | `app/api/admin/users/[id]/delete/route.ts` | see spec | see spec | implemented |
 | admin | [Error Triage View](.specs/features/admin/error-triage-view.feature.md) | `app/admin/error-triage/page.tsx, components/admin/error-triage-dashboard.tsx, app/api/admin/reports/errors/route.ts` | see spec | see spec | implemented |
 | admin | [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md) | `app/api/admin/reports/[id]/retry/route.ts` | see spec | see spec | implemented |
@@ -102,8 +103,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 70 |
-| **Total** | **74** |
+| implemented | 71 |
+| **Total** | **75** |
 
 ---
 
@@ -133,6 +134,7 @@ _None_
 - [Admin Sidebar Update](.specs/features/admin/admin-sidebar-update.feature.md)
 - [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md)
 - [Admin User List](.specs/features/admin/admin-user-list.feature.md)
+- [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md)
 - [Delete Account](.specs/features/admin/delete-account.feature.md)
 - [Error Triage View](.specs/features/admin/error-triage-view.feature.md)
 - [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md)

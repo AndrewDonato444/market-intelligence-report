@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 73 |
+| ✅ Completed | 74 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 21 |
 | ⏸️ Blocked | 0 |
@@ -263,7 +263,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 130 | Analytics API endpoints — aggregate queries for report volume (daily/weekly/monthly), user signups, error rates | vision | M | 2, 120 | ⬜ |
+| 130 | Analytics API endpoints — aggregate queries for report volume (daily/weekly/monthly), user signups, error rates | vision | M | 2, 120 | ✅ |
 | 131 | Volume metrics dashboard — report count over time (line chart), total volume, growth trend | vision | M | 130 | ⬜ |
 | 132 | Geographic analytics — reports by state and city, ranked list or heat map, market concentration view | vision | M | 130, 11 | ⬜ |
 | 133 | User analytics — active users, power users (most reports), new signups over time, churn indicators | vision | M | 130, 111 | ⬜ |
