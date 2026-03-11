@@ -54,12 +54,12 @@ The example Naples Intelligence Report is stored at `.specs/reference/naples-int
 
 | Screen | Purpose | Priority |
 |--------|---------|----------|
-| **Onboarding / Market Setup** | Agent creates account, defines their market (geography, segments, luxury tiers) | Core |
-| **Report Builder - Inputs** | Guided wizard to collect market parameters, select buyer personas (up to 3), select data sources, customize sections | Core |
-| **Data Pipeline Status** | Shows API calls in progress, caching status, agent pipeline progress | Core |
+| **Report Creation Flow** | Unified guided experience — market definition through report generation in one seamless flow (see Report Creation Experience section below) | Core — Redesign |
+| **Data Pipeline Status** | Shows API calls in progress, caching status, agent pipeline progress — integrated into the creation flow as the final stage | Core |
 | **Report Preview** | Live preview of the generated report as it's being assembled | Core |
 | **Report Editor** | Post-generation editing — adjust narratives, swap photos, refine insights | Core |
 | **Report Export** | PDF generation, digital sharing links, print-ready output | Core |
+| **Dashboard** | Home base — recent reports, quick-start new report, market overview | Core — Redesign |
 | **Report History** | Past reports, templates, versioning | Secondary |
 | **Account & Billing** | Subscription management, usage tracking (API costs are real) | Secondary |
 
@@ -186,6 +186,77 @@ APIs for luxury real estate data are expensive. The backend must be built around
 
 ---
 
+## Report Creation Experience
+
+The current market creation and report generation flows are separate wizards — two disconnected 3-step forms that feel utilitarian and boxy. This needs to be reimagined as a single, premium guided experience that makes agents feel like they're being walked through something special.
+
+### Design Philosophy
+
+This is where agents spend most of their time. It needs to feel like a luxury concierge experience, not a web form. Think: Stripe's checkout flow meets a luxury hotel booking experience. Every step should have purpose, clarity, and polish.
+
+### Unified Flow
+
+The market definition and report generation are merged into one continuous flow. If the agent already has a market defined, they can skip ahead. If they're new, they start from the beginning. The flow adapts.
+
+**Step 1: Your Market** — Where do you operate?
+- Geography selection with smart autocomplete and map context
+- Animated transition as the market comes into focus
+- Contextual helper text explaining what we'll do with each field ("We'll use this to find luxury transactions in your area")
+- Visual feedback: as they type a city, show a subtle market summary preview (e.g., "Naples, FL — 2,234 luxury transactions last year")
+
+**Step 2: Your Tier** — What level of luxury?
+- Visual tier selector (not radio buttons) — each tier is a card with price range, example properties, and a brief description
+- Selecting a tier animates price floor/ceiling into view with sensible defaults
+- Tooltip: "Most agents in [city] focus on [tier]" (data-driven hint if available)
+
+**Step 3: Your Focus** — What matters most?
+- Market segments and property types as visual toggleable cards (not checkboxes)
+- Each option has an icon and short description
+- Smart defaults based on market and tier selection
+- "Popular in your market" badges on commonly selected options
+
+**Step 4: Your Audience** — Who are you advising?
+- Persona selection (currently step 2 of the report wizard) — integrated here
+- Large persona cards with personality illustration, key traits, and "what they care about"
+- Preview panel slides in from the right when a persona is selected
+- Max 3 with graceful enforcement (card dims with explanation, not just disabled)
+
+**Step 5: Review & Generate** — Your report at a glance
+- Beautiful summary card showing all selections with edit links back to each step
+- Report title (auto-generated, editable)
+- Estimated generation time
+- "Generate Report" as a prominent, satisfying CTA
+- Transition into the pipeline status view (step 6) with animation
+
+**Step 6: Generating** — Your report is being built
+- Pipeline progress integrated into the flow (not a separate page)
+- Each agent stage shows progress with contextual descriptions ("Analyzing 2,234 transactions...")
+- Animated progress indicators
+- Estimated time remaining
+- Option to be notified when complete
+
+### UX Requirements
+
+- **Framer Motion** for all transitions — step-to-step slide animations, card selections, panel reveals, progress bars
+- **Contextual tooltips** on every input — explain what each field does and why it matters, in the agent's language (not developer language)
+- **Inline instructions** — short, friendly guidance text above or beside each section ("This helps us find the right comps for your market")
+- **Progress indicator** — refined step indicator that shows where you are, what's coming, and what's done. Not just dots — names and a sense of progress
+- **Validation with personality** — errors are helpful, not red and scary. "We need a city to find your market data" instead of "City is required"
+- **Persistence** — if the agent leaves mid-flow and comes back, they pick up where they left off
+- **Responsive** — works beautifully on desktop (primary) and tablet. Mobile is acceptable but not primary
+- **Animations**: entrance animations for each step's content, smooth transitions between steps, subtle hover states on interactive elements, satisfying selection feedback (scale + color change), progress bar animations during generation
+- **Empty state artistry** — when the agent hasn't selected anything yet, show inviting placeholders, not blank space
+
+### Returning Users
+
+Agents who already have markets defined get a streamlined experience:
+- Dashboard shows their markets with a "New Report" action on each
+- Clicking "New Report" on an existing market skips to Step 4 (persona selection)
+- "New Market" flow starts at Step 1
+- Market editing is accessible from the flow (edit icon on Step 1 summary) — not a separate page
+
+---
+
 ## Design Principles
 
 1. **Premium by default** — the app itself must feel as polished as the reports it produces. This is a tool for luxury professionals; it can't feel like a startup MVP.
@@ -193,6 +264,8 @@ APIs for luxury real estate data are expensive. The backend must be built around
 3. **Progressive disclosure** — the report builder should feel simple even though the underlying data pipeline is complex. Hide complexity, surface results.
 4. **Print-first report design** — the LMIR is designed for print and PDF. Screen viewing is secondary. Typography, spacing, and layout must work at 300dpi.
 5. **Agent-branded output** — every report prominently features the agent's branding, not Modern Signal Advisory's. MSA is the engine, not the face.
+6. **Guided, not gated** — every step in the creation flow should teach the agent something about their market. Tooltips, contextual hints, and smart defaults make the process feel effortless, not bureaucratic.
+7. **Motion with purpose** — animations and transitions serve comprehension (showing relationships between steps, confirming selections, indicating progress), never decoration. Framer Motion throughout, but always purposeful.
 
 ---
 

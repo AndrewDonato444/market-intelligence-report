@@ -23,7 +23,7 @@
 |--------|-------|
 | ✅ Completed | 50 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 0 |
+| ⬜ Pending | 30 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-10
@@ -201,6 +201,94 @@
 
 ---
 
+## Phase 12: Report Creation Experience Redesign
+
+> Merge the separate market wizard and report wizard into a single, premium guided experience. Replace boxy form fields with visual card selectors, add Framer Motion animations, contextual tooltips, inline instructions, and a refined progress indicator. The creation flow should feel like a luxury concierge experience, not a web form.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 150 | Animation & UX infrastructure — install Framer Motion, create tooltip component, shared animation variants (fade, slide, scale), transition primitives | vision | S | 1 | ⬜ |
+| 151 | Unified creation flow shell — new `/reports/create` route, step state machine (6 steps), refined progress indicator with step names + completion state, back/next with slide animations | vision | L | 150, 4, 11, 40 | ⬜ |
+| 152 | Step 1: Your Market — geography with smart autocomplete, contextual helper text ("We'll use this to find luxury transactions in your area"), animated market preview as user types | vision | M | 151, 11 | ⬜ |
+| 153 | Step 2: Your Tier — visual tier card selector (not radio buttons), animated price floor/ceiling with sensible defaults, data-driven tooltip hints ("Most agents in [city] focus on [tier]") | vision | M | 151 | ⬜ |
+| 154 | Step 3: Your Focus — segments + property types as visual toggleable cards with icons and descriptions, smart defaults based on market/tier, "Popular in your market" badges | vision | M | 151 | ⬜ |
+| 155 | Step 4: Your Audience — large persona cards with key traits + "what they care about", slide-in preview panel, graceful max-3 enforcement (dim with explanation, not just disabled) | vision | M | 151, 90 | ⬜ |
+| 156 | Step 5: Review & Generate — beautiful summary card with edit-back links to each step, auto-generated editable title, estimated generation time, premium "Generate Report" CTA | vision | M | 151 | ⬜ |
+| 157 | Step 6: Generating — pipeline progress integrated into flow (not separate page), contextual stage descriptions ("Analyzing 2,234 transactions..."), animated progress indicators, time remaining | vision | M | 151, 80 | ⬜ |
+| 158 | Flow persistence + returning user shortcuts — save/resume mid-flow state, existing-market users skip to Step 4, market editing inline (not separate page) | vision | M | 151 | ⬜ |
+| 159 | Dashboard redesign — market cards with "New Report" quick-start action, recent reports list, empty state artistry, animated entrance | vision | M | 150, 4 | ⬜ |
+
+**Goal**: The market definition and report generation flow is a single, beautiful guided experience. Agents feel walked through something special — visual card selectors, smooth animations, contextual help at every step, and a refined progress indicator. Returning users skip ahead seamlessly.
+
+---
+
+## Phase 13: Admin — User Management
+
+> Full lifecycle management of agent accounts. Suspend, delete, view activity, search and filter users. Requires schema changes to support account status and activity logging.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 110 | User status schema — add `status` enum (active/suspended/deleted), `suspendedAt`, `deletedAt`, `lastLoginAt` columns to users table | vision | S | 2 | ⬜ |
+| 111 | Activity log schema — `user_activity` table (userId, action, entityType, entityId, metadata, timestamp) + insert hooks | vision | M | 110 | ⬜ |
+| 112 | Admin user list page — search, filter by status, sort by last activity, pagination | vision | M | 110, 83 | ⬜ |
+| 113 | Admin user detail page — profile info, account status, report count, market(s), activity timeline | vision | M | 112, 111 | ⬜ |
+| 114 | Suspend/unsuspend account — admin action + suspended user login gate ("contact support" message) | vision | M | 110, 3 | ⬜ |
+| 115 | Delete account — confirmation flow, cascade reports to orphan state (keep for analytics, de-link from user) | vision | M | 110, 114 | ⬜ |
+| 116 | Admin sidebar update — add User Management nav item, update active state highlighting | vision | S | 112 | ⬜ |
+
+**Goal**: Admin can view all users, search/filter by status, drill into individual user details with activity history, and suspend or delete accounts with proper cascading behavior.
+
+---
+
+## Phase 14: Admin — Report Registry & Error Triage
+
+> Cross-user visibility into every report on the platform. Surface errors, allow admin intervention, re-trigger failed pipelines. The operational "command center" for report quality.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 120 | Report error tracking schema — add `errorDetails` JSONB (agent, message, stack, input snapshot) to reports table, add `retriedAt`, `retriedBy` columns | vision | S | 2 | ⬜ |
+| 121 | Admin report list page — all reports across all users, filterable by status (queued/generating/completed/failed), date range, user, market | vision | L | 120, 83 | ⬜ |
+| 122 | Admin report detail page — full report view, agent execution breakdown (which agents ran, timing, cache hits, API costs) | vision | M | 121, 80 | ⬜ |
+| 123 | Error triage view — dedicated filtered view of failed/errored reports with error details, agent failure info, input data | vision | M | 121, 120 | ⬜ |
+| 124 | Pipeline re-trigger — admin can re-run a failed report's pipeline (full or from failed agent), with audit trail | vision | M | 123, 80 | ⬜ |
+| 125 | Admin sidebar update — add Report Registry + Error Triage nav items | vision | S | 121 | ⬜ |
+
+**Goal**: Admin can browse all platform reports, quickly identify failures, see exactly which agent failed and why, and re-trigger the pipeline to fix user-facing issues.
+
+---
+
+## Phase 15: Admin — Analytics Dashboard
+
+> Operational intelligence for the MSA team. Volume metrics, geographic breakdowns, segment analysis, user analytics, pipeline performance — everything needed to understand platform health and usage patterns.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 130 | Analytics API endpoints — aggregate queries for report volume (daily/weekly/monthly), user signups, error rates | vision | M | 2, 120 | ⬜ |
+| 131 | Volume metrics dashboard — report count over time (line chart), total volume, growth trend | vision | M | 130 | ⬜ |
+| 132 | Geographic analytics — reports by state and city, ranked list or heat map, market concentration view | vision | M | 130, 11 | ⬜ |
+| 133 | User analytics — active users, power users (most reports), new signups over time, churn indicators | vision | M | 130, 111 | ⬜ |
+| 134 | Pipeline performance metrics — average generation time, cache hit rates, API cost per report, error rates by agent | vision | M | 130, 23, 80 | ⬜ |
+| 135 | Analytics data export — CSV/JSON export of all analytics views for external analysis | vision | S | 130 | ⬜ |
+
+**Goal**: Admin has a comprehensive analytics dashboard showing volume trends, geographic demand patterns, user behavior, and pipeline performance — enabling data-driven operational decisions.
+
+---
+
+## Phase 16: Admin — Report Eval Suite
+
+> End-to-end quality scoring of finished reports. Complements the existing per-agent eval suite by evaluating the complete assembled report against quality criteria. Enables regression tracking and quality enforcement.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 140 | Report eval test cases — define evaluation criteria (data accuracy, completeness, narrative quality, formatting, actionability, persona alignment) with rubrics | vision | M | 36 | ⬜ |
+| 141 | Report eval runner — execute report-level evals using LLM-as-judge scoring (1–5) with per-criterion breakdown | vision | L | 140, 57 | ⬜ |
+| 142 | Report eval dashboard — UI for running report evals, viewing scores, comparing across reports, filtering by criterion | vision | M | 141 | ⬜ |
+| 143 | Regression tracking — store eval scores over time, chart quality trends, alert on score degradation | vision | M | 141 | ⬜ |
+
+**Goal**: Admin can run end-to-end quality evaluations on finished reports, track quality scores over time, and catch pipeline degradation before it affects users.
+
+---
+
 ## Ad-hoc Requests
 
 > Features added from triage that don't fit a phase. Processed after current phase.
@@ -238,16 +326,39 @@
 - **MLS data source**: Using RealEstateAPI (realestateapi.com) for property data — provides property search, detail, comps, valuations, MLS data, and sales history for 157M+ properties. No direct MLS integration needed.
 - **Neighborhood intelligence**: Using ScrapingDog (scrapingdog.com) for neighborhood-level data — local amenities, lifestyle signals, area context via Google Local API and web scraping. Feeds Key Drivers and Trending Insights sections.
 - **Redis vs. DB cache**: Vision mentions both. For v1, DB-backed cache (Supabase) is simpler to deploy. Redis can be added later for performance.
+- **Analytics chart library**: Phase 15 needs charts (line charts, bar charts, possibly heat maps). Recharts is already available via the existing data viz components in Phase 6. Consider reusing.
 
-### Phase Dependencies
+### Phase Dependencies (Phases 1–11 complete)
 - Phases 1-2 are strictly sequential (foundation then user setup)
-- Phase 3 (data) and Phase 4 (agents) can be partially parallelized — the orchestration framework (#30) doesn't need real data to scaffold
-- Phase 5 (builder UI) and Phase 6 (PDF templates) can be parallelized — the wizard doesn't need the PDF engine to work, and vice versa
-- Phase 7 (editing) requires both Phase 5 and Phase 6 to be complete
-- Phase 8 (billing) only depends on Phase 1 and can be built anytime after foundation
+- Phase 3 (data) and Phase 4 (agents) can be partially parallelized
+- Phase 5 (builder UI) and Phase 6 (PDF templates) can be parallelized
+- Phase 7 (editing) requires both Phase 5 and Phase 6
+- Phase 8 (billing) only depends on Phase 1
+
+### Phase Dependencies (Phase 12 — UX Redesign)
+- Phase 12 (creation flow redesign) builds on top of existing Phase 2 (#11 market wizard), Phase 5 (#40 report wizard), Phase 9 (#80 pipeline), and Phase 10 (#90 personas)
+- #150 (animation infrastructure) is the foundation — all other Phase 12 features depend on it
+- #151 (flow shell) is the second foundation — steps 1-6 (#152-#157) all depend on it
+- Steps 1-6 can be built sequentially or in parallel (each is self-contained within the flow shell)
+- #158 (persistence) and #159 (dashboard) can be built after the flow shell exists
+- Phase 12 is **independent from admin phases** — can run in parallel with Phases 13-16
+
+### Phase Dependencies (Phases 13–16 — Admin Expansion)
+- Phase 13 (user management) is independent — only needs the existing users table and admin auth
+- Phase 14 (report registry) is independent — only needs existing reports table and admin auth
+- Phase 15 (analytics) benefits from Phase 13 (#111 activity log) and Phase 14 (#120 error tracking) for richer data, but can start with existing tables
+- Phase 16 (report eval) is independent — builds on the existing eval infrastructure in `lib/eval/`
+- **All four admin phases can be parallelized** since they have no cross-dependencies (except Phase 15 is richer with 13+14 data)
 
 ### Critical Path
 `#1 → #2 → #11 → #20 → #22 → #31 → #36 → #51 → #57` — this is the minimum path from empty repo to a generated report PDF. Everything else enriches this spine.
+
+### Recommended Build Order (Phases 12–16)
+1. **Phase 12** first — UX redesign is user-facing and highest impact. This is what agents experience every time they use the product
+2. **Phase 13** second — user management is foundational for admin ops, and the activity log (#111) feeds Phase 15 analytics
+3. **Phase 14** third — error triage is highest operational value (directly helps users with broken reports)
+4. **Phase 15** fourth — analytics dashboard benefits from data from Phases 13 + 14
+5. **Phase 16** last — report eval suite is important but less urgent than user-facing operational tools
 
 ### Parallelization Opportunities
 After Phase 1, multiple workstreams can run in parallel:
@@ -258,6 +369,12 @@ After Phase 1, multiple workstreams can run in parallel:
 After Phase 3 + early Phase 6:
 - **Workstream D**: #30-#36 (agent pipeline)
 - **Workstream E**: #51-#54 (report sections)
+
+UX redesign + admin expansion (Phases 12–16):
+- **Workstream F**: #150-#159 (UX redesign) — user-facing, highest priority
+- **Workstream G**: #110-#116 (user management) + #120-#125 (report registry) — can run in parallel with F
+- **Workstream H**: #140-#143 (report eval) — independent, can run anytime
+- **Workstream I**: #130-#135 (analytics) — ideally after G completes for richer data
 
 ---
 
