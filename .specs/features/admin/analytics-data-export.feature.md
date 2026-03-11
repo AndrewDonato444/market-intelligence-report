@@ -16,7 +16,7 @@ updated: 2026-03-11
 
 # Analytics Data Export
 
-**Source File**: `app/api/admin/analytics/export/route.ts`
+**Source Files**: `lib/utils/analytics-export.ts`, `components/admin/export-button.tsx`
 **Design System**: `.specs/design-system/tokens.md`
 **Depends On**: Analytics API Endpoints (#130)
 
@@ -24,50 +24,62 @@ updated: 2026-03-11
 
 Admin can export data from any analytics view (volume, geographic, users, performance) as CSV or JSON for external analysis in spreadsheets or BI tools.
 
+All export is client-side: dashboards fetch their existing analytics endpoints and convert the response data locally using `exportCsv`, `exportMultiSectionCsv`, or `exportJson` from `lib/utils/analytics-export.ts`.
+
 ### Scenario: Admin exports volume data as CSV
 Given an admin user is on the Volume Metrics dashboard
-When they click the "Export CSV" button
+When they click the "Export" button and select "Export CSV"
 Then a CSV file downloads containing the volume time series data
-And the filename includes the view name and current date (e.g., `volume-metrics-2026-03-11.csv`)
+And the filename is `volume-metrics-{date}.csv`
 And the CSV includes headers: date, total, completed, failed
 
 ### Scenario: Admin exports volume data as JSON
 Given an admin user is on the Volume Metrics dashboard
-When they click the "Export JSON" button
-Then a JSON file downloads containing the full API response
-And the filename includes the view name and current date
+When they click the "Export" button and select "Export JSON"
+Then a JSON file downloads containing the overview and volume API response combined
+And the filename is `volume-metrics-{date}.json`
 
 ### Scenario: Admin exports geographic data as CSV
 Given an admin user is on the Geographic Analytics dashboard
-When they click "Export CSV"
-Then a CSV file downloads with columns: state, city, count, percentage
+When they click "Export" and select "Export CSV"
+Then a multi-section CSV file downloads with two sections:
+  - Section "By State" with headers: state, count, percentage
+  - Section "By City" with headers: city, state, count, percentage
 
 ### Scenario: Admin exports user analytics as CSV
 Given an admin user is on the User Analytics dashboard
-When they click "Export CSV"
-Then a CSV file downloads with signup time series AND a separate section for power users
+When they click "Export" and select "Export CSV"
+Then a multi-section CSV file downloads with three sections:
+  - Section "Signups Over Time" with headers: date, count
+  - Section "Power Users" with headers: name, email, reportCount, lastReportDate
+  - Section "Churn Risk" with headers: name, email, lastReportDate, daysSinceLastReport
 
 ### Scenario: Admin exports performance data as CSV
 Given an admin user is on the Pipeline Performance dashboard
-When they click "Export CSV"
-Then a CSV file downloads with generation time series AND cost breakdown
+When they click "Export" and select "Export CSV"
+Then a multi-section CSV file downloads with three sections:
+  - Section "Generation Time Series" with headers: date, avgSeconds, count
+  - Section "Cost By Provider" with headers: provider, requests, totalCost, avgCostPerRequest
+  - Section "Errors By Agent" with headers: agent, count
 
-### Scenario: Export API validates format parameter
-Given an admin user calls the export endpoint
-When they provide an invalid format (not csv or json)
-Then the API returns 400 with an error message
+### Scenario: Export button is disabled while loading
+Given an admin user is on any analytics dashboard
+When the dashboard is still loading data
+Then the Export button is disabled
+And becomes enabled once data has loaded
 
-### Scenario: Export API requires admin authentication
-Given a non-admin user
-When they call the export endpoint
-Then the API returns 401 Unauthorized
+### Scenario: Export dropdown closes after selection
+Given an admin user has opened the Export dropdown
+When they click any export option (CSV or JSON)
+Then the dropdown closes automatically
 
 ## User Journey
 
 1. Admin navigates to any analytics dashboard tab
-2. **Clicks Export CSV or Export JSON button**
-3. Browser downloads the file automatically
-4. Admin opens file in Excel, Google Sheets, or BI tool
+2. **Clicks the "Export" dropdown button in the dashboard header**
+3. Selects "Export CSV" or "Export JSON" from the dropdown
+4. Browser downloads the file automatically
+5. Admin opens file in Excel, Google Sheets, or BI tool
 
 ## UI Mockup
 
@@ -86,18 +98,24 @@ Then the API returns 401 Unauthorized
 
 ## Implementation Approach
 
-**Server-side**: Single `GET /api/admin/analytics/export` endpoint that:
-- Accepts `view` param (volume, geographic, users, performance)
-- Accepts `format` param (csv, json)
-- Accepts the same period/granularity params as existing endpoints
-- Calls the same DB queries as existing analytics endpoints
-- Returns appropriate Content-Type and Content-Disposition headers
+**Client-side only**: No server-side export endpoint exists. Each dashboard handles export locally:
 
-**Client-side**: Reusable `ExportButton` component added to each dashboard header that:
-- Shows a dropdown with CSV and JSON options
-- Triggers a fetch to the export endpoint
-- Creates a blob download link
+- Fetches data via its existing analytics API endpoint(s)
+- On Export CSV click: calls `exportCsv` (single table) or `exportMultiSectionCsv` (multiple tables)
+- On Export JSON click: calls `exportJson` with the full fetched data object
+- All three functions from `lib/utils/analytics-export.ts` build a Blob, create a temporary `<a>` element, trigger a click, then revoke the URL
+
+**Filename format**: `{view-name}-{YYYY-MM-DD}.csv` or `{view-name}-{YYYY-MM-DD}.json`
+- volume: `volume-metrics-2026-03-11.csv`
+- geographic: `geographic-analytics-2026-03-11.csv`
+- users: `user-analytics-2026-03-11.csv`
+- performance: `pipeline-performance-2026-03-11.csv`
+
+**Multi-section CSV format**: Each section is separated by a blank line and preceded by a title line.
 
 ## Component References
 
-- ExportButton: new shared component for analytics dashboards
+- ExportButton: `components/admin/export-button.tsx` — dropdown with "Export CSV" and "Export JSON" options
+- exportCsv: `lib/utils/analytics-export.ts` — single-table CSV download
+- exportMultiSectionCsv: `lib/utils/analytics-export.ts` — multi-section CSV download
+- exportJson: `lib/utils/analytics-export.ts` — JSON download
