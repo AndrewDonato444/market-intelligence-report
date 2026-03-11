@@ -85,7 +85,7 @@ async function main() {
 
   const marketData = convertMarketToMarketData(market);
   const reportConfig = {
-    sections: (report.config as Record<string, unknown>)?.sections,
+    sections: (report.config as Record<string, unknown>)?.sections as string[] | undefined,
   };
 
   // 3. Delete old sections

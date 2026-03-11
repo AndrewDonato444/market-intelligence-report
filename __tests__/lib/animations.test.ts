@@ -53,7 +53,7 @@ describe("fadeVariant", () => {
   it("uses easing-default", () => {
     const animate = fadeVariant.animate as Record<string, unknown>;
     const transition = animate.transition as Record<string, unknown>;
-    expect(transition.ease).toEqual([...EASING_DEFAULT]);
+    expect(transition.ease).toEqual(EASING_DEFAULT);
   });
 });
 
@@ -90,7 +90,7 @@ describe("slideVariant", () => {
     const animate = variant.animate as Record<string, unknown>;
     const transition = animate.transition as Record<string, unknown>;
     expect(transition.duration).toBe(DURATION_SLOW);
-    expect(transition.ease).toEqual([...EASING_DEFAULT]);
+    expect(transition.ease).toEqual(EASING_DEFAULT);
   });
 
   it("supports all four directions", () => {
@@ -126,7 +126,7 @@ describe("scaleVariant", () => {
     expect(animate.scale).toBe(1);
     const transition = animate.transition as Record<string, unknown>;
     expect(transition.duration).toBe(DURATION_DEFAULT);
-    expect(transition.ease).toEqual([...EASING_DEFAULT]);
+    expect(transition.ease).toEqual(EASING_DEFAULT);
   });
 
   it("exits to scale 0.95, opacity 0", () => {
@@ -147,7 +147,7 @@ describe("selectionVariant", () => {
 
   it("uses duration-fast (100ms) with easing-spring", () => {
     expect(selectionVariant.transition.duration).toBe(DURATION_FAST);
-    expect(selectionVariant.transition.ease).toEqual([...EASING_SPRING]);
+    expect(selectionVariant.transition.ease).toEqual(EASING_SPRING);
   });
 });
 
