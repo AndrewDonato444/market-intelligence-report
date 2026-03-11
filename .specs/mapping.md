@@ -25,18 +25,19 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md) | `app/admin/monitoring/page.tsx, components/admin/system-monitoring-dashboard.tsx, app/api/admin/monitoring/route.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md) | `lib/agents/orchestrator.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Agent Output Schema + Validation](.specs/features/agent-pipeline/agent-output-schema.feature.md) | `lib/agents/schema.ts` | see spec | see spec | implemented |
-| agent-pipeline | [Competitive Analyst Agent](.specs/features/agent-pipeline/competitive-analyst-agent.feature.md) | `lib/agents/competitive-analyst.ts` | see spec | see spec | specced |
+| agent-pipeline | [Competitive Analyst Agent](.specs/features/agent-pipeline/competitive-analyst-agent.feature.md) | `lib/agents/competitive-analyst.ts` | see spec | see spec | deprecated |
 | agent-pipeline | [Data Analyst Agent](.specs/features/agent-pipeline/data-analyst-agent.feature.md) | `lib/agents/data-analyst.ts` | see spec | see spec | implemented |
-| agent-pipeline | [Forecast Modeler Agent](.specs/features/agent-pipeline/forecast-modeler-agent.feature.md) | `lib/agents/forecast-modeler.ts` | see spec | see spec | specced |
-| agent-pipeline | [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md) | `lib/agents/insight-generator.ts` | see spec | see spec | specced |
+| agent-pipeline | [Forecast Modeler Agent](.specs/features/agent-pipeline/forecast-modeler-agent.feature.md) | `lib/agents/forecast-modeler.ts` | see spec | see spec | implemented |
+| agent-pipeline | [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md) | `lib/agents/insight-generator.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Pipeline Evaluation Suite](.specs/features/agent-pipeline/pipeline-eval-suite.feature.md) | `app/admin/eval/page.tsx, components/eval/eval-dashboard.tsx, app/api/eval/run/route.ts, app/api/eval/test-cases/route.ts, lib/eval/runner.ts, lib/eval/judge.ts, lib/eval/test-cases.ts, lib/eval/fixtures.ts, lib/eval/types.ts` | see spec | see spec | implemented |
-| agent-pipeline | [Polish Agent](.specs/features/agent-pipeline/polish-agent.feature.md) | `lib/agents/polish-agent.ts` | see spec | see spec | specced |
+| agent-pipeline | [Polish Agent](.specs/features/agent-pipeline/polish-agent.feature.md) | `lib/agents/polish-agent.ts` | see spec | see spec | implemented |
 | buyer-personas | [Buyer Persona Data Model](.specs/features/buyer-personas/buyer-persona-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | buyer-personas | [Market Calibration Engine](.specs/features/buyer-personas/market-calibration-engine.feature.md) | `lib/services/market-calibration.ts` | see spec | see spec | implemented |
 | buyer-personas | [Multi-Persona Output Strategy](.specs/features/buyer-personas/multi-persona-output-strategy.feature.md) | `lib/agents/report-assembler.ts` | see spec | see spec | implemented |
 | buyer-personas | [Persona Content in PDF Template](.specs/features/buyer-personas/persona-content-pdf-template.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | buyer-personas | [Persona Intelligence Agent](.specs/features/buyer-personas/persona-intelligence-agent.feature.md) | `lib/agents/persona-intelligence.ts` | see spec | see spec | implemented |
 | buyer-personas | [Persona Selection UI](.specs/features/buyer-personas/persona-selection-ui.feature.md) | `components/reports/report-wizard.tsx` | see spec | see spec | implemented |
+| data-infrastructure | [Agent Output Cache](.specs/features/data-infrastructure/agent-output-cache.feature.md) | `lib/services/agent-cache.ts` | see spec | see spec | implemented |
 | data-infrastructure | [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md) | `app/api/usage/route.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
 | data-infrastructure | [Cache Layer — DB-backed with TTL by Data Type](.specs/features/data-infrastructure/cache-layer.feature.md) | `lib/services/cache.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
 | data-infrastructure | [Data Freshness Indicators + Staleness Fallback](.specs/features/data-infrastructure/data-freshness.feature.md) | `lib/services/data-freshness.ts` | see spec | see spec | implemented |
@@ -47,6 +48,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | foundation | [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md) | `lib/db/schema.ts, lib/db/index.ts, lib/db/migrations/` | see spec | see spec | implemented |
 | foundation | [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md) | `lib/config/env.ts, .env.local.example` | see spec | see spec | implemented |
 | foundation | [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md) | `app/layout.tsx, app/page.tsx, tailwind.config.ts, app/globals.css` | see spec | see spec | implemented |
+| marketing | [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md) | `app/page.tsx` | see spec | see spec | implemented |
 | pipeline | [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md) | `lib/services/data-source-registry.ts` | see spec | see spec | implemented |
 | pipeline | [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md) | `lib/services/pipeline-executor.ts` | see spec | see spec | specced |
 | report-builder | [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
@@ -75,10 +77,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 8 |
+| specced | 4 |
 | tested | 0 |
-| implemented | 41 |
-| **Total** | **49** |
+| implemented | 46 |
+| **Total** | **51** |
 
 ---
 
@@ -93,10 +95,6 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
-- [Competitive Analyst Agent](.specs/features/agent-pipeline/competitive-analyst-agent.feature.md)
-- [Forecast Modeler Agent](.specs/features/agent-pipeline/forecast-modeler-agent.feature.md)
-- [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md)
-- [Polish Agent](.specs/features/agent-pipeline/polish-agent.feature.md)
 - [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md)
 
 ### Tested
@@ -110,13 +108,17 @@ _None_
 - [Agent Orchestration Framework](.specs/features/agent-pipeline/agent-orchestration.feature.md)
 - [Agent Output Schema + Validation](.specs/features/agent-pipeline/agent-output-schema.feature.md)
 - [Data Analyst Agent](.specs/features/agent-pipeline/data-analyst-agent.feature.md)
+- [Forecast Modeler Agent](.specs/features/agent-pipeline/forecast-modeler-agent.feature.md)
+- [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md)
 - [Pipeline Evaluation Suite](.specs/features/agent-pipeline/pipeline-eval-suite.feature.md)
+- [Polish Agent](.specs/features/agent-pipeline/polish-agent.feature.md)
 - [Buyer Persona Data Model](.specs/features/buyer-personas/buyer-persona-data-model.feature.md)
 - [Market Calibration Engine](.specs/features/buyer-personas/market-calibration-engine.feature.md)
 - [Multi-Persona Output Strategy](.specs/features/buyer-personas/multi-persona-output-strategy.feature.md)
 - [Persona Content in PDF Template](.specs/features/buyer-personas/persona-content-pdf-template.feature.md)
 - [Persona Intelligence Agent](.specs/features/buyer-personas/persona-intelligence-agent.feature.md)
 - [Persona Selection UI](.specs/features/buyer-personas/persona-selection-ui.feature.md)
+- [Agent Output Cache](.specs/features/data-infrastructure/agent-output-cache.feature.md)
 - [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md)
 - [Cache Layer — DB-backed with TTL by Data Type](.specs/features/data-infrastructure/cache-layer.feature.md)
 - [Data Freshness Indicators + Staleness Fallback](.specs/features/data-infrastructure/data-freshness.feature.md)
@@ -127,6 +129,7 @@ _None_
 - [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md)
 - [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md)
 - [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md)
+- [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md)
 - [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md)
 - [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md)
 - [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md)
@@ -157,8 +160,16 @@ See `.specs/design-system/tokens.md` for token reference.
 
 | Component | Status | Source |
 |-----------|--------|--------|
+| closing-statement | stub | [doc](.specs/design-system/components/closing-statement.md) |
+| data-callout | stub | [doc](.specs/design-system/components/data-callout.md) |
+| editorial-showcase | stub | [doc](.specs/design-system/components/editorial-showcase.md) |
+| hero-section | stub | [doc](.specs/design-system/components/hero-section.md) |
+| intelligence-pillars | stub | [doc](.specs/design-system/components/intelligence-pillars.md) |
+| landing-nav | stub | [doc](.specs/design-system/components/landing-nav.md) |
 | persona-card | stub | [doc](.specs/design-system/components/persona-card.md) |
 | persona-preview-panel | stub | [doc](.specs/design-system/components/persona-preview-panel.md) |
+| process-narrative | stub | [doc](.specs/design-system/components/process-narrative.md) |
+| report-breakdown | stub | [doc](.specs/design-system/components/report-breakdown.md) |
 
 ---
 

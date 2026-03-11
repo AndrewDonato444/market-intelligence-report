@@ -8,6 +8,12 @@
  * typed output (report sections + metadata) that flows to downstream agents.
  */
 
+import {
+  computeInputHash,
+  getCachedAgentResult,
+  cacheAgentResult,
+} from "@/lib/services/agent-cache";
+
 // --- Types ---
 
 export interface AgentDefinition {
@@ -101,6 +107,8 @@ export interface PipelineOptions {
   onEvent?: (event: PipelineEvent) => void;
   /** Pre-computed analytics from Layer 1 (v2 pipeline passes this through to agents) */
   computedAnalytics?: import("@/lib/services/market-analytics").ComputedAnalytics;
+  /** When true, skip agent output cache and always call Claude */
+  bypassAgentCache?: boolean;
 }
 
 export interface PipelineResult {
@@ -334,8 +342,11 @@ export function createPipelineRunner(agents: AgentDefinition[]): PipelineRunner 
           progress.currentAgents = [...layer];
 
           // Run all agents in this layer in parallel
+          const bypassCache = options.bypassAgentCache === true;
+
           const layerPromises = layer.map(async (agentName) => {
             const agent = agentMap.get(agentName)!;
+            const upstreamSnapshot = { ...allResults };
 
             emitEvent({
               type: "agent_started",
@@ -343,12 +354,33 @@ export function createPipelineRunner(agents: AgentDefinition[]): PipelineRunner 
               timestamp: new Date(),
             });
 
+            // --- Agent output cache check ---
+            if (!bypassCache) {
+              const inputHash = computeInputHash(
+                agentName,
+                market,
+                options.computedAnalytics,
+                upstreamSnapshot
+              );
+
+              const cached = await getCachedAgentResult(agentName, inputHash);
+              if (cached) {
+                emitEvent({
+                  type: "agent_completed",
+                  agentName,
+                  durationMs: 0,
+                  timestamp: new Date(),
+                });
+                return cached;
+              }
+            }
+
             const context: AgentContext = {
               reportId,
               userId,
               market,
               reportConfig,
-              upstreamResults: { ...allResults },
+              upstreamResults: upstreamSnapshot,
               abortSignal: abortController.signal,
               computedAnalytics: options.computedAnalytics,
             };
@@ -360,6 +392,15 @@ export function createPipelineRunner(agents: AgentDefinition[]): PipelineRunner 
               retryDelayMs,
               emitEvent
             );
+
+            // Cache the fresh result (even when bypassCache is true)
+            const storeHash = computeInputHash(
+              agentName,
+              market,
+              options.computedAnalytics,
+              upstreamSnapshot
+            );
+            await cacheAgentResult(agentName, storeHash, result);
 
             emitEvent({
               type: "agent_completed",
