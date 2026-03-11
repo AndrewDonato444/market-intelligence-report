@@ -8,6 +8,8 @@
  * @jest-environment node
  */
 
+export {}; // Ensure this file is treated as a module to avoid TS2451
+
 const mockRequireAdmin = jest.fn<Promise<string | null>, []>();
 
 jest.mock("@/lib/supabase/admin-auth", () => ({
