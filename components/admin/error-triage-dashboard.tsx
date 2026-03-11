@@ -41,6 +41,9 @@ export function ErrorTriageDashboard() {
   const [page, setPage] = useState(1);
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
   const [showStacks, setShowStacks] = useState<Set<string>>(new Set());
+  const [retryingIds, setRetryingIds] = useState<Set<string>>(new Set());
+  const [retryConfirmId, setRetryConfirmId] = useState<string | null>(null);
+  const [retryErrors, setRetryErrors] = useState<Record<string, string>>({});
 
   const fetchErrors = useCallback(async () => {
     setLoading(true);
@@ -107,6 +110,25 @@ export function ErrorTriageDashboard() {
       return next;
     });
   };
+
+  const handleRetry = useCallback(async (reportId: string) => {
+    setRetryingIds((prev) => new Set(prev).add(reportId));
+    setRetryErrors((prev) => { const next = { ...prev }; delete next[reportId]; return next; });
+    try {
+      const res = await fetch(`/api/admin/reports/${reportId}/retry`, { method: "POST" });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error || `Failed: ${res.status}`);
+      }
+      setRetryConfirmId(null);
+      // Refresh data
+      await fetchErrors();
+    } catch (err) {
+      setRetryErrors((prev) => ({ ...prev, [reportId]: (err as Error).message }));
+    } finally {
+      setRetryingIds((prev) => { const next = new Set(prev); next.delete(reportId); return next; });
+    }
+  }, [fetchErrors]);
 
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
   const showFrom = data && data.total > 0 ? (page - 1) * PAGE_SIZE + 1 : 0;
@@ -681,7 +703,7 @@ export function ErrorTriageDashboard() {
                                   Retried at {formatDateTime(err.retriedAt)}{err.retriedBy ? ` by ${err.retriedBy}` : ""}
                                 </p>
                               )}
-                              <div style={{ marginTop: "var(--spacing-3)" }}>
+                              <div style={{ marginTop: "var(--spacing-3)", display: "flex", gap: "var(--spacing-2)", alignItems: "center", flexWrap: "wrap" }}>
                                 <Link
                                   href={`/admin/reports/${err.id}`}
                                   style={{
@@ -696,7 +718,81 @@ export function ErrorTriageDashboard() {
                                 >
                                   View Report
                                 </Link>
+                                {retryConfirmId !== err.id && (
+                                  <button
+                                    onClick={() => setRetryConfirmId(err.id)}
+                                    disabled={retryingIds.has(err.id)}
+                                    style={{
+                                      padding: "var(--spacing-1) var(--spacing-3)",
+                                      background: "var(--color-primary)",
+                                      color: "white",
+                                      border: "none",
+                                      borderRadius: "var(--radius-sm)",
+                                      fontSize: "var(--text-xs)",
+                                      fontWeight: "var(--font-medium)",
+                                      cursor: retryingIds.has(err.id) ? "default" : "pointer",
+                                    }}
+                                  >
+                                    {retryingIds.has(err.id) ? "Re-running..." : "Re-run Pipeline"}
+                                  </button>
+                                )}
                               </div>
+                              {retryConfirmId === err.id && (
+                                <div
+                                  style={{
+                                    marginTop: "var(--spacing-2)",
+                                    padding: "var(--spacing-3)",
+                                    background: "var(--color-surface)",
+                                    borderRadius: "var(--radius-sm)",
+                                    border: "1px solid var(--color-border)",
+                                  }}
+                                >
+                                  <p style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--color-text)", margin: "0 0 var(--spacing-1) 0" }}>
+                                    Re-run pipeline for &quot;{err.title}&quot;?
+                                  </p>
+                                  <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: "0 0 var(--spacing-1) 0" }}>
+                                    Last error: {err.failingAgent}: {err.errorMessage.length > 80 ? err.errorMessage.slice(0, 77) + "..." : err.errorMessage}
+                                  </p>
+                                  {retryErrors[err.id] && (
+                                    <p style={{ fontSize: "var(--text-xs)", color: "var(--color-error)", margin: "0 0 var(--spacing-1) 0" }}>
+                                      {retryErrors[err.id]}
+                                    </p>
+                                  )}
+                                  <div style={{ display: "flex", gap: "var(--spacing-2)", marginTop: "var(--spacing-2)" }}>
+                                    <button
+                                      onClick={() => { setRetryConfirmId(null); setRetryErrors((prev) => { const next = { ...prev }; delete next[err.id]; return next; }); }}
+                                      disabled={retryingIds.has(err.id)}
+                                      style={{
+                                        padding: "var(--spacing-1) var(--spacing-3)",
+                                        border: "1px solid var(--color-border)",
+                                        borderRadius: "var(--radius-sm)",
+                                        background: "var(--color-surface)",
+                                        color: "var(--color-text)",
+                                        cursor: retryingIds.has(err.id) ? "default" : "pointer",
+                                        fontSize: "var(--text-xs)",
+                                      }}
+                                    >
+                                      Cancel
+                                    </button>
+                                    <button
+                                      onClick={() => handleRetry(err.id)}
+                                      disabled={retryingIds.has(err.id)}
+                                      style={{
+                                        padding: "var(--spacing-1) var(--spacing-3)",
+                                        background: retryingIds.has(err.id) ? "var(--color-text-secondary)" : "var(--color-primary)",
+                                        color: "white",
+                                        border: "none",
+                                        borderRadius: "var(--radius-sm)",
+                                        cursor: retryingIds.has(err.id) ? "default" : "pointer",
+                                        fontSize: "var(--text-xs)",
+                                        fontWeight: 600,
+                                      }}
+                                    >
+                                      {retryingIds.has(err.id) ? "Re-running..." : "Re-run Pipeline"}
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </td>
                         </tr>

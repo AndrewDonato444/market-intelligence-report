@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import type { ReportDetailResponse } from "@/app/api/admin/reports/[id]/route";
+import type { RetryResponse } from "@/app/api/admin/reports/[id]/retry/route";
 
 const STATUS_COLORS: Record<string, { color: string; bg: string }> = {
   completed: {
@@ -74,6 +75,9 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showStack, setShowStack] = useState(false);
+  const [retrying, setRetrying] = useState(false);
+  const [retryError, setRetryError] = useState<string | null>(null);
+  const [showRetryConfirm, setShowRetryConfirm] = useState(false);
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -97,6 +101,27 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
+
+  const handleRetry = useCallback(async () => {
+    setRetrying(true);
+    setRetryError(null);
+    try {
+      const res = await fetch(`/api/admin/reports/${reportId}/retry`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error || `Failed: ${res.status}`);
+      }
+      setShowRetryConfirm(false);
+      // Refresh the detail to show updated status
+      await fetchDetail();
+    } catch (err) {
+      setRetryError((err as Error).message);
+    } finally {
+      setRetrying(false);
+    }
+  }, [reportId, fetchDetail]);
 
   if (loading) {
     return (
@@ -437,6 +462,85 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
             <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", marginTop: "var(--spacing-2)" }}>
               Retried at {formatDateTime(report.retriedAt)}{report.retriedBy ? ` by ${report.retriedBy}` : ""}
             </p>
+          )}
+          {report.status === "failed" && !showRetryConfirm && (
+            <button
+              onClick={() => setShowRetryConfirm(true)}
+              style={{
+                marginTop: "var(--spacing-3)",
+                padding: "var(--spacing-2) var(--spacing-4)",
+                background: "var(--color-primary)",
+                color: "white",
+                border: "none",
+                borderRadius: "var(--radius-sm)",
+                cursor: "pointer",
+                fontSize: "var(--text-sm)",
+                fontWeight: 600,
+              }}
+            >
+              Re-run Pipeline
+            </button>
+          )}
+          {showRetryConfirm && (
+            <div
+              style={{
+                marginTop: "var(--spacing-3)",
+                padding: "var(--spacing-3)",
+                background: "var(--color-surface)",
+                borderRadius: "var(--radius-sm)",
+                border: "1px solid var(--color-border)",
+              }}
+            >
+              <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)", margin: "0 0 var(--spacing-1) 0" }}>
+                Re-run Pipeline?
+              </p>
+              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: "0 0 var(--spacing-2) 0" }}>
+                This will re-run the full pipeline for &quot;{report.title}&quot;
+              </p>
+              {report.errorDetails && (
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: "0 0 var(--spacing-2) 0" }}>
+                  Last error: {report.errorDetails.agent}: {report.errorDetails.message}
+                </p>
+              )}
+              {retryError && (
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-error)", margin: "0 0 var(--spacing-2) 0" }}>
+                  {retryError}
+                </p>
+              )}
+              <div style={{ display: "flex", gap: "var(--spacing-2)" }}>
+                <button
+                  onClick={() => { setShowRetryConfirm(false); setRetryError(null); }}
+                  disabled={retrying}
+                  style={{
+                    padding: "var(--spacing-1) var(--spacing-3)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "var(--radius-sm)",
+                    background: "var(--color-surface)",
+                    color: "var(--color-text)",
+                    cursor: retrying ? "default" : "pointer",
+                    fontSize: "var(--text-sm)",
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleRetry}
+                  disabled={retrying}
+                  style={{
+                    padding: "var(--spacing-1) var(--spacing-3)",
+                    background: retrying ? "var(--color-text-secondary)" : "var(--color-primary)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "var(--radius-sm)",
+                    cursor: retrying ? "default" : "pointer",
+                    fontSize: "var(--text-sm)",
+                    fontWeight: 600,
+                  }}
+                >
+                  {retrying ? "Re-running..." : "Re-run Pipeline"}
+                </button>
+              </div>
+            </div>
           )}
         </div>
       )}
