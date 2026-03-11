@@ -361,9 +361,13 @@ export function UserListDashboard() {
                   return (
                     <tr
                       key={user.id}
+                      onClick={() => {
+                        window.location.href = `/admin/users/${user.id}`;
+                      }}
                       style={{
                         borderBottom: "1px solid var(--color-border)",
                         transition: "background var(--duration-default, 150ms)",
+                        cursor: "pointer",
                       }}
                       onMouseEnter={(e) => {
                         (e.currentTarget as HTMLElement).style.background =
