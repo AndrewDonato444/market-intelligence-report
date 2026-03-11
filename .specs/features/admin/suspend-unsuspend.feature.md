@@ -4,7 +4,6 @@ domain: admin
 source: app/api/admin/users/[id]/status/route.ts
 tests:
   - __tests__/admin/suspend-unsuspend.test.tsx
-  - __tests__/api/admin/user-status-action.test.ts
 components:
   - UserDetailPanel
 personas:
