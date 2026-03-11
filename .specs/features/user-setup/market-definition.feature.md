@@ -10,6 +10,7 @@ components:
 personas:
   - established-practitioner
   - rising-star-agent
+superseded_by: .specs/features/user-setup/unified-market-creation.feature.md
 status: implemented
 created: 2026-03-09
 updated: 2026-03-09

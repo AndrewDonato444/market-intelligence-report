@@ -1,5 +1,5 @@
-import { MarketWizard } from "@/components/markets/market-wizard";
+import { MarketCreationShell } from "@/components/markets/market-creation-shell";
 
 export default function NewMarketPage() {
-  return <MarketWizard />;
+  return <MarketCreationShell />;
 }

@@ -1,7 +1,7 @@
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect, notFound } from "next/navigation";
 import { getMarket } from "@/lib/services/market";
-import { MarketWizard } from "@/components/markets/market-wizard";
+import { MarketCreationShell } from "@/components/markets/market-creation-shell";
 
 export default async function EditMarketPage({
   params,
@@ -24,7 +24,7 @@ export default async function EditMarketPage({
 
   return (
     <div>
-      <MarketWizard
+      <MarketCreationShell
         mode="edit"
         marketId={market.id}
         initialData={{
