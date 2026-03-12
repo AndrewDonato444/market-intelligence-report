@@ -503,7 +503,7 @@ function humanizeDataSource(key: string): string {
 
 function TalkingPointPdf({ tp }: { tp: { headline: string; detail: string; dataSource: string } }) {
   return (
-    <View style={{ marginBottom: 12 }}>
+    <View style={{ marginBottom: 12 }} wrap={false}>
       <Text style={styles.talkingPointHeadline}>{tp.headline}</Text>
       <Text style={styles.talkingPointDetail}>{tp.detail}</Text>
       <Text style={styles.talkingPointSource}>Source: {humanizeDataSource(tp.dataSource)}</Text>
@@ -514,7 +514,7 @@ function TalkingPointPdf({ tp }: { tp: { headline: string; detail: string; dataS
 function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["personas"][0] }) {
   const isPrimary = persona.selectionOrder === 1;
   return (
-    <View style={isPrimary ? styles.personaCardPrimary : styles.personaCard} wrap={false}>
+    <View style={isPrimary ? styles.personaCardPrimary : styles.personaCard}>
       {/* Persona name */}
       <Text style={styles.personaName}>{persona.personaName}</Text>
       {isPrimary && <Text style={styles.primaryPersonaLabel}>PRIMARY PERSONA</Text>}
@@ -528,31 +528,33 @@ function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["pers
       <View style={styles.divider} />
 
       {/* Narrative Lens */}
-      <Text style={styles.sectionLabel}>NARRATIVE LENS</Text>
-      <Text style={styles.body}>{persona.narrativeOverlay.perspective}</Text>
-      <Text style={styles.bodySmall}>
-        {"Emphasize: "}
-        {persona.narrativeOverlay.emphasis.map((item, i) => (
-          <Text key={i}>
-            <Text style={{ color: COLORS.success }}>{"\u25CF "}</Text>
-            {item}
-            {i < persona.narrativeOverlay.emphasis.length - 1 ? "  " : ""}
-          </Text>
-        ))}
-      </Text>
-      <Text style={styles.bodySmall}>
-        {"De-emphasize: "}
-        {persona.narrativeOverlay.deEmphasis.map((item, i) => (
-          <Text key={i}>
-            <Text style={{ color: COLORS.textSecondary }}>{"\u25CB "}</Text>
-            {item}
-            {i < persona.narrativeOverlay.deEmphasis.length - 1 ? "  " : ""}
-          </Text>
-        ))}
-      </Text>
-      <Text style={{ ...styles.bodySmall, fontStyle: "italic" }}>
-        {persona.narrativeOverlay.toneGuidance}
-      </Text>
+      <View wrap={false}>
+        <Text style={styles.sectionLabel}>NARRATIVE LENS</Text>
+        <Text style={styles.body}>{persona.narrativeOverlay.perspective}</Text>
+        <Text style={styles.bodySmall}>
+          {"Emphasize: "}
+          {persona.narrativeOverlay.emphasis.map((item, i) => (
+            <Text key={i}>
+              <Text style={{ color: COLORS.success }}>{"\u25CF "}</Text>
+              {item}
+              {i < persona.narrativeOverlay.emphasis.length - 1 ? "  " : ""}
+            </Text>
+          ))}
+        </Text>
+        <Text style={styles.bodySmall}>
+          {"De-emphasize: "}
+          {persona.narrativeOverlay.deEmphasis.map((item, i) => (
+            <Text key={i}>
+              <Text style={{ color: COLORS.textSecondary }}>{"\u25CB "}</Text>
+              {item}
+              {i < persona.narrativeOverlay.deEmphasis.length - 1 ? "  " : ""}
+            </Text>
+          ))}
+        </Text>
+        <Text style={{ ...styles.bodySmall, fontStyle: "italic" }}>
+          {persona.narrativeOverlay.toneGuidance}
+        </Text>
+      </View>
 
       <View style={styles.divider} />
 
@@ -560,11 +562,11 @@ function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["pers
       <Text style={styles.sectionLabel}>KEY METRICS</Text>
       <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
         <Text style={{ ...styles.tableHeader, flex: 2 }}>Metric</Text>
-        <Text style={{ ...styles.tableHeader, flex: 1 }}>Value</Text>
-        <Text style={{ ...styles.tableHeader, flex: 3 }}>Interpretation</Text>
+        <Text style={{ ...styles.tableHeader, flex: 1.5 }}>Value</Text>
+        <Text style={{ ...styles.tableHeader, flex: 4 }}>Interpretation</Text>
       </View>
       {persona.metricEmphasis.map((metric, i) => (
-        <View key={i} style={styles.tableRow}>
+        <View key={i} style={styles.tableRow} wrap={false}>
           <Text
             style={{
               ...styles.tableCell,
@@ -574,26 +576,28 @@ function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["pers
           >
             {metric.metricName}
           </Text>
-          <Text style={{ ...styles.tableCell, flex: 1 }}>{metric.currentValue}</Text>
-          <Text style={{ ...styles.tableCell, flex: 3 }}>{metric.interpretation}</Text>
+          <Text style={{ ...styles.tableCell, flex: 1.5 }}>{metric.currentValue}</Text>
+          <Text style={{ ...styles.tableCell, flex: 4 }}>{metric.interpretation}</Text>
         </View>
       ))}
 
       <View style={styles.divider} />
 
       {/* Vocabulary Guide */}
-      <Text style={styles.sectionLabel}>VOCABULARY GUIDE</Text>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 4 }}>
-        <Text style={styles.bodySmall}>Use: </Text>
-        {persona.vocabulary.preferred.map((term, i) => (
-          <Text key={i} style={styles.vocabTagPreferred}>{term}</Text>
-        ))}
-      </View>
-      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-        <Text style={styles.bodySmall}>Avoid: </Text>
-        {persona.vocabulary.avoid.map((term, i) => (
-          <Text key={i} style={styles.vocabTagAvoid}>{term}</Text>
-        ))}
+      <View wrap={false}>
+        <Text style={styles.sectionLabel}>VOCABULARY GUIDE</Text>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", marginBottom: 4 }}>
+          <Text style={styles.bodySmall}>Use: </Text>
+          {persona.vocabulary.preferred.map((term, i) => (
+            <Text key={i} style={styles.vocabTagPreferred}>{term}</Text>
+          ))}
+        </View>
+        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+          <Text style={styles.bodySmall}>Avoid: </Text>
+          {persona.vocabulary.avoid.map((term, i) => (
+            <Text key={i} style={styles.vocabTagAvoid}>{term}</Text>
+          ))}
+        </View>
       </View>
     </View>
   );

@@ -16,7 +16,7 @@ personas:
   - team-leader
 status: implemented
 created: 2026-03-10
-updated: 2026-03-10
+updated: 2026-03-12
 ---
 
 # Persona Content in PDF Template
@@ -337,7 +337,7 @@ interface PersonaFraming {
 
 ### React-PDF Rendering Considerations
 
-- **Page breaks**: Section 10 may span multiple pages for 3 personas + blended content. Use `<View wrap={false}>` on individual persona cards to prevent mid-card breaks. Allow page break between cards.
+- **Page breaks**: Section 10 may span multiple pages for 3 personas + blended content. The persona card outer `<View>` does NOT use `wrap={false}` (allowing page breaks mid-card), because real report content with 5 talking points + narrative + metrics + vocabulary exceeds single-page capacity. Instead, `wrap={false}` is applied to individual sub-sections within each card (each TalkingPointPdf, Narrative Lens block, each metric table row, Vocabulary Guide block) to keep atomic units together while allowing the card itself to flow across pages.
 - **Conditional rendering**: Entire Section 10 is conditional on section existence. PersonaFraming callout is conditional on `personaFraming !== null`.
 - **Existing renderers**: ExecutiveSummaryPdf, NarrativeSectionPdf already exist. Add PersonaFraming rendering at the bottom of their output, guarded by null check.
 - **No new pages**: PersonaFraming callouts are inline within existing section pages, not separate pages.
@@ -368,3 +368,8 @@ interface PersonaFraming {
 - **Gotcha**: With 2+ personas rendered, text like "CAGR" appears in talking points, metric emphasis tables, emphasis lists, and vocabulary — causing `getByText` to throw on multiple matches. Use `getAllByText().length > 0` for presence assertions.
 - **Pattern**: Persona cards sort by `selectionOrder` before rendering. Primary persona (order=1) gets gold left border accent + "PRIMARY PERSONA" label. Secondary personas get standard border only.
 - **Pattern**: Blended section only renders when `content.blended !== null` — single-persona reports skip it cleanly with no conditional logic in the caller.
+
+### 2026-03-12
+- **Bug fix (PDF-001)**: `wrap={false}` on the entire PersonaCardPdf outer View caused garbled/overlapping text when real report content exceeded single-page capacity. Fix: removed `wrap={false}` from the card container, added it to individual sub-sections (TalkingPointPdf, Narrative Lens, each metric table row, Vocabulary Guide). This lets cards flow across pages while keeping atomic units together.
+- **Gotcha**: react-pdf `wrap={false}` prevents a View from breaking across pages, but when content exceeds page height, it overlaps instead of flowing — always apply it to the smallest reasonable unit, never a large container with variable-length content.
+- **Fix**: Metric table flex ratios were too tight — Value column changed from `flex: 1` to `flex: 1.5`, Interpretation column from `flex: 3` to `flex: 4` to prevent text cramping.
