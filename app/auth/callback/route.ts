@@ -1,0 +1,55 @@
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
+
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url);
+  const code = searchParams.get("code");
+  const rawNext = searchParams.get("next") ?? "/dashboard";
+  // Prevent open redirect: only allow relative paths starting with /
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//")
+    ? rawNext
+    : "/dashboard";
+
+  if (code) {
+    const cookieStore = await cookies();
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll();
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              );
+            } catch {
+              // Cookies can't be set in some contexts
+            }
+          },
+        },
+      }
+    );
+
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error) {
+      // For email confirmations, send to the verified page so the user
+      // sees a clear success message. For other auth flows (e.g. OAuth),
+      // respect the `next` param.
+      const isEmailConfirmation = searchParams.get("type") === "signup" ||
+        searchParams.get("type") === "email" ||
+        !searchParams.get("type");
+      const destination = isEmailConfirmation ? "/auth/verified" : next;
+      return NextResponse.redirect(`${origin}${destination}`);
+    }
+  }
+
+  // If no code or exchange failed, redirect to sign-in with error
+  return NextResponse.redirect(
+    `${origin}/sign-in?error=confirmation_failed`
+  );
+}

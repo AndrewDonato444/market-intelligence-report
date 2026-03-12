@@ -1,6 +1,7 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -10,6 +11,7 @@ export default function SignUpPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [confirmationSent, setConfirmationSent] = useState(false);
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
@@ -17,9 +19,12 @@ export default function SignUpPage() {
     setError("");
 
     const supabase = createClient();
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
     });
 
     if (error) {
@@ -28,7 +33,79 @@ export default function SignUpPage() {
       return;
     }
 
+    // If email confirmation is required, Supabase returns a user with
+    // identities array empty (or the user isn't fully confirmed).
+    // Show confirmation message instead of redirecting.
+    const needsConfirmation =
+      data.user &&
+      data.user.identities &&
+      data.user.identities.length === 0;
+
+    if (
+      needsConfirmation ||
+      (data.user && !data.session)
+    ) {
+      setConfirmationSent(true);
+      setLoading(false);
+      return;
+    }
+
+    // If no confirmation needed (e.g., dev mode), redirect directly
     router.push("/dashboard");
+  }
+
+  if (confirmationSent) {
+    return (
+      <div className="flex justify-center">
+        <div className="w-full max-w-sm space-y-4 text-center">
+          <div className="w-12 h-12 mx-auto rounded-full bg-[var(--color-accent-light)] flex items-center justify-center">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-6 w-6 text-[var(--color-accent)]"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
+            </svg>
+          </div>
+          <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+            Check Your Email
+          </h2>
+          <p className="text-sm text-[var(--color-text-secondary)]">
+            We sent a confirmation link to{" "}
+            <span className="font-medium text-[var(--color-text)]">{email}</span>.
+            Click the link in your email to activate your account.
+          </p>
+          <div className="pt-2 space-y-3">
+            <button
+              onClick={() => {
+                setConfirmationSent(false);
+                setEmail("");
+                setPassword("");
+              }}
+              className="w-full py-2 border border-[var(--color-border)] text-[var(--color-text-secondary)] rounded-[var(--radius-sm)] text-sm font-medium hover:bg-[var(--color-primary-light)] transition-colors"
+            >
+              Use a different email
+            </button>
+            <p className="text-xs text-[var(--color-text-tertiary)]">
+              Didn&apos;t receive it? Check your spam folder or try again.
+            </p>
+          </div>
+          <p className="text-sm text-[var(--color-text-secondary)] pt-2">
+            Already confirmed?{" "}
+            <Link href="/sign-in" className="text-[var(--color-accent)] hover:underline">
+              Sign In
+            </Link>
+          </p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -66,9 +143,9 @@ export default function SignUpPage() {
         </button>
         <p className="text-sm text-center text-[var(--color-text-secondary)]">
           Already have an account?{" "}
-          <a href="/sign-in" className="text-[var(--color-accent)] hover:underline">
+          <Link href="/sign-in" className="text-[var(--color-accent)] hover:underline">
             Sign In
-          </a>
+          </Link>
         </p>
       </form>
     </div>

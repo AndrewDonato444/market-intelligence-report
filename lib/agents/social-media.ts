@@ -248,7 +248,7 @@ export async function executeSocialMediaAgent(
   try {
     const client = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
     const response = await client.messages.create({
-      model: "claude-sonnet-4-6",
+      model: "claude-haiku-4-5-20251001",
       max_tokens: 16000,
       temperature: 0.7,
       system: systemPrompt,
@@ -296,7 +296,7 @@ export async function executeSocialMediaAgent(
     metadata: {
       promptTokens,
       completionTokens,
-      modelUsed: "claude-sonnet-4-6",
+      modelUsed: "claude-haiku-4-5-20251001",
     },
   };
 }

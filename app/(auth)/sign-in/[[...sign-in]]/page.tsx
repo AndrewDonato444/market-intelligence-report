@@ -1,15 +1,19 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const confirmationError = searchParams.get("error") === "confirmation_failed";
 
   async function handleSignIn(e: React.FormEvent) {
     e.preventDefault();
@@ -37,6 +41,11 @@ export default function SignInPage() {
         <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)] text-center">
           Sign In
         </h2>
+        {confirmationError && (
+          <p className="text-sm text-[var(--color-error)] text-center">
+            Email confirmation failed. Please try signing up again.
+          </p>
+        )}
         {error && (
           <p className="text-sm text-[var(--color-error)] text-center">{error}</p>
         )}
@@ -65,11 +74,19 @@ export default function SignInPage() {
         </button>
         <p className="text-sm text-center text-[var(--color-text-secondary)]">
           Don&apos;t have an account?{" "}
-          <a href="/sign-up" className="text-[var(--color-accent)] hover:underline">
+          <Link href="/sign-up" className="text-[var(--color-accent)] hover:underline">
             Sign Up
-          </a>
+          </Link>
         </p>
       </form>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }

@@ -43,6 +43,7 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/sign-in") ||
     request.nextUrl.pathname.startsWith("/sign-up") ||
     request.nextUrl.pathname.startsWith("/auth/callback") ||
+    request.nextUrl.pathname.startsWith("/auth/verified") ||
     request.nextUrl.pathname.startsWith("/api/webhooks");
 
   // Status pages are accessible without status check (to show the message)
