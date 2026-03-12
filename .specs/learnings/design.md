@@ -18,6 +18,12 @@ Patterns for UI and design system in this codebase.
 
 <!-- Common component structures, composition -->
 
+### 2026-03-12 — Auth Page Visual Differentiation
+- **Pattern**: Split-screen auth layout — layout.tsx is a minimal `flex-col md:flex-row` container; each page owns its own left panel (brand vs sizzle). This avoids route-aware logic in the layout and keeps each page self-contained.
+- **Decision**: Sign-up uses gold (`color-accent`) CTA, sign-in uses navy (`color-primary`) CTA. Visual hierarchy immediately signals which page is for new users vs returning. The sign-in page also has a gold "Create Account" callout below the form to funnel users to sign-up.
+- **Pattern**: Sizzle panel content should be pulled from the landing page for copy consistency — credibility stats, hero headline, testimonial brokerages. Static data only (no API calls). Feature cards use `bg-white/[0.07]` for subtle glass effect on dark backgrounds.
+- **Pattern**: Confirmation state (ConfirmationSent) renders inside the same split-screen layout — the sizzle panel stays visible alongside the "Check Your Email" message so the page doesn't feel like a different app.
+
 ### 2026-03-12 — Soft Gate Banner UX (#174)
 - **Decision**: Entitlement soft gate is an inline banner inside the review step, not a modal/popup. The agent can still see their configuration and edit it. Respects the flow — nothing feels like a paywall wall. Banner uses `role="alert"` for screen reader announcement, disabled button has `aria-describedby` pointing to the banner.
 - **Pattern**: Usage indicator uses conditional styling: `bg-[var(--color-primary-light)]` for normal state, `bg-[var(--color-accent-light)]` for "last report" warning. Warning text uses `text-[var(--color-warning)]`. Unlimited users see no usage indicator at all — they don't need to count.

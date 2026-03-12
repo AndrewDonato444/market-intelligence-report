@@ -1,11 +1,19 @@
 ---
 feature: Authentication with Supabase
 domain: foundation
-source: middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/auth/callback/route.ts, app/auth/verified/page.tsx
+source: middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/layout.tsx, app/auth/callback/route.ts, app/auth/verified/page.tsx
 tests:
   - __tests__/auth/auth.test.tsx
   - __tests__/auth/email-confirmation.test.ts
-components: []
+components:
+  - AuthLayout
+  - SignInPage
+  - SignUpPage
+  - BrandPanel
+  - MobileBrandHeader
+  - SizzlePanel
+  - MobileSizzleHeader
+  - ConfirmationSent
 personas:
   - rising-star-agent
   - legacy-agent
@@ -85,6 +93,222 @@ Given a user is not signed in
 When they navigate to / (landing page)
 Then the page renders without redirect
 
+---
+
+## Feature: Auth Pages Visual Redesign
+
+The sign-in and sign-up pages need to feel like a premium product from the first interaction. Currently both are plain centered forms on a white/gray background with no visual differentiation and no value proposition. The redesign makes each page feel intentional and distinct while communicating the product's premium positioning.
+
+### Design Strategy
+
+**Sign-In**: Clean, efficient, dark — returning users want to get in fast. Navy (`color-primary`) left panel with brand presence, white right panel with form. Minimal friction.
+
+**Sign-Up**: Aspirational, gold-accented — new users need to feel the value. Navy left panel with a "sizzle reel" of what's coming (report preview, key stats, feature highlights). Gold CTA button instead of navy. The sign-up call-to-action must be unmissable.
+
+**Shared Layout**: Split-screen (two-column) on desktop. Left panel is the brand/sizzle panel (dark navy background). Right panel is the form. On mobile, the left panel collapses to a compact brand header.
+
+### Scenario: Sign-in page has split-screen layout with brand panel
+Given a user navigates to /sign-in
+Then they see a two-column layout on desktop (≥768px)
+And the left column has a navy (`color-primary`) background
+And the left column shows the MSA logo/wordmark, tagline "Luxury Market Intelligence", and a subtle gold accent line
+And the right column has a white (`color-surface`) background with the sign-in form
+And the form has a "Welcome back" heading (serif font)
+And the form has labeled email and password inputs with visible labels (not just placeholders)
+And the submit button is navy (`color-primary`) with text "Sign In"
+And below the form is a prominent sign-up callout: "New to Modern Signal Advisory?" with a gold-accented "Create Account" link
+
+### Scenario: Sign-up page has split-screen layout with sizzle panel
+Given a user navigates to /sign-up
+Then they see a two-column layout on desktop (≥768px)
+And the left column has a navy (`color-primary`) background
+And the left column shows a "sizzle" preview of the product:
+  - Heading: "Market Intelligence That Sets You Apart" (serif, text-inverse)
+  - 3 feature highlight cards (semi-transparent white bg):
+    1. "Data-Driven Reports" — "2,000+ luxury transactions analyzed per market"
+    2. "Buyer Persona Intelligence" — "Tailored insights for 8 luxury buyer types"
+    3. "Strategic Advantage" — "Institutional-grade market analysis, beautifully produced"
+  - A subtle mockup/silhouette of a report page (CSS-only, no image dependency)
+And the right column has a white (`color-surface`) background with the sign-up form
+And the form has a "Start Your Intelligence Edge" heading (serif font)
+And the form has labeled email and password inputs with visible labels
+And the submit button is gold (`color-accent`) with navy text "Create Account" — visually distinct from sign-in's navy button
+And below the form: "Already have an account?" with "Sign In" link
+
+### Scenario: Sign-up CTA is visually prominent and distinct from sign-in
+Given a user is viewing either auth page
+Then the sign-up action uses gold (`color-accent`) for its primary CTA (button or link)
+And the sign-in action uses navy (`color-primary`) for its primary CTA
+And the visual hierarchy makes it immediately clear which page is for new users vs returning users
+
+### Scenario: Auth pages are responsive on mobile
+Given a user views either auth page on a screen < 768px
+Then the layout is single-column
+And the left brand/sizzle panel collapses to a compact header:
+  - MSA wordmark + gold accent line
+  - On sign-up: a single-line value prop ("Market intelligence for luxury agents")
+And the form takes the full width below
+And the gold/navy button distinction is preserved
+
+### Scenario: Sign-up sizzle panel communicates product value
+Given a new user lands on /sign-up
+Then the sizzle panel answers "Why should I sign up?" without scrolling
+And the content is static (no API calls, no dynamic data)
+And the feature highlights use the agent's vocabulary (not developer terms)
+And the panel establishes trust: professional typography, navy + gold palette, clean layout
+
+### Scenario: Form inputs have proper labels and focus states
+Given a user is on either auth page
+Then each input has a visible label above it (not just placeholder text)
+And inputs have a `color-border` default border
+And focused inputs have a `color-border-strong` ring
+And the overall form feels polished and intentional (consistent spacing, proper alignment)
+
+---
+
+## UI Mockup
+
+### Sign-In (Desktop ≥768px)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  ┌─ Left Panel (bg: primary, 45%) ────────┐ ┌─ Right Panel (bg: surface) ─┐│
+│  │                                         │ │                             ││
+│  │                                         │ │                             ││
+│  │                                         │ │                             ││
+│  │     MODERN SIGNAL ADVISORY              │ │   Welcome back              ││
+│  │     (font: serif, text: 2xl,            │ │   (font: serif, text: 2xl,  ││
+│  │      color: text-inverse, bold)         │ │    color: primary, bold)    ││
+│  │                                         │ │                             ││
+│  │     Luxury Market Intelligence          │ │   Email                     ││
+│  │     (font: sans, text: sm,              │ │   ┌─────────────────────┐   ││
+│  │      color: text-inverse, opacity 70%)  │ │   │ you@email.com       │   ││
+│  │                                         │ │   └─────────────────────┘   ││
+│  │     ━━━━━━━━━ (color: accent, w: 48px)  │ │                             ││
+│  │                                         │ │   Password                  ││
+│  │                                         │ │   ┌─────────────────────┐   ││
+│  │                                         │ │   │ ••••••••            │   ││
+│  │                                         │ │   └─────────────────────┘   ││
+│  │                                         │ │                             ││
+│  │                                         │ │   ┌─────────────────────┐   ││
+│  │                                         │ │   │     Sign In         │   ││
+│  │                                         │ │   │  (bg: primary,      │   ││
+│  │                                         │ │   │   color: inverse)   │   ││
+│  │                                         │ │   └─────────────────────┘   ││
+│  │                                         │ │                             ││
+│  │                                         │ │   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─   ││
+│  │                                         │ │                             ││
+│  │                                         │ │   New to Modern Signal      ││
+│  │                                         │ │   Advisory?                 ││
+│  │                                         │ │   Create Account →          ││
+│  │                                         │ │   (color: accent, bold)     ││
+│  │                                         │ │                             ││
+│  └─────────────────────────────────────────┘ └─────────────────────────────┘│
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Sign-Up (Desktop ≥768px)
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  ┌─ Left Panel (bg: primary, 45%) ────────┐ ┌─ Right Panel (bg: surface) ─┐│
+│  │                                         │ │                             ││
+│  │     MODERN SIGNAL ADVISORY              │ │                             ││
+│  │     ━━━━━━━━━ (accent line)             │ │                             ││
+│  │                                         │ │   Start Your                ││
+│  │     Market Intelligence That            │ │   Intelligence Edge         ││
+│  │     Sets You Apart                      │ │   (font: serif, text: 2xl,  ││
+│  │     (font: serif, text: xl,             │ │    color: primary, bold)    ││
+│  │      color: text-inverse)               │ │                             ││
+│  │                                         │ │   Email                     ││
+│  │  ┌─ Feature Card (bg: white/10%) ────┐  │ │   ┌─────────────────────┐   ││
+│  │  │  📊 Data-Driven Reports           │  │ │   │ you@email.com       │   ││
+│  │  │  2,000+ luxury transactions       │  │ │   └─────────────────────┘   ││
+│  │  │  analyzed per market              │  │ │                             ││
+│  │  └──────────────────────────────────┘  │ │   Password                  ││
+│  │                                         │ │   ┌─────────────────────┐   ││
+│  │  ┌─ Feature Card (bg: white/10%) ────┐  │ │   │ ••••••••            │   ││
+│  │  │  👤 Buyer Persona Intelligence    │  │ │   └─────────────────────┘   ││
+│  │  │  Tailored insights for 8 luxury   │  │ │   (min 6 characters)        ││
+│  │  │  buyer types                      │  │ │                             ││
+│  │  └──────────────────────────────────┘  │ │   ┌─────────────────────┐   ││
+│  │                                         │ │   │   Create Account    │   ││
+│  │  ┌─ Feature Card (bg: white/10%) ────┐  │ │   │  (bg: accent,      │   ││
+│  │  │  🏆 Strategic Advantage           │  │ │   │   color: primary,   │   ││
+│  │  │  Institutional-grade analysis,    │  │ │   │   font: semibold)   │   ││
+│  │  │  beautifully produced             │  │ │   └─────────────────────┘   ││
+│  │  └──────────────────────────────────┘  │ │                             ││
+│  │                                         │ │   Already have an account?  ││
+│  │                                         │ │   Sign In →                 ││
+│  │                                         │ │   (color: accent)           ││
+│  └─────────────────────────────────────────┘ └─────────────────────────────┘│
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### Mobile (<768px) — Sign-Up Example
+
+```
+┌────────────────────────────────┐
+│                                │
+│  ┌─ Brand Header (bg: primary, │
+│  │  compact) ────────────────┐ │
+│  │  MODERN SIGNAL ADVISORY   │ │
+│  │  ━━━━ (accent)            │ │
+│  │  Market intelligence for  │ │
+│  │  luxury agents            │ │
+│  └───────────────────────────┘ │
+│                                │
+│  Start Your Intelligence Edge  │
+│  (font: serif, text: xl)       │
+│                                │
+│  Email                         │
+│  ┌──────────────────────────┐  │
+│  │ you@email.com             │  │
+│  └──────────────────────────┘  │
+│                                │
+│  Password                      │
+│  ┌──────────────────────────┐  │
+│  │ ••••••••                  │  │
+│  └──────────────────────────┘  │
+│  (min 6 characters)            │
+│                                │
+│  ┌──────────────────────────┐  │
+│  │    Create Account         │  │
+│  │   (bg: accent, gold)      │  │
+│  └──────────────────────────┘  │
+│                                │
+│  Already have an account?      │
+│  Sign In →                     │
+│                                │
+└────────────────────────────────┘
+```
+
+---
+
+## User Journey
+
+1. Agent discovers MSA (marketing, referral, search)
+2. Lands on landing page or is linked directly to `/sign-up`
+3. **Sign-Up page** — sizzle panel sells the value, gold CTA is unmissable
+4. Completes sign-up → "Check Your Email" confirmation
+5. Confirms email → `/auth/verified` success page
+6. **Sign-In page** — clean, efficient, gets them to dashboard fast
+7. Authenticated → `/dashboard`
+
+---
+
+## Component References
+
+- AuthLayout: `app/(auth)/layout.tsx` — shared split-screen container
+- SignInPage: `app/(auth)/sign-in/[[...sign-in]]/page.tsx`
+- SignUpPage: `app/(auth)/sign-up/[[...sign-up]]/page.tsx`
+
+---
+
 ## Technical Notes
 
 - Supabase middleware refreshes sessions and protects routes
@@ -100,3 +324,16 @@ Then the page renders without redirect
 - Email confirmation callback redirects to `/auth/verified` (not `/dashboard`) so user sees a clear success message
 - `/auth/verified` is a public route (allowed in middleware without auth) since the user isn't signed in yet
 - For non-email auth flows (e.g. OAuth), callback respects the `next` query param (defaults to `/dashboard`)
+
+### Visual Redesign Implementation Notes
+
+- Layout changes are in `app/(auth)/layout.tsx` — becomes a split-screen container
+- Left panel content varies by route: pass `variant` prop or use route-aware logic in layout
+- Sizzle content is static — no API calls, no dynamic data, pure presentational
+- Feature highlight icons can be simple SVG or emoji — no external image dependencies
+- Gold CTA on sign-up uses `color-accent` / `color-accent-hover` from tokens
+- Mobile breakpoint at `screen-md` (768px) — use Tailwind `md:` prefix
+- No new dependencies needed — pure Tailwind + existing design tokens
+- Ensure "Check Your Email" confirmation state still looks correct in the new layout
+
+## Learnings
