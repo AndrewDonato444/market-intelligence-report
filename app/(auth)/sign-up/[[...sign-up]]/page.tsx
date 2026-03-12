@@ -1,5 +1,6 @@
 "use client";
 
+import { PasswordInput } from "@/components/ui/password-input";
 import { createClient } from "@/lib/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -281,15 +282,14 @@ export default function SignUpPage() {
               >
                 Password
               </label>
-              <input
+              <PasswordInput
                 id="password"
-                type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+                autoComplete="new-password"
                 placeholder="Create a password"
-                className="w-full px-[var(--spacing-3)] py-[var(--spacing-2)] border border-[var(--color-border)] rounded-[var(--radius-sm)] font-[family-name:var(--font-inter)] text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-strong)] focus:border-transparent transition-shadow duration-[var(--duration-fast)]"
               />
               <p className="font-[family-name:var(--font-inter)] text-xs text-[var(--color-text-tertiary)] mt-[var(--spacing-1)]">
                 Minimum 6 characters
