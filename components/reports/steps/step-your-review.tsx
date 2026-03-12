@@ -305,7 +305,17 @@ export function StepYourReview({
             }),
           });
 
-          if (!marketRes.ok) throw new Error("Failed to create market");
+          if (!marketRes.ok) {
+            if (marketRes.status === 403) {
+              const errData = await marketRes.json().catch(() => ({}));
+              setError(
+                "You've reached your market limit. Use an existing market or upgrade your plan."
+              );
+              setIsSubmitting(false);
+              return;
+            }
+            throw new Error("Failed to create market");
+          }
           const marketJson = await marketRes.json();
           marketId = marketJson.market.id;
           createdMarketIdRef.current = marketId;

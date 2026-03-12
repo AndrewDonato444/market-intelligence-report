@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageTransition } from "@/lib/animations";
@@ -12,6 +12,17 @@ import type { StepMarketData } from "@/components/reports/steps/step-your-market
 import type { StepTierData } from "@/components/reports/steps/step-your-tier";
 import type { StepFocusData } from "@/components/reports/steps/step-your-focus";
 import type { PageDirection } from "@/lib/animations";
+
+// "View Plans" target — update when #177 (Account & Billing page) is built
+const VIEW_PLANS_HREF = "/account";
+
+// Entitlement check result shape
+interface EntitlementState {
+  allowed: boolean;
+  limit: number;
+  used: number;
+  remaining: number;
+}
 
 // ---------------------------------------------------------------------------
 // Steps (3 only — no audience / review / generate)
@@ -61,6 +72,11 @@ export function MarketCreationShell({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Entitlement state (create mode only)
+  const [entitlement, setEntitlement] = useState<EntitlementState | null>(null);
+  const [entitlementLoading, setEntitlementLoading] = useState(!isEdit);
+  const [gateDismissed, setGateDismissed] = useState(false);
+
   // Data refs — pre-populate in edit mode
   const marketDataRef = useRef<StepMarketData | null>(
     initialData
@@ -94,6 +110,48 @@ export function MarketCreationShell({
 
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === STEPS.length - 1;
+
+  // Fetch entitlement check when reaching step 3 (create mode only)
+  useEffect(() => {
+    if (isEdit || currentStep !== 2) return;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    setEntitlementLoading(true);
+    fetch("/api/entitlements/check?type=markets_created", {
+      signal: controller.signal,
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data: EntitlementState) => {
+        setEntitlement(data);
+        setEntitlementLoading(false);
+      })
+      .catch(() => {
+        // Fail-open: enable button, hide usage indicator
+        setEntitlement(null);
+        setEntitlementLoading(false);
+      })
+      .finally(() => clearTimeout(timeout));
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, [isEdit, currentStep]);
+
+  // Entitlement-derived state
+  const isUnlimited = entitlement?.limit === -1;
+  const isCapHit = entitlement !== null && !entitlement.allowed;
+  const isLastMarket =
+    entitlement !== null &&
+    entitlement.allowed &&
+    entitlement.remaining === 1 &&
+    !isUnlimited;
+  const showUsageIndicator =
+    entitlement !== null && !isUnlimited && !entitlementLoading && isLastStep && !isEdit;
+  const isSaveDisabled =
+    saving || (!isEdit && (entitlementLoading || isCapHit));
 
   // --- Navigation ---
   const handleNext = () => {
@@ -245,6 +303,71 @@ export function MarketCreationShell({
           </AnimatePresence>
         </div>
 
+        {/* Entitlement: Loading skeleton (step 3, create mode) */}
+        {isLastStep && !isEdit && entitlementLoading && (
+          <div
+            aria-busy="true"
+            aria-label="Checking market availability"
+            className="mt-4 rounded-[var(--radius-sm)] bg-[var(--color-primary-light)] p-[var(--spacing-2)]"
+          >
+            <div className="h-3.5 w-44 bg-[var(--color-border)] rounded animate-pulse" />
+          </div>
+        )}
+
+        {/* Entitlement: Usage indicator (when quota remains) */}
+        {showUsageIndicator && !isCapHit && (
+          <div
+            aria-label={`Market usage: ${entitlement.used} of ${entitlement.limit} markets defined`}
+            className={`mt-4 rounded-[var(--radius-sm)] p-[var(--spacing-2)] ${
+              isLastMarket
+                ? "bg-[var(--color-accent-light)]"
+                : "bg-[var(--color-primary-light)]"
+            }`}
+          >
+            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+              {entitlement.used} of {entitlement.limit} markets defined
+            </p>
+            {isLastMarket && (
+              <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-warning)] mt-0.5">
+                This is your last available market on the Professional plan
+              </p>
+            )}
+          </div>
+        )}
+
+        {/* Entitlement: Soft gate banner (when cap is hit) */}
+        {isLastStep && !isEdit && isCapHit && !gateDismissed && (
+          <div
+            role="alert"
+            id="entitlement-gate-banner"
+            className="mt-4 border border-[var(--color-border-strong)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-surface)] p-[var(--spacing-6)]"
+          >
+            <h3 className="font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-text)]">
+              You&apos;ve Reached Your Market Limit
+            </h3>
+            <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+              Your current market is still fully active. Upgrade to
+              Professional to define up to 3 markets — track multiple
+              geographies and give your clients broader intelligence.
+            </p>
+            <div className="flex items-center gap-4 mt-4">
+              <a
+                href={VIEW_PLANS_HREF}
+                className="inline-block px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] hover:bg-[var(--color-accent-hover)]"
+              >
+                View Plans
+              </a>
+              <button
+                type="button"
+                onClick={() => setGateDismissed(true)}
+                className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] underline"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Error message */}
         {error && (
           <p className="mt-4 text-sm text-[var(--color-error)] font-[family-name:var(--font-sans)]">
@@ -270,8 +393,10 @@ export function MarketCreationShell({
               <button
                 type="button"
                 onClick={handleSave}
-                disabled={saving}
-                className="px-6 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50"
+                disabled={isSaveDisabled}
+                aria-disabled={isCapHit || undefined}
+                aria-describedby={isCapHit ? "entitlement-gate-banner" : undefined}
+                className="px-6 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-accent)]"
               >
                 {saving
                   ? "Saving…"

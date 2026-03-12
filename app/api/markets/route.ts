@@ -6,6 +6,8 @@ import {
   validateMarketData,
 } from "@/lib/services/market";
 import { logActivity } from "@/lib/services/activity-log";
+import { checkEntitlement } from "@/lib/services/entitlement-check";
+import { incrementUsage } from "@/lib/services/usage-tracking";
 
 export async function GET() {
   const userId = await getAuthUserId();
@@ -41,8 +43,22 @@ export async function POST(request: Request) {
     );
   }
 
+  // Server-side entitlement check — authoritative gate
+  const entitlement = await checkEntitlement(userId, "markets_created");
+  if (!entitlement.allowed) {
+    return NextResponse.json(
+      { error: "Market limit reached", entitlement },
+      { status: 403 }
+    );
+  }
+
   try {
     const market = await createMarket(userId, validation.data!);
+
+    // Increment usage after successful creation (fire-and-forget)
+    incrementUsage(userId, "markets_created").catch((err) => {
+      console.error("[POST /api/markets] Failed to increment usage:", err);
+    });
 
     // Log activity (fire-and-forget)
     logActivity({
