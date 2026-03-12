@@ -1,0 +1,280 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+
+interface HowToContentProps {
+  hasMarkets: boolean;
+  hasReports: boolean;
+}
+
+// --- Checklist ---
+
+function QuickStartChecklist({
+  hasMarkets,
+  hasReports,
+}: {
+  hasMarkets: boolean;
+  hasReports: boolean;
+}) {
+  const items = [
+    { label: "Define at least one market", complete: hasMarkets },
+    { label: "Generate your first report", complete: hasReports },
+    { label: "Review your social media kit", complete: false },
+  ];
+
+  return (
+    <div
+      data-testid="quick-start-checklist"
+      className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] p-[var(--spacing-6)]"
+    >
+      <p className="font-[family-name:var(--font-sans)] text-sm font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-[var(--spacing-4)]">
+        Your Progress
+      </p>
+      <ul className="space-y-[var(--spacing-3)]">
+        {items.map((item) => (
+          <li
+            key={item.label}
+            className="flex items-center gap-[var(--spacing-3)] font-[family-name:var(--font-sans)] text-base"
+          >
+            {item.complete ? (
+              <span
+                data-testid="checklist-complete"
+                className="text-[var(--color-accent)] flex-shrink-0"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+              </span>
+            ) : (
+              <span
+                data-testid="checklist-incomplete"
+                className="text-[var(--color-text-secondary)] opacity-40 flex-shrink-0"
+              >
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                </svg>
+              </span>
+            )}
+            <span className={item.complete ? "text-[var(--color-text)]" : "text-[var(--color-text-secondary)]"}>
+              {item.label}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+// --- Step Card ---
+
+function StepCard({
+  number,
+  title,
+  description,
+  ctaText,
+  ctaHref,
+  disabled,
+  testId,
+}: {
+  number: number;
+  title: string;
+  description: string;
+  ctaText: string;
+  ctaHref?: string;
+  disabled?: boolean;
+  testId: string;
+}) {
+  return (
+    <div
+      data-testid={testId}
+      className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] p-[var(--spacing-6)]"
+    >
+      <div className="flex items-start gap-[var(--spacing-4)]">
+        <span className="font-[family-name:var(--font-serif)] text-2xl font-semibold text-[var(--color-accent)] flex-shrink-0 leading-none mt-1">
+          {number}
+        </span>
+        <div className="flex-1 min-w-0">
+          <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-[var(--spacing-2)]">
+            {title}
+          </h2>
+          <p className="font-[family-name:var(--font-sans)] text-base text-[var(--color-text-secondary)] leading-relaxed mb-[var(--spacing-4)]">
+            {description}
+          </p>
+          {disabled ? (
+            <span className="inline-block font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text-secondary)] bg-[var(--color-border)] px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-md)]">
+              {ctaText}
+            </span>
+          ) : (
+            <Link
+              href={ctaHref || "#"}
+              className="inline-block font-[family-name:var(--font-sans)] text-sm font-medium text-white bg-[var(--color-accent)] hover:opacity-90 px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-md)] transition-opacity duration-[var(--duration-default)]"
+            >
+              {ctaText}
+            </Link>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// --- FAQ Accordion ---
+
+const faqItems = [
+  {
+    question: "How long does a report take to generate?",
+    answer:
+      "Most market intelligence briefs are ready in under five minutes. The analysis engine examines recent transactions, market dynamics, and competitive positioning to produce a publication-quality document.",
+  },
+  {
+    question: "What data sources power the analysis?",
+    answer:
+      "The platform draws from multiple real estate data providers, public records, and market news sources. Data is cross-referenced and validated to ensure accuracy and relevance to your specific market.",
+  },
+  {
+    question: "Can I customize which sections appear in my report?",
+    answer:
+      "Each report is structured around the key sections that matter most to luxury market advisors: executive summary, market analysis, competitive landscape, and forward outlook. Section emphasis adapts to your market's characteristics.",
+  },
+  {
+    question: "How do I add peer markets for comparison?",
+    answer:
+      "After defining your primary market, navigate to the market detail page and select peer markets for comparison. The analysis will include cross-market dynamics and relative positioning.",
+  },
+  {
+    question: "What is the Social Media Kit?",
+    answer:
+      "Each completed report includes a Social Media Kit — ready-to-post commentary distilled from your market intelligence. These position you as a knowledgeable market authority across your professional channels.",
+  },
+];
+
+function FaqAccordion() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+  return (
+    <div data-testid="faq-section">
+      <h2 className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-text)] mb-[var(--spacing-4)]">
+        Common Questions
+      </h2>
+      <div className="border-t border-[var(--color-border)]">
+        {faqItems.map((item, idx) => {
+          const isOpen = openIndex === idx;
+          return (
+            <div key={idx} className="border-b border-[var(--color-border)]">
+              <button
+                onClick={() => setOpenIndex(isOpen ? null : idx)}
+                className="w-full flex items-center justify-between py-[var(--spacing-4)] text-left font-[family-name:var(--font-sans)] text-base font-medium text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors duration-[var(--duration-default)]"
+                aria-expanded={isOpen}
+              >
+                {item.question}
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className={`flex-shrink-0 ml-[var(--spacing-2)] text-[var(--color-text-secondary)] transition-transform duration-[var(--duration-default)] ${isOpen ? "rotate-180" : ""}`}
+                >
+                  <polyline points="6 9 12 15 18 9" />
+                </svg>
+              </button>
+              <div
+                data-testid="faq-answer"
+                aria-hidden={!isOpen}
+                hidden={!isOpen}
+                className="pb-[var(--spacing-4)]"
+              >
+                <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                  {item.answer}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// --- Main Content Component ---
+
+export function HowToContent({ hasMarkets, hasReports }: HowToContentProps) {
+  return (
+    <div className="max-w-2xl mx-auto space-y-[var(--spacing-8)]">
+      {/* Header */}
+      <div>
+        <h1 className="font-[family-name:var(--font-serif)] text-3xl font-semibold text-[var(--color-text)] mb-[var(--spacing-2)]">
+          Getting Started
+        </h1>
+        <p className="font-[family-name:var(--font-sans)] text-base text-[var(--color-text-secondary)]">
+          Your guide to creating market intelligence that positions you as the
+          authority your clients expect.
+        </p>
+      </div>
+
+      {/* Checklist */}
+      <QuickStartChecklist hasMarkets={hasMarkets} hasReports={hasReports} />
+
+      {/* Steps */}
+      <div className="space-y-[var(--spacing-6)]">
+        <StepCard
+          number={1}
+          title="Define Your Market"
+          description="Every great market brief starts with a clearly defined territory. Set your geographic focus, price range, and property types so the analysis speaks directly to your clients' interests."
+          ctaText={hasMarkets ? "View Your Markets" : "Define Your First Market"}
+          ctaHref={hasMarkets ? "/markets" : "/markets/new"}
+          testId="step-1"
+        />
+        <StepCard
+          number={2}
+          title="Generate Your Report"
+          description="Our analysis engine examines recent transactions, market trends, and competitive dynamics to produce a publication-quality intelligence brief — typically in under five minutes."
+          ctaText={
+            hasReports ? "Create Another Report" : "Generate Your First Report"
+          }
+          ctaHref="/reports/new"
+          testId="step-2"
+        />
+        <StepCard
+          number={3}
+          title="Share Your Intelligence"
+          description="Each report includes a Social Media Kit — ready-to-post commentary that positions you as the market authority your clients expect."
+          ctaText={
+            hasReports
+              ? "View Social Media Kit"
+              : "Coming after your first report"
+          }
+          ctaHref={hasReports ? "/reports" : undefined}
+          disabled={!hasReports}
+          testId="step-3"
+        />
+      </div>
+
+      {/* FAQ */}
+      <FaqAccordion />
+    </div>
+  );
+}
