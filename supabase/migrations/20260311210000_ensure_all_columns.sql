@@ -69,7 +69,8 @@ ALTER TABLE reports ADD COLUMN IF NOT EXISTS share_token_expires_at TIMESTAMPTZ;
 -- share_token unique constraint (may already exist)
 DO $$ BEGIN
   ALTER TABLE reports ADD CONSTRAINT reports_share_token_unique UNIQUE (share_token);
-EXCEPTION WHEN duplicate_object THEN NULL;
+EXCEPTION WHEN duplicate_table THEN NULL;
+  WHEN duplicate_object THEN NULL;
 END $$;
 
 CREATE INDEX IF NOT EXISTS reports_share_token_idx ON reports (share_token);

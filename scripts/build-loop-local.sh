@@ -249,10 +249,12 @@ run_agent() {
     local model="${step_model:-$AGENT_MODEL}"
 
     if [ "$CLI_PROVIDER" = "claude" ]; then
+        # IMPORTANT: Unset ANTHROPIC_API_KEY so Claude CLI uses OAuth (free tier)
+        # instead of the production API key from .env.local which incurs charges.
         if [ -n "$model" ]; then
-            claude -p "$prompt" --output-format text --allowedTools Read,Edit,Bash,Grep,Glob --model "$model"
+            env -u ANTHROPIC_API_KEY claude -p "$prompt" --output-format text --allowedTools Read,Edit,Bash,Grep,Glob --model "$model"
         else
-            claude -p "$prompt" --output-format text --allowedTools Read,Edit,Bash,Grep,Glob
+            env -u ANTHROPIC_API_KEY claude -p "$prompt" --output-format text --allowedTools Read,Edit,Bash,Grep,Glob
         fi
     else
         if [ -n "$model" ]; then
@@ -1144,7 +1146,7 @@ else
         cleanup_all_worktrees
     fi
 
-    local total_elapsed=$(( $(date +%s) - SCRIPT_START ))
+    total_elapsed=$(( $(date +%s) - SCRIPT_START ))
 
     echo ""
     echo "═══════════════════════════════════════════════════════════"

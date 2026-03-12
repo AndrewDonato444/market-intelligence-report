@@ -88,14 +88,22 @@ export function LandingNav() {
             </svg>
           </button>
 
+          {/* Sign In */}
+          <Link
+            href="/sign-in"
+            className={`hidden md:inline-block font-[family-name:var(--font-inter)] text-sm transition-colors duration-[var(--duration-default)] ${
+              scrolled
+                ? "text-[var(--color-text-secondary)] hover:text-[var(--color-primary)]"
+                : "text-[var(--color-text-tertiary)] hover:text-[var(--color-text-inverse)]"
+            }`}
+          >
+            Sign In
+          </Link>
+
           {/* CTA */}
           <Link
             href="/sign-up"
-            className={`hidden md:inline-block font-[family-name:var(--font-inter)] text-sm font-medium transition-all duration-[var(--duration-default)] ${
-              scrolled
-                ? "bg-[var(--color-accent)] text-[var(--color-primary)] px-5 py-2 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)]"
-                : "bg-[var(--color-accent)] text-[var(--color-primary)] px-5 py-2 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)]"
-            }`}
+            className="hidden md:inline-block font-[family-name:var(--font-inter)] text-sm font-medium transition-all duration-[var(--duration-default)] bg-[var(--color-accent)] text-[var(--color-primary)] px-5 py-2 rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)]"
           >
             Commission a Report
           </Link>
@@ -115,6 +123,13 @@ export function LandingNav() {
               {link.label}
             </a>
           ))}
+          <Link
+            href="/sign-in"
+            onClick={() => setMobileOpen(false)}
+            className="block font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-secondary)]"
+          >
+            Sign In
+          </Link>
           <Link
             href="/sign-up"
             onClick={() => setMobileOpen(false)}
