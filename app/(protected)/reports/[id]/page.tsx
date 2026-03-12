@@ -5,7 +5,6 @@ import { getSocialMediaKit } from "@/lib/services/social-media-kit";
 import { PipelineStatusDashboard } from "@/components/reports/pipeline-status";
 import { ReportPreview } from "@/components/reports/report-preview";
 import { ReportActions } from "@/components/reports/report-actions";
-import { ReportEditor } from "@/components/reports/report-editor";
 import { GenerateKitButton } from "@/components/reports/generate-kit-button";
 
 export default async function ReportDetailPage({
@@ -58,16 +57,6 @@ export default async function ReportDetailPage({
             reportId={id}
             initialKitStatus={kit ? (kit.status as "queued" | "generating" | "completed" | "failed") : "none"}
             initialErrorMessage={kit?.errorMessage ?? null}
-          />
-          <ReportEditor
-            reportId={id}
-            sections={sections.map((s) => ({
-              id: s.id,
-              sectionType: s.sectionType,
-              title: s.title,
-              content: s.content as Record<string, unknown>,
-              sortOrder: s.sortOrder,
-            }))}
           />
           <ReportPreview sections={sections} />
         </>

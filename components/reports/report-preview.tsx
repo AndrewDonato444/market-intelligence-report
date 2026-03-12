@@ -231,11 +231,94 @@ function NarrativeSectionRenderer({
   );
 }
 
-function GenericSectionRenderer({ content }: { content: unknown }) {
+function DisclaimerMethodologyRenderer({
+  content,
+}: {
+  content: {
+    narrative?: string;
+    highlights?: string[];
+    methodology?: string;
+    dataDisclaimer?: string;
+  };
+}) {
   return (
-    <pre className="font-[family-name:var(--font-mono)] text-xs text-[var(--color-text-secondary)] bg-[var(--color-background)] p-3 rounded-[var(--radius-sm)] overflow-auto max-h-64">
-      {JSON.stringify(content, null, 2)}
-    </pre>
+    <div className="space-y-3">
+      {content.narrative && (
+        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] leading-relaxed">
+          {content.narrative}
+        </p>
+      )}
+      {content.highlights && content.highlights.length > 0 && (
+        <ul className="list-disc list-inside space-y-1">
+          {content.highlights.map((h, i) => (
+            <li
+              key={i}
+              className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)]"
+            >
+              {h}
+            </li>
+          ))}
+        </ul>
+      )}
+      {content.methodology && (
+        <div>
+          <h4 className="font-[family-name:var(--font-sans)] text-xs font-semibold text-[var(--color-text-secondary)] uppercase mb-1">
+            Methodology
+          </h4>
+          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] leading-relaxed">
+            {content.methodology}
+          </p>
+        </div>
+      )}
+      {content.dataDisclaimer && (
+        <div>
+          <h4 className="font-[family-name:var(--font-sans)] text-xs font-semibold text-[var(--color-text-secondary)] uppercase mb-1">
+            Data Disclaimer
+          </h4>
+          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] leading-relaxed">
+            {content.dataDisclaimer}
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function GenericSectionRenderer({ content }: { content: unknown }) {
+  const data = content as Record<string, unknown> | null;
+  const narrative =
+    data && typeof data.narrative === "string" ? data.narrative : null;
+  const highlights =
+    data && Array.isArray(data.highlights) ? (data.highlights as string[]) : null;
+
+  if (narrative || (highlights && highlights.length > 0)) {
+    return (
+      <div className="space-y-3">
+        {narrative && (
+          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] leading-relaxed">
+            {narrative}
+          </p>
+        )}
+        {highlights && highlights.length > 0 && (
+          <ul className="list-disc list-inside space-y-1">
+            {highlights.map((h, i) => (
+              <li
+                key={i}
+                className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)]"
+              >
+                {h}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] italic">
+      Full content available in the PDF download.
+    </p>
   );
 }
 
@@ -258,6 +341,9 @@ export function SectionRenderer({ section }: { section: ReportSection }) {
     case "executive_summary":
     case "strategic_summary":
       body = <NarrativeSectionRenderer content={content as any} />;
+      break;
+    case "disclaimer_methodology":
+      body = <DisclaimerMethodologyRenderer content={content as any} />;
       break;
     default:
       body = <GenericSectionRenderer content={content} />;

@@ -175,7 +175,7 @@ describe("Report Editor", () => {
   });
 
   describe("Report detail page integration", () => {
-    it("report detail page imports ReportEditor", () => {
+    it("report detail page does NOT import ReportEditor (read-only view)", () => {
       const content = fs.readFileSync(
         path.join(
           process.cwd(),
@@ -183,7 +183,7 @@ describe("Report Editor", () => {
         ),
         "utf-8"
       );
-      expect(content).toContain("ReportEditor");
+      expect(content).not.toContain("ReportEditor");
     });
   });
 });
