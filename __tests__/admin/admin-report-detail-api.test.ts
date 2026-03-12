@@ -105,6 +105,14 @@ jest.mock("@/lib/db", () => ({
       cached: "api_usage.cached",
       createdAt: "api_usage.created_at",
     },
+    socialMediaKits: {
+      id: "social_media_kits.id",
+      reportId: "social_media_kits.report_id",
+      status: "social_media_kits.status",
+      content: "social_media_kits.content",
+      generatedAt: "social_media_kits.generated_at",
+      errorMessage: "social_media_kits.error_message",
+    },
   },
 }));
 

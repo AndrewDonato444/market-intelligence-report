@@ -23,6 +23,22 @@ export interface ReportDetailApiUsage {
   createdAt: string;
 }
 
+export interface SocialMediaKitSummary {
+  id: string;
+  status: string;
+  generatedAt: string | null;
+  errorMessage: string | null;
+  contentCounts: {
+    postIdeas: number;
+    captions: number;
+    personaPosts: number;
+    polls: number;
+    conversationStarters: number;
+    statCallouts: number;
+    calendarSuggestions: number;
+  };
+}
+
 export interface ReportDetailResponse {
   report: {
     id: string;
@@ -72,6 +88,7 @@ export interface ReportDetailResponse {
   sections: ReportDetailSection[];
   apiUsage: ReportDetailApiUsage[];
   totalApiCost: string;
+  socialMediaKit: SocialMediaKitSummary | null;
 }
 
 function toISOOrNull(val: Date | string | null): string | null {
@@ -164,6 +181,19 @@ export async function GET(
       .from(schema.apiUsage)
       .where(eq(schema.apiUsage.reportId, id));
 
+    // Fetch social media kit for this report
+    const kitRows = await db
+      .select({
+        id: schema.socialMediaKits.id,
+        status: schema.socialMediaKits.status,
+        generatedAt: schema.socialMediaKits.generatedAt,
+        errorMessage: schema.socialMediaKits.errorMessage,
+        content: schema.socialMediaKits.content,
+      })
+      .from(schema.socialMediaKits)
+      .where(eq(schema.socialMediaKits.reportId, id))
+      .limit(1);
+
     // Compute generation time
     const startedAt = reportRow.generationStartedAt;
     const completedAt = reportRow.generationCompletedAt;
@@ -226,6 +256,27 @@ export async function GET(
         createdAt: a.createdAt.toISOString(),
       })),
       totalApiCost: costResult?.total ? String(Number(costResult.total).toFixed(4)) : "0.0000",
+      socialMediaKit: kitRows.length > 0
+        ? (() => {
+            const kit = kitRows[0];
+            const content = kit.content as Record<string, unknown[]> | null;
+            return {
+              id: kit.id,
+              status: kit.status,
+              generatedAt: toISOOrNull(kit.generatedAt),
+              errorMessage: kit.errorMessage,
+              contentCounts: {
+                postIdeas: content?.postIdeas?.length ?? 0,
+                captions: content?.captions?.length ?? 0,
+                personaPosts: content?.personaPosts?.length ?? 0,
+                polls: content?.polls?.length ?? 0,
+                conversationStarters: content?.conversationStarters?.length ?? 0,
+                statCallouts: content?.statCallouts?.length ?? 0,
+                calendarSuggestions: content?.calendarSuggestions?.length ?? 0,
+              },
+            };
+          })()
+        : null,
     };
 
     return NextResponse.json(response);

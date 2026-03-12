@@ -108,10 +108,36 @@ export async function GET(_request: NextRequest) {
         )
       );
 
+    // Social media kit metrics
+    const [totalKitsCompleted] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(schema.socialMediaKits)
+      .where(eq(schema.socialMediaKits.status, "completed"));
+
+    const [kitsCompleted30d] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(schema.socialMediaKits)
+      .where(and(eq(schema.socialMediaKits.status, "completed"), gte(schema.socialMediaKits.createdAt, since30d)));
+
+    const [completedReports30d] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(schema.reports)
+      .where(and(eq(schema.reports.status, "completed"), gte(schema.reports.createdAt, since30d)));
+
+    const [kitsFailed30d] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(schema.socialMediaKits)
+      .where(and(eq(schema.socialMediaKits.status, "failed"), gte(schema.socialMediaKits.createdAt, since30d)));
+
     const f7d = Number(failed7d?.count ?? 0);
     const t7d = Number(total7d?.count ?? 0);
     const f30d = Number(failed30d?.count ?? 0);
     const t30d = Number(total30d?.count ?? 0);
+
+    const kitsCompleted = Number(kitsCompleted30d?.count ?? 0);
+    const completedReps = Number(completedReports30d?.count ?? 0);
+    const kitsFailed = Number(kitsFailed30d?.count ?? 0);
+    const kitsTotal30d = kitsCompleted + kitsFailed;
 
     return NextResponse.json({
       reportVolume: {
@@ -140,6 +166,13 @@ export async function GET(_request: NextRequest) {
       avgGenerationTime: {
         last7d: avgGen7d?.avg != null ? Number(Number(avgGen7d.avg).toFixed(1)) : 0,
         last30d: avgGen30d?.avg != null ? Number(Number(avgGen30d.avg).toFixed(1)) : 0,
+      },
+      socialMediaKits: {
+        totalGenerated: Number(totalKitsCompleted?.count ?? 0),
+        generatedLast30d: kitsCompleted,
+        generationRate: completedReps > 0 ? Number((kitsCompleted / completedReps).toFixed(4)) : 0,
+        failedLast30d: kitsFailed,
+        failureRate: kitsTotal30d > 0 ? Number((kitsFailed / kitsTotal30d).toFixed(4)) : 0,
       },
     });
   } catch (error) {

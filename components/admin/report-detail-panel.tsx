@@ -254,7 +254,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
 
   if (!data) return null;
 
-  const { report, user, market, sections, apiUsage, totalApiCost } = data;
+  const { report, user, market, sections, apiUsage, totalApiCost, socialMediaKit } = data;
   const statusStyle = STATUS_COLORS[report.status] || STATUS_COLORS.queued;
 
   return (
@@ -598,6 +598,85 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
             </tbody>
           </table>
         )}
+      </div>
+
+      {/* Social Media Kit */}
+      <div
+        style={{
+          background: "var(--color-surface)",
+          borderRadius: "var(--radius-md)",
+          border: "1px solid var(--color-border)",
+          marginBottom: "var(--spacing-6)",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ padding: "var(--spacing-4)", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ fontSize: "var(--text-base)", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+            Social Media Kit
+          </h2>
+          {socialMediaKit && (
+            <span
+              style={{
+                padding: "var(--spacing-1) var(--spacing-3)",
+                borderRadius: "var(--radius-sm)",
+                fontSize: "var(--text-xs)",
+                fontWeight: 600,
+                textTransform: "capitalize",
+                color: (STATUS_COLORS[socialMediaKit.status] || STATUS_COLORS.queued).color,
+                background: (STATUS_COLORS[socialMediaKit.status] || STATUS_COLORS.queued).bg,
+              }}
+            >
+              {socialMediaKit.status}
+            </span>
+          )}
+        </div>
+        <div style={{ padding: "var(--spacing-4)" }}>
+          {!socialMediaKit ? (
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", margin: 0 }}>
+              No kit generated
+            </p>
+          ) : socialMediaKit.status === "failed" ? (
+            <>
+              <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-2)" }}>
+                Attempted {formatDateTime(socialMediaKit.generatedAt)}
+              </p>
+              {socialMediaKit.errorMessage && (
+                <p style={{ fontSize: "var(--text-sm)", color: "var(--color-error)", margin: 0 }}>
+                  Error: {socialMediaKit.errorMessage}
+                </p>
+              )}
+            </>
+          ) : socialMediaKit.status === "generating" || socialMediaKit.status === "queued" ? (
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", margin: 0 }}>
+              Kit is {socialMediaKit.status}...
+            </p>
+          ) : (
+            <>
+              <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-3)" }}>
+                Generated {formatDateTime(socialMediaKit.generatedAt)}
+              </p>
+              <p style={{ fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--spacing-2)" }}>
+                Content Summary
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-1)" }}>
+                {[
+                  { label: "Post Ideas", count: socialMediaKit.contentCounts.postIdeas },
+                  { label: "Polls", count: socialMediaKit.contentCounts.polls },
+                  { label: "Captions", count: socialMediaKit.contentCounts.captions },
+                  { label: "Starters", count: socialMediaKit.contentCounts.conversationStarters },
+                  { label: "Persona Posts", count: socialMediaKit.contentCounts.personaPosts },
+                  { label: "Stat Callouts", count: socialMediaKit.contentCounts.statCallouts },
+                  { label: "Calendar Weeks", count: socialMediaKit.contentCounts.calendarSuggestions },
+                ].map((item) => (
+                  <div key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "var(--spacing-1) var(--spacing-2)", fontSize: "var(--text-sm)" }}>
+                    <span style={{ color: "var(--color-text-secondary)" }}>{item.label}</span>
+                    <span style={{ fontWeight: 600, color: "var(--color-text)", fontFamily: "monospace" }}>{item.count}</span>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* API Usage */}

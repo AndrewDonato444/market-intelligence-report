@@ -48,6 +48,7 @@ jest.mock("@/lib/db", () => ({
     users: { id: "users.id", createdAt: "users.created_at", status: "users.status" },
     userActivity: { id: "user_activity.id", userId: "user_activity.user_id", createdAt: "user_activity.created_at" },
     apiUsage: { id: "api_usage.id", createdAt: "api_usage.created_at" },
+    socialMediaKits: { id: "social_media_kits.id", status: "social_media_kits.status", createdAt: "social_media_kits.created_at" },
   },
 }));
 

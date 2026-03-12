@@ -41,6 +41,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [Report Eval Dashboard](.specs/features/admin/report-eval-dashboard.feature.md) | `app/admin/eval/report/page.tsx, components/eval/report-eval-dashboard.tsx` | see spec | see spec | implemented |
 | admin | [Report Eval Runner](.specs/features/admin/report-eval-runner.feature.md) | `lib/eval/report-eval/runner.ts, lib/eval/report-eval/judge.ts` | see spec | see spec | implemented |
 | admin | [Report Eval Test Cases](.specs/features/admin/report-eval-test-cases.feature.md) | `lib/eval/report-eval/types.ts, lib/eval/report-eval/test-cases.ts, lib/eval/report-eval/fixtures.ts` | see spec | see spec | implemented |
+| admin | [Social Media Kit in Admin](.specs/features/admin/social-media-kit-admin.feature.md) | `app/api/admin/reports/[id]/route.ts, app/api/admin/analytics/route.ts, app/api/admin/analytics/kits/route.ts, components/admin/report-detail-panel.tsx, components/admin/analytics-nav.tsx, components/admin/kit-analytics-dashboard.tsx, app/admin/analytics/kits/page.tsx` | see spec | see spec | implemented |
 | admin | [Suspend/Unsuspend Account](.specs/features/admin/suspend-unsuspend.feature.md) | `app/api/admin/users/[id]/status/route.ts` | see spec | see spec | implemented |
 | admin | [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md) | `app/admin/monitoring/page.tsx, components/admin/system-monitoring-dashboard.tsx, app/api/admin/monitoring/route.ts` | see spec | see spec | implemented |
 | admin | [User Analytics](.specs/features/admin/user-analytics.feature.md) | `app/admin/analytics/users/page.tsx, components/admin/user-analytics-dashboard.tsx, app/api/admin/analytics/users/route.ts` | see spec | see spec | implemented |
@@ -120,8 +121,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 87 |
-| **Total** | **92** |
+| implemented | 88 |
+| **Total** | **93** |
 
 ---
 
@@ -163,6 +164,7 @@ _None_
 - [Report Eval Dashboard](.specs/features/admin/report-eval-dashboard.feature.md)
 - [Report Eval Runner](.specs/features/admin/report-eval-runner.feature.md)
 - [Report Eval Test Cases](.specs/features/admin/report-eval-test-cases.feature.md)
+- [Social Media Kit in Admin](.specs/features/admin/social-media-kit-admin.feature.md)
 - [Suspend/Unsuspend Account](.specs/features/admin/suspend-unsuspend.feature.md)
 - [System Monitoring Dashboard](.specs/features/admin/system-monitoring-dashboard.feature.md)
 - [User Analytics](.specs/features/admin/user-analytics.feature.md)

@@ -8,6 +8,7 @@ const TABS = [
   { label: "Geographic", href: "/admin/analytics/geographic" },
   { label: "Users", href: "/admin/analytics/users" },
   { label: "Performance", href: "/admin/analytics/performance" },
+  { label: "Social Media Kits", href: "/admin/analytics/kits" },
 ];
 
 export function AnalyticsNav() {
