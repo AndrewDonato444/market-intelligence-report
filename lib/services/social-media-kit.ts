@@ -7,7 +7,7 @@
  */
 
 import { db, schema } from "@/lib/db";
-import { eq, and, asc } from "drizzle-orm";
+import { eq, and, asc, inArray } from "drizzle-orm";
 import {
   executeSocialMediaAgent,
   type SocialMediaAgentInput,
@@ -165,4 +165,39 @@ export async function getSocialMediaKit(reportId: string) {
     .limit(1);
 
   return kit ?? null;
+}
+
+/**
+ * Delete a social media kit by ID.
+ * Used before regeneration or retry.
+ */
+export async function deleteSocialMediaKit(kitId: string) {
+  await db
+    .delete(schema.socialMediaKits)
+    .where(eq(schema.socialMediaKits.id, kitId));
+}
+
+/**
+ * Get kit statuses for multiple reports (batch query for dashboard).
+ * Returns a map of reportId -> { status, errorMessage }.
+ */
+export async function getKitStatusesForReports(
+  reportIds: string[]
+): Promise<Map<string, { status: string; errorMessage: string | null }>> {
+  if (reportIds.length === 0) return new Map();
+
+  const kits = await db
+    .select({
+      reportId: schema.socialMediaKits.reportId,
+      status: schema.socialMediaKits.status,
+      errorMessage: schema.socialMediaKits.errorMessage,
+    })
+    .from(schema.socialMediaKits)
+    .where(inArray(schema.socialMediaKits.reportId, reportIds));
+
+  const map = new Map<string, { status: string; errorMessage: string | null }>();
+  for (const kit of kits) {
+    map.set(kit.reportId, { status: kit.status, errorMessage: kit.errorMessage });
+  }
+  return map;
 }

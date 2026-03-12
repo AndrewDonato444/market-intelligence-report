@@ -2,7 +2,9 @@ import Link from "next/link";
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import { getReports } from "@/lib/services/report";
+import { getKitStatusesForReports } from "@/lib/services/social-media-kit";
 import { DownloadPdfButton } from "@/components/reports/download-pdf-button";
+import { GenerateKitButton } from "@/components/reports/generate-kit-button";
 
 const STATUS_LABELS: Record<string, { label: string; color: string }> = {
   queued: { label: "Queued", color: "var(--color-text-secondary)" },
@@ -16,6 +18,12 @@ export default async function ReportsPage() {
   if (!authId) redirect("/sign-in");
 
   const reports = await getReports(authId);
+
+  // Batch-load kit statuses for completed reports
+  const completedReportIds = reports
+    .filter((r) => r.status === "completed")
+    .map((r) => r.id);
+  const kitStatuses = await getKitStatusesForReports(completedReportIds);
 
   return (
     <div>
@@ -74,10 +82,25 @@ export default async function ReportsPage() {
                 </Link>
                 <div className="flex items-center gap-3 ml-4">
                   {report.status === "completed" && (
-                    <DownloadPdfButton
-                      reportId={report.id}
-                      reportTitle={report.title}
-                    />
+                    <>
+                      <DownloadPdfButton
+                        reportId={report.id}
+                        reportTitle={report.title}
+                      />
+                      <GenerateKitButton
+                        reportId={report.id}
+                        initialKitStatus={
+                          kitStatuses.get(report.id)?.status as
+                            | "queued"
+                            | "generating"
+                            | "completed"
+                            | "failed"
+                            | undefined ?? "none"
+                        }
+                        initialErrorMessage={kitStatuses.get(report.id)?.errorMessage ?? null}
+                        compact
+                      />
+                    </>
                   )}
                   <span
                     className="font-[family-name:var(--font-sans)] text-xs font-medium px-2 py-1 rounded-[var(--radius-sm)]"

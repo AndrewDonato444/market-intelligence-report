@@ -1,10 +1,12 @@
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect, notFound } from "next/navigation";
 import { getReportWithMarket, getReportSections } from "@/lib/services/report";
+import { getSocialMediaKit } from "@/lib/services/social-media-kit";
 import { PipelineStatusDashboard } from "@/components/reports/pipeline-status";
 import { ReportPreview } from "@/components/reports/report-preview";
 import { ReportActions } from "@/components/reports/report-actions";
 import { ReportEditor } from "@/components/reports/report-editor";
+import { GenerateKitButton } from "@/components/reports/generate-kit-button";
 
 export default async function ReportDetailPage({
   params,
@@ -21,11 +23,15 @@ export default async function ReportDetailPage({
     notFound();
   }
 
-  // Load sections for completed reports
+  // Load sections and kit status for completed reports
   const sections =
     report.status === "completed"
       ? (await getReportSections(authId, id)) ?? []
       : [];
+
+  const kit = report.status === "completed"
+    ? await getSocialMediaKit(id)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -47,6 +53,11 @@ export default async function ReportDetailPage({
             reportTitle={report.title}
             shareToken={report.shareToken}
             shareTokenExpiresAt={report.shareTokenExpiresAt?.toISOString()}
+          />
+          <GenerateKitButton
+            reportId={id}
+            initialKitStatus={kit ? (kit.status as "queued" | "generating" | "completed" | "failed") : "none"}
+            initialErrorMessage={kit?.errorMessage ?? null}
           />
           <ReportEditor
             reportId={id}
