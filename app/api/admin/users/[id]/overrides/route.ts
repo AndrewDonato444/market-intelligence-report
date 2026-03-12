@@ -28,7 +28,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       .orderBy(desc(schema.entitlementOverrides.createdAt));
 
     // Fetch user's tier info for effective entitlements summary
-    let tierInfo = { tierName: "Starter", entitlements: { reports_per_month: 2, markets_created: 1, social_media_kits: 0, personas_per_report: 1 } };
+    let tierInfo = { tierName: "Starter", entitlements: { reports_per_month: 2, markets_created: 1, social_media_kits: 1, personas_per_report: 1 } };
     try {
       const [subscription] = await db
         .select({ tierId: schema.subscriptions.tierId })

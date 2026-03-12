@@ -95,13 +95,13 @@ When I call checkEntitlement(userId, "markets_created")
 Then the result is { allowed: true, limit: 3, used: 2, remaining: 1 }
 
 ### Scenario: feature not included in plan returns denied with limit 0
-Given a user on the Starter tier with social_media_kits cap of 0 (not included)
+Given a user on a hypothetical tier with social_media_kits cap of 0 (not included)
 And the user has no overrides for social_media_kits
 When I call checkEntitlement(userId, "social_media_kits")
 Then the result is { allowed: false, limit: 0, used: 0, remaining: 0 }
 
-### Scenario: override can unlock a feature not included in the tier
-Given a user on the Starter tier with social_media_kits cap of 0 (not included)
+### Scenario: override can boost a feature beyond the tier cap
+Given a user on the Starter tier with social_media_kits cap of 1
 And an active entitlement override exists for social_media_kits with value 5
 And the user has generated 1 social media kit this month
 When I call checkEntitlement(userId, "social_media_kits")
@@ -252,7 +252,7 @@ No UI in this feature — this is a pure service utility. It powers the gating U
 - **Reads from three tables**: `subscriptions` (to get tierId) -> `subscription_tiers` (to get entitlements) -> `entitlement_overrides` (active overrides) + `usage_records` (via `getCurrentUsage()`). Consider batching the DB queries where possible (e.g., parallel fetch of overrides and usage).
 - **Override resolution**: When multiple active overrides exist for the same (userId, entitlementType), pick the one with the highest `value`. If any override has value = -1, that wins (unlimited). Expired overrides (expiresAt < now) are filtered out.
 - **Fail-open**: On any DB error, return `{ allowed: true, limit: -1, used: 0, remaining: -1 }` and log the error. Usage tracking is important but not worth blocking a user's action over. This matches the graceful degradation pattern from #172.
-- **Default entitlements**: If a user has no subscription or no tierId, use hardcoded Starter defaults: `{ reports_per_month: 2, markets_created: 1, social_media_kits: 0, personas_per_report: 1 }`. This ensures new users without a tier assignment still have sensible caps.
+- **Default entitlements**: If a user has no subscription or no tierId, use hardcoded Starter defaults: `{ reports_per_month: 2, markets_created: 1, social_media_kits: 1, personas_per_report: 1 }`. This ensures new users without a tier assignment still have sensible caps including 1 social media kit per month.
 - **No caching**: Entitlement checks hit the DB every time. These are called infrequently (before gated actions, not on every page load) and must reflect the latest state (admin might have just granted an override). If performance becomes an issue, a short TTL cache can be added later.
 - **Reuses existing service**: Uses `getCurrentUsage()` from `lib/services/usage-tracking.ts` rather than querying `usage_records` directly.
 - **personas_per_report**: This entitlement is per-action (how many personas can be selected for a single report), not per-period. The check utility returns the limit; the caller (report creation flow) compares the count of selected personas against this limit. No usage_records row is needed — `getCurrentUsage` will return 0 for this type since it's never incremented.

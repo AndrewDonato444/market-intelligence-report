@@ -137,8 +137,14 @@ LOCATION: ${market.geography.city}, ${market.geography.state}
 TIER: ${market.luxuryTier}
 PRICE FLOOR: ${formatCurrency(market.priceFloor)}`;
 
-  // Key metrics table
-  if (analytics) {
+  // Key metrics table — only render if analytics has the expected structured shape
+  const hasStructuredAnalytics =
+    analytics &&
+    typeof analytics === "object" &&
+    analytics.market &&
+    typeof analytics.market.totalProperties === "number";
+
+  if (hasStructuredAnalytics) {
     prompt += `
 
 ## Key Metrics Table (ONLY quote these numbers)
@@ -149,19 +155,37 @@ OVERALL:
 - Average Price: ${formatCurrency(analytics.market.averagePrice)}
 - Median Price/SqFt: ${analytics.market.medianPricePerSqft ? `$${analytics.market.medianPricePerSqft}` : "N/A"}
 - Total Volume: ${formatCurrency(analytics.market.totalVolume)}
-- Rating: ${analytics.market.rating}
+- Rating: ${analytics.market.rating}`;
+
+    if (Array.isArray(analytics.segments) && analytics.segments.length > 0) {
+      prompt += `
 
 SEGMENTS:
 ${analytics.segments.map((s: any) =>
   `- ${s.name}: ${s.count} properties, median ${formatCurrency(s.medianPrice)}, ${s.medianPricePerSqft ? `$${s.medianPricePerSqft}/sqft` : "N/A psf"}, rating: ${s.rating}`
-).join("\n")}
+).join("\n")}`;
+    }
+
+    if (analytics.yoy) {
+      prompt += `
 
 YEAR-OVER-YEAR:
 - Median Price Change: ${formatPercent(analytics.yoy.medianPriceChange)}
 - Volume Change: ${formatPercent(analytics.yoy.volumeChange)}
-- Price/SqFt Change: ${formatPercent(analytics.yoy.pricePerSqftChange)}
+- Price/SqFt Change: ${formatPercent(analytics.yoy.pricePerSqftChange)}`;
+    }
+
+    if (analytics.confidence) {
+      prompt += `
 
 DATA CONFIDENCE: ${analytics.confidence.level} (sample: ${analytics.confidence.sampleSize})`;
+    }
+  } else {
+    prompt += `
+
+## Analytics
+No structured analytics data available. Generate content based on report sections below.
+Use qualitative insights from the report narratives instead of specific numbers.`;
   }
 
   // Report sections

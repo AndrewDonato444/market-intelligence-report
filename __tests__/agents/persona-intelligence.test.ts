@@ -6,6 +6,10 @@ jest.mock("@anthropic-ai/sdk", () => ({
   default: jest.fn().mockImplementation(() => ({ messages: { create: jest.fn() } })),
 }));
 jest.mock("@/lib/config/env", () => ({ env: { ANTHROPIC_API_KEY: "test-key" } }));
+jest.mock("@/lib/db", () => ({
+  db: {},
+  schema: {},
+}));
 jest.mock("@/lib/services/buyer-personas", () => ({ getReportPersonas: jest.fn() }));
 
 const BUSINESS_MOGUL_PERSONA = {

@@ -54,7 +54,7 @@ describe("Seed Subscription Tiers — Data Validation", () => {
     const e = starter!.entitlements as TierEntitlements;
     expect(e.reports_per_month).toBe(2);
     expect(e.markets_created).toBe(1);
-    expect(e.social_media_kits).toBe(0);
+    expect(e.social_media_kits).toBe(1);
     expect(e.personas_per_report).toBe(1);
   });
 
@@ -133,11 +133,11 @@ describe("Seed Subscription Tiers — Entitlement Conventions", () => {
     expect(e.social_media_kits).toBe(-1);
   });
 
-  it("Starter uses 0 for features not included", async () => {
+  it("Starter includes 1 social media kit per month", async () => {
     const { DEFAULT_TIERS } = await import("@/lib/db/seed-subscription-tiers");
     const starter = DEFAULT_TIERS.find((t) => t.slug === "starter")!;
     const e = starter.entitlements as TierEntitlements;
-    expect(e.social_media_kits).toBe(0);
+    expect(e.social_media_kits).toBe(1);
   });
 
   it("all tiers have isActive = true by default", async () => {

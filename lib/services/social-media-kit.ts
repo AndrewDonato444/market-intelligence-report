@@ -87,14 +87,16 @@ export async function generateSocialMediaKit(
   // 4. Load personas (if any)
   const personas = await getReportPersonas(reportId);
 
-  // 5. Load computed analytics from the report config or sections
-  // The computed analytics are stored in the report's assembled data
-  const analyticsSection = sections.find(
-    (s) => s.sectionType === "luxury_market_dashboard" || s.sectionType === "market_overview"
-  );
-  const computedAnalytics = (report.config as any)?.computedAnalytics
-    ?? analyticsSection?.content
-    ?? null;
+  // 5. Load computed analytics from the report config
+  // Only use structured analytics (has market.totalProperties), not narrative section content
+  const configAnalytics = (report.config as any)?.computedAnalytics;
+  const computedAnalytics =
+    configAnalytics &&
+    typeof configAnalytics === "object" &&
+    configAnalytics.market &&
+    typeof configAnalytics.market.totalProperties === "number"
+      ? configAnalytics
+      : null;
 
   // 6. Create kit row (queued)
   const [kit] = await db
@@ -227,12 +229,14 @@ export async function regenerateKitSection(
 
   const personas = await getReportPersonas(reportId);
 
-  const analyticsSection = sections.find(
-    (s) => s.sectionType === "luxury_market_dashboard" || s.sectionType === "market_overview"
-  );
-  const computedAnalytics = (report.config as any)?.computedAnalytics
-    ?? analyticsSection?.content
-    ?? null;
+  const configAnalytics2 = (report.config as any)?.computedAnalytics;
+  const computedAnalytics =
+    configAnalytics2 &&
+    typeof configAnalytics2 === "object" &&
+    configAnalytics2.market &&
+    typeof configAnalytics2.market.totalProperties === "number"
+      ? configAnalytics2
+      : null;
 
   // 3. Call the Social Media Agent with sectionOnly
   const agentInput: SocialMediaAgentInput = {

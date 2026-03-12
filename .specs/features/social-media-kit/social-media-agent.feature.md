@@ -11,7 +11,7 @@ personas:
   - team-leader
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-12
 ---
 
 # Social Media Agent
@@ -22,7 +22,7 @@ updated: 2026-03-11
 
 ## Feature: Social Media Agent (#161)
 
-The Social Media Agent is a Claude-powered agent that reads a finalized report's assembled sections and generates a comprehensive social media content kit. It follows the same agent pattern as `persona-intelligence.ts` — exports an `AgentDefinition`, uses `buildSystemPrompt()`/`buildUserPrompt()`, and returns structured JSON matching the `SocialMediaKitContent` type already defined in `lib/db/schema.ts`.
+The Social Media Agent is a Claude-powered agent that reads a finalized report's assembled sections and generates a comprehensive social media content kit. It exports a standalone `executeSocialMediaAgent()` function (not an `AgentDefinition`), uses `buildSystemPrompt()`/`buildUserPrompt()`, and returns structured JSON matching the `SocialMediaKitContent` type already defined in `lib/db/schema.ts`. It uses Claude Haiku (`claude-haiku-4-5-20251001`) for cost-efficient creative generation.
 
 **Unlike the report pipeline agents**, this agent runs **independently** — not as part of the 4-layer pipeline. It is triggered on-demand after a report is finalized, and writes directly to the `social_media_kits` table rather than producing `SectionOutput[]`.
 
@@ -100,6 +100,14 @@ When the Social Media Agent generates the kit
 Then the agent still produces all 7 content types
 And posts/callouts reference only the data that exists (no fabricated comparisons)
 And the agent focuses on available insights rather than apologizing for missing data
+
+### Scenario: Agent handles missing or non-structured analytics gracefully
+Given a finalized report where `computedAnalytics` is null or contains narrative content instead of structured data
+When the Social Media Agent generates the kit
+Then the agent falls back to qualitative-only mode (no Key Metrics Table in prompt)
+And the agent generates content based on report section narratives instead of specific numbers
+And all 7 content types are still populated
+And stat callouts use qualitative framing rather than fabricated numbers
 
 ### Scenario: Agent output matches SocialMediaKitContent schema exactly
 Given the Social Media Agent has finished generating content
@@ -248,3 +256,6 @@ To ensure the kit is substantive enough to be valuable:
 - The agent uses `temperature: 0.7` (slightly higher than pipeline agents at 0.6) for more creative social media content.
 - `SocialMediaKitContent` type was already defined in schema.ts as part of feature #160 — agent just needs to produce JSON matching that type.
 - Error handling follows the same `retriable` boolean pattern as pipeline agents for consistency.
+- **Model choice**: Uses `claude-haiku-4-5-20251001` (Haiku 4.5) for cost efficiency — social media content is creative but doesn't need Opus/Sonnet reasoning depth.
+- **Dual-mode analytics**: Agent handles both structured analytics (renders Key Metrics Table) and qualitative-only fallback (no metrics, uses narrative insights). The service layer validates analytics structure before passing to the agent — `computedAnalytics` must have `market.totalProperties` as a number, otherwise falls back to null.
+- **Gotcha**: `report.config.computedAnalytics` may contain narrative section content (string) instead of structured data (object). Always validate shape before treating as structured analytics.

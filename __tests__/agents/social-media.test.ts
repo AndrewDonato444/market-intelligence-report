@@ -258,7 +258,7 @@ describe("Social Media Agent", () => {
       expect(result.durationMs).toBeGreaterThanOrEqual(0);
       expect(result.metadata.promptTokens).toBe(5000);
       expect(result.metadata.completionTokens).toBe(8000);
-      expect(result.metadata.modelUsed).toBe("claude-sonnet-4-6");
+      expect(result.metadata.modelUsed).toBe("claude-haiku-4-5-20251001");
     });
   });
 
@@ -292,7 +292,7 @@ describe("Social Media Agent", () => {
       const call = mockCreate.mock.calls[0][0];
       expect(call.system).toContain("luxury");
       expect(call.system).toContain("social media");
-      expect(call.model).toBe("claude-sonnet-4-6");
+      expect(call.model).toBe("claude-haiku-4-5-20251001");
     });
 
     it("user prompt includes report sections and market data", async () => {
@@ -306,6 +306,26 @@ describe("Social Media Agent", () => {
       expect(userMsg).toContain("12.4%");
     });
 
+    it("handles null computedAnalytics gracefully", async () => {
+      const { executeSocialMediaAgent } = await import("@/lib/agents/social-media");
+      mockCreate.mockResolvedValue({ content: [{ type: "text", text: JSON.stringify(buildMockKitContent()) }], usage: { input_tokens: 5000, output_tokens: 8000 } });
+      await executeSocialMediaAgent({ reportSections: MOCK_REPORT_SECTIONS, computedAnalytics: null, market: MOCK_MARKET, personas: [] });
+      const userMsg = mockCreate.mock.calls[0][0].messages[0].content;
+      expect(userMsg).toContain("Naples");
+      expect(userMsg).toContain("No structured analytics data available");
+      expect(userMsg).not.toContain("Total Properties");
+    });
+
+    it("handles non-structured analytics (section content) gracefully", async () => {
+      const { executeSocialMediaAgent } = await import("@/lib/agents/social-media");
+      mockCreate.mockResolvedValue({ content: [{ type: "text", text: JSON.stringify(buildMockKitContent()) }], usage: { input_tokens: 5000, output_tokens: 8000 } });
+      // Pass section-style content (narrative string, not structured analytics)
+      await executeSocialMediaAgent({ reportSections: MOCK_REPORT_SECTIONS, computedAnalytics: { narrative: "The luxury market is booming..." }, market: MOCK_MARKET, personas: [] });
+      const userMsg = mockCreate.mock.calls[0][0].messages[0].content;
+      expect(userMsg).toContain("No structured analytics data available");
+      expect(userMsg).not.toContain("Total Properties");
+    });
+
     it("includes persona specs when provided", async () => {
       const { executeSocialMediaAgent } = await import("@/lib/agents/social-media");
       mockCreate.mockResolvedValue({ content: [{ type: "text", text: JSON.stringify(buildMockKitContent({ withPersonas: true })) }], usage: { input_tokens: 5000, output_tokens: 8000 } });
@@ -317,6 +337,16 @@ describe("Social Media Agent", () => {
       expect(userMsg).toContain("The Business Mogul");
       expect(userMsg).toContain("alpha");
       expect(userMsg).toContain("basis");
+    });
+
+    it("appends section-only regeneration instruction when sectionOnly is set", async () => {
+      const { executeSocialMediaAgent } = await import("@/lib/agents/social-media");
+      mockCreate.mockResolvedValue({ content: [{ type: "text", text: JSON.stringify(buildMockKitContent()) }], usage: { input_tokens: 5000, output_tokens: 8000 } });
+      await executeSocialMediaAgent({ reportSections: MOCK_REPORT_SECTIONS, computedAnalytics: MOCK_COMPUTED_ANALYTICS, market: MOCK_MARKET, personas: [], sectionOnly: "statCallouts" });
+      const userMsg = mockCreate.mock.calls[0][0].messages[0].content;
+      expect(userMsg).toContain("SECTION-ONLY REGENERATION");
+      expect(userMsg).toContain('"statCallouts"');
+      expect(userMsg).toContain("All other arrays should be empty");
     });
   });
 });

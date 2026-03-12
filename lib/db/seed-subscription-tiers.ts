@@ -19,7 +19,7 @@ export const DEFAULT_TIERS: Array<{
     entitlements: {
       reports_per_month: 2,
       markets_created: 1,
-      social_media_kits: 0,
+      social_media_kits: 1,
       personas_per_report: 1,
     },
     displayPrice: "Free",

@@ -21,7 +21,7 @@ updated: 2026-03-12
 
 ## Feature: Entitlement Gating in Social Media Kit
 
-Before a social media kit is generated, the system checks the `social_media_kits` entitlement via `checkEntitlement(userId, "social_media_kits")`. This is a **monthly** entitlement (resets each month). On the Starter tier, the default cap is 0 — social media kits are not included. Professional and Enterprise tiers include kit generation.
+Before a social media kit is generated, the system checks the `social_media_kits` entitlement via `checkEntitlement(userId, "social_media_kits")`. This is a **monthly** entitlement (resets each month). All tiers include social media kit generation: Starter allows 1 per month, Professional allows 1 per report, and Enterprise is unlimited.
 
 ### Scenario: Agent generates a kit with remaining quota
 Given an agent on the Professional plan with 5 social media kits per month
@@ -30,10 +30,18 @@ When the agent clicks "Generate Social Media Kit" on a completed report
 Then the kit generation starts (202 response)
 And usage is incremented to 3
 
-### Scenario: Agent on Starter plan sees "not included" messaging
-Given an agent on the Starter plan where social media kits are not included (cap is 0)
+### Scenario: Agent on Starter plan can generate 1 kit per month
+Given an agent on the Starter plan with social media kits cap of 1
+And the agent has generated 0 kits this month
 When the agent clicks "Generate Social Media Kit"
-Then the API returns 403 with `{ error: "Social media kit not included in your plan", entitlement: { allowed: false, limit: 0, used: 0, remaining: 0 } }`
+Then the kit generation starts (202 response)
+And usage is incremented to 1
+
+### Scenario: Agent on Starter plan hits their monthly kit cap
+Given an agent on the Starter plan with social media kits cap of 1
+And the agent has already generated 1 kit this month
+When the agent clicks "Generate Social Media Kit"
+Then the API returns 403 with `{ error: "Social media kit limit reached", entitlement: { allowed: false, limit: 1, used: 1, remaining: 0 } }`
 
 ### Scenario: Agent hits their monthly kit cap
 Given an agent on the Professional plan with 5 kits per month who has used all 5
@@ -71,7 +79,7 @@ When a POST is sent to `/api/reports/[id]/kit/generate`
 Then the API returns 401
 
 ### Scenario: Kit regeneration is also gated
-Given an agent on the Starter plan (cap 0)
+Given an agent who has exhausted their monthly kit quota
 When the agent attempts to regenerate a kit section
 Then the API returns 403 with entitlement details
 And regeneration does NOT increment usage
@@ -103,7 +111,7 @@ Same entitlement check. Regeneration does NOT increment usage.
 
 | Edge Case | Behavior |
 |-----------|----------|
-| No subscription record | Default Starter caps apply (0 kits) per #173 |
+| No subscription record | Default Starter caps apply (1 kit/mo) per #173 |
 | Kit generation fails after usage increment | Usage is still consumed |
 | Regeneration of existing kit | Does NOT consume quota |
 | Admin override grants kits to Starter user | Override respected per #173 |

@@ -11,7 +11,7 @@ personas:
   - rising-star-agent
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-12
 ---
 
 # Subscription Tier Data Model
@@ -53,7 +53,7 @@ Then the feature is unlimited
 Given a fresh database with the subscription_tiers table
 When I run the seed script
 Then 3 tiers exist: Starter, Professional, Enterprise
-And Starter has: reports_per_month=2, markets_created=1, social_media_kits=0, personas_per_report=1, displayPrice="Free", sortOrder=1
+And Starter has: reports_per_month=2, markets_created=1, social_media_kits=1, personas_per_report=1, displayPrice="Free", sortOrder=1
 And Professional has: reports_per_month=10, markets_created=3, social_media_kits=1, personas_per_report=3, displayPrice="$199/mo", sortOrder=2
 And Enterprise has: reports_per_month=-1, markets_created=-1, social_media_kits=-1, personas_per_report=3, displayPrice="Custom", sortOrder=3
 
@@ -147,7 +147,7 @@ tierId               | uuid, FK to subscription_tiers.id,
 ### Seed Data
 
 ```
-Starter      | Free    | 2 reports/mo  | 1 market  | No kits   | 1 persona
+Starter      | Free    | 2 reports/mo  | 1 market  | 1 kit/mo  | 1 persona
 Professional | $199/mo | 10 reports/mo | 3 markets | 1/report  | 3 personas
 Enterprise   | Custom  | Unlimited     | Unlimited | Unlimited | 3 personas
 ```
