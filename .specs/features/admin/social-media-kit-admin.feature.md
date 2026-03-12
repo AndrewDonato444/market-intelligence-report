@@ -6,7 +6,8 @@ tests:
   - __tests__/admin/social-media-kit-admin.test.ts
 components:
   - ReportDetailPanel
-  - AnalyticsDashboard
+  - AnalyticsNav
+  - KitAnalyticsDashboard
 personas:
   - internal-admin
 status: implemented
@@ -107,6 +108,7 @@ Then the response includes:
   | averageContentPerKit   | Average items per content type across completed kits       |
   | topContentTypes        | Content types ranked by average count per kit              |
   | kitsByStatus           | { completed, failed, generating, queued } counts           |
+  | period                 | Echo of the requested period string                        |
 
 ### Scenario: Kit analytics respects period filter
 Given kits exist from various dates
@@ -114,6 +116,8 @@ When GET `/api/admin/analytics/kits?period=7d` is called
 Then only kits created within the last 7 days are included in volumeOverTime
 And kitsByStatus counts all kits (not period-filtered — this is a current state count)
 And contentTypeCounts aggregates only kits from the filtered period
+And the valid period values are: 24h, 7d, 30d, 90d, 365d (default: 30d)
+And an invalid period returns 400 Bad Request
 
 ### Scenario: Kit analytics handles no kits gracefully
 Given no social media kits exist in the database
@@ -126,6 +130,20 @@ And averageContentPerKit has all zeros
 Given a user with role "user"
 When they call GET `/api/admin/analytics/kits`
 Then they receive a 401 Unauthorized response
+
+### Scenario: Analytics navigation includes Social Media Kits tab
+Given an admin is viewing the analytics section
+When the admin navigates to `/admin/analytics`
+Then the navigation bar shows tabs: Volume, Geographic, Users, Performance, Social Media Kits
+And clicking "Social Media Kits" navigates to `/admin/analytics/kits`
+
+### Scenario: Kit analytics dashboard shows KPI cards and controls
+Given an admin navigates to `/admin/analytics/kits`
+Then the dashboard shows KPI cards: Total Kits, Completed, Failed, Failure Rate
+And a period selector with options: 7d, 30d, 90d, 365d
+And content type breakdowns (total counts and average per kit) sorted by top types
+And a volume over time bar chart
+And export buttons for CSV and JSON
 
 ---
 
@@ -190,7 +208,7 @@ Response (existing fields + new):
 ### New Kit Analytics Endpoint
 
 ```
-GET /api/admin/analytics/kits?period=30d|7d|24h
+GET /api/admin/analytics/kits?period=24h|7d|30d|90d|365d
 Response:
 {
   volumeOverTime: [
@@ -222,22 +240,36 @@ Response:
     failed: 5,
     generating: 1,
     queued: 0
-  }
+  },
+  period: "30d"
 }
 ```
 
 ### UI Components
 
-**ReportDetailPanel** (`components/admin/report-detail-panel.tsx`) — add a "Social Media Kit" card section after the existing "Report Sections" and "API Usage" tables:
+**ReportDetailPanel** (`components/admin/report-detail-panel.tsx`) — "Social Media Kit" card section between "Report Sections" and "API Usage":
 
 - Status badge using same `STATUS_COLORS` mapping already in the component
 - Content type counts displayed as a compact 2-column grid
 - Error message shown inline for failed kits
 - "No kit generated" empty state for reports without kits
 
-**Analytics Dashboard** — kit metrics appear in:
-1. The overview page (`app/admin/analytics/page.tsx`) as a new summary card alongside existing volume/users/errors cards
-2. Kit-specific analytics could be added to the existing analytics layout as a new sub-page or integrated into the overview
+**AnalyticsNav** (`components/admin/analytics-nav.tsx`) — tab navigation bar for analytics section:
+
+- Tabs: Volume, Geographic, Users, Performance, Social Media Kits
+- Active tab highlighted with primary color border
+- "Social Media Kits" links to `/admin/analytics/kits`
+
+**KitAnalyticsDashboard** (`components/admin/kit-analytics-dashboard.tsx`) — dedicated kit analytics page:
+
+- KPI cards row: Total Kits, Completed, Failed, Failure Rate (with red warning for high failure)
+- Period selector pills: 7d, 30d, 90d, 365d
+- Content type breakdown: total counts and average per kit (2-column grid, sorted by top types)
+- Volume over time: horizontal bar chart showing daily kit generation
+- Export buttons for CSV and JSON via `ExportButton` component
+- Refresh button for manual data reload
+
+**Kit Analytics Page** (`app/admin/analytics/kits/page.tsx`) — server component that checks admin auth and redirects non-admins to `/dashboard`
 
 ---
 
@@ -327,8 +359,10 @@ Response:
 
 ## Component References
 
-- ReportDetailPanel: `components/admin/report-detail-panel.tsx` (update — add kit section)
-- AnalyticsDashboard: `app/admin/analytics/page.tsx` (update — add kit summary card)
+- ReportDetailPanel: `components/admin/report-detail-panel.tsx` (kit section between sections and API usage)
+- AnalyticsNav: `components/admin/analytics-nav.tsx` (tab nav with Social Media Kits tab)
+- KitAnalyticsDashboard: `components/admin/kit-analytics-dashboard.tsx` (dedicated kit analytics page)
+- AdminKitAnalyticsPage: `app/admin/analytics/kits/page.tsx` (server component with admin auth)
 - AdminSidebar: `components/layout/admin-sidebar.tsx` (no changes needed — analytics already listed)
 
 ---
