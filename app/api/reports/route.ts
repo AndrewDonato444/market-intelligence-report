@@ -9,6 +9,8 @@ import {
 import { setReportPersonas } from "@/lib/services/buyer-personas";
 import { executePipeline } from "@/lib/services/pipeline-executor";
 import { logActivity } from "@/lib/services/activity-log";
+import { checkEntitlement } from "@/lib/services/entitlement-check";
+import { incrementUsage } from "@/lib/services/usage-tracking";
 
 export async function GET() {
   const userId = await getAuthUserId();
@@ -44,11 +46,25 @@ export async function POST(request: Request) {
     );
   }
 
+  // Server-side entitlement check — authoritative gate
+  const entitlement = await checkEntitlement(userId, "reports_per_month");
+  if (!entitlement.allowed) {
+    return NextResponse.json(
+      { error: "Report limit reached", entitlement },
+      { status: 403 }
+    );
+  }
+
   try {
     // Include personaIds from request body if provided
     const personaIds = Array.isArray(body.personaIds) ? body.personaIds as string[] : undefined;
     const reportData = { ...validation.data!, personaIds };
     const report = await createReport(userId, reportData);
+
+    // Increment usage after successful creation (fire-and-forget)
+    incrementUsage(userId, "reports_per_month").catch((err) => {
+      console.error("[POST /api/reports] Failed to increment usage:", err);
+    });
 
     // Log activity (fire-and-forget)
     logActivity({

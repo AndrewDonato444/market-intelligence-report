@@ -168,6 +168,17 @@ function Tag({
 // StepYourReview
 // ---------------------------------------------------------------------------
 
+// "View Plans" target — update when #177 (Account & Billing page) is built
+const VIEW_PLANS_HREF = "/account";
+
+// Entitlement check result shape
+interface EntitlementState {
+  allowed: boolean;
+  limit: number;
+  used: number;
+  remaining: number;
+}
+
 export function StepYourReview({
   marketData,
   tierData,
@@ -190,10 +201,41 @@ export function StepYourReview({
   // Cache created market ID so retries don't create duplicates
   const createdMarketIdRef = useRef<string | null>(null);
 
+  // Entitlement state
+  const [entitlement, setEntitlement] = useState<EntitlementState | null>(null);
+  const [entitlementLoading, setEntitlementLoading] = useState(true);
+  const [gateDismissed, setGateDismissed] = useState(false);
+
   // Report step 5 as always valid
   useEffect(() => {
     onValidationChange?.(true);
   }, [onValidationChange]);
+
+  // Fetch entitlement check on mount
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    fetch("/api/entitlements/check?type=reports_per_month", {
+      signal: controller.signal,
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data: EntitlementState) => {
+        setEntitlement(data);
+        setEntitlementLoading(false);
+      })
+      .catch(() => {
+        // Fail-open: enable button, hide usage indicator
+        setEntitlement(null);
+        setEntitlementLoading(false);
+      })
+      .finally(() => clearTimeout(timeout));
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, []);
 
   // Fetch persona names for display
   useEffect(() => {
@@ -216,6 +258,19 @@ export function StepYourReview({
 
   const isTitleValid = title.trim().length > 0 && title.length <= 500;
   const isTitleEmpty = title.trim().length === 0;
+
+  // Entitlement-derived state
+  const isUnlimited = entitlement?.limit === -1;
+  const isCapHit = entitlement !== null && !entitlement.allowed;
+  const isLastReport =
+    entitlement !== null &&
+    entitlement.allowed &&
+    entitlement.remaining === 1 &&
+    !isUnlimited;
+  const showUsageIndicator =
+    entitlement !== null && !isUnlimited && !entitlementLoading;
+  const isGenerateDisabled =
+    !isTitleValid || isSubmitting || entitlementLoading || isCapHit;
 
   const handleGenerate = useCallback(async () => {
     if (!isTitleValid || isSubmitting) return;
@@ -400,6 +455,75 @@ export function StepYourReview({
           </p>
         </motion.div>
 
+        {/* Entitlement: Loading skeleton */}
+        {entitlementLoading && (
+          <motion.div
+            variants={fadeVariant}
+            aria-busy="true"
+            aria-label="Checking report availability"
+            className="rounded-[var(--radius-sm)] bg-[var(--color-primary-light)] p-[var(--spacing-2)]"
+          >
+            <div className="h-3.5 w-44 bg-[var(--color-border)] rounded animate-pulse" />
+          </motion.div>
+        )}
+
+        {/* Entitlement: Usage indicator (when quota remains) */}
+        {showUsageIndicator && !isCapHit && (
+          <motion.div
+            variants={fadeVariant}
+            aria-label={`Report usage: ${entitlement.used} of ${entitlement.limit} reports used this month`}
+            className={`rounded-[var(--radius-sm)] p-[var(--spacing-2)] ${
+              isLastReport
+                ? "bg-[var(--color-accent-light)]"
+                : "bg-[var(--color-primary-light)]"
+            }`}
+          >
+            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+              {entitlement.used} of {entitlement.limit} reports used this month
+            </p>
+            {isLastReport && (
+              <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-warning)] mt-0.5">
+                This is your last report this month on the Starter plan
+              </p>
+            )}
+          </motion.div>
+        )}
+
+        {/* Entitlement: Soft gate banner (when cap is hit) */}
+        {isCapHit && !gateDismissed && (
+          <motion.div
+            variants={fadeVariant}
+            role="alert"
+            id="entitlement-gate-banner"
+            className="border border-[var(--color-border-strong)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-surface)] p-[var(--spacing-6)]"
+          >
+            <h3 className="font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-text)]">
+              You&apos;ve Reached Your Monthly Limit
+            </h3>
+            <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+              You&apos;ve used {entitlement!.used} of {entitlement!.limit} reports
+              this month on the Starter plan. Upgrade to Professional for 10
+              reports per month — plus peer market analysis and expanded audience
+              targeting.
+            </p>
+            <div className="flex items-center gap-4 mt-4">
+              <a
+                href={VIEW_PLANS_HREF}
+                className="inline-block px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] hover:bg-[var(--color-accent-hover)]"
+              >
+                View Plans
+              </a>
+              <button
+                type="button"
+                onClick={() => setGateDismissed(true)}
+                className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] underline"
+              >
+                Maybe Later
+              </button>
+            </div>
+          </motion.div>
+        )}
+
         {/* Error message */}
         {error && (
           <p className="text-center font-[family-name:var(--font-sans)] text-sm text-[var(--color-error)]" role="alert">
@@ -412,8 +536,10 @@ export function StepYourReview({
           <button
             type="button"
             onClick={handleGenerate}
-            disabled={!isTitleValid || isSubmitting}
+            disabled={isGenerateDisabled}
             aria-busy={isSubmitting}
+            aria-disabled={isCapHit || undefined}
+            aria-describedby={isCapHit ? "entitlement-gate-banner" : undefined}
             className="w-full py-3 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-accent)]"
           >
             {isSubmitting ? "Generating..." : "Generate Report"}

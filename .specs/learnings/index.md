@@ -19,6 +19,14 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-12 — Entitlement Gating in Report Creation (#174)
+
+- **MockNextResponse for route tests in jsdom** (`testing.md`): `next/server` imports fail in jsdom because `Request` is undefined. Mock `next/server` with a lightweight `MockNextResponse` class + `MinimalRequest` polyfill instead of switching to node environment.
+- **Entitlement fetch on mount breaks existing tests** (`testing.md`): Adding a `fetch` call on component mount means ALL existing tests rendering that component must update their fetch mocks to handle the new endpoint. Always grep for test files rendering the modified component.
+- **Two-layer entitlement enforcement** (`api.md`): Client-side check (UX — preemptive gate) + server-side check (authoritative 403). Client never trusted. Usage increment fires only after successful creation (fire-and-forget).
+- **Soft gate > hard wall for entitlement UX** (`design.md`): Inline banner with "View Plans" CTA + "Maybe Later" dismiss. Agent can still see their configuration. `role="alert"` for screen readers, `aria-describedby` linking disabled button to gate banner.
+- **Fail-open with AbortController timeout** (`api.md`): 5-second timeout on entitlement check via `AbortController`. On failure or timeout, enable the button and hide usage indicator. Server-side check is the real gate.
+
 ### 2026-03-11 — Entitlement Check Utility (#173)
 
 - **Mock call counter vs conditional branches** (`testing.md`): When implementation conditionally skips DB queries, call-counter mocks break. Compute branch state at setup time and map call numbers dynamically.

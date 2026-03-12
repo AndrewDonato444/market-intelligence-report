@@ -65,6 +65,12 @@ The RealEstateAPI has free/cheap query modes to use before full data pulls:
 
 ---
 
+### 2026-03-12 — Entitlement Gating Server-Side (#174)
+- **Pattern**: Two-layer entitlement enforcement — client-side check on step mount (UX gate, preemptive soft gate) + server-side check before `createReport()` (authoritative 403). The client check is advisory; the server check is the real gate. This means bypassing the UI (e.g., direct POST) still enforces limits.
+- **Pattern**: Usage increment is post-success only — call `incrementUsage(userId, "reports_per_month")` after `createReport()` returns successfully, not before. Fire-and-forget via `.catch()`. If creation fails, quota is not consumed. If increment fails, the report still succeeds (graceful degradation).
+- **Pattern**: Fail-open with timeout — client-side entitlement check uses `AbortController` with 5-second timeout. On network error, abort, or timeout, enable the button and hide usage indicator. The server-side `checkEntitlement()` also fails open (returns `allowed: true, limit: -1`), so both layers degrade to permissive.
+- **Decision**: `GET /api/entitlements/check?type=reports_per_month` is a thin wrapper around `checkEntitlement()`. Needed because the creation flow is client-side and can't call server functions directly. Returns the full `{ allowed, limit, used, remaining }` shape so the client can derive all UI states.
+
 ### 2026-03-11 — Usage Tracking Atomic Upsert (#172)
 - **Pattern**: Drizzle's `onConflictDoUpdate` with `sql\`${table.count} + 1\`` achieves atomic increment without a read-then-write race. The unique composite index `(userId, entitlementType, periodStart)` serves as both the conflict target and the query index. This maps to `INSERT ... ON CONFLICT (user_id, entitlement_type, period_start) DO UPDATE SET count = count + 1` in SQL.
 - **Decision**: Graceful degradation — if the usage_records table is unavailable, `incrementUsage` logs the error but doesn't throw. Usage tracking is important but not worth failing a report generation over.

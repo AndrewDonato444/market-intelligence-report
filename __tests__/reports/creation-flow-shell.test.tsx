@@ -63,6 +63,17 @@ const STEP_NAMES = [
 describe("Unified Creation Flow Shell (#151)", () => {
   beforeEach(() => {
     localStorage.clear();
+    // Mock fetch for entitlement check + persona endpoints used by step components
+    global.fetch = jest.fn((url: string | URL | Request) => {
+      const urlStr = typeof url === "string" ? url : url instanceof URL ? url.toString() : url.url;
+      if (urlStr.includes("/api/entitlements/check")) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ allowed: true, limit: 10, used: 3, remaining: 7 }) } as Response);
+      }
+      if (urlStr.includes("/api/buyer-personas")) {
+        return Promise.resolve({ ok: true, json: () => Promise.resolve({ personas: [] }) } as Response);
+      }
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({}) } as Response);
+    }) as jest.Mock;
   });
 
   describe("File structure", () => {

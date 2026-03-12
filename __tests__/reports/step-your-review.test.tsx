@@ -69,6 +69,10 @@ function mockFetchSuccess() {
   global.fetch = jest.fn((url: string | URL | Request, opts?: RequestInit) => {
     const urlStr = typeof url === "string" ? url : url.toString();
 
+    if (urlStr.includes("/api/entitlements/check")) {
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({ allowed: true, limit: 10, used: 3, remaining: 7 }) } as Response);
+    }
+
     if (urlStr.includes("/api/buyer-personas") && (!opts || opts.method !== "POST")) {
       return Promise.resolve({ ok: true, json: () => Promise.resolve({ personas: MOCK_PERSONAS }) } as Response);
     }
@@ -88,6 +92,10 @@ function mockFetchSuccess() {
 function mockFetchReportError() {
   global.fetch = jest.fn((url: string | URL | Request, opts?: RequestInit) => {
     const urlStr = typeof url === "string" ? url : url.toString();
+
+    if (urlStr.includes("/api/entitlements/check")) {
+      return Promise.resolve({ ok: true, json: () => Promise.resolve({ allowed: true, limit: 10, used: 3, remaining: 7 }) } as Response);
+    }
 
     if (urlStr.includes("/api/buyer-personas")) {
       return Promise.resolve({ ok: true, json: () => Promise.resolve({ personas: MOCK_PERSONAS }) } as Response);
@@ -261,11 +269,16 @@ describe("Step 5: Review & Generate (#156)", () => {
     });
 
     it("CMP-156-19: clicking Generate creates report and calls onStepComplete", async () => {
-      const { props } = renderReview();
+      let result: ReturnType<typeof renderReview>;
+      await act(async () => { result = renderReview(); });
+      // Wait for entitlement check to resolve so button is enabled
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Generate Report/i })).not.toBeDisabled();
+      });
       const btn = screen.getByRole("button", { name: /Generate Report/i });
       await act(async () => { fireEvent.click(btn); });
       await waitFor(() => {
-        expect(props.onStepComplete).toHaveBeenCalledWith(
+        expect(result!.props.onStepComplete).toHaveBeenCalledWith(
           expect.objectContaining({ reportId: "report-789" })
         );
       });
@@ -273,7 +286,11 @@ describe("Step 5: Review & Generate (#156)", () => {
 
     it("CMP-156-20: new market created before report for isNewMarket", async () => {
       mockFetchSuccess();
-      const { props } = renderReview({ marketData: MOCK_NEW_MARKET_DATA });
+      let result: ReturnType<typeof renderReview>;
+      await act(async () => { result = renderReview({ marketData: MOCK_NEW_MARKET_DATA }); });
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Generate Report/i })).not.toBeDisabled();
+      });
       const btn = screen.getByRole("button", { name: /Generate Report/i });
       await act(async () => { fireEvent.click(btn); });
       await waitFor(() => {
@@ -286,14 +303,18 @@ describe("Step 5: Review & Generate (#156)", () => {
         expect(marketCall).toBeTruthy();
       });
       await waitFor(() => {
-        expect(props.onStepComplete).toHaveBeenCalledWith(
+        expect(result!.props.onStepComplete).toHaveBeenCalledWith(
           expect.objectContaining({ reportId: "report-789" })
         );
       });
     });
 
     it("CMP-156-21: shows error on API failure", async () => {
-      renderReview();
+      await act(async () => { renderReview(); });
+      // Wait for entitlement check to resolve
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Generate Report/i })).not.toBeDisabled();
+      });
       // Override fetch after render so persona load uses success mock but report POST fails
       mockFetchReportError();
       const btn = screen.getByRole("button", { name: /Generate Report/i });
@@ -312,6 +333,9 @@ describe("Step 5: Review & Generate (#156)", () => {
     it("CMP-156-23: shows loading state on generate click", async () => {
       global.fetch = jest.fn((url: string | URL | Request, opts?: RequestInit) => {
         const urlStr = typeof url === "string" ? url : url.toString();
+        if (urlStr.includes("/api/entitlements/check")) {
+          return Promise.resolve({ ok: true, json: () => Promise.resolve({ allowed: true, limit: 10, used: 3, remaining: 7 }) } as Response);
+        }
         if (urlStr.includes("/api/buyer-personas")) {
           return Promise.resolve({ ok: true, json: () => Promise.resolve({ personas: MOCK_PERSONAS }) } as Response);
         }
@@ -321,7 +345,10 @@ describe("Step 5: Review & Generate (#156)", () => {
         return Promise.resolve({ ok: true, json: () => Promise.resolve({}) } as Response);
       }) as jest.Mock;
 
-      renderReview();
+      await act(async () => { renderReview(); });
+      await waitFor(() => {
+        expect(screen.getByRole("button", { name: /Generate Report/i })).not.toBeDisabled();
+      });
       const btn = screen.getByRole("button", { name: /Generate Report/i });
       await act(async () => { fireEvent.click(btn); });
       expect(screen.getByText(/Generating/)).toBeInTheDocument();

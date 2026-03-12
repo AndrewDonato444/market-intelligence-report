@@ -18,6 +18,11 @@ Patterns for UI and design system in this codebase.
 
 <!-- Common component structures, composition -->
 
+### 2026-03-12 — Soft Gate Banner UX (#174)
+- **Decision**: Entitlement soft gate is an inline banner inside the review step, not a modal/popup. The agent can still see their configuration and edit it. Respects the flow — nothing feels like a paywall wall. Banner uses `role="alert"` for screen reader announcement, disabled button has `aria-describedby` pointing to the banner.
+- **Pattern**: Usage indicator uses conditional styling: `bg-[var(--color-primary-light)]` for normal state, `bg-[var(--color-accent-light)]` for "last report" warning. Warning text uses `text-[var(--color-warning)]`. Unlimited users see no usage indicator at all — they don't need to count.
+- **Pattern**: Loading skeleton for async checks — `animate-pulse` div with fixed width (w-44) during entitlement fetch. Generate button disabled while loading. `aria-busy="true"` + `aria-label="Checking report availability"` for accessibility.
+
 ### 2026-03-11 — AudiencePersonaCard pattern
 - **Gotcha**: HTML spec forbids `<button>` inside `<button>`. When a card is a `<motion.button>` with `role="switch"`, any interactive child (like "Preview") must be a `<span role="link" tabIndex={0}>` with its own click/keydown handlers, not a nested `<button>`. React emits a console.error warning in dev and tests.
 - **Pattern**: For step components fetching from an API (vs static data like Steps 1-3), implement three states: loading skeleton (`animate-pulse` divs), error with Retry button, and empty state. Validation should be `true` on error/empty (allows user to skip) and track selection state only after data loads.
