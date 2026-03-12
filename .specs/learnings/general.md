@@ -64,7 +64,24 @@ _No learnings yet._
 
 <!-- Common issues, debugging techniques -->
 
-_No learnings yet._
+### 2026-03-12 — Supabase Email Confirmation Redirect (PKCE)
+- **Gotcha**: Supabase PKCE flow strips the path from `emailRedirectTo` — even if you pass `https://example.com/auth/callback`, the confirmation email's `redirect_to` will be just `https://example.com`. This is a Supabase behavior, not a bug in your code.
+- **Fix**: Add middleware to catch `/?code=...` on the root path and forward to `/auth/callback?code=...`:
+  ```typescript
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && request.nextUrl.pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    return NextResponse.redirect(url);
+  }
+  ```
+- **Gotcha**: `www` vs non-`www` matters. If Vercel redirects `example.com` → `www.example.com` (307), the Supabase Site URL and Redirect URLs must use the `www` variant. The PKCE code verifier cookie is set on the domain where sign-up happened — if the callback lands on a different subdomain, the cookie won't be there.
+- **Checklist for Supabase email confirmation**:
+  1. Site URL must match your primary production domain exactly (including `www` if that's primary)
+  2. Redirect URLs allowlist needs entries for all domain variants (`https://www.`, `https://`, `http://localhost:3000`)
+  3. Email template must use `{{ .ConfirmationURL }}` (not `{{ .SiteURL }}`)
+  4. Custom SMTP (e.g., Resend): username=`resend`, password=Resend API key (`re_...`), host=`smtp.resend.com`, port=`465`
+  5. Built-in Supabase mailer has ~3-4 emails/hour/recipient rate limit — use custom SMTP for production
 
 ---
 

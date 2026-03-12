@@ -93,6 +93,7 @@ The Social Media Kit is a paid feature gated by subscription tier. See the Subsc
 | **Report Export** | PDF generation, digital sharing links, print-ready output | Core |
 | **Social Media Kit Generator** | Post-report action — generate a full social media content kit from the finalized report. Shows generation progress, then presents the kit organized by content type | Core |
 | **Social Media Kit Viewer** | Browse, copy, and customize generated social media content — organized by content type (posts, captions, polls, etc.) with platform filters and persona filters | Core |
+| **Report Advisor (Chat)** | AI-powered contextual advisor — agents chat about their specific report to get meeting prep, persona-specific talking points, objection handling, and strategic recommendations grounded in their actual data | Core |
 | **Dashboard** | Home base — recent reports, quick-start new report, market overview | Core — Redesign |
 | **Report History** | Past reports, templates, versioning | Secondary |
 | **Account & Billing** | Subscription tier display, current usage vs. caps, upgrade prompts, usage tracking (API costs are real) | Core |
@@ -189,6 +190,45 @@ All persona intelligence specifications are market-agnostic by design. When gene
 ### Reference Document
 
 The full persona framework with detailed specifications is stored at `.specs/reference/knox-brothers-persona-framework.pdf`.
+
+---
+
+## The Artifact: Report Advisor
+
+The Report Advisor is a conversational AI that turns a static report into an interactive strategy session. After a report is generated, agents can open a chat interface and ask questions like "How do I use the supply constraint data with a tech founder?" or "What should I lead with if I'm meeting a Legacy Wealth family this weekend?"
+
+The advisor is **report-grounded** — it has the full report content as context and cites specific data points, page sections, and metrics in its responses. It's **persona-aware** — if the agent selected personas during report generation, the advisor can frame recommendations through those lenses.
+
+### Use Cases
+
+- **Meeting prep** — "I'm showing waterfront properties to a PE principal tomorrow. What data should I lead with?"
+- **Objection handling** — "A client says the market is overpriced. What does my report say to counter that?"
+- **Client presentation strategy** — "Which 3 stats from this report would impress a C-suite relocator?"
+- **Data interpretation** — "What does the 14% YoY decline in DOM mean for my sellers?"
+- **Market positioning** — "How is my market outperforming Miami Beach, and how do I talk about that?"
+- **Persona coaching** — "Reframe the key drivers section for a Legacy Wealth family vs. a Tech Founder"
+
+### How It Works
+
+- **Report-scoped context**: The advisor receives the full report content (all sections, all data) as context for the conversation. No external data fetching — everything comes from the report the agent already generated.
+- **Persona-aware**: If the agent selected buyer personas during report generation, the advisor can frame responses through those persona lenses — using their vocabulary, addressing their priorities, suggesting their preferred metrics.
+- **No new pipeline**: This is not a new agent in the generation pipeline. It's a post-generation chat endpoint that uses Claude with the report as context.
+- **Conversation memory**: Within a session, the advisor remembers prior questions so agents can build on previous answers ("Now how would I say that to a second-home buyer instead?").
+
+### Cost Management
+
+- Conversations are scoped per-report (one report's content as context window)
+- Conversation turns are capped by subscription tier (see Entitlement Types)
+- No new data pipeline or agent infrastructure — single chat API endpoint
+- Cost per conversation is predictable: report context (~fixed) + conversation turns (~variable)
+
+### System Prompt
+
+The advisor's system prompt template is stored at `.specs/reference/report-advisor-system-prompt.md`. It defines the advisor's persona, behavioral guardrails, and response formatting.
+
+### Paywall Strategy
+
+The Report Advisor is a paid feature gated by subscription tier. See the Subscription & Entitlement System section for details.
 
 ---
 
@@ -369,11 +409,11 @@ The platform gates features and volume behind subscription tiers. No Stripe acco
 
 ### Subscription Tiers (Illustrative — Admin-Editable)
 
-| Tier | Reports/Month | Markets | Social Media Kits | Personas/Report | Price (Display Only) |
-|------|--------------|---------|-------------------|-----------------|---------------------|
-| **Starter** | 2 | 1 | Not included | 1 | $0 / Free |
-| **Professional** | 10 | 3 | 1 per report | 3 | $199/mo |
-| **Enterprise** | Unlimited | Unlimited | Unlimited | 3 | Custom |
+| Tier | Reports/Month | Markets | Social Media Kits | Report Advisor | Personas/Report | Price (Display Only) |
+|------|--------------|---------|-------------------|----------------|-----------------|---------------------|
+| **Starter** | 2 | 1 | Not included | Not included | 1 | $0 / Free |
+| **Professional** | 10 | 3 | 1 per report | 5 conversations/report | 3 | $199/mo |
+| **Enterprise** | Unlimited | Unlimited | Unlimited | Unlimited | 3 | Custom |
 
 Tiers, caps, and included features are **fully admin-editable** — the table above is a starting point, not hardcoded.
 
@@ -385,6 +425,7 @@ Tiers, caps, and included features are **fully admin-editable** — the table ab
 | `markets_created` | Numeric or unlimited | 1, 3, unlimited |
 | `social_media_kits` | Per-report cap or not included | 0, 1, unlimited |
 | `personas_per_report` | Numeric | 1, 3 |
+| `advisor_conversations` | Per-report cap or not included | 0, 5, unlimited |
 
 New entitlement types can be added as features grow — the system is designed to be extensible without schema changes (entitlements stored as JSONB).
 

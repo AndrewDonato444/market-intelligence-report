@@ -11,6 +11,15 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
+  // Supabase PKCE email confirmation redirects to the site root with a `code` param
+  // instead of respecting the emailRedirectTo path. Intercept and forward to /auth/callback.
+  const code = request.nextUrl.searchParams.get("code");
+  if (code && request.nextUrl.pathname === "/") {
+    const url = request.nextUrl.clone();
+    url.pathname = "/auth/callback";
+    return NextResponse.redirect(url);
+  }
+
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,

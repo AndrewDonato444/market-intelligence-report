@@ -23,7 +23,7 @@
 |--------|-------|
 | ✅ Completed | 101 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 0 |
+| ⬜ Pending | 5 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-12
@@ -328,6 +328,22 @@
 
 ---
 
+## Phase 19: Report Advisor (Chat)
+
+> AI-powered contextual advisor that turns a static report into an interactive strategy session. Agents chat about their specific report to get meeting prep, persona-specific talking points, objection handling, and strategic recommendations — all grounded in their actual data. Gated by subscription tier.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 190 | Advisor data model — `advisor_conversations` table (conversationId, reportId, userId, messages JSONB, turnCount, createdAt, updatedAt) + indexes on reportId and userId | vision | S | 2 | ⬜ |
+| 191 | Advisor chat API endpoint — streaming Claude endpoint that receives report content + persona specs as system context, maintains conversation history within session, enforces turn limits per entitlement | vision | L | 190, 30, 57 | ⬜ |
+| 192 | Advisor chat UI — slide-out chat panel on report view page, message input with send, streaming response display, conversation history within session, clear "Ask about this report" entry point | vision | L | 191, 42 | ⬜ |
+| 193 | Entitlement gating for advisor — check `advisor_conversations` entitlement before allowing chat, show soft gate with upgrade messaging for Starter tier, enforce per-report turn cap for Professional tier | vision | S | 191, 173 | ⬜ |
+| 194 | Advisor in admin — conversation count in report detail, advisor usage stats in analytics (conversations/report, avg turns, most common question types), conversation log viewer for debugging | vision | M | 190, 121, 130 | ⬜ |
+
+**Goal**: After generating a report, agents can open a chat panel and ask questions like "How do I use this data with a tech founder?" or "A client says the market is overpriced — what does my report say?" The advisor cites specific data from their report, frames advice through selected personas, and helps agents turn intelligence into client conversations.
+
+---
+
 ## Ad-hoc Requests
 
 > Features added from triage that don't fit a phase. Processed after current phase.
@@ -422,6 +438,15 @@
 - **Phase 18 can start immediately** — #170-#173 have no dependency on Phases 12-17
 - **Gating features (#174-#176) can be added incrementally** as each gated feature exists
 
+### Phase Dependencies (Phase 19 — Report Advisor)
+- #190 (data model) only needs the database (Phase 1)
+- #191 (chat API) needs the data model (#190), agent framework (#30) for Claude API patterns, and report export (#57) for report content
+- #192 (chat UI) needs the API (#191) and report preview (#42) for the panel integration
+- #193 (entitlement gating) needs the API (#191) and entitlement check utility (#173)
+- #194 (admin) needs the data model (#190) plus admin report list (#121) and analytics (#130)
+- **Phase 19 can start immediately** — #190 has no dependency on other pending phases
+- System prompt template is at `.specs/reference/report-advisor-system-prompt.md`
+
 ### Parallelization Opportunities
 After Phase 1, multiple workstreams can run in parallel:
 - **Workstream A**: #10, #11, #12, #13 (user & market setup)
@@ -439,6 +464,7 @@ UX redesign + admin expansion (Phases 12–16):
 - **Workstream I**: #130-#135 (analytics) — ideally after G completes for richer data
 - **Workstream J**: #160-#165 (social media kit) — independent, can run anytime after report pipeline is stable
 - **Workstream K**: #170-#173 (entitlement foundation) → #174-#180 (gating + admin) — foundation can start immediately, gating added incrementally
+- **Workstream L**: #190-#192 (report advisor) → #193 (gating, after K) → #194 (admin analytics) — can start immediately, gating wired after entitlement foundation
 
 ---
 
