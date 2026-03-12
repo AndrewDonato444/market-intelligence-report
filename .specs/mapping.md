@@ -90,6 +90,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-template | [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
+| social-media-kit | [Social Media Agent](.specs/features/social-media-kit/social-media-agent.feature.md) | `lib/agents/social-media.ts` | see spec | see spec | implemented |
 | subscription | [Subscription Tier Data Model](.specs/features/subscription/subscription-tier-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | user-setup | [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md) | `app/(protected)/settings/profile/page.tsx, app/api/profile/route.ts, lib/services/profile.ts, lib/services/profile-validation.ts` | see spec | see spec | implemented |
 | user-setup | [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md) | `app/(protected)/markets/new/page.tsx, app/api/markets/route.ts, lib/services/market.ts, lib/services/market-validation.ts` | see spec | see spec | implemented |
@@ -116,8 +117,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 83 |
-| **Total** | **88** |
+| implemented | 84 |
+| **Total** | **89** |
 
 ---
 
@@ -206,6 +207,7 @@ _None_
 - [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md)
 - [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md)
 - [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md)
+- [Social Media Agent](.specs/features/social-media-kit/social-media-agent.feature.md)
 - [Subscription Tier Data Model](.specs/features/subscription/subscription-tier-data-model.feature.md)
 - [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md)
 - [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md)
