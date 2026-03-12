@@ -11,6 +11,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const since = searchParams.get("since") ?? undefined;
 
-  const summary = await getUsageSummary(userId, since ? { since } : undefined);
+  const summary = await getUsageSummary(userId, since ? new Date(since) : undefined);
   return NextResponse.json(summary);
 }
