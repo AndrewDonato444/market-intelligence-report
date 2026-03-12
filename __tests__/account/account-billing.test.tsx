@@ -166,8 +166,8 @@ describe("CMP-AB: Account & Billing Page", () => {
     it("CMP-AB-09: renders a usage bar with correct fill percentage", () => {
       const { container } = renderAccountSettings(makeProps());
       const fills = container.querySelectorAll('[data-testid="usage-bar-fill"]');
-      const reportsFill = Array.from(fills).find(
-        (el: Element) => (el as HTMLElement).style.width === "70%"
+      const reportsFill = Array.from<Element>(fills).find(
+        (el) => (el as HTMLElement).style.width === "70%"
       );
       expect(reportsFill).toBeTruthy();
     });
@@ -279,8 +279,8 @@ describe("CMP-AB: Account & Billing Page", () => {
         })
       );
       const fills = container.querySelectorAll('[data-testid="usage-bar-fill"]');
-      const atCapFill = Array.from(fills).find(
-        (el: Element) => (el as HTMLElement).style.width === "100%"
+      const atCapFill = Array.from<Element>(fills).find(
+        (el) => (el as HTMLElement).style.width === "100%"
       );
       expect(atCapFill).toBeTruthy();
     });
@@ -341,7 +341,7 @@ describe("CMP-AB: Account & Billing Page", () => {
         })
       );
       const fills = container.querySelectorAll('[data-testid="usage-bar-fill"]');
-      const warningFill = Array.from(fills).find((el: Element) =>
+      const warningFill = Array.from<Element>(fills).find((el) =>
         (el as HTMLElement).className.includes("warning")
       );
       expect(warningFill).toBeTruthy();
