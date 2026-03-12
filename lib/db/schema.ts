@@ -573,6 +573,37 @@ export const reportPersonas = pgTable(
   ]
 );
 
+// --- Entitlement Overrides Table ---
+
+export const entitlementOverrides = pgTable(
+  "entitlement_overrides",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    entitlementType: varchar("entitlement_type", { length: 100 }).notNull(),
+    value: integer("value").notNull(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }),
+    grantedBy: text("granted_by").notNull(),
+    reason: text("reason"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("entitlement_overrides_user_id_idx").on(table.userId),
+    index("entitlement_overrides_user_type_idx").on(
+      table.userId,
+      table.entitlementType
+    ),
+  ]
+);
+
+export type EntitlementOverridesTable =
+  typeof entitlementOverrides.$inferSelect;
+export type NewEntitlementOverride = typeof entitlementOverrides.$inferInsert;
+
 // --- Social Media Kit Content Types ---
 
 export type PostIdea = {

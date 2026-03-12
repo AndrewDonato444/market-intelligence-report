@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 90 |
+| ✅ Completed | 91 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 28 |
+| ⬜ Pending | 27 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-11
@@ -313,7 +313,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 170 | Subscription tier data model — `subscription_tiers` table (tierId, name, entitlements JSONB, displayPrice, isActive, sortOrder) + seed default tiers (Starter, Professional, Enterprise) | user-request | M | 2 | ✅ |
-| 171 | User entitlement model — add `tierId` FK to users/subscriptions, `entitlement_overrides` table (userId, entitlementType, value, expiresAt, grantedBy, reason, createdAt), Stripe-ready nullable columns (`stripeCustomerId`, `stripeSubscriptionId`) | user-request | M | 170 | ⬜ |
+| 171 | User entitlement model — add `tierId` FK to users/subscriptions, `entitlement_overrides` table (userId, entitlementType, value, expiresAt, grantedBy, reason, createdAt), Stripe-ready nullable columns (`stripeCustomerId`, `stripeSubscriptionId`) | user-request | M | 170 | ✅ |
 | 172 | Usage tracking — `usage_records` table (userId, entitlementType, periodStart, periodEnd, count) + increment on report creation, market creation, kit generation. Reset logic for monthly caps | user-request | M | 171 | ⬜ |
 | 173 | Entitlement check utility — single `checkEntitlement(userId, entitlementType)` function that resolves tier + overrides + usage → allowed/denied with remaining count. Used app-wide before gated actions | user-request | M | 171, 172 | ⬜ |
 | 174 | Entitlement gating in report creation — check `reports_per_month` before allowing report generation, show soft gate with upgrade messaging when cap hit | user-request | M | 173, 40 | ⬜ |
