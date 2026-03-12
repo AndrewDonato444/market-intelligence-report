@@ -82,8 +82,8 @@ And the kit status remains "completed" throughout (no intermediate state change)
 Given a completed kit exists
 When `regenerateKitSection` is called but the Claude API returns an error
 Then the kit content is NOT modified (original content preserved)
-And the API returns 500 with the error message
 And the kit status remains "completed" (not changed to "failed")
+And the error is logged server-side (the API has already returned 202 due to fire-and-forget)
 
 ### Scenario: Per-section regeneration for persona posts with no personas
 Given a completed kit where `personaPosts` is empty (no personas were selected)
@@ -125,7 +125,7 @@ Returns:
   400: { error: "Invalid content type" }
   404: { error: "No social media kit found" }
   409: { error: "Kit is currently being generated" }
-  500: { error: "Regeneration failed: ..." }
+  500: { error: "Regeneration failed: ..." } (synchronous errors only; async agent failures are logged server-side)
 ```
 
 ### Service Layer Addition
