@@ -13,6 +13,8 @@
  * Spec: .specs/features/subscription/entitlement-gating-report-creation.feature.md
  */
 
+export {};
+
 // --- Minimal Request polyfill for jsdom test environment ---
 class MinimalRequest {
   url: string;

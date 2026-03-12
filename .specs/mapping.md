@@ -98,6 +98,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | subscription | [Entitlement Check Utility](.specs/features/subscription/entitlement-check-utility.feature.md) | `lib/services/entitlement-check.ts` | see spec | see spec | implemented |
 | subscription | [Entitlement Gating in Market Creation](.specs/features/subscription/entitlement-gating-market-creation.feature.md) | `app/api/markets/route.ts` | see spec | see spec | implemented |
 | subscription | [Entitlement Gating in Report Creation](.specs/features/subscription/entitlement-gating-report-creation.feature.md) | `app/api/reports/route.ts` | see spec | see spec | implemented |
+| subscription | [Entitlement Gating in Social Media Kit](.specs/features/subscription/entitlement-gating-social-media-kit.feature.md) | `app/api/reports/[id]/kit/generate/route.ts` | see spec | see spec | implemented |
 | subscription | [Subscription Tier Data Model](.specs/features/subscription/subscription-tier-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | subscription | [Usage Tracking](.specs/features/subscription/usage-tracking.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | subscription | [User Entitlement Model](.specs/features/subscription/user-entitlement-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
@@ -126,8 +127,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 93 |
-| **Total** | **98** |
+| implemented | 94 |
+| **Total** | **99** |
 
 ---
 
@@ -224,6 +225,7 @@ _None_
 - [Entitlement Check Utility](.specs/features/subscription/entitlement-check-utility.feature.md)
 - [Entitlement Gating in Market Creation](.specs/features/subscription/entitlement-gating-market-creation.feature.md)
 - [Entitlement Gating in Report Creation](.specs/features/subscription/entitlement-gating-report-creation.feature.md)
+- [Entitlement Gating in Social Media Kit](.specs/features/subscription/entitlement-gating-social-media-kit.feature.md)
 - [Subscription Tier Data Model](.specs/features/subscription/subscription-tier-data-model.feature.md)
 - [Usage Tracking](.specs/features/subscription/usage-tracking.feature.md)
 - [User Entitlement Model](.specs/features/subscription/user-entitlement-model.feature.md)

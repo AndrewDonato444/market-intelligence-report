@@ -65,6 +65,19 @@ jest.mock("@/lib/services/social-media-kit", () => ({
   deleteSocialMediaKit: (...args: unknown[]) => mockDeleteSocialMediaKit(...args),
 }));
 
+jest.mock("@/lib/services/entitlement-check", () => ({
+  checkEntitlement: jest.fn(async () => ({
+    allowed: true,
+    limit: -1,
+    used: 0,
+    remaining: -1,
+  })),
+}));
+
+jest.mock("@/lib/services/usage-tracking", () => ({
+  incrementUsage: jest.fn(async () => {}),
+}));
+
 // --- Imports ---
 
 import { POST } from "@/app/api/reports/[id]/kit/generate/route";

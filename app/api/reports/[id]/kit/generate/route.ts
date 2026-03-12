@@ -14,6 +14,8 @@ import {
   getSocialMediaKit,
   deleteSocialMediaKit,
 } from "@/lib/services/social-media-kit";
+import { checkEntitlement } from "@/lib/services/entitlement-check";
+import { incrementUsage } from "@/lib/services/usage-tracking";
 
 export async function POST(
   _request: Request,
@@ -40,6 +42,16 @@ export async function POST(
     );
   }
 
+  // Check entitlement before generating kit
+  const entitlement = await checkEntitlement(userId, "social_media_kits");
+  if (!entitlement.allowed) {
+    const error =
+      entitlement.limit === 0
+        ? "Social media kit not included in your plan"
+        : "Social media kit limit reached";
+    return NextResponse.json({ error, entitlement }, { status: 403 });
+  }
+
   // Check for existing kit
   const existingKit = await getSocialMediaKit(reportId);
   if (existingKit) {
@@ -58,6 +70,11 @@ export async function POST(
   // Fire and forget — kit generation runs async
   generateSocialMediaKit(reportId, report.userId).catch((err) => {
     console.error(`Social media kit generation failed for report ${reportId}:`, err);
+  });
+
+  // Increment usage after successful generation start (fire-and-forget)
+  incrementUsage(userId, "social_media_kits").catch((err) => {
+    console.error("Failed to increment social_media_kits usage:", err);
   });
 
   return NextResponse.json(

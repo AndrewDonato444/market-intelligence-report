@@ -77,6 +77,15 @@ jest.mock("@/lib/services/social-media-kit", () => ({
     mockRegenerateKitSection(...args),
 }));
 
+jest.mock("@/lib/services/entitlement-check", () => ({
+  checkEntitlement: jest.fn(async () => ({
+    allowed: true,
+    limit: 5,
+    used: 0,
+    remaining: 5,
+  })),
+}));
+
 // --- Imports ---
 
 import { POST } from "@/app/api/reports/[id]/kit/regenerate/route";

@@ -15,6 +15,7 @@ import {
   getSocialMediaKit,
   regenerateKitSection,
 } from "@/lib/services/social-media-kit";
+import { checkEntitlement } from "@/lib/services/entitlement-check";
 import type { SocialMediaKitContent } from "@/lib/db/schema";
 
 const VALID_CONTENT_TYPES: Array<keyof SocialMediaKitContent> = [
@@ -42,6 +43,16 @@ export async function POST(
   const report = await getReport(userId, reportId);
   if (!report) {
     return NextResponse.json({ error: "Report not found" }, { status: 404 });
+  }
+
+  // Check entitlement before allowing regeneration
+  const entitlement = await checkEntitlement(userId, "social_media_kits");
+  if (!entitlement.allowed) {
+    const error =
+      entitlement.limit === 0
+        ? "Social media kit not included in your plan"
+        : "Social media kit limit reached";
+    return NextResponse.json({ error, entitlement }, { status: 403 });
   }
 
   // Parse request body

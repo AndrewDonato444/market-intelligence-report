@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 95 |
+| ✅ Completed | 96 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 25 |
+| ⬜ Pending | 24 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-12
@@ -318,7 +318,7 @@
 | 173 | Entitlement check utility — single `checkEntitlement(userId, entitlementType)` function that resolves tier + overrides + usage → allowed/denied with remaining count. Used app-wide before gated actions | user-request | M | 171, 172 | ✅ |
 | 174 | Entitlement gating in report creation — check `reports_per_month` before allowing report generation, show soft gate with upgrade messaging when cap hit | user-request | M | 173, 40 | ✅ |
 | 175 | Entitlement gating in market creation — check `markets_created` before allowing new market, show soft gate with upgrade messaging | user-request | S | 173, 11 | ✅ |
-| 176 | Entitlement gating in social media kit — check `social_media_kits` before allowing kit generation, show "not included in your plan" or cap-hit messaging | user-request | S | 173, 162 | ⬜ |
+| 176 | Entitlement gating in social media kit — check `social_media_kits` before allowing kit generation, show "not included in your plan" or cap-hit messaging | user-request | S | 173, 162 | ✅ |
 | 177 | Account & billing page — show current tier, usage vs. caps for each entitlement, upgrade prompts (display-only pricing, no checkout yet) | user-request | M | 171, 172 | ⬜ |
 | 178 | Admin: subscription tier management — CRUD for tiers, edit entitlement caps and display pricing, reorder tiers, activate/deactivate | user-request | M | 170 | ⬜ |
 | 179 | Admin: entitlement overrides — grant tier override, entitlement boost, or feature unlock to individual users. Set expiry, reason. Full audit trail view | user-request | M | 171, 112 | ⬜ |
