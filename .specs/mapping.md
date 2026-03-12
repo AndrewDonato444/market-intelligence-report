@@ -97,6 +97,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | social-media-kit | [Social Media Kit Viewer](.specs/features/social-media-kit/kit-viewer.feature.md) | `app/(protected)/reports/[id]/kit/page.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Agent](.specs/features/social-media-kit/social-media-agent.feature.md) | `lib/agents/social-media.ts` | see spec | see spec | implemented |
 | subscription | [Account & Billing Page](.specs/features/subscription/account-billing-page.feature.md) | `app/(protected)/settings/account/page.tsx` | see spec | see spec | implemented |
+| subscription | [Admin Entitlement Overrides](.specs/features/subscription/admin-entitlement-overrides.feature.md) | `app/admin/users/[id]/overrides/page.tsx` | see spec | see spec | implemented |
 | subscription | [Entitlement Check Utility](.specs/features/subscription/entitlement-check-utility.feature.md) | `lib/services/entitlement-check.ts` | see spec | see spec | implemented |
 | subscription | [Entitlement Gating in Market Creation](.specs/features/subscription/entitlement-gating-market-creation.feature.md) | `app/api/markets/route.ts` | see spec | see spec | implemented |
 | subscription | [Entitlement Gating in Report Creation](.specs/features/subscription/entitlement-gating-report-creation.feature.md) | `app/api/reports/route.ts` | see spec | see spec | implemented |
@@ -129,8 +130,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 96 |
-| **Total** | **101** |
+| implemented | 97 |
+| **Total** | **102** |
 
 ---
 
@@ -226,6 +227,7 @@ _None_
 - [Social Media Kit Viewer](.specs/features/social-media-kit/kit-viewer.feature.md)
 - [Social Media Agent](.specs/features/social-media-kit/social-media-agent.feature.md)
 - [Account & Billing Page](.specs/features/subscription/account-billing-page.feature.md)
+- [Admin Entitlement Overrides](.specs/features/subscription/admin-entitlement-overrides.feature.md)
 - [Entitlement Check Utility](.specs/features/subscription/entitlement-check-utility.feature.md)
 - [Entitlement Gating in Market Creation](.specs/features/subscription/entitlement-gating-market-creation.feature.md)
 - [Entitlement Gating in Report Creation](.specs/features/subscription/entitlement-gating-report-creation.feature.md)

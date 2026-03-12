@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import type { UserDetailResponse } from "@/app/api/admin/users/[id]/route";
+import { EntitlementOverridesPanel } from "@/components/admin/entitlement-overrides-panel";
 
 const STATUS_COLORS: Record<string, { color: string; bg: string }> = {
   active: {
@@ -56,6 +57,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [activeTab, setActiveTab] = useState<"details" | "overrides">("details");
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -494,6 +496,46 @@ export function UserDetailPanel({ userId }: { userId: string }) {
         )}
       </div>
 
+      {/* Tabs */}
+      <div
+        style={{
+          display: "flex",
+          gap: "var(--spacing-1)",
+          marginTop: "var(--spacing-4)",
+          borderBottom: "1px solid var(--color-border)",
+        }}
+      >
+        {(["details", "overrides"] as const).map((tab) => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab)}
+            style={{
+              padding: "var(--spacing-2) var(--spacing-4)",
+              border: "none",
+              borderBottom: activeTab === tab ? "2px solid var(--color-primary)" : "2px solid transparent",
+              background: "transparent",
+              color: activeTab === tab ? "var(--color-primary)" : "var(--color-text-secondary)",
+              fontSize: "var(--text-sm)",
+              fontWeight: activeTab === tab ? "var(--font-semibold)" : "var(--font-normal)",
+              cursor: "pointer",
+              textTransform: "capitalize",
+            }}
+          >
+            {tab === "details" ? "Details" : "Overrides"}
+          </button>
+        ))}
+      </div>
+
+      {/* Overrides Tab */}
+      {activeTab === "overrides" && (
+        <div style={{ marginTop: "var(--spacing-4)" }}>
+          <EntitlementOverridesPanel userId={userId} userName={user.name} />
+        </div>
+      )}
+
+      {/* Details Tab */}
+      {activeTab === "details" && <>
+
       {/* Stats Cards */}
       <div
         style={{
@@ -694,6 +736,8 @@ export function UserDetailPanel({ userId }: { userId: string }) {
           </div>
         )}
       </div>
+
+      </>}
     </div>
   );
 }

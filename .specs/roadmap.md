@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 98 |
+| ✅ Completed | 99 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 22 |
+| ⬜ Pending | 21 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-12
@@ -321,7 +321,7 @@
 | 176 | Entitlement gating in social media kit — check `social_media_kits` before allowing kit generation, show "not included in your plan" or cap-hit messaging | user-request | S | 173, 162 | ✅ |
 | 177 | Account & billing page — show current tier, usage vs. caps for each entitlement, upgrade prompts (display-only pricing, no checkout yet) | user-request | M | 171, 172 | ✅ |
 | 178 | Admin: subscription tier management — CRUD for tiers, edit entitlement caps and display pricing, reorder tiers, activate/deactivate | user-request | M | 170 | ✅ |
-| 179 | Admin: entitlement overrides — grant tier override, entitlement boost, or feature unlock to individual users. Set expiry, reason. Full audit trail view | user-request | M | 171, 112 | ⬜ |
+| 179 | Admin: entitlement overrides — grant tier override, entitlement boost, or feature unlock to individual users. Set expiry, reason. Full audit trail view | user-request | M | 171, 112 | ✅ |
 | 180 | Default tier assignment on signup — new users auto-assigned Starter tier, tier shown in onboarding | user-request | S | 170, 3 | ⬜ |
 
 **Goal**: Every gated action (create report, create market, generate social media kit) checks the user's tier entitlements before proceeding. Admins can create/edit tiers, grant overrides to individual users, and see a full audit trail. Users see their usage vs. caps and upgrade prompts. No payment processing — tiers are admin-assigned until Stripe is connected.
