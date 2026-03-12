@@ -29,7 +29,61 @@ export async function ensureUserProfile(authId: string, email: string) {
     .returning();
 
   // If another request raced us, fetch the existing row
-  return created ?? await getProfile(authId);
+  const user = created ?? await getProfile(authId);
+
+  // Assign Starter tier subscription for new users
+  if (user) {
+    await assignStarterTier(user.id);
+  }
+
+  return user;
+}
+
+/**
+ * Create a subscription row with the Starter tier for a new user.
+ * Gracefully degrades if the Starter tier doesn't exist in the DB.
+ * Uses ON CONFLICT DO NOTHING so it's safe to call multiple times.
+ */
+async function assignStarterTier(userId: string) {
+  try {
+    // Look up the Starter tier by slug
+    const [starterTier] = await db
+      .select({ id: schema.subscriptionTiers.id })
+      .from(schema.subscriptionTiers)
+      .where(eq(schema.subscriptionTiers.slug, "starter"))
+      .limit(1);
+
+    if (!starterTier) {
+      console.warn(
+        `Starter tier not found — subscription not created for user ${userId}`
+      );
+      return;
+    }
+
+    const now = new Date();
+    const periodEnd = new Date(now);
+    periodEnd.setDate(periodEnd.getDate() + 30);
+
+    await db
+      .insert(schema.subscriptions)
+      .values({
+        userId,
+        tierId: starterTier.id,
+        plan: "free",
+        status: "active",
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        currentPeriodStart: now,
+        currentPeriodEnd: periodEnd,
+      })
+      .onConflictDoNothing({ target: schema.subscriptions.userId });
+  } catch (err) {
+    // Don't block user creation if subscription assignment fails
+    console.warn(
+      `Failed to assign Starter tier for user ${userId}:`,
+      err
+    );
+  }
 }
 
 export async function getProfile(authId: string) {
