@@ -19,6 +19,11 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Entitlement Check Utility (#173)
+
+- **Mock call counter vs conditional branches** (`testing.md`): When implementation conditionally skips DB queries, call-counter mocks break. Compute branch state at setup time and map call numbers dynamically.
+- **Entitlement resolution test matrix** (`testing.md`): 16 scenarios covering tier caps, overrides, unlimited, expired, cumulative, defaults, unknown types, and fail-open.
+
 ### 2026-03-11 — Usage Tracking (#172)
 
 - **Atomic upsert with Drizzle** (`api.md`): `onConflictDoUpdate` with `sql\`count + 1\`` achieves atomic increment without read-then-write races. Requires a unique composite index as conflict target.

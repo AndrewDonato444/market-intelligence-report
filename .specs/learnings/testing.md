@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Entitlement Check Utility (#173)
+- **Gotcha**: When mocking sequential Drizzle queries with a call counter (`callCount++`), conditional branches in the implementation that skip a query (e.g., skipping tier lookup when `tierId` is null) shift all subsequent mock call numbers. The fix: compute at mock setup time whether the branch will be taken (e.g., `const hasTierId = subscription?.tierId !== null`), then map call numbers to queries dynamically (`isOverridesCall = hasTierId ? callCount === 3 : callCount === 2`). This is a general gotcha for any call-counter mock pattern where the implementation has conditional DB queries.
+- **Pattern**: For entitlement-style services with layered resolution (tier → overrides → usage), test the full matrix: quota remaining, cap hit, unlimited tier, override boost, multiple overrides (most favorable wins), expired overrides, null expiresAt, unlimited override, cumulative entitlements, feature not included (cap 0), override unlocking excluded feature, no subscription (defaults), unknown entitlement type, and DB error (fail-open). This 16-test matrix covers the entire resolution algorithm.
+
 ### 2026-03-11 — Kit Regeneration (#164)
 - **Pattern**: For fire-and-forget API routes, test synchronous errors with `mockImplementation(() => { throw new Error(...) })` instead of `mockRejectedValue()`. A rejected promise from an unawaited call won't be caught by the route's try/catch — only synchronous throws will. This distinction matters for testing error handling in async endpoints that return 202.
 - **Pattern**: The Request polyfill for API route tests needs a `_body` field and `json()` method that parses it. Add body support: `constructor(url, init) { this._body = init?.body ?? null; }` and `json() { return Promise.resolve(this._body ? JSON.parse(this._body) : {}); }`.
