@@ -45,7 +45,7 @@ Then the API returns 404
 ### Scenario: API rejects non-completed reports
 Given a report with status "generating"
 When a POST is sent to /api/reports/[id]/kit/generate
-Then the API returns 409 with message "Report is not completed"
+Then the API returns 409 with message "Report is not completed. Cannot generate social media kit."
 
 ### Scenario: API rejects duplicate generation
 Given a kit already exists for the report with status "generating"
@@ -66,16 +66,24 @@ Then the existing failed kit row is deleted
 And a new kit generation starts
 And the API returns 202
 
+### Scenario: API replaces stale queued kit
+Given a kit exists for the report with status "queued" (stale)
+When a POST is sent to /api/reports/[id]/kit/generate
+Then the existing queued kit row is deleted
+And a new kit generation starts
+And the API returns 202
+
 ### Scenario: Kit status polling
 Given a kit is being generated
 When GET /api/reports/[id]/kit/status is called
 Then it returns the current kit status (queued, generating, completed, failed)
 And if completed, includes the kit content
 
-### Scenario: Show existing kit link
+### Scenario: Show existing completed kit
 Given a completed kit exists for a report
 When the user views the report detail page
-Then a "View Social Media Kit" link is shown instead of "Generate"
+Then "Social Media Kit Ready" text is shown with a "Regenerate" button
+And the "Generate Social Media Kit" button is no longer displayed
 
 ### Scenario: Show failed kit with retry
 Given a failed kit exists for a report
