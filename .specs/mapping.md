@@ -33,6 +33,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [Analytics Data Export](.specs/features/admin/analytics-data-export.feature.md) | `lib/utils/analytics-export.ts, components/admin/export-button.tsx` | see spec | see spec | implemented |
 | admin | [Delete Account](.specs/features/admin/delete-account.feature.md) | `app/api/admin/users/[id]/delete/route.ts` | see spec | see spec | implemented |
 | admin | [Error Triage View](.specs/features/admin/error-triage-view.feature.md) | `app/admin/error-triage/page.tsx, components/admin/error-triage-dashboard.tsx, app/api/admin/reports/errors/route.ts` | see spec | see spec | implemented |
+| admin | [Eval Regression Tracking](.specs/features/admin/eval-regression-tracking.feature.md) | `app/admin/eval/report/page.tsx, components/eval/report-eval-dashboard.tsx, lib/eval/report-eval/history.ts` | see spec | see spec | implemented |
 | admin | [Geographic Analytics](.specs/features/admin/geographic-analytics.feature.md) | `app/api/admin/analytics/geographic/route.ts, components/admin/geographic-analytics-dashboard.tsx, app/admin/analytics/geographic/page.tsx, components/admin/analytics-nav.tsx, app/admin/analytics/layout.tsx` | see spec | see spec | implemented |
 | admin | [Pipeline Performance Metrics](.specs/features/admin/pipeline-performance.feature.md) | `app/admin/analytics/performance/page.tsx, components/admin/pipeline-performance-dashboard.tsx, app/api/admin/analytics/performance/route.ts` | see spec | see spec | implemented |
 | admin | [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md) | `app/api/admin/reports/[id]/retry/route.ts` | see spec | see spec | implemented |
@@ -74,8 +75,9 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | pipeline | [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md) | `lib/services/data-source-registry.ts` | see spec | see spec | implemented |
 | pipeline | [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md) | `lib/services/pipeline-executor.ts` | see spec | see spec | implemented |
 | report-builder | [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
-| report-builder | [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md) | `components/reports/report-wizard.tsx` | see spec | see spec | implemented |
+| report-builder | [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md) | `(deleted — replaced by unified-report-entry)` | see spec | see spec | archived |
 | report-builder | [Report Preview](.specs/features/report-builder/report-preview.feature.md) | `components/reports/report-preview.tsx` | see spec | see spec | implemented |
+| report-builder | [Unified Report Generation Entry Point](.specs/features/report-builder/unified-report-entry.feature.md) | `app/(protected)/reports/page.tsx` | see spec | see spec | implemented |
 | report-editor | [Report Editor](.specs/features/report-editor/report-editor.feature.md) | `components/reports/section-editor.tsx` | see spec | see spec | implemented |
 | report-editor | [Report History + Versioning](.specs/features/report-editor/report-history.feature.md) | `lib/services/report-history.ts` | see spec | see spec | implemented |
 | report-editor | [Report Templates](.specs/features/report-editor/report-templates.feature.md) | `lib/services/report-templates.ts` | see spec | see spec | implemented |
@@ -87,10 +89,12 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-template | [PDF Export + Digital Sharing Links](.specs/features/report-template/pdf-export-sharing.feature.md) | `lib/services/report-sharing.ts` | see spec | see spec | implemented |
 | report-template | [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
+| subscription | [Subscription Tier Data Model](.specs/features/subscription/subscription-tier-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | user-setup | [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md) | `app/(protected)/settings/profile/page.tsx, app/api/profile/route.ts, lib/services/profile.ts, lib/services/profile-validation.ts` | see spec | see spec | implemented |
 | user-setup | [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md) | `app/(protected)/markets/new/page.tsx, app/api/markets/route.ts, lib/services/market.ts, lib/services/market-validation.ts` | see spec | see spec | implemented |
 | user-setup | [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md) | `app/(protected)/markets/[id]/edit/page.tsx, app/api/markets/[id]/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | user-setup | [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md) | `app/(protected)/markets/[id]/peers/page.tsx, app/api/markets/[id]/peers/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
+| user-setup | [Unified Market Creation](.specs/features/user-setup/unified-market-creation.feature.md) | `app/(protected)/markets/new/page.tsx, components/markets/market-creation-shell.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md) | `components/ui/tooltip.tsx, lib/animations.ts` | see spec | see spec | implemented |
 | ux-redesign | [Dashboard Redesign](.specs/features/ux-redesign/dashboard-redesign.feature.md) | `app/(protected)/dashboard/page.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Flow Persistence & Returning User Shortcuts](.specs/features/ux-redesign/flow-persistence.feature.md) | `components/reports/creation-flow-shell.tsx` | see spec | see spec | implemented |
@@ -111,8 +115,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 79 |
-| **Total** | **83** |
+| implemented | 82 |
+| **Total** | **87** |
 
 ---
 
@@ -146,6 +150,7 @@ _None_
 - [Analytics Data Export](.specs/features/admin/analytics-data-export.feature.md)
 - [Delete Account](.specs/features/admin/delete-account.feature.md)
 - [Error Triage View](.specs/features/admin/error-triage-view.feature.md)
+- [Eval Regression Tracking](.specs/features/admin/eval-regression-tracking.feature.md)
 - [Geographic Analytics](.specs/features/admin/geographic-analytics.feature.md)
 - [Pipeline Performance Metrics](.specs/features/admin/pipeline-performance.feature.md)
 - [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md)
@@ -186,8 +191,8 @@ _None_
 - [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md)
 - [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md)
 - [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md)
-- [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md)
 - [Report Preview](.specs/features/report-builder/report-preview.feature.md)
+- [Unified Report Generation Entry Point](.specs/features/report-builder/unified-report-entry.feature.md)
 - [Report Editor](.specs/features/report-editor/report-editor.feature.md)
 - [Report History + Versioning](.specs/features/report-editor/report-history.feature.md)
 - [Report Templates](.specs/features/report-editor/report-templates.feature.md)
@@ -199,10 +204,12 @@ _None_
 - [PDF Export + Digital Sharing Links](.specs/features/report-template/pdf-export-sharing.feature.md)
 - [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md)
 - [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md)
+- [Subscription Tier Data Model](.specs/features/subscription/subscription-tier-data-model.feature.md)
 - [Agent Profile + Branding](.specs/features/user-setup/agent-profile.feature.md)
 - [Market Definition Wizard](.specs/features/user-setup/market-definition.feature.md)
 - [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md)
 - [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md)
+- [Unified Market Creation](.specs/features/user-setup/unified-market-creation.feature.md)
 - [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md)
 - [Dashboard Redesign](.specs/features/ux-redesign/dashboard-redesign.feature.md)
 - [Flow Persistence & Returning User Shortcuts](.specs/features/ux-redesign/flow-persistence.feature.md)

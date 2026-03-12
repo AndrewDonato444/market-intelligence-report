@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Subscription Tier Data Model (#170)
+
+- **Drizzle boolean for Postgres** (`general.md`): Use `boolean()` from `drizzle-orm/pg-core` for native Postgres boolean columns, not `integer` with 0/1. Requires adding `boolean` to the import list
+- **JSONB entitlements convention** (`general.md`): -1 = unlimited, 0 = not included, positive integer = cap. Extensible without schema changes — new entitlement types are just new keys
+- **Idempotent seed with onConflictDoNothing** (`general.md`): Drizzle's `.onConflictDoNothing()` maps to `ON CONFLICT DO NOTHING` — safe to re-run without duplicate checks
+- **Schema test pattern for new tables** (`testing.md`): Test column existence via `Object.keys(table)`, constraints via `.notNull`, migration SQL content via `fs.readFileSync` + string assertions. Matches existing user-status and activity-log test patterns
+
 ### 2026-03-11 — Landing Page v2 Redesign
 
 - **Mock report card text collisions** (`testing.md`): Shared text between hero mock card and other sections (metrics, labels) causes `getByText` failures. Always scope with `within(screen.getByTestId(...))` or use exact-match regex anchors

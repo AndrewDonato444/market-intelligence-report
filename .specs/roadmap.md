@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 83 |
-| 🔄 In Progress | 0 |
-| ⬜ Pending | 21 |
+| ✅ Completed | 84 |
+| 🔄 In Progress | 1 |
+| ⬜ Pending | 30 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-11
@@ -295,7 +295,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 160 | Social media kit data model — `social_media_kits` table (kitId, reportId, userId, status, content JSONB, generatedAt) + schema for kit content types (posts, captions, polls, stat callouts, calendar suggestions) | user-request | M | 2 | ⬜ |
+| 160 | Social media kit data model — `social_media_kits` table (kitId, reportId, userId, status, content JSONB, generatedAt) + schema for kit content types (posts, captions, polls, stat callouts, calendar suggestions) | user-request | M | 2 | 🔄 |
 | 161 | Social Media Agent — Claude agent that reads a finalized report and generates the full kit: post ideas, platform-specific captions (LinkedIn, Instagram, X, Facebook), persona-targeted posts, poll ideas with data-backed context, conversation starters, stat callouts, content calendar suggestions | user-request | L | 30, 36, 160 | ⬜ |
 | 162 | Social media kit generation trigger — "Generate Social Media Kit" action on completed reports (report detail page + dashboard), triggers the Social Media Agent, shows generation progress | user-request | M | 161, 57 | ⬜ |
 | 163 | Social media kit viewer — browse generated kit organized by content type, filter by platform (LinkedIn/Instagram/X/Facebook) and persona, copy-to-clipboard on each item, expandable sections | user-request | L | 160, 162 | ⬜ |
@@ -303,6 +303,28 @@
 | 165 | Social media kit in admin — kits visible in admin report detail, generation stats in analytics (kit generation rate, most-used content types) | user-request | M | 160, 121, 130 | ⬜ |
 
 **Goal**: After generating a report, agents can generate a Social Media Kit — a comprehensive, text-based content package with posts, captions, polls, stat callouts, and content calendar suggestions, all grounded in their specific report data. Agents copy the content to their own social media tools and customize as needed.
+
+---
+
+## Phase 18: Subscription & Entitlement System
+
+> Internal entitlement system that gates features and volume behind subscription tiers. No Stripe — tiers are admin-managed, entitlement checks are app-wide, and overrides let admins comp users. Stripe-ready columns exist but are nullable until payment processing is wired up later.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 170 | Subscription tier data model — `subscription_tiers` table (tierId, name, entitlements JSONB, displayPrice, isActive, sortOrder) + seed default tiers (Starter, Professional, Enterprise) | user-request | M | 2 | ✅ |
+| 171 | User entitlement model — add `tierId` FK to users/subscriptions, `entitlement_overrides` table (userId, entitlementType, value, expiresAt, grantedBy, reason, createdAt), Stripe-ready nullable columns (`stripeCustomerId`, `stripeSubscriptionId`) | user-request | M | 170 | ⬜ |
+| 172 | Usage tracking — `usage_records` table (userId, entitlementType, periodStart, periodEnd, count) + increment on report creation, market creation, kit generation. Reset logic for monthly caps | user-request | M | 171 | ⬜ |
+| 173 | Entitlement check utility — single `checkEntitlement(userId, entitlementType)` function that resolves tier + overrides + usage → allowed/denied with remaining count. Used app-wide before gated actions | user-request | M | 171, 172 | ⬜ |
+| 174 | Entitlement gating in report creation — check `reports_per_month` before allowing report generation, show soft gate with upgrade messaging when cap hit | user-request | M | 173, 40 | ⬜ |
+| 175 | Entitlement gating in market creation — check `markets_created` before allowing new market, show soft gate with upgrade messaging | user-request | S | 173, 11 | ⬜ |
+| 176 | Entitlement gating in social media kit — check `social_media_kits` before allowing kit generation, show "not included in your plan" or cap-hit messaging | user-request | S | 173, 162 | ⬜ |
+| 177 | Account & billing page — show current tier, usage vs. caps for each entitlement, upgrade prompts (display-only pricing, no checkout yet) | user-request | M | 171, 172 | ⬜ |
+| 178 | Admin: subscription tier management — CRUD for tiers, edit entitlement caps and display pricing, reorder tiers, activate/deactivate | user-request | M | 170 | ⬜ |
+| 179 | Admin: entitlement overrides — grant tier override, entitlement boost, or feature unlock to individual users. Set expiry, reason. Full audit trail view | user-request | M | 171, 112 | ⬜ |
+| 180 | Default tier assignment on signup — new users auto-assigned Starter tier, tier shown in onboarding | user-request | S | 170, 3 | ⬜ |
+
+**Goal**: Every gated action (create report, create market, generate social media kit) checks the user's tier entitlements before proceeding. Admins can create/edit tiers, grant overrides to individual users, and see a full audit trail. Users see their usage vs. caps and upgrade prompts. No payment processing — tiers are admin-assigned until Stripe is connected.
 
 ---
 
@@ -387,6 +409,19 @@
 - #165 (admin) needs the data model (#160) plus admin report list (#121) and analytics (#130)
 - **Phase 17 is independent from Phases 12-16** — can run in parallel
 
+### Phase Dependencies (Phase 18 — Subscription & Entitlements)
+- #170 (tier data model) only needs the database (Phase 1)
+- #171 (user entitlement model) needs tiers (#170)
+- #172 (usage tracking) needs entitlement model (#171)
+- #173 (entitlement check utility) needs model + tracking (#171, #172) — this is the critical piece everything else depends on
+- #174-#176 (gating in report/market/kit creation) each need #173 + the feature they're gating
+- #176 (kit gating) depends on Phase 17's #162 (kit generation trigger)
+- #177 (account page) needs model + tracking (#171, #172)
+- #178-#179 (admin tier management + overrides) need #170 and #171 respectively
+- #180 (signup assignment) needs tiers (#170) + auth (#3)
+- **Phase 18 can start immediately** — #170-#173 have no dependency on Phases 12-17
+- **Gating features (#174-#176) can be added incrementally** as each gated feature exists
+
 ### Parallelization Opportunities
 After Phase 1, multiple workstreams can run in parallel:
 - **Workstream A**: #10, #11, #12, #13 (user & market setup)
@@ -403,6 +438,7 @@ UX redesign + admin expansion (Phases 12–16):
 - **Workstream H**: #140-#143 (report eval) — independent, can run anytime
 - **Workstream I**: #130-#135 (analytics) — ideally after G completes for richer data
 - **Workstream J**: #160-#165 (social media kit) — independent, can run anytime after report pipeline is stable
+- **Workstream K**: #170-#173 (entitlement foundation) → #174-#180 (gating + admin) — foundation can start immediately, gating added incrementally
 
 ---
 

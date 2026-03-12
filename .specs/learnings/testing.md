@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Subscription Tier Data Model (#170)
+- **Pattern**: For schema-only features (no UI), tests split into two files: (1) schema structure tests verifying column existence, constraints, migration SQL, and type exports via `Object.keys(table)` and `.notNull` checks; (2) seed data tests verifying tier values, entitlement conventions, and idempotency via mocked DB insert with `onConflictDoNothing` assertion. This two-file pattern (schema + seed) is reusable for any table + seed pair.
+- **Pattern**: Export seed data as a named constant (`DEFAULT_TIERS`) alongside the seed function. Tests can import and validate the data directly without calling the DB, while the seed function handles the actual insert.
+
 ### 2026-03-11 — Report Eval Dashboard (#142)
 - **Gotcha**: `(4.2 / 5) * 100` evaluates to `84.00000000000001` due to floating-point arithmetic. Always use `toBeCloseTo()` instead of `toBe()` when asserting on division-derived percentages in tests.
 - **Pattern**: For admin page server component tests with `requireAdmin()`, the three-mock pattern is reliable: mock `next/navigation` (redirect throws), mock `@/lib/supabase/admin-auth` (returns admin ID or null), mock the client component (returns string). This pattern is now used identically for `/admin/eval` and `/admin/eval/report` pages.

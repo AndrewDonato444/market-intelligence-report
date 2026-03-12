@@ -43,3 +43,5 @@ export type UserActivity = typeof schema.userActivity.$inferSelect;
 export type NewUserActivity = typeof schema.userActivity.$inferInsert;
 export type ReportEvalResult = typeof schema.reportEvalResults.$inferSelect;
 export type NewReportEvalResult = typeof schema.reportEvalResults.$inferInsert;
+export type SubscriptionTier = typeof schema.subscriptionTiers.$inferSelect;
+export type NewSubscriptionTier = typeof schema.subscriptionTiers.$inferInsert;

@@ -7,6 +7,7 @@ import {
   jsonb,
   integer,
   numeric,
+  boolean,
   index,
   uniqueIndex,
   pgEnum,
@@ -59,6 +60,45 @@ export const userAccountStatusEnum = pgEnum("user_account_status", [
   "deleted",
 ]);
 
+// --- Tier Entitlements Type ---
+
+export type TierEntitlements = {
+  reports_per_month: number;    // -1 = unlimited
+  markets_created: number;      // -1 = unlimited
+  social_media_kits: number;    // 0 = not included, 1 = per-report, -1 = unlimited
+  personas_per_report: number;  // always numeric (1 or 3)
+};
+
+// --- Subscription Tiers Table ---
+
+export const subscriptionTiers = pgTable(
+  "subscription_tiers",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: varchar("name", { length: 100 }).unique().notNull(),
+    slug: varchar("slug", { length: 100 }).unique().notNull(),
+    description: text("description"),
+    entitlements: jsonb("entitlements").notNull().$type<TierEntitlements>(),
+    displayPrice: varchar("display_price", { length: 50 }).notNull(),
+    monthlyPriceInCents: integer("monthly_price_in_cents"),
+    isActive: boolean("is_active").notNull().default(true),
+    sortOrder: integer("sort_order").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("subscription_tiers_slug_idx").on(table.slug),
+    index("subscription_tiers_sort_order_idx").on(table.sortOrder),
+  ]
+);
+
+export type SubscriptionTiersTable = typeof subscriptionTiers.$inferSelect;
+export type NewSubscriptionTier = typeof subscriptionTiers.$inferInsert;
+
 // --- Tables ---
 
 export const users = pgTable("users", {
@@ -98,10 +138,13 @@ export const subscriptions = pgTable("subscriptions", {
     .notNull()
     .unique()
     .references(() => users.id, { onDelete: "cascade" }),
-  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }).notNull(),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
   plan: varchar("plan", { length: 50 }).notNull().default("free"),
   status: varchar("status", { length: 50 }).notNull().default("inactive"),
+  tierId: uuid("tier_id").references(() => subscriptionTiers.id, {
+    onDelete: "set null",
+  }),
   currentPeriodStart: timestamp("current_period_start", {
     withTimezone: true,
   }),

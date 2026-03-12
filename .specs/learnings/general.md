@@ -8,6 +8,12 @@ Patterns that don't fit other categories.
 
 <!-- Conventions, naming, organization -->
 
+### 2026-03-11 — Subscription Tier Data Model (#170)
+- **Pattern**: Use Drizzle's `boolean()` type for native Postgres booleans instead of `integer` with 0/1. Requires adding `boolean` to the `drizzle-orm/pg-core` import in schema.ts. Postgres supports native boolean; no need for SQLite-style integer workarounds.
+- **Decision**: Entitlements stored as JSONB with convention: -1 = unlimited, 0 = not included, positive integer = cap. This is extensible — new entitlement types (e.g., `api_calls_per_month`) can be added without schema migration, just a type update and seed data change.
+- **Pattern**: Idempotent seed scripts use Drizzle's `.onConflictDoNothing()` which maps to `ON CONFLICT DO NOTHING`. The seed function can be called multiple times safely. Export both the `DEFAULT_TIERS` array (for testing) and the `seedSubscriptionTiers()` function (for execution).
+- **Pattern**: When making an existing NOT NULL column nullable in a migration, use `ALTER COLUMN x DROP NOT NULL`. When adding a new FK column that references a new table, the table must be created first in the same migration.
+
 ### 2026-03-11 — Report Eval Dashboard (#142)
 - **Pattern**: When building a second dashboard that mirrors an existing one (e.g., report eval mirrors agent eval), copy the architecture wholesale (localStorage persistence, batch execution with concurrency pool, AbortController cancellation, JSON export) and extend with new panels. The 6 components (dashboard, summary panel, test case table, test case row, criterion breakdown, fixture comparison) follow the same decomposition. Abstracting into a shared base is premature — the differences (6 vs 4 dimensions, fixture vs agent grouping, criterion filter vs agent filter) make the components just different enough to warrant separate files.
 - **Pattern**: For breakdown panels that aggregate results by a grouping key (criterion, fixture), compute the aggregation client-side from the results Map rather than calling a separate API. The `byCriterion` and `byFixture` summaries use simple loops over results — no need for `buildReportEvalSummary()` on the client since the dashboard already has all results in state.
