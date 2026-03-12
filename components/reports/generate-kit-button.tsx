@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Link from "next/link";
 
 type KitStatus = "none" | "queued" | "generating" | "completed" | "failed";
 
@@ -69,23 +70,27 @@ export function GenerateKitButton({
     }
   }
 
-  // Completed — show "View Kit" (links to future #163 kit viewer)
+  // Completed — show "View Kit" link to kit viewer
   if (kitStatus === "completed") {
     if (compact) {
       return (
-        <span
-          className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-success)] text-white whitespace-nowrap"
-          title="Social Media Kit ready"
+        <Link
+          href={`/reports/${reportId}/kit`}
+          className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-success)] text-white whitespace-nowrap hover:opacity-90 transition-opacity"
+          title="View Social Media Kit"
         >
-          Kit Ready
-        </span>
+          View Kit
+        </Link>
       );
     }
     return (
       <div className="flex items-center gap-2">
-        <span className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-success)]">
-          Social Media Kit Ready
-        </span>
+        <Link
+          href={`/reports/${reportId}/kit`}
+          className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-success)] text-white whitespace-nowrap hover:opacity-90 transition-opacity"
+        >
+          View Social Media Kit
+        </Link>
         <button
           onClick={handleGenerate}
           className="font-[family-name:var(--font-sans)] text-xs px-2 py-1 rounded-[var(--radius-sm)] border border-[var(--color-border)] hover:bg-[var(--color-muted)] transition-colors whitespace-nowrap"
