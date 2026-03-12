@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Social Media Kit Regeneration (#164)
+
+- **Fire-and-forget vs sync error handling** (`api.md`): Per-section regeneration returns 202 immediately. Synchronous throws return 500; async rejections are caught by `.catch()` and logged.
+- **sectionOnly agent prompt pattern** (`api.md`): Append "SECTION-ONLY REGENERATION" to the full prompt context — agent sees all data but populates only the target array. Service merges via spread.
+- **Sync throw mock for fire-and-forget tests** (`testing.md`): Use `mockImplementation(() => { throw ... })` not `mockRejectedValue()` when testing error paths in async endpoints that don't await.
+- **Request polyfill body support** (`testing.md`): The edge-runtime Request polyfill needs `_body` + `json()` parsing for POST route tests.
+
 ### 2026-03-11 — Subscription Tier Data Model (#170)
 
 - **Drizzle boolean for Postgres** (`general.md`): Use `boolean()` from `drizzle-orm/pg-core` for native Postgres boolean columns, not `integer` with 0/1. Requires adding `boolean` to the import list

@@ -155,6 +155,118 @@ export async function generateSocialMediaKit(
 }
 
 /**
+ * Regenerate a single content type in an existing social media kit.
+ *
+ * 1. Loads the existing kit and validates it's completed
+ * 2. Loads report data (same as full generation)
+ * 3. Calls Social Media Agent with sectionOnly flag
+ * 4. Merges the new content into the existing kit JSONB
+ * 5. Updates the kit row (content + updatedAt) without changing status
+ */
+export async function regenerateKitSection(
+  reportId: string,
+  userId: string,
+  contentType: keyof SocialMediaKitContent
+): Promise<SocialMediaKitContent> {
+  // 1. Load existing kit
+  const [kit] = await db
+    .select()
+    .from(schema.socialMediaKits)
+    .where(
+      and(
+        eq(schema.socialMediaKits.reportId, reportId),
+        eq(schema.socialMediaKits.userId, userId)
+      )
+    )
+    .limit(1);
+
+  if (!kit || !kit.content) {
+    throw new Error("Kit not found or has no content");
+  }
+
+  // 2. Load report sections + market + personas (same data as full generation)
+  const [report] = await db
+    .select({
+      id: schema.reports.id,
+      marketId: schema.reports.marketId,
+      config: schema.reports.config,
+    })
+    .from(schema.reports)
+    .where(and(eq(schema.reports.id, reportId), eq(schema.reports.userId, userId)))
+    .limit(1);
+
+  if (!report) {
+    throw new Error(`Report ${reportId} not found`);
+  }
+
+  const sections = await db
+    .select({
+      sectionType: schema.reportSections.sectionType,
+      title: schema.reportSections.title,
+      content: schema.reportSections.content,
+    })
+    .from(schema.reportSections)
+    .where(eq(schema.reportSections.reportId, reportId))
+    .orderBy(asc(schema.reportSections.sortOrder));
+
+  const [market] = await db
+    .select({
+      name: schema.markets.name,
+      geography: schema.markets.geography,
+      luxuryTier: schema.markets.luxuryTier,
+      priceFloor: schema.markets.priceFloor,
+      priceCeiling: schema.markets.priceCeiling,
+    })
+    .from(schema.markets)
+    .where(eq(schema.markets.id, report.marketId))
+    .limit(1);
+
+  if (!market) {
+    throw new Error(`Market not found for report ${reportId}`);
+  }
+
+  const personas = await getReportPersonas(reportId);
+
+  const analyticsSection = sections.find(
+    (s) => s.sectionType === "luxury_market_dashboard" || s.sectionType === "market_overview"
+  );
+  const computedAnalytics = (report.config as any)?.computedAnalytics
+    ?? analyticsSection?.content
+    ?? null;
+
+  // 3. Call the Social Media Agent with sectionOnly
+  const agentInput: SocialMediaAgentInput = {
+    reportSections: sections,
+    computedAnalytics,
+    market: market as SocialMediaAgentInput["market"],
+    personas: personas.map((p) => ({
+      selectionOrder: p.selectionOrder,
+      persona: p.persona as SocialMediaAgentInput["personas"][number]["persona"],
+    })),
+    sectionOnly: contentType,
+  };
+
+  const result = await executeSocialMediaAgent(agentInput);
+
+  // 4. Merge: replace only the requested content type, preserve the rest
+  const mergedContent: SocialMediaKitContent = {
+    ...kit.content,
+    [contentType]: result.content[contentType],
+  };
+
+  // 5. Update the kit row (content + updatedAt only — status stays "completed")
+  await db
+    .update(schema.socialMediaKits)
+    .set({
+      content: mergedContent,
+      updatedAt: new Date(),
+    })
+    .where(eq(schema.socialMediaKits.id, kit.id));
+
+  return mergedContent;
+}
+
+/**
  * Get the social media kit for a report.
  */
 export async function getSocialMediaKit(reportId: string) {

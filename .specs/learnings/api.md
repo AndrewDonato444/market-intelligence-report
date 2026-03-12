@@ -65,6 +65,10 @@ The RealEstateAPI has free/cheap query modes to use before full data pulls:
 
 ---
 
+### 2026-03-11 — Per-Section Kit Regeneration (#164)
+- **Pattern**: For partial-resource regeneration endpoints (regenerate one section of a kit), validate the target section name against a whitelist of valid keys. Return 400 for invalid types, 404 if the parent resource doesn't exist, 409 if the parent is currently being generated. The endpoint returns 202 immediately and runs the regeneration async.
+- **Decision**: The agent receives all report context (market, analytics, sections, personas) even for single-section regeneration. This ensures generated content is contextually consistent with the rest of the kit. The prompt adds a "SECTION-ONLY" suffix instructing the LLM to populate only the target array.
+
 ## Data Shapes
 
 ### 2026-03-11 — Report Eval Dashboard (#142)

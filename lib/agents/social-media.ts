@@ -41,6 +41,8 @@ export interface SocialMediaAgentInput {
       [key: string]: any;
     };
   }>;
+  /** When set, generate ONLY this content type (per-section regeneration). */
+  sectionOnly?: keyof SocialMediaKitContent;
 }
 
 // --- Output types ---
@@ -93,6 +95,34 @@ OUTPUT RULES:
 - If no personas are provided, personaPosts must be an empty array
 - Content calendar must span exactly 4 weeks
 - CRITICAL: Only reference numbers that appear in the input data`;
+}
+
+function buildSectionOnlyPrompt(input: SocialMediaAgentInput): string {
+  const { reportSections, computedAnalytics, market, personas, sectionOnly } = input;
+
+  // Same market/analytics/sections context as full prompt
+  let prompt = buildUserPrompt({ ...input, sectionOnly: undefined });
+
+  // Override the output schema to request only the target section
+  const sectionLabels: Record<string, string> = {
+    postIdeas: 'postIdeas (5+ items)',
+    captions: 'captions (4+ items, 1 per platform)',
+    personaPosts: `personaPosts (${personas.length > 0 ? `2-3 per persona (${personas.length} personas)` : '0 (empty array)'})`,
+    polls: 'polls (2+ items)',
+    conversationStarters: 'conversationStarters (3+ items)',
+    calendarSuggestions: 'calendarSuggestions (exactly 4 weeks)',
+    statCallouts: 'statCallouts (4+ items)',
+  };
+
+  prompt += `\n\n## SECTION-ONLY REGENERATION
+
+IMPORTANT: You are regenerating ONLY the "${sectionOnly}" section.
+Return the SAME full JSON schema as above, but ONLY populate the "${sectionOnly}" array.
+All other arrays should be empty [].
+
+Focus on generating fresh, high-quality alternatives for: ${sectionLabels[sectionOnly!] ?? sectionOnly}`;
+
+  return prompt;
 }
 
 function buildUserPrompt(input: SocialMediaAgentInput): string {
@@ -207,7 +237,9 @@ export async function executeSocialMediaAgent(
   const start = Date.now();
 
   const systemPrompt = buildSystemPrompt();
-  const userPrompt = buildUserPrompt(input);
+  const userPrompt = input.sectionOnly
+    ? buildSectionOnlyPrompt(input)
+    : buildUserPrompt(input);
 
   let content: SocialMediaKitContent;
   let promptTokens = 0;

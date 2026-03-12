@@ -6,6 +6,8 @@ import type { SocialMediaKitContent } from "@/lib/db/schema";
 
 const PLATFORMS = ["All", "LinkedIn", "Instagram", "X", "Facebook"] as const;
 
+type ContentType = keyof SocialMediaKitContent;
+
 interface KitViewerProps {
   reportId: string;
   content: SocialMediaKitContent;
@@ -51,14 +53,58 @@ function PlatformBadge({ platform }: { platform: string }) {
   );
 }
 
-function SectionHeading({ title, count }: { title: string; count: number }) {
+function SectionHeading({
+  title,
+  count,
+  onRefresh,
+  refreshing,
+  justUpdated,
+}: {
+  title: string;
+  count: number;
+  onRefresh?: () => void;
+  refreshing?: boolean;
+  justUpdated?: boolean;
+}) {
   return (
-    <h2 className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)] uppercase tracking-wide">
-      {title}{" "}
-      <span className="font-normal text-[var(--color-text-secondary)]">
-        ({count})
-      </span>
-    </h2>
+    <div className="flex items-center gap-2">
+      <h2 className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)] uppercase tracking-wide">
+        {title}{" "}
+        <span className="font-normal text-[var(--color-text-secondary)]">
+          ({count})
+        </span>
+      </h2>
+      {justUpdated && (
+        <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-success)] font-medium">
+          Updated!
+        </span>
+      )}
+      {onRefresh && (
+        <button
+          onClick={onRefresh}
+          disabled={refreshing}
+          title="Generate fresh alternatives"
+          className={`ml-auto p-1 rounded-[var(--radius-sm)] border border-transparent hover:border-[var(--color-border)] hover:bg-[var(--color-muted)] transition-colors disabled:opacity-50 ${
+            refreshing ? "animate-spin" : ""
+          }`}
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="text-[var(--color-text-secondary)]"
+          >
+            <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+          </svg>
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -77,16 +123,57 @@ function Card({
   );
 }
 
-export function KitViewer({ reportId, content, generatedAt }: KitViewerProps) {
+export function KitViewer({ reportId, content: initialContent, generatedAt }: KitViewerProps) {
   const [platformFilter, setPlatformFilter] = useState<string>("All");
   const [personaFilter, setPersonaFilter] = useState<string>("All");
   const [regenerating, setRegenerating] = useState(false);
+  const [content, setContent] = useState<SocialMediaKitContent>(initialContent);
+  const [refreshing, setRefreshing] = useState<Record<string, boolean>>({});
+  const [justUpdated, setJustUpdated] = useState<Record<string, boolean>>({});
 
   // Extract unique personas
   const personas = new Map<string, string>();
   content.personaPosts.forEach((p) =>
     personas.set(p.personaSlug, p.personaName)
   );
+
+  const handleRefreshSection = useCallback(async (contentType: ContentType) => {
+    setRefreshing((prev) => ({ ...prev, [contentType]: true }));
+    setJustUpdated((prev) => ({ ...prev, [contentType]: false }));
+
+    try {
+      const res = await fetch(`/api/reports/${reportId}/kit/regenerate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ contentType }),
+      });
+
+      if (res.ok) {
+        // Poll for updated content
+        const pollForUpdate = async () => {
+          const statusRes = await fetch(`/api/reports/${reportId}/kit/status`);
+          if (statusRes.ok) {
+            const data = await statusRes.json();
+            if (data.kit?.content) {
+              setContent(data.kit.content);
+            }
+          }
+        };
+        // Wait a bit then poll — the regeneration runs async
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        await pollForUpdate();
+
+        setJustUpdated((prev) => ({ ...prev, [contentType]: true }));
+        setTimeout(() => {
+          setJustUpdated((prev) => ({ ...prev, [contentType]: false }));
+        }, 3000);
+      }
+    } catch {
+      // Ignore — user can retry
+    } finally {
+      setRefreshing((prev) => ({ ...prev, [contentType]: false }));
+    }
+  }, [reportId]);
 
   // Filter helpers
   const matchesPlatform = (platforms: string | string[]) => {
@@ -197,6 +284,9 @@ export function KitViewer({ reportId, content, generatedAt }: KitViewerProps) {
           <SectionHeading
             title="Post Ideas"
             count={filteredPostIdeas.length}
+            onRefresh={() => handleRefreshSection("postIdeas")}
+            refreshing={refreshing.postIdeas}
+            justUpdated={justUpdated.postIdeas}
           />
           {filteredPostIdeas.map((post, i) => (
             <Card
@@ -225,6 +315,9 @@ export function KitViewer({ reportId, content, generatedAt }: KitViewerProps) {
           <SectionHeading
             title="Platform Captions"
             count={filteredCaptions.length}
+            onRefresh={() => handleRefreshSection("captions")}
+            refreshing={refreshing.captions}
+            justUpdated={justUpdated.captions}
           />
           {filteredCaptions.map((caption, i) => (
             <Card
@@ -253,6 +346,9 @@ export function KitViewer({ reportId, content, generatedAt }: KitViewerProps) {
         <SectionHeading
           title="Persona-Targeted Posts"
           count={filteredPersonaPosts.length}
+          onRefresh={() => handleRefreshSection("personaPosts")}
+          refreshing={refreshing.personaPosts}
+          justUpdated={justUpdated.personaPosts}
         />
         {personas.size > 0 && (
           <div className="flex items-center gap-1.5 flex-wrap">
@@ -310,7 +406,13 @@ export function KitViewer({ reportId, content, generatedAt }: KitViewerProps) {
       {/* Polls */}
       {filteredPolls.length > 0 && (
         <section className="space-y-3">
-          <SectionHeading title="Polls" count={filteredPolls.length} />
+          <SectionHeading
+            title="Polls"
+            count={filteredPolls.length}
+            onRefresh={() => handleRefreshSection("polls")}
+            refreshing={refreshing.polls}
+            justUpdated={justUpdated.polls}
+          />
           {filteredPolls.map((poll, i) => (
             <Card
               key={i}
@@ -344,6 +446,9 @@ export function KitViewer({ reportId, content, generatedAt }: KitViewerProps) {
           <SectionHeading
             title="Conversation Starters"
             count={filteredStarters.length}
+            onRefresh={() => handleRefreshSection("conversationStarters")}
+            refreshing={refreshing.conversationStarters}
+            justUpdated={justUpdated.conversationStarters}
           />
           {filteredStarters.map((starter, i) => (
             <Card key={i} copyText={starter.template}>
@@ -364,6 +469,9 @@ export function KitViewer({ reportId, content, generatedAt }: KitViewerProps) {
           <SectionHeading
             title="Stat Callouts"
             count={filteredStatCallouts.length}
+            onRefresh={() => handleRefreshSection("statCallouts")}
+            refreshing={refreshing.statCallouts}
+            justUpdated={justUpdated.statCallouts}
           />
           {filteredStatCallouts.map((stat, i) => (
             <Card
@@ -393,6 +501,9 @@ export function KitViewer({ reportId, content, generatedAt }: KitViewerProps) {
           <SectionHeading
             title="Content Calendar"
             count={filteredCalendar.length}
+            onRefresh={() => handleRefreshSection("calendarSuggestions")}
+            refreshing={refreshing.calendarSuggestions}
+            justUpdated={justUpdated.calendarSuggestions}
           />
           {filteredCalendar.map((week, i) => (
             <div

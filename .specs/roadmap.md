@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 88 |
+| ✅ Completed | 89 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 28 |
 | ⏸️ Blocked | 0 |
@@ -299,7 +299,7 @@
 | 161 | Social Media Agent — Claude agent that reads a finalized report and generates the full kit: post ideas, platform-specific captions (LinkedIn, Instagram, X, Facebook), persona-targeted posts, poll ideas with data-backed context, conversation starters, stat callouts, content calendar suggestions | user-request | L | 30, 36, 160 | ✅ |
 | 162 | Social media kit generation trigger — "Generate Social Media Kit" action on completed reports (report detail page + dashboard), triggers the Social Media Agent, shows generation progress | user-request | M | 161, 57 | ✅ |
 | 163 | Social media kit viewer — browse generated kit organized by content type, filter by platform (LinkedIn/Instagram/X/Facebook) and persona, copy-to-clipboard on each item, expandable sections | user-request | L | 160, 162 | ✅ |
-| 164 | Social media kit regeneration — regenerate the full kit or specific content types if the agent wants fresh alternatives | user-request | S | 162 | ⬜ |
+| 164 | Social media kit regeneration — regenerate the full kit or specific content types if the agent wants fresh alternatives | user-request | S | 162 | ✅ |
 | 165 | Social media kit in admin — kits visible in admin report detail, generation stats in analytics (kit generation rate, most-used content types) | user-request | M | 160, 121, 130 | ⬜ |
 
 **Goal**: After generating a report, agents can generate a Social Media Kit — a comprehensive, text-based content package with posts, captions, polls, stat callouts, and content calendar suggestions, all grounded in their specific report data. Agents copy the content to their own social media tools and customize as needed.

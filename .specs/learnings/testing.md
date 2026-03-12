@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-11 — Kit Regeneration (#164)
+- **Pattern**: For fire-and-forget API routes, test synchronous errors with `mockImplementation(() => { throw new Error(...) })` instead of `mockRejectedValue()`. A rejected promise from an unawaited call won't be caught by the route's try/catch — only synchronous throws will. This distinction matters for testing error handling in async endpoints that return 202.
+- **Pattern**: The Request polyfill for API route tests needs a `_body` field and `json()` method that parses it. Add body support: `constructor(url, init) { this._body = init?.body ?? null; }` and `json() { return Promise.resolve(this._body ? JSON.parse(this._body) : {}); }`.
+
 ### 2026-03-11 — Subscription Tier Data Model (#170)
 - **Pattern**: For schema-only features (no UI), tests split into two files: (1) schema structure tests verifying column existence, constraints, migration SQL, and type exports via `Object.keys(table)` and `.notNull` checks; (2) seed data tests verifying tier values, entitlement conventions, and idempotency via mocked DB insert with `onConflictDoNothing` assertion. This two-file pattern (schema + seed) is reusable for any table + seed pair.
 - **Pattern**: Export seed data as a named constant (`DEFAULT_TIERS`) alongside the seed function. Tests can import and validate the data directly without calling the DB, while the seed function handles the actual insert.
