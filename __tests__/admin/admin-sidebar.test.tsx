@@ -27,12 +27,12 @@ describe("AdminSidebar", () => {
     mockPathname.mockReturnValue("/admin/eval");
   });
 
-  // Scenario: All nav items present (updated for Report Registry, Error Triage & Analytics)
-  it("should render all 9 nav items in correct order", () => {
+  // Scenario: All nav items present (updated for Report Registry, Error Triage, Analytics & Subscription Tiers)
+  it("should render all 10 nav items in correct order", () => {
     render(<AdminSidebar />);
 
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(9);
+    expect(links).toHaveLength(10);
     expect(links[0]).toHaveTextContent("Back to App");
     expect(links[1]).toHaveTextContent("User Management");
     expect(links[2]).toHaveTextContent("Report Registry");
@@ -42,6 +42,7 @@ describe("AdminSidebar", () => {
     expect(links[6]).toHaveTextContent("Pipeline");
     expect(links[7]).toHaveTextContent("Analytics");
     expect(links[8]).toHaveTextContent("System Monitor");
+    expect(links[9]).toHaveTextContent("Subscription Tiers");
   });
 
   it("should link Back to App to /dashboard", () => {

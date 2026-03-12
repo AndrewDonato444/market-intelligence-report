@@ -27,6 +27,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [Admin Report List](.specs/features/admin/admin-report-list.feature.md) | `app/admin/reports/page.tsx, components/admin/report-list-dashboard.tsx, app/api/admin/reports/route.ts` | see spec | see spec | implemented |
 | admin | [Admin Sidebar — Report Registry & Error Triage Nav](.specs/features/admin/admin-sidebar-report-registry.feature.md) | `components/layout/admin-sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Admin Sidebar Update](.specs/features/admin/admin-sidebar-update.feature.md) | `components/layout/admin-sidebar.tsx, components/layout/sidebar.tsx` | see spec | see spec | implemented |
+| admin | [Admin Subscription Tier Management](.specs/features/admin/admin-tier-management.feature.md) | `app/admin/tiers/page.tsx` | see spec | see spec | implemented |
 | admin | [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md) | `app/admin/users/[id]/page.tsx` | see spec | see spec | implemented |
 | admin | [Admin User List](.specs/features/admin/admin-user-list.feature.md) | `app/admin/users/page.tsx, components/admin/user-list-dashboard.tsx, app/api/admin/users/route.ts, components/layout/admin-sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md) | `app/api/admin/analytics/route.ts, app/api/admin/analytics/volume/route.ts, app/api/admin/analytics/users/route.ts, app/api/admin/analytics/errors/route.ts` | see spec | see spec | implemented |
@@ -128,8 +129,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 95 |
-| **Total** | **100** |
+| implemented | 96 |
+| **Total** | **101** |
 
 ---
 
@@ -157,6 +158,7 @@ _None_
 - [Admin Report List](.specs/features/admin/admin-report-list.feature.md)
 - [Admin Sidebar — Report Registry & Error Triage Nav](.specs/features/admin/admin-sidebar-report-registry.feature.md)
 - [Admin Sidebar Update](.specs/features/admin/admin-sidebar-update.feature.md)
+- [Admin Subscription Tier Management](.specs/features/admin/admin-tier-management.feature.md)
 - [Admin User Detail](.specs/features/admin/admin-user-detail.feature.md)
 - [Admin User List](.specs/features/admin/admin-user-list.feature.md)
 - [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md)

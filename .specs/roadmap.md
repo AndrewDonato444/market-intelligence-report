@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 97 |
+| ✅ Completed | 98 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 23 |
+| ⬜ Pending | 22 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-12
@@ -320,7 +320,7 @@
 | 175 | Entitlement gating in market creation — check `markets_created` before allowing new market, show soft gate with upgrade messaging | user-request | S | 173, 11 | ✅ |
 | 176 | Entitlement gating in social media kit — check `social_media_kits` before allowing kit generation, show "not included in your plan" or cap-hit messaging | user-request | S | 173, 162 | ✅ |
 | 177 | Account & billing page — show current tier, usage vs. caps for each entitlement, upgrade prompts (display-only pricing, no checkout yet) | user-request | M | 171, 172 | ✅ |
-| 178 | Admin: subscription tier management — CRUD for tiers, edit entitlement caps and display pricing, reorder tiers, activate/deactivate | user-request | M | 170 | ⬜ |
+| 178 | Admin: subscription tier management — CRUD for tiers, edit entitlement caps and display pricing, reorder tiers, activate/deactivate | user-request | M | 170 | ✅ |
 | 179 | Admin: entitlement overrides — grant tier override, entitlement boost, or feature unlock to individual users. Set expiry, reason. Full audit trail view | user-request | M | 171, 112 | ⬜ |
 | 180 | Default tier assignment on signup — new users auto-assigned Starter tier, tier shown in onboarding | user-request | S | 170, 3 | ⬜ |
 
