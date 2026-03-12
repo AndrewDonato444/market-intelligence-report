@@ -3,7 +3,7 @@
  */
 
 import { db, schema } from "@/lib/db";
-import { eq, and, desc, asc, sql } from "drizzle-orm";
+import { eq, and, desc, asc, sql, or, lt } from "drizzle-orm";
 import { recordSectionEdit } from "./report-history";
 import { setReportPersonas } from "./buyer-personas";
 
@@ -12,6 +12,33 @@ export {
   REPORT_SECTIONS,
   REQUIRED_SECTIONS,
 } from "./report-validation";
+
+const STALE_THRESHOLD_MINUTES = 15;
+
+/**
+ * Mark reports stuck in "queued" or "generating" for longer than
+ * STALE_THRESHOLD_MINUTES as "failed". Called before loading reports
+ * so users always see accurate status.
+ */
+export async function reapStaleReports() {
+  const cutoff = new Date(Date.now() - STALE_THRESHOLD_MINUTES * 60 * 1000);
+
+  await db
+    .update(schema.reports)
+    .set({
+      status: "failed",
+      errorMessage: "Generation timed out. Please retry.",
+    })
+    .where(
+      and(
+        or(
+          eq(schema.reports.status, "queued"),
+          eq(schema.reports.status, "generating")
+        ),
+        lt(schema.reports.createdAt, cutoff)
+      )
+    );
+}
 
 export async function getReports(authId: string) {
   const [user] = await db

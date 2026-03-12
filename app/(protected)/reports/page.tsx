@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
-import { getReports } from "@/lib/services/report";
+import { getReports, reapStaleReports } from "@/lib/services/report";
 import { getKitStatusesForReports } from "@/lib/services/social-media-kit";
 import { DownloadPdfButton } from "@/components/reports/download-pdf-button";
 import { GenerateKitButton } from "@/components/reports/generate-kit-button";
@@ -17,6 +17,7 @@ export default async function ReportsPage() {
   const authId = await getAuthUserId();
   if (!authId) redirect("/sign-in");
 
+  await reapStaleReports();
   const reports = await getReports(authId);
 
   // Batch-load kit statuses for completed reports
