@@ -36,7 +36,7 @@ When they click "Overrides" or scroll to the overrides section
 Then they see a list of all entitlement overrides for that user
 And each override shows: entitlement type, granted value, expiry status, reason, who granted it, and when
 And expired overrides are visually dimmed but still visible (audit trail)
-And active overrides show remaining time if they have an expiry
+And active overrides show "Expires {date}" if they have an expiry
 
 ### Scenario: Admin grants a new entitlement override
 Given the admin is viewing a user's overrides
@@ -66,8 +66,8 @@ And it shows "Permanent" in the list instead of an expiry date
 ### Scenario: Admin revokes an active override
 Given the admin is viewing a user's overrides
 When they click "Revoke" on an active override
-Then a confirmation dialog appears: "Revoke this override? The user's {entitlement type} will revert to their tier default."
-When the admin confirms
+Then inline confirmation buttons appear (Cancel / Confirm) replacing the Revoke button
+When the admin clicks Confirm
 Then the override is deleted from the database
 And the list updates immediately
 And a success message confirms "Override revoked"
