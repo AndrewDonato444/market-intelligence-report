@@ -45,7 +45,8 @@ Then the kit content is displayed organized into sections:
 ### Scenario: Filter content by platform
 Given the kit viewer is displayed
 When the user clicks a platform filter (LinkedIn, Instagram, X, Facebook)
-Then only content items for that platform are shown
+Then content items with a platform field are filtered (postIdeas, captions, personaPosts, polls)
+And sections without a platform field always display (conversationStarters, statCallouts, calendarSuggestions)
 And the active filter is visually highlighted
 And clicking "All" resets the filter
 
@@ -68,11 +69,11 @@ When the user navigates to /reports/[id]/kit
 Then a message "No social media kit found" is shown
 And a "Generate Kit" call-to-action is displayed
 
-### Scenario: Kit is still generating
-Given a kit with status "generating" exists
+### Scenario: Kit is still generating (or queued)
+Given a kit with status "generating" or "queued" exists
 When the user navigates to /reports/[id]/kit
 Then a generating status message is shown
-And the page polls for completion
+And a GenerateKitButton with the current status handles polling for completion
 
 ### Scenario: Navigate back to report
 Given the user is viewing the kit
@@ -85,11 +86,18 @@ When the user views the kit
 Then the "Persona-Targeted" section shows a message "No personas were selected for this report"
 And all other sections display normally
 
+### Scenario: Kit generation failed
+Given a kit with status "failed" exists
+When the user navigates to /reports/[id]/kit
+Then a "Kit Generation Failed" heading is shown
+And the error message from the kit is displayed
+And a GenerateKitButton with "failed" status allows retry
+
 ### Scenario: Regenerate from viewer
 Given the user is viewing a completed kit
 When the user clicks "Regenerate Kit"
-Then kit generation is triggered
-And the viewer shows generation progress
+Then kit generation is triggered via POST /api/reports/[id]/kit/generate
+And the user is redirected to the report detail page
 
 ### Scenario: API returns kit content for authorized user
 Given a completed kit exists for the user's report
