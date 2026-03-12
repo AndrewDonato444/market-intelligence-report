@@ -8,6 +8,11 @@ Patterns that don't fit other categories.
 
 <!-- Conventions, naming, organization -->
 
+### 2026-03-11 — Usage Tracking (#172)
+- **Pattern**: Implicit monthly reset — no cron job needed. Monthly entitlements have `periodStart` = 1st of month and `periodEnd` = 1st of next month. When a new month starts, there's simply no record for that period yet. The first gated action creates one with count=1. Old records stay for historical reference (Account & Billing page, analytics).
+- **Pattern**: Cumulative vs monthly entitlement classification — use const arrays (`MONTHLY_ENTITLEMENTS`, `CUMULATIVE_ENTITLEMENTS`) with type guard functions (`isMonthlyEntitlement`, `isCumulativeEntitlement`). Cumulative entitlements use a fixed epoch (`2024-01-01T00:00:00Z`) as periodStart and null periodEnd — one row per user per cumulative entitlement, ever. Unknown types default to monthly for safety.
+- **Decision**: `entitlementType` is varchar, not enum — matches convention from #170 and #171. New entitlement types can be added without schema migration.
+
 ### 2026-03-11 — Subscription Tier Data Model (#170)
 - **Pattern**: Use Drizzle's `boolean()` type for native Postgres booleans instead of `integer` with 0/1. Requires adding `boolean` to the `drizzle-orm/pg-core` import in schema.ts. Postgres supports native boolean; no need for SQLite-style integer workarounds.
 - **Decision**: Entitlements stored as JSONB with convention: -1 = unlimited, 0 = not included, positive integer = cap. This is extensible — new entitlement types (e.g., `api_calls_per_month`) can be added without schema migration, just a type update and seed data change.

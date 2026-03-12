@@ -695,3 +695,33 @@ export const socialMediaKits = pgTable(
     uniqueIndex("social_media_kits_report_id_unique").on(table.reportId),
   ]
 );
+
+// --- Usage Records Table ---
+
+export const usageRecords = pgTable(
+  "usage_records",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    entitlementType: varchar("entitlement_type", { length: 100 }).notNull(),
+    periodStart: timestamp("period_start", { withTimezone: true }).notNull(),
+    periodEnd: timestamp("period_end", { withTimezone: true }),
+    count: integer("count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("usage_records_user_id_idx").on(table.userId),
+    uniqueIndex("usage_records_user_type_period_idx").on(
+      table.userId,
+      table.entitlementType,
+      table.periodStart
+    ),
+  ]
+);
+
+export type UsageRecordsTable = typeof usageRecords.$inferSelect;
+export type NewUsageRecord = typeof usageRecords.$inferInsert;

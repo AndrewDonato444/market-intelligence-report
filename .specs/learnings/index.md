@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-11 — Usage Tracking (#172)
+
+- **Atomic upsert with Drizzle** (`api.md`): `onConflictDoUpdate` with `sql\`count + 1\`` achieves atomic increment without read-then-write races. Requires a unique composite index as conflict target.
+- **Implicit monthly reset** (`general.md`): No cron job needed for monthly usage resets — each new month simply has no record yet. First action creates one with count=1. Old records preserved for history.
+- **Cumulative vs monthly entitlement pattern** (`general.md`): Cumulative entitlements use fixed epoch + null periodEnd (one row forever). Monthly use calendar month boundaries. Classification via const arrays + type guards.
+- **Chained Drizzle mock for upsert tests** (`testing.md`): For `insert().values().onConflictDoUpdate()`, chain three mock fns. Reset in `beforeEach` to avoid stale mock state between tests.
+
 ### 2026-03-11 — Social Media Kit Regeneration (#164)
 
 - **Fire-and-forget vs sync error handling** (`api.md`): Per-section regeneration returns 202 immediately. Synchronous throws return 500; async rejections are caught by `.catch()` and logged.

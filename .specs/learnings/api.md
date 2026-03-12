@@ -65,6 +65,10 @@ The RealEstateAPI has free/cheap query modes to use before full data pulls:
 
 ---
 
+### 2026-03-11 — Usage Tracking Atomic Upsert (#172)
+- **Pattern**: Drizzle's `onConflictDoUpdate` with `sql\`${table.count} + 1\`` achieves atomic increment without a read-then-write race. The unique composite index `(userId, entitlementType, periodStart)` serves as both the conflict target and the query index. This maps to `INSERT ... ON CONFLICT (user_id, entitlement_type, period_start) DO UPDATE SET count = count + 1` in SQL.
+- **Decision**: Graceful degradation — if the usage_records table is unavailable, `incrementUsage` logs the error but doesn't throw. Usage tracking is important but not worth failing a report generation over.
+
 ### 2026-03-11 — Per-Section Kit Regeneration (#164)
 - **Pattern**: For partial-resource regeneration endpoints (regenerate one section of a kit), validate the target section name against a whitelist of valid keys. Return 400 for invalid types, 404 if the parent resource doesn't exist, 409 if the parent is currently being generated. The endpoint returns 202 immediately and runs the regeneration async.
 - **Decision**: The agent receives all report context (market, analytics, sections, personas) even for single-section regeneration. This ensures generated content is contextually consistent with the rest of the kit. The prompt adds a "SECTION-ONLY" suffix instructing the LLM to populate only the target array.
