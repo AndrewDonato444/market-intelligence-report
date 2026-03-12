@@ -123,12 +123,14 @@ Given a user navigates to /sign-up
 Then they see a two-column layout on desktop (≥768px)
 And the left column has a navy (`color-primary`) background
 And the left column shows a "sizzle" preview of the product:
-  - Heading: "Market Intelligence That Sets You Apart" (serif, text-inverse)
-  - 3 feature highlight cards (semi-transparent white bg):
-    1. "Data-Driven Reports" — "2,000+ luxury transactions analyzed per market"
-    2. "Buyer Persona Intelligence" — "Tailored insights for 8 luxury buyer types"
-    3. "Strategic Advantage" — "Institutional-grade market analysis, beautifully produced"
-  - A subtle mockup/silhouette of a report page (CSS-only, no image dependency)
+  - Brand label: "MODERN SIGNAL ADVISORY" (uppercase, tracking-wide, accent color)
+  - Heading: "Walk into the room as the advisor who brought the research." (serif, text-inverse)
+  - Subtext: "AI-powered intelligence reports grounded in real transaction data — branded to you, ready in under two minutes."
+  - 3 feature highlight cards (semi-transparent white bg, `bg-white/[0.07]`):
+    1. "31 Market Indicators" — "Institutional-grade analysis across every dimension of your luxury market"
+    2. "8 Buyer Personas" — "Tailored intelligence lenses for every luxury client type you advise"
+    3. "Your Name on the Cover" — "A designed publication branded to you — ready to hand to your most important clients"
+  - Social proof: "Trusted by luxury agents at Sotheby's, Douglas Elliman, Compass, and The Agency."
 And the right column has a white (`color-surface`) background with the sign-up form
 And the form has a "Start Your Intelligence Edge" heading (serif font)
 And the form has labeled email and password inputs with visible labels
@@ -219,31 +221,31 @@ And the overall form feels polished and intentional (consistent spacing, proper 
 │  │     MODERN SIGNAL ADVISORY              │ │                             ││
 │  │     ━━━━━━━━━ (accent line)             │ │                             ││
 │  │                                         │ │   Start Your                ││
-│  │     Market Intelligence That            │ │   Intelligence Edge         ││
-│  │     Sets You Apart                      │ │   (font: serif, text: 2xl,  ││
-│  │     (font: serif, text: xl,             │ │    color: primary, bold)    ││
-│  │      color: text-inverse)               │ │                             ││
-│  │                                         │ │   Email                     ││
-│  │  ┌─ Feature Card (bg: white/10%) ────┐  │ │   ┌─────────────────────┐   ││
-│  │  │  📊 Data-Driven Reports           │  │ │   │ you@email.com       │   ││
-│  │  │  2,000+ luxury transactions       │  │ │   └─────────────────────┘   ││
-│  │  │  analyzed per market              │  │ │                             ││
-│  │  └──────────────────────────────────┘  │ │   Password                  ││
+│  │     Walk into the room as the          │ │   Intelligence Edge         ││
+│  │     advisor who brought the            │ │   (font: serif, text: 2xl,  ││
+│  │     research.                          │ │    color: primary, bold)    ││
+│  │     (font: serif, text: xl,             │ │                             ││
+│  │      color: text-inverse)               │ │   Email                     ││
 │  │                                         │ │   ┌─────────────────────┐   ││
-│  │  ┌─ Feature Card (bg: white/10%) ────┐  │ │   │ ••••••••            │   ││
-│  │  │  👤 Buyer Persona Intelligence    │  │ │   └─────────────────────┘   ││
-│  │  │  Tailored insights for 8 luxury   │  │ │   (min 6 characters)        ││
-│  │  │  buyer types                      │  │ │                             ││
+│  │  ┌─ Feature Card (bg: white/7%) ─────┐  │ │   │ you@email.com       │   ││
+│  │  │  📊 31 Market Indicators          │  │ │   └─────────────────────┘   ││
+│  │  │  Institutional-grade analysis     │  │ │                             ││
+│  │  │  across every dimension           │  │ │   Password                  ││
 │  │  └──────────────────────────────────┘  │ │   ┌─────────────────────┐   ││
-│  │                                         │ │   │   Create Account    │   ││
-│  │  ┌─ Feature Card (bg: white/10%) ────┐  │ │   │  (bg: accent,      │   ││
-│  │  │  🏆 Strategic Advantage           │  │ │   │   color: primary,   │   ││
-│  │  │  Institutional-grade analysis,    │  │ │   │   font: semibold)   │   ││
-│  │  │  beautifully produced             │  │ │   └─────────────────────┘   ││
-│  │  └──────────────────────────────────┘  │ │                             ││
-│  │                                         │ │   Already have an account?  ││
+│  │                                         │ │   │ ••••••••            │   ││
+│  │  ┌─ Feature Card (bg: white/7%) ─────┐  │ │   └─────────────────────┘   ││
+│  │  │  👤 8 Buyer Personas              │  │ │   (min 6 characters)        ││
+│  │  │  Tailored intelligence lenses     │  │ │                             ││
+│  │  │  for every luxury client type     │  │ │   ┌─────────────────────┐   ││
+│  │  └──────────────────────────────────┘  │ │   │   Create Account    │   ││
+│  │                                         │ │   │  (bg: accent,      │   ││
+│  │  ┌─ Feature Card (bg: white/7%) ─────┐  │ │   │   color: primary,   │   ││
+│  │  │  📄 Your Name on the Cover        │  │ │   │   font: semibold)   │   ││
+│  │  │  A designed publication           │  │ │   └─────────────────────┘   ││
+│  │  │  branded to you                   │  │ │                             ││
+│  │  └──────────────────────────────────┘  │ │   Already have an account?  ││
 │  │                                         │ │   Sign In →                 ││
-│  │                                         │ │   (color: accent)           ││
+│  │  Trusted by agents at Sotheby's...     │ │   (color: accent)           ││
 │  └─────────────────────────────────────────┘ └─────────────────────────────┘│
 │                                                                             │
 └─────────────────────────────────────────────────────────────────────────────┘
