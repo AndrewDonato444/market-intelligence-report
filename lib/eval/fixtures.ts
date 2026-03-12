@@ -56,6 +56,7 @@ function segment(
     medianPricePerSqft: opts.medianPricePerSqft ?? null,
     rating: opts.rating ?? "B+",
     lowSample: opts.lowSample ?? count < 10,
+    yoy: opts.yoy ?? null,
   };
 }
 

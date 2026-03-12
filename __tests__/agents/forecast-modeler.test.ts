@@ -47,6 +47,7 @@ describe("Forecast Modeler Agent", () => {
           medianPricePerSqft: 2300,
           rating: "A",
           lowSample: false,
+          yoy: null,
         },
         {
           name: "condo",
@@ -59,6 +60,7 @@ describe("Forecast Modeler Agent", () => {
           medianPricePerSqft: 1850,
           rating: "B+",
           lowSample: false,
+          yoy: null,
         },
       ],
       yoy: {

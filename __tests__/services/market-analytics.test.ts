@@ -310,8 +310,8 @@ describe("Market Analytics Engine", () => {
     };
 
     const baseSegments = [
-      { name: "SFR", propertyType: "SFR", count: 30, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false },
-      { name: "Condo", propertyType: "Condo", count: 20, medianPrice: 5000000, averagePrice: 5500000, minPrice: 3000000, maxPrice: 9000000, medianPricePerSqft: 1200, rating: "B+", lowSample: false },
+      { name: "SFR", propertyType: "SFR", count: 30, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false, yoy: null },
+      { name: "Condo", propertyType: "Condo", count: 20, medianPrice: 5000000, averagePrice: 5500000, minPrice: 3000000, maxPrice: 9000000, medianPricePerSqft: 1200, rating: "B+", lowSample: false, yoy: null },
     ];
 
     it("returns 4 dimension scores", () => {
@@ -395,7 +395,7 @@ describe("Market Analytics Engine", () => {
     };
 
     const segments = [
-      { name: "SFR", propertyType: "SFR", count: 20, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false },
+      { name: "SFR", propertyType: "SFR", count: 20, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false, yoy: null },
     ];
 
     it("returns 5 Power Five indicators", () => {
@@ -644,8 +644,8 @@ describe("Market Analytics Engine", () => {
 
   describe("computeScorecard", () => {
     const segments = [
-      { name: "SFR", propertyType: "SFR", count: 25, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false },
-      { name: "Condo", propertyType: "Condo", count: 10, medianPrice: 5000000, averagePrice: 5500000, minPrice: 3000000, maxPrice: 9000000, medianPricePerSqft: 1200, rating: "B+", lowSample: false },
+      { name: "SFR", propertyType: "SFR", count: 25, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false, yoy: null },
+      { name: "Condo", propertyType: "Condo", count: 10, medianPrice: 5000000, averagePrice: 5500000, minPrice: 3000000, maxPrice: 9000000, medianPricePerSqft: 1200, rating: "B+", lowSample: false, yoy: null },
     ];
 
     it("creates a scorecard entry per segment", () => {

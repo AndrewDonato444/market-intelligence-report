@@ -69,9 +69,9 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
   return {
     market: { totalProperties: 120, medianPrice: 4500000, averagePrice: 6200000, medianPricePerSqft: 1850, totalVolume: 744000000, rating: "A" },
     segments: [
-      { name: "Single Family", propertyType: "single_family", count: 54, medianPrice: 3200000, averagePrice: 4100000, minPrice: 1000000, maxPrice: 8500000, medianPricePerSqft: 1600, rating: "A", lowSample: false },
-      { name: "Condo", propertyType: "condo", count: 42, medianPrice: 2800000, averagePrice: 3500000, minPrice: 1000000, maxPrice: 7200000, medianPricePerSqft: 1400, rating: "B+", lowSample: false },
-      { name: "Estate", propertyType: "estate", count: 24, medianPrice: 12000000, averagePrice: 15000000, minPrice: 6000000, maxPrice: 42000000, medianPricePerSqft: 2800, rating: "A+", lowSample: false },
+      { name: "Single Family", propertyType: "single_family", count: 54, medianPrice: 3200000, averagePrice: 4100000, minPrice: 1000000, maxPrice: 8500000, medianPricePerSqft: 1600, rating: "A", lowSample: false, yoy: null },
+      { name: "Condo", propertyType: "condo", count: 42, medianPrice: 2800000, averagePrice: 3500000, minPrice: 1000000, maxPrice: 7200000, medianPricePerSqft: 1400, rating: "B+", lowSample: false, yoy: null },
+      { name: "Estate", propertyType: "estate", count: 24, medianPrice: 12000000, averagePrice: 15000000, minPrice: 6000000, maxPrice: 42000000, medianPricePerSqft: 2800, rating: "A+", lowSample: false, yoy: null },
     ],
     yoy: { medianPriceChange: 0.08, volumeChange: 0.12, pricePerSqftChange: 0.05, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     insightsIndex: {

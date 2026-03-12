@@ -47,6 +47,8 @@ export interface SegmentMetrics {
   medianPricePerSqft: number | null;
   rating: string;
   lowSample: boolean;
+  /** Segment-specific YoY metrics (computed per property type, not market-wide) */
+  yoy: YoYMetrics | null;
 }
 
 export interface YoYMetrics {
@@ -88,6 +90,7 @@ export function computeSegmentMetrics(
     medianPricePerSqft: medianPsf,
     rating: "B", // Placeholder — assigned later with YoY context
     lowSample: properties.length < 3,
+    yoy: null, // Set later by computeMarketAnalytics with per-segment YoY
   };
 }
 

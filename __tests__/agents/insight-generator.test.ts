@@ -49,6 +49,7 @@ describe("Insight Generator Agent", () => {
           medianPricePerSqft: 2300,
           rating: "A",
           lowSample: false,
+          yoy: null,
         },
         {
           name: "condo",
@@ -61,6 +62,7 @@ describe("Insight Generator Agent", () => {
           medianPricePerSqft: 1850,
           rating: "B+",
           lowSample: false,
+          yoy: null,
         },
         {
           name: "estate",
@@ -73,6 +75,7 @@ describe("Insight Generator Agent", () => {
           medianPricePerSqft: 3100,
           rating: "A+",
           lowSample: false,
+          yoy: null,
         },
       ],
       yoy: {

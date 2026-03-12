@@ -103,12 +103,21 @@ CONTEXT:
 - Business description: Luxury real estate market intelligence platform generating data-driven reports for strategic decision-making
 - Target audience for this task: Top-producing luxury real estate agents and their high-net-worth clients making investment and timing decisions
 
+TARGET READER:
+The report reader is a luxury real estate agent who advises UHNW clients on $5M+ purchases. They need forward-looking intelligence they can translate into client recommendations. Hedging without conviction ("the market may or may not") is worse than useless — it signals you have no edge. Take calibrated stances.
+
+VOICE & VOCABULARY:
+- Use "market posture" not "market conditions", "positioning window" not "good time to buy"
+- Use "conviction" not "opinion", "principals" not "buyers"
+- Timing recommendations must be DIRECTIONAL: "Buyers should accelerate..." or "Sellers should hold for..." — never "it depends on individual circumstances"
+- Monitoring areas must be DECISION TRIGGERS: "If [specific metric] crosses [threshold], it signals [action]" — not just "watch interest rates"
+
 OUTPUT RULES:
 - Format: Valid JSON matching the exact schema requested. Do not include markdown, code fences, or any text outside the JSON object.
-- Tone: Analytical, calibrated, and measured — a trusted forecaster who communicates uncertainty honestly
-- Length: Scenario narratives 1-2 paragraphs each, outlook narrative 1-2 paragraphs, 3-5 monitoring areas, per-segment projections for 6-month and 12-month horizons
-- Must include: Price ranges (never just point estimates), explicit confidence levels per projection, clearly stated assumptions for each scenario, projections grounded in the provided YoY trend data, wider confidence ranges for longer time horizons
-- Must avoid: Extreme or sensational scenarios, point estimates without ranges, speculation beyond what the data supports, guarantees or certainty language ("will," "guaranteed," "certain"), vague directional statements without quantification
+- Tone: Analytical, calibrated, and measured — a trusted forecaster who communicates uncertainty honestly but still takes a stance
+- Length: Scenario narratives 1-2 paragraphs each, outlook narrative 1-2 paragraphs, 3-5 monitoring areas as decision triggers, per-segment projections for 6-month and 12-month horizons
+- Must include: Price ranges (never just point estimates), explicit confidence levels per projection, clearly stated assumptions for each scenario, projections grounded in the provided YoY trend data, wider confidence ranges for longer time horizons, a clear BUY/HOLD/SELL posture for each timing recommendation
+- Must avoid: Extreme or sensational scenarios, point estimates without ranges, speculation beyond what the data supports, guarantees or certainty language ("will," "guaranteed," "certain"), vague directional statements without quantification, hedging that communicates nothing ("it remains to be seen", "only time will tell")
 - When news articles are provided, reference relevant news developments in scenario assumptions and monitoring areas. Cite the source name when referencing a news item.
 
 EXAMPLES OF GOOD OUTPUT:
@@ -182,10 +191,15 @@ function buildUserPrompt(
 
   const segmentSummary = analysis.segments
     .map(
-      (s) =>
-        `  - ${s.name}: ${s.count} properties, median ${formatCurrency(s.medianPrice)}, ` +
-        `${s.medianPricePerSqft ? `$${s.medianPricePerSqft}/sqft` : "N/A psf"}, rating: ${s.rating}` +
-        `${s.lowSample ? " (LOW SAMPLE)" : ""}`
+      (s) => {
+        const yoyParts: string[] = [];
+        if (s.yoy?.medianPriceChange != null) yoyParts.push(`price ${formatPercent(s.yoy.medianPriceChange)}`);
+        if (s.yoy?.volumeChange != null) yoyParts.push(`volume ${formatPercent(s.yoy.volumeChange)}`);
+        const yoyStr = yoyParts.length > 0 ? `, YoY: ${yoyParts.join(", ")}` : "";
+        return `  - ${s.name}: ${s.count} properties, median ${formatCurrency(s.medianPrice)}, ` +
+          `${s.medianPricePerSqft ? `$${s.medianPricePerSqft}/sqft` : "N/A psf"}, rating: ${s.rating}` +
+          `${yoyStr}${s.lowSample ? " (LOW SAMPLE)" : ""}`;
+      }
     )
     .join("\n");
 
@@ -248,12 +262,12 @@ Respond with a JSON object matching this exact schema:
     "bear": { same structure }
   },
   "timing": {
-    "buyers": "Timing recommendation for buyers",
-    "sellers": "Timing recommendation for sellers"
+    "buyers": "DIRECTIVE timing recommendation for buyers — must start with 'Buyers should...' and include a specific action + timeframe. Example: 'Buyers should accelerate searches in the single-family segment before spring inventory tightens further — the 6-month window favors decisive offers.'",
+    "sellers": "DIRECTIVE timing recommendation for sellers — must start with 'Sellers should...' and include a specific action + timeframe. Example: 'Sellers should list before Q3 when projected new supply enters the market — current low inventory gives pricing power that may not persist.'"
   },
   "outlook": {
-    "narrative": "1-2 paragraph forward outlook",
-    "monitoringAreas": ["3-5 areas to monitor over next 6-18 months"]
+    "narrative": "1-2 paragraph forward outlook — take a STANCE on market direction, don't just list possibilities",
+    "monitoringAreas": ["3-5 DECISION TRIGGERS (not just topics to watch). Format: 'If [metric] [crosses threshold], it signals [specific action/implication]'. Example: 'If waterfront DOM exceeds 90 days for 2 consecutive months, the segment is shifting from seller-favorable to balanced — adjust pricing strategy accordingly.'"]
   }
 }
 

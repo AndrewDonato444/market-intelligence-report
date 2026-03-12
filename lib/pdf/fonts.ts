@@ -22,7 +22,7 @@ export function registerFonts() {
         fontWeight: 400,
       },
       {
-        src: `${GOOGLE_FONTS_BASE}/playfairdisplayitalic/v4/nuFRD-vYSZviVYUb_rj3ij__anPXDTnCjmHKM4nYO7KN_qiTbtbK-F2rA.ttf`,
+        src: `${GOOGLE_FONTS_BASE}/playfairdisplay/v40/nuFRD-vYSZviVYUb_rj3ij__anPXDTnCjmHKM4nYO7KN_qiTbtY.ttf`,
         fontWeight: 400,
         fontStyle: "italic" as const,
       },

@@ -121,9 +121,9 @@ function buildAnalysis(): DataAnalystOutput {
   return {
     market: { totalProperties: 45, medianPrice: 8200000, averagePrice: 12400000, medianPricePerSqft: 2150, totalVolume: 558000000, rating: "A" },
     segments: [
-      { name: "single_family", propertyType: "single_family", count: 25, medianPrice: 9500000, averagePrice: 13200000, minPrice: 5100000, maxPrice: 42000000, medianPricePerSqft: 2300, rating: "A", lowSample: false },
-      { name: "condo", propertyType: "condo", count: 15, medianPrice: 6200000, averagePrice: 7800000, minPrice: 5000000, maxPrice: 18500000, medianPricePerSqft: 1850, rating: "B+", lowSample: false },
-      { name: "estate", propertyType: "estate", count: 5, medianPrice: 22000000, averagePrice: 25600000, minPrice: 15000000, maxPrice: 42000000, medianPricePerSqft: 3100, rating: "A+", lowSample: false },
+      { name: "single_family", propertyType: "single_family", count: 25, medianPrice: 9500000, averagePrice: 13200000, minPrice: 5100000, maxPrice: 42000000, medianPricePerSqft: 2300, rating: "A", lowSample: false, yoy: null },
+      { name: "condo", propertyType: "condo", count: 15, medianPrice: 6200000, averagePrice: 7800000, minPrice: 5000000, maxPrice: 18500000, medianPricePerSqft: 1850, rating: "B+", lowSample: false, yoy: null },
+      { name: "estate", propertyType: "estate", count: 5, medianPrice: 22000000, averagePrice: 25600000, minPrice: 15000000, maxPrice: 42000000, medianPricePerSqft: 3100, rating: "A+", lowSample: false, yoy: null },
     ],
     yoy: { medianPriceChange: 0.124, volumeChange: 0.12, pricePerSqftChange: 0.06, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     confidence: { level: "high", staleDataSources: [], sampleSize: 45 },

@@ -167,9 +167,15 @@ export function computeMarketAnalytics(
   const { currentYearProps, priorYearProps } = splitByYear(properties, currentYear);
   const yoy = computeYoY(currentYearProps, priorYearProps);
 
-  // Assign ratings
+  // Compute per-segment YoY and assign segment-specific ratings
+  const priorGrouped = groupByPropertyType(priorYearProps);
+  const currentGrouped = groupByPropertyType(currentYearProps);
   for (const segment of segments) {
-    segment.rating = assignRating(yoy.medianPriceChange, yoy.volumeChange, segment.count);
+    const segCurrentProps = currentGrouped.get(segment.propertyType) ?? [];
+    const segPriorProps = priorGrouped.get(segment.propertyType) ?? [];
+    const segYoY = computeYoY(segCurrentProps, segPriorProps);
+    segment.yoy = segYoY;
+    segment.rating = assignRating(segYoY.medianPriceChange, segYoY.volumeChange, segment.count);
   }
 
   const marketMetrics = computeOverallMetrics(properties, yoy);
@@ -194,7 +200,9 @@ export function computeMarketAnalytics(
   const dashboard = computeDashboard(marketMetrics, yoy, detailMetrics, segments);
 
   // --- Neighborhoods (Section 4) ---
-  const neighborhoods = computeNeighborhoods(properties, currentYear, data.neighborhood.amenities);
+  // Build zip → neighborhood name mapping from PropertyDetail records
+  const zipToNeighborhood = buildZipToNeighborhoodMap(details);
+  const neighborhoods = computeNeighborhoods(properties, currentYear, data.neighborhood.amenities, zipToNeighborhood);
 
   // --- Peer comparisons (Section 7) ---
   const { peerComparisons, peerRankings } = computePeerComparisons(
@@ -325,11 +333,13 @@ export function computeDetailMetrics(details: PropertyDetail[]): DetailDerivedMe
   const ratios: number[] = [];
   for (const detail of details) {
     const lastMls = detail.mlsHistory.find((m) => m.price != null);
-    const lastSale = detail.saleHistory[0];
-    if (lastMls?.price && lastSale?.price) {
+    // Sale price: try saleHistory first, fall back to root lastSalePrice
+    const salePrice =
+      (detail.saleHistory[0]?.price || null) ?? detail.lastSalePrice;
+    if (lastMls?.price && salePrice && salePrice > 0) {
       const listPrice = parseFloat(String(lastMls.price));
       if (listPrice > 0) {
-        const ratio = lastSale.price / listPrice;
+        const ratio = salePrice / listPrice;
         // Plausible list-to-sale ratios fall between 70% and 150%
         if (ratio >= 0.7 && ratio <= 1.5) {
           ratios.push(ratio);
@@ -701,12 +711,45 @@ export function computeDashboard(
   return { powerFive, tierTwo, tierThree };
 }
 
+// --- Zip to Neighborhood Name ---
+
+function buildZipToNeighborhoodMap(details: PropertyDetail[]): Map<string, string> {
+  const zipNames = new Map<string, Map<string, number>>();
+
+  for (const detail of details) {
+    const zip = detail.propertyInfo?.address?.zip;
+    const name = detail.neighborhood?.name;
+    if (!zip || !name) continue;
+
+    if (!zipNames.has(zip)) zipNames.set(zip, new Map());
+    const counts = zipNames.get(zip)!;
+    counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+
+  // For each zip, pick the most common neighborhood name
+  const result = new Map<string, string>();
+  for (const [zip, counts] of zipNames) {
+    let best = "";
+    let bestCount = 0;
+    for (const [name, count] of counts) {
+      if (count > bestCount) {
+        best = name;
+        bestCount = count;
+      }
+    }
+    if (best) result.set(zip, best);
+  }
+
+  return result;
+}
+
 // --- Neighborhoods (Section 4) ---
 
 export function computeNeighborhoods(
   properties: PropertySummary[],
   currentYear: number,
-  amenities: Record<string, Array<{ name: string; category: string; rating: number | null }>>
+  amenities: Record<string, Array<{ name: string; category: string; rating: number | null }>>,
+  zipToNeighborhood?: Map<string, string>
 ): NeighborhoodBreakdown[] {
   // Group properties by zip code
   const byZip = new Map<string, PropertySummary[]>();
@@ -742,7 +785,7 @@ export function computeNeighborhoods(
     }
 
     neighborhoods.push({
-      name: zip,
+      name: zipToNeighborhood?.get(zip) ?? zip,
       zipCode: zip,
       propertyCount: props.length,
       medianPrice: median(prices),
@@ -825,18 +868,22 @@ export function computePeerComparisons(
 // --- Scorecard (Section 8) ---
 
 export function computeScorecard(segments: SegmentMetrics[], yoy: YoYMetrics): SegmentScorecard[] {
-  return segments.map((seg) => ({
-    segment: seg.name,
-    rating: seg.rating,
-    propertyCount: seg.count,
-    medianPrice: seg.medianPrice,
-    yoyChange: yoy.medianPriceChange,
-    trend: yoy.medianPriceChange == null
-      ? "flat" as const
-      : yoy.medianPriceChange > 0.01
-        ? "up" as const
-        : yoy.medianPriceChange < -0.01
-          ? "down" as const
-          : "flat" as const,
-  }));
+  return segments.map((seg) => {
+    // Use segment-specific YoY when available, fall back to market-wide
+    const segYoyChange = seg.yoy?.medianPriceChange ?? yoy.medianPriceChange;
+    return {
+      segment: seg.name,
+      rating: seg.rating,
+      propertyCount: seg.count,
+      medianPrice: seg.medianPrice,
+      yoyChange: segYoyChange,
+      trend: segYoyChange == null
+        ? "flat" as const
+        : segYoyChange > 0.01
+          ? "up" as const
+          : segYoyChange < -0.01
+            ? "down" as const
+            : "flat" as const,
+    };
+  });
 }

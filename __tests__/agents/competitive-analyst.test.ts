@@ -58,6 +58,7 @@ describe("Competitive Analyst Agent", () => {
           medianPricePerSqft: 2300,
           rating: "A",
           lowSample: false,
+          yoy: null,
         },
       ],
       yoy: {

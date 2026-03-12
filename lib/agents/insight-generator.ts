@@ -96,14 +96,39 @@ CONTEXT:
 - Business description: Luxury real estate market intelligence platform generating data-driven reports for strategic decision-making
 - Target audience for this task: Top-producing luxury real estate agents and their high-net-worth clients
 
+TARGET READER:
+You are writing for a luxury real estate agent (5-30 years experience, $5M+ market) who will use this report in listing presentations and client advisory calls. They need to walk into a room full of money and sound like the most informed person there. The report must trigger three feelings:
+1. "I couldn't have done this on my own" — synthesized intelligence, not just data
+2. "If I wanted to do this myself, it would cost me a fortune" — institutional quality
+3. "I can actually use this to land more clients" — quotable moments they can drop into conversation
+
+VOICE & VOCABULARY:
+- Use "intelligence brief" not "market report", "market posture" not "market conditions"
+- Use "conviction" not "opinion", "positioning" not "pricing"
+- Use "advisory" not "sales", "UHNW clients" or "principals" not "buyers"
+- Always use neighborhood names (Brentwood, Bel Air, Pacific Heights) — NEVER zip codes
+- Take stances: "Buyer's market" not "market conditions are mixed"
+- Write with conviction: "The data confirms..." not "it appears that..."
+
 OUTPUT RULES:
 - Format: Valid JSON matching the exact schema requested. Do not include markdown, code fences, or any text outside the JSON object.
 - Tone: Authoritative, data-driven, and strategic — the voice of a trusted senior analyst briefing a sophisticated client
 - Length: Overview narrative 2-3 paragraphs, executive summary 1-2 paragraphs, 3-5 strategic themes with 1-2 paragraph analyses each
 - Must include: Specific numbers from the data provided (median prices, YoY changes, segment counts), actionable buyer/seller timing recommendations, pattern identification across segments, honest confidence caveats when data is limited
-- Must avoid: Generic language ("the market is healthy"), promotional tone, restating raw metrics without strategic interpretation, hedging language that adds no value ("it remains to be seen")
+- Must avoid: Generic language ("the market is healthy"), promotional tone, restating raw metrics without strategic interpretation, hedging language that adds no value ("it remains to be seen", "may or may not", "only time will tell")
 - CRITICAL: Only reference numbers that appear in the input data. Do NOT fabricate, extrapolate, or invent metrics that were not provided (e.g., do not create price-per-sqft figures, property counts, or volume numbers unless they are explicitly in the input). When a metric is not available, either omit it or note its absence.
 - When news articles are provided, reference specific news developments to ground themes in current events. Cite the source name when referencing a news item.
+
+QUOTABLE MOMENTS (CRITICAL):
+- Every section MUST contain at least one "quotable moment" — a specific stat paired with a strategic implication that the agent can drop into a client conversation.
+- Pattern: "[Segment/neighborhood] [metric] [specific value], [what it means for positioning]"
+- Example: "While the overall market contracted 36%, the $20M+ segment grew 8% — ultra-luxury is decoupling from the broader correction."
+- Contrarian insights are gold: when the headline number says one thing, find the segment that tells a different story.
+
+CONTRARIAN FRAMING:
+- When the market-wide trend is negative, actively look for segments that bucked the trend
+- When the market-wide trend is positive, surface segments with warning signals
+- If all segments show the same direction, note the magnitude differences — "Single-family declined 12% while condos fell 31% — a 2.5x severity gap"
 
 SECTION DIFFERENTIATION RULES (CRITICAL — each output field has a distinct analytical job):
 - "overview" = Executive Briefing: The 30-second board-room summary. Lead with the single most important finding, then market vital signs. This is the WHAT.
@@ -146,7 +171,9 @@ Example 2 — Metric restating without interpretation:
 function buildUserPrompt(
   context: AgentContext,
   analysis: DataAnalystOutput,
-  news?: { targetMarket: Array<{ title: string; snippet: string; source: string; lastUpdated: string }> }
+  news?: { targetMarket: Array<{ title: string; snippet: string; source: string; lastUpdated: string }> },
+  neighborhoods?: ComputedAnalytics["neighborhoods"],
+  detailMetrics?: ComputedAnalytics["detailMetrics"]
 ): string {
   const { market } = context;
   const tierLabel =
@@ -154,10 +181,15 @@ function buildUserPrompt(
 
   const segmentSummary = analysis.segments
     .map(
-      (s) =>
-        `  - ${s.name}: ${s.count} properties, median ${formatCurrency(s.medianPrice)}, ` +
-        `${s.medianPricePerSqft ? `$${s.medianPricePerSqft}/sqft` : "N/A psf"}, rating: ${s.rating}` +
-        `${s.lowSample ? " (LOW SAMPLE)" : ""}`
+      (s) => {
+        const yoyParts: string[] = [];
+        if (s.yoy?.medianPriceChange != null) yoyParts.push(`price ${formatPercent(s.yoy.medianPriceChange)}`);
+        if (s.yoy?.volumeChange != null) yoyParts.push(`volume ${formatPercent(s.yoy.volumeChange)}`);
+        const yoyStr = yoyParts.length > 0 ? `, YoY: ${yoyParts.join(", ")}` : "";
+        return `  - ${s.name}: ${s.count} properties, median ${formatCurrency(s.medianPrice)}, ` +
+          `${s.medianPricePerSqft ? `$${s.medianPricePerSqft}/sqft` : "N/A psf"}, rating: ${s.rating}` +
+          `${yoyStr}${s.lowSample ? " (LOW SAMPLE)" : ""}`;
+      }
     )
     .join("\n");
 
@@ -190,6 +222,8 @@ YEAR-OVER-YEAR:
 DATA CONFIDENCE: ${analysis.confidence.level} (sample: ${analysis.confidence.sampleSize})
 ${analysis.confidence.staleDataSources.length > 0 ? `STALE SOURCES: ${analysis.confidence.staleDataSources.join(", ")}` : ""}
 ${insufficientData ? "\n⚠️ INSUFFICIENT DATA: Provide caveated analysis. Do not fabricate specific numbers." : ""}
+${neighborhoods && neighborhoods.length > 0 ? `\nNEIGHBORHOOD BREAKDOWN:\n${neighborhoods.slice(0, 8).map((n) => `  - ${n.name}: ${n.propertyCount} properties, median ${formatCurrency(n.medianPrice)}${n.medianPricePerSqft ? `, $${n.medianPricePerSqft}/sqft` : ""}${n.yoyPriceChange != null ? `, YoY ${formatPercent(n.yoyPriceChange)}` : ""}`).join("\n")}` : ""}
+${detailMetrics ? `\nDETAIL METRICS:\n- Median Days on Market: ${detailMetrics.medianDaysOnMarket ?? "N/A"}\n- List-to-Sale Ratio: ${detailMetrics.listToSaleRatio != null ? `${(detailMetrics.listToSaleRatio * 100).toFixed(1)}%` : "N/A"}\n- Cash Buyer %: ${detailMetrics.cashBuyerPercentage != null ? `${(detailMetrics.cashBuyerPercentage * 100).toFixed(1)}%` : "N/A"}\n- Flood Zone %: ${detailMetrics.floodZonePercentage != null ? `${(detailMetrics.floodZonePercentage * 100).toFixed(1)}%` : "N/A"}` : ""}
 ${news && news.targetMarket.length > 0 ? `\nRECENT NEWS:\n${formatNewsForPrompt(news.targetMarket)}` : ""}
 
 Respond with a JSON object matching this exact schema:
@@ -278,7 +312,13 @@ export async function executeInsightGenerator(
   const newsData = analytics
     ? { targetMarket: analytics.news?.targetMarket ?? [] }
     : undefined;
-  const userPrompt = buildUserPrompt(context, analysis, newsData);
+  const userPrompt = buildUserPrompt(
+    context,
+    analysis,
+    newsData,
+    analytics?.neighborhoods,
+    analytics?.detailMetrics
+  );
 
   // Call Claude
   let insights: InsightGeneratorOutput;
