@@ -144,10 +144,11 @@ The Social Media Agent follows the established agent pattern in `lib/agents/`:
 
 ```
 lib/agents/social-media.ts
-├── SocialMediaAgentOutput (interface)
+├── SocialMediaAgentInput (interface) — report sections, analytics, market, personas
+├── SocialMediaAgentResult (interface) — content + durationMs + metadata
 ├── buildSystemPrompt() → Claude system message
-├── buildUserPrompt(report, personas) → formatted report data for Claude
-├── executeSocialMediaAgent(reportId, userId) → SocialMediaKitContent
+├── buildUserPrompt(input: SocialMediaAgentInput) → formatted report data for Claude
+├── executeSocialMediaAgent(input: SocialMediaAgentInput) → SocialMediaAgentResult
 └── Export: not an AgentDefinition (not in pipeline) — standalone async function
 ```
 
