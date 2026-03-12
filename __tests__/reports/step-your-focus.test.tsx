@@ -126,12 +126,18 @@ describe("Step 3: Your Focus (#154)", () => {
 
     it("CMP-154-09: renders all 10 property type cards", () => {
       render(React.createElement(StepYourFocus, { onStepComplete: jest.fn() }));
-      const types = [
-        "Single Family", "Estate", "Condo", "Townhouse", "Co-op",
-        "Penthouse", "Chalet", "Villa", "Ranch", "Land",
+      const uniqueTypes = [
+        "Single Family", "Estate", "Condo", "Co-op",
+        "Chalet", "Villa", "Ranch", "Land",
       ];
-      types.forEach((name) => {
+      uniqueTypes.forEach((name) => {
         expect(screen.getByText(name)).toBeInTheDocument();
+      });
+      // "Penthouse" and "Townhouse" appear in both segments and property types
+      const duplicates = ["Penthouse", "Townhouse"];
+      duplicates.forEach((name) => {
+        const matches = screen.getAllByText(name);
+        expect(matches.length).toBe(2);
       });
     });
 
@@ -193,7 +199,7 @@ describe("Step 3: Your Focus (#154)", () => {
     it("CMP-154-16: all cards have role='switch'", () => {
       render(React.createElement(StepYourFocus, { onStepComplete: jest.fn() }));
       const switches = screen.getAllByRole("switch");
-      expect(switches.length).toBe(23);
+      expect(switches.length).toBe(30);
     });
 
     it("CMP-154-17: unselected cards have aria-checked=false", () => {
@@ -330,7 +336,8 @@ describe("Step 3: Your Focus (#154)", () => {
       );
       expect(screen.getByText("Waterfront").closest("button")).toHaveAttribute("aria-checked", "true");
       expect(screen.getByText("Beachfront").closest("button")).toHaveAttribute("aria-checked", "true");
-      expect(screen.getByText("Golf Course").closest("button")).toHaveAttribute("aria-checked", "true");
+      expect(screen.getByText("High-Rise").closest("button")).toHaveAttribute("aria-checked", "true");
+      expect(screen.getByText("Private Dock / Marina").closest("button")).toHaveAttribute("aria-checked", "true");
     });
 
     it("CMP-154-30: pre-selects property types for Florida", () => {
@@ -375,8 +382,15 @@ describe("Step 3: Your Focus (#154)", () => {
           onStepComplete: jest.fn(),
         })
       );
-      expect(screen.getByText("Gated Community").closest("button")).toHaveAttribute("aria-checked", "true");
-      expect(screen.getByText("Waterfront").closest("button")).toHaveAttribute("aria-checked", "true");
+      expect(screen.getByText("High-Rise").closest("button")).toHaveAttribute("aria-checked", "true");
+      // "Penthouse" and "Townhouse" appear in both segments and property types;
+      // use getAllByText and check both are selected
+      screen.getAllByText("Penthouse").forEach((el) => {
+        expect(el.closest("button")).toHaveAttribute("aria-checked", "true");
+      });
+      screen.getAllByText("Townhouse").forEach((el) => {
+        expect(el.closest("button")).toHaveAttribute("aria-checked", "true");
+      });
     });
 
     it("CMP-154-34: pre-selects property types for New York", () => {
@@ -388,8 +402,14 @@ describe("Step 3: Your Focus (#154)", () => {
       );
       expect(screen.getByText("Condo").closest("button")).toHaveAttribute("aria-checked", "true");
       expect(screen.getByText("Co-op").closest("button")).toHaveAttribute("aria-checked", "true");
-      expect(screen.getByText("Penthouse").closest("button")).toHaveAttribute("aria-checked", "true");
-      expect(screen.getByText("Townhouse").closest("button")).toHaveAttribute("aria-checked", "true");
+      // "Penthouse" and "Townhouse" appear in both segments and property types;
+      // both instances should be selected for NY (segments + property types both include them)
+      screen.getAllByText("Penthouse").forEach((el) => {
+        expect(el.closest("button")).toHaveAttribute("aria-checked", "true");
+      });
+      screen.getAllByText("Townhouse").forEach((el) => {
+        expect(el.closest("button")).toHaveAttribute("aria-checked", "true");
+      });
     });
 
     it("CMP-154-35: pre-selects segments for Arizona (desert)", () => {
@@ -422,15 +442,16 @@ describe("Step 3: Your Focus (#154)", () => {
           onStepComplete: jest.fn(),
         })
       );
-      expect(screen.getByText("Waterfront").closest("button")).toHaveAttribute("aria-checked", "true");
+      expect(screen.getByText("High-Rise").closest("button")).toHaveAttribute("aria-checked", "true");
+      expect(screen.getByText("Beachfront").closest("button")).toHaveAttribute("aria-checked", "true");
+      expect(screen.getByText("Trophy Home").closest("button")).toHaveAttribute("aria-checked", "true");
       expect(screen.getByText("Vineyard").closest("button")).toHaveAttribute("aria-checked", "true");
-      expect(screen.getByText("New Development").closest("button")).toHaveAttribute("aria-checked", "true");
     });
 
     it("CMP-154-38: uses fallback defaults for unknown state", () => {
       render(
         React.createElement(StepYourFocus, {
-          marketData: { city: "Portland", state: "OR" },
+          marketData: { city: "Charleston", state: "WV" },
           onStepComplete: jest.fn(),
         })
       );
@@ -447,7 +468,7 @@ describe("Step 3: Your Focus (#154)", () => {
         })
       );
       const badges = screen.getAllByText("Popular in your area");
-      expect(badges.length).toBe(6);
+      expect(badges.length).toBe(7);
     });
 
     it("CMP-154-40: 'Popular' badge remains after deselecting a default card", () => {
@@ -461,7 +482,7 @@ describe("Step 3: Your Focus (#154)", () => {
       fireEvent.click(waterfrontCard);
       expect(waterfrontCard).toHaveAttribute("aria-checked", "false");
       const badges = screen.getAllByText("Popular in your area");
-      expect(badges.length).toBe(6);
+      expect(badges.length).toBe(7);
     });
 
     it("CMP-154-41: no badges shown when no marketData provided", () => {

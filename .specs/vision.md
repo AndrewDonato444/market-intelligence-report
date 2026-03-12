@@ -76,9 +76,9 @@ The Social Media Kit is **text-only** — no image generation, no asset creation
 - **Agent-voiced**: Content is written from the agent's perspective as a market expert, not from MSA's perspective
 - **Engagement-optimized**: Posts include hooks, questions, and CTAs designed to drive interaction
 
-### Paywall Strategy (Future)
+### Paywall Strategy
 
-The Social Media Kit will eventually be a premium add-on or part of a higher subscription tier. No billing integration is needed now — just build the feature. Paywall gating will be added when Account & Billing (Phase 8) evolves.
+The Social Media Kit is a paid feature gated by subscription tier. See the Subscription & Entitlement System section for details.
 
 ---
 
@@ -95,7 +95,7 @@ The Social Media Kit will eventually be a premium add-on or part of a higher sub
 | **Social Media Kit Viewer** | Browse, copy, and customize generated social media content — organized by content type (posts, captions, polls, etc.) with platform filters and persona filters | Core |
 | **Dashboard** | Home base — recent reports, quick-start new report, market overview | Core — Redesign |
 | **Report History** | Past reports, templates, versioning | Secondary |
-| **Account & Billing** | Subscription management, usage tracking (API costs are real) | Secondary |
+| **Account & Billing** | Subscription tier display, current usage vs. caps, upgrade prompts, usage tracking (API costs are real) | Core |
 
 ### Admin Platform
 
@@ -110,6 +110,8 @@ The Social Media Kit will eventually be a premium add-on or part of a higher sub
 | **Admin: Pipeline Visualizer** | Existing pipeline execution visualization | Implemented |
 | **Admin: System Monitoring** | Existing cache stats, API costs, pipeline health dashboard | Implemented |
 | **Admin: Data Sources** | Existing data source registry and health checks | Implemented |
+| **Admin: Subscription Tiers** | Create/edit subscription tiers — set caps (reports/month, markets, social media kits), included features, display pricing. Changes apply to all users on that tier | Core |
+| **Admin: Entitlement Overrides** | Grant individual users tier overrides, entitlement boosts, or feature unlocks without payment. Full audit trail of who granted what and why | Core |
 
 ---
 
@@ -361,6 +363,58 @@ End-to-end quality scoring of finished reports (complements the existing per-age
 
 ---
 
+## Subscription & Entitlement System
+
+The platform gates features and volume behind subscription tiers. No Stripe account exists yet — the entitlement system is built internally first, with Stripe wired up later.
+
+### Subscription Tiers (Illustrative — Admin-Editable)
+
+| Tier | Reports/Month | Markets | Social Media Kits | Personas/Report | Price (Display Only) |
+|------|--------------|---------|-------------------|-----------------|---------------------|
+| **Starter** | 2 | 1 | Not included | 1 | $0 / Free |
+| **Professional** | 10 | 3 | 1 per report | 3 | $199/mo |
+| **Enterprise** | Unlimited | Unlimited | Unlimited | 3 | Custom |
+
+Tiers, caps, and included features are **fully admin-editable** — the table above is a starting point, not hardcoded.
+
+### Entitlement Types
+
+| Entitlement | Cap Type | Examples |
+|------------|---------|---------|
+| `reports_per_month` | Numeric or unlimited | 2, 10, unlimited |
+| `markets_created` | Numeric or unlimited | 1, 3, unlimited |
+| `social_media_kits` | Per-report cap or not included | 0, 1, unlimited |
+| `personas_per_report` | Numeric | 1, 3 |
+
+New entitlement types can be added as features grow — the system is designed to be extensible without schema changes (entitlements stored as JSONB).
+
+### Gating Behavior
+
+When a user hits a cap:
+- **Soft gate**: show what they'd get if they upgraded (preview, not a hard wall)
+- **Clear messaging**: "You've used 2 of 2 reports this month. Upgrade to Professional for 10 reports/month."
+- **No data loss**: if a user downgrades, their existing reports/kits/markets remain accessible (read-only), they just can't create new ones beyond the new cap
+- **Entitlement checks**: every gated action (create report, create market, generate kit) checks entitlements before proceeding. The check is a single utility function used app-wide.
+
+### Admin Overrides
+
+Admins can grant individual users:
+- **Tier override**: assign any tier without payment (comp accounts, beta testers, partnerships)
+- **Entitlement boost**: increase a specific cap for a user without changing their tier (e.g., "give this user 5 extra reports this month")
+- **Feature unlock**: grant access to a paid feature (e.g., social media kit) without upgrading their tier
+- **Override expiry**: overrides can be permanent or time-limited (e.g., "3 months of Professional for free")
+- **Override audit trail**: all overrides logged with admin ID, reason, and timestamp
+
+### Stripe Readiness
+
+No Stripe account exists yet. The system is built **Stripe-ready**:
+- Tier definitions, entitlement checks, and usage tracking are all internal (no Stripe dependency)
+- `stripeCustomerId` and `stripeSubscriptionId` columns exist on the subscriptions table but are nullable
+- When Stripe is connected later, the only work is: webhook handler to sync subscription status, checkout session creation, and customer portal link
+- **No payment processing happens in-app until Stripe is wired up** — tiers are assigned manually by admin or defaulted on signup
+
+---
+
 ## Out of Scope (for now)
 
 - Mobile native apps (web-responsive is sufficient)
@@ -374,6 +428,9 @@ End-to-end quality scoring of finished reports (complements the existing per-age
 - Automated user suspension rules (manual admin action only for now)
 - Social media image/graphic generation (kit is text-only — agents bring their own visuals)
 - Social media scheduling or auto-posting (agents copy content to their own tools)
+- Stripe payment processing (entitlement system is internal-first; Stripe wired up later)
+- Self-service tier upgrades/downgrades (admin-managed until Stripe is connected)
+- Proration, refunds, or billing cycle management (deferred to Stripe integration)
 
 ---
 

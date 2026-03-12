@@ -135,17 +135,17 @@ describe("Step 6: Generating (#157)", () => {
 
     it("CMP-157-06: shows pipeline stages", async () => {
       await act(async () => { renderStep(); });
-      expect(screen.getByText("Data Analysis")).toBeInTheDocument();
+      expect(screen.getByText("Data Collection")).toBeInTheDocument();
       expect(screen.getByText("Insight Generation")).toBeInTheDocument();
-      expect(screen.getByText("Competitive Analysis")).toBeInTheDocument();
       expect(screen.getByText("Forecast Modeling")).toBeInTheDocument();
       expect(screen.getByText("Editorial Polish")).toBeInTheDocument();
+      expect(screen.getByText("Persona Intelligence")).toBeInTheDocument();
     });
 
     it("CMP-157-07: shows progress percentage", async () => {
       await act(async () => { renderStep(); });
       await waitFor(() => {
-        expect(screen.getByText(/30%/)).toBeInTheDocument();
+        expect(screen.getByText(/44%/)).toBeInTheDocument();
       });
     });
 

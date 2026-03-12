@@ -364,7 +364,7 @@ export function StepYourAudience({
 
   // Qualifier phase
   const [qualifierAnswers, setQualifierAnswers] = useState<Record<string, string>>({});
-  const [qualifierDone, setQualifierDone] = useState(false);
+  const [qualifierDone, setQualifierDone] = useState(true);
   const [recommendedSlugs, setRecommendedSlugs] = useState<string[]>([]);
 
   const isMaxed = selectedIds.length >= 3;

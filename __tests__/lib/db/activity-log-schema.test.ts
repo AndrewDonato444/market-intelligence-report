@@ -50,6 +50,10 @@ jest.mock("@/lib/db", () => {
               where: (...wArgs: unknown[]) => {
                 mockDbWhere(...wArgs);
                 return {
+                  limit: (...lArgs: unknown[]) => {
+                    mockDbLimit(...lArgs);
+                    return Promise.resolve([{ id: "user-1" }]);
+                  },
                   orderBy: (...oArgs: unknown[]) => {
                     mockDbOrderBy(...oArgs);
                     return {

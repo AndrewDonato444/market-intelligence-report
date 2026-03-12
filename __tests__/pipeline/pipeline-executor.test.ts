@@ -292,6 +292,7 @@ describe("Pipeline Executor Service (v2)", () => {
         limitCallCount++;
         if (limitCallCount === 1) return Promise.resolve(reportRow ? [reportRow] : []);
         if (limitCallCount === 2) return Promise.resolve(marketRow ? [marketRow] : []);
+        if (limitCallCount === 3) return Promise.resolve([{ id: MOCK_USER_ID }]); // resolveUserId: by authId
         return Promise.resolve([]);
       });
 
@@ -393,6 +394,9 @@ describe("Pipeline Executor Service (v2)", () => {
       mockRun.mockResolvedValue(MOCK_PIPELINE_RESULT);
 
       await executePipeline(MOCK_REPORT_ID);
+
+      // Flush microtasks so fire-and-forget logActivity completes
+      await new Promise((r) => setTimeout(r, 0));
 
       // Should insert 9 sections + 1 activity log entry
       expect(mockDb.insert).toHaveBeenCalledTimes(10);

@@ -60,6 +60,13 @@ export const userAccountStatusEnum = pgEnum("user_account_status", [
   "deleted",
 ]);
 
+export const socialMediaKitStatusEnum = pgEnum("social_media_kit_status", [
+  "queued",
+  "generating",
+  "completed",
+  "failed",
+]);
+
 // --- Tier Entitlements Type ---
 
 export type TierEntitlements = {
@@ -563,5 +570,97 @@ export const reportPersonas = pgTable(
   (table) => [
     index("report_personas_report_id_idx").on(table.reportId),
     index("report_personas_buyer_persona_id_idx").on(table.buyerPersonaId),
+  ]
+);
+
+// --- Social Media Kit Content Types ---
+
+export type PostIdea = {
+  title: string;
+  body: string;
+  platforms: string[];
+  reportSection: string;
+  insightRef: string;
+};
+
+export type PlatformCaption = {
+  platform: string;
+  caption: string;
+  hashtags: string[];
+  characterCount: number;
+};
+
+export type PersonaPost = {
+  personaSlug: string;
+  personaName: string;
+  post: string;
+  platform: string;
+  vocabularyUsed: string[];
+};
+
+export type PollIdea = {
+  question: string;
+  options: string[];
+  dataContext: string;
+  platform: string;
+};
+
+export type ConversationStarter = {
+  context: string;
+  template: string;
+};
+
+export type CalendarSuggestion = {
+  week: number;
+  theme: string;
+  postIdeas: string[];
+  platforms: string[];
+};
+
+export type StatCallout = {
+  stat: string;
+  context: string;
+  source: string;
+  suggestedCaption: string;
+};
+
+export type SocialMediaKitContent = {
+  postIdeas: PostIdea[];
+  captions: PlatformCaption[];
+  personaPosts: PersonaPost[];
+  polls: PollIdea[];
+  conversationStarters: ConversationStarter[];
+  calendarSuggestions: CalendarSuggestion[];
+  statCallouts: StatCallout[];
+};
+
+// --- Social Media Kits Table ---
+
+export const socialMediaKits = pgTable(
+  "social_media_kits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    status: socialMediaKitStatusEnum("status").notNull().default("queued"),
+    content: jsonb("content").$type<SocialMediaKitContent>(),
+    errorMessage: text("error_message"),
+    generatedAt: timestamp("generated_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("social_media_kits_report_id_idx").on(table.reportId),
+    index("social_media_kits_user_id_idx").on(table.userId),
+    index("social_media_kits_status_idx").on(table.status),
+    uniqueIndex("social_media_kits_report_id_unique").on(table.reportId),
   ]
 );

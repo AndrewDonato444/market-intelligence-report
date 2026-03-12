@@ -43,11 +43,11 @@ describe("Pipeline Status Dashboard", () => {
 
     it("defines all 5 pipeline agents in order", () => {
       expect(PIPELINE_STAGES).toHaveLength(5);
-      expect(PIPELINE_STAGES[0].agentName).toBe("data-analyst");
+      expect(PIPELINE_STAGES[0].agentName).toBe("data-fetch");
       expect(PIPELINE_STAGES[1].agentName).toBe("insight-generator");
-      expect(PIPELINE_STAGES[2].agentName).toBe("competitive-analyst");
-      expect(PIPELINE_STAGES[3].agentName).toBe("forecast-modeler");
-      expect(PIPELINE_STAGES[4].agentName).toBe("polish-agent");
+      expect(PIPELINE_STAGES[2].agentName).toBe("forecast-modeler");
+      expect(PIPELINE_STAGES[3].agentName).toBe("polish-agent");
+      expect(PIPELINE_STAGES[4].agentName).toBe("persona-intelligence");
     });
 
     it("includes label and description for each stage", () => {
@@ -131,11 +131,11 @@ describe("Pipeline Status Dashboard", () => {
         React.createElement(PipelineStatusDashboard, { report: baseReport })
       );
 
-      expect(screen.getByText("Data Analysis")).toBeInTheDocument();
+      expect(screen.getByText("Data Collection")).toBeInTheDocument();
       expect(screen.getByText("Insight Generation")).toBeInTheDocument();
-      expect(screen.getByText("Competitive Analysis")).toBeInTheDocument();
       expect(screen.getByText("Forecast Modeling")).toBeInTheDocument();
       expect(screen.getByText("Editorial Polish")).toBeInTheDocument();
+      expect(screen.getByText("Persona Intelligence")).toBeInTheDocument();
     });
 
     it("shows generating state", async () => {

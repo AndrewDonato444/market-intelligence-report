@@ -9,6 +9,13 @@ jest.mock("@/lib/config/env", () => ({
 }));
 jest.mock("@/lib/connectors/realestateapi");
 jest.mock("@/lib/connectors/scrapingdog");
+jest.mock("@/lib/services/data-source-registry", () => ({
+  registry: {
+    getAll: jest.fn().mockReturnValue([]),
+    envVarsPresent: jest.fn().mockReturnValue(true),
+    getHealthSnapshot: jest.fn().mockReturnValue(null),
+  },
+}));
 
 import { fetchAllMarketData, computePeriodBounds, type DataFetchOptions } from "@/lib/services/data-fetcher";
 import * as reapi from "@/lib/connectors/realestateapi";
@@ -94,6 +101,7 @@ function makeOptions(overrides: Partial<DataFetchOptions> = {}): DataFetchOption
 describe("Data Fetch Service", () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSearchProperties.mockResolvedValue({ properties: [], total: 0, stale: false });
     mockBuildSearchParams.mockReturnValue({
       city: "Naples",
       state: "FL",
@@ -123,7 +131,7 @@ describe("Data Fetch Service", () => {
       expect(result.targetMarket.properties).toHaveLength(2);
       expect(result.targetMarket.stale).toBe(false);
       // 2 target searches (current + prior)
-      expect(mockSearchProperties).toHaveBeenCalledTimes(3); // 2 target + 1 peer
+      expect(mockSearchProperties).toHaveBeenCalledTimes(5); // 2 target + 3 peers (1 configured + 2 auto-filled)
     });
 
     it("throws when target market fetch fails", async () => {
@@ -172,7 +180,7 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions());
 
-      expect(result.peerMarkets).toHaveLength(1);
+      expect(result.peerMarkets).toHaveLength(3); // 1 configured + 2 auto-filled
       expect(result.peerMarkets[0].name).toBe("Palm Beach");
       expect(result.peerMarkets[0].properties).toHaveLength(1);
     });
@@ -191,7 +199,7 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions());
 
-      expect(result.peerMarkets).toHaveLength(0);
+      expect(result.peerMarkets).toHaveLength(2); // 2 auto-filled peers succeed
       expect(result.fetchMetadata.errors).toHaveLength(1);
       expect(result.fetchMetadata.errors[0].source).toBe("realestateapi");
     });
@@ -278,9 +286,9 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions({ market: marketNoPeers }));
 
-      expect(result.peerMarkets).toHaveLength(0);
-      // 2 target searches (current + prior), no peers
-      expect(mockSearchProperties).toHaveBeenCalledTimes(2);
+      expect(result.peerMarkets).toHaveLength(3); // 3 auto-filled peers from STATE_LUXURY_CITIES
+      // 2 target searches (current + prior) + 3 auto-filled peers
+      expect(mockSearchProperties).toHaveBeenCalledTimes(5);
     });
 
     it("continues when PropertyDetail fails for individual properties", async () => {
