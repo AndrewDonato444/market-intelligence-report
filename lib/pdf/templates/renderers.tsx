@@ -71,16 +71,17 @@ export const KeyDriversPdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {content.themes?.map((theme, i) => (
-        <View key={i} style={styles.card} wrap={false}>
+        <View key={i} style={styles.card}>
           <View
             style={{
               flexDirection: "row",
               justifyContent: "space-between",
+              alignItems: "flex-start",
               marginBottom: 8,
             }}
           >
-            <Text style={styles.subheading}>{theme.name}</Text>
-            <View style={{ flexDirection: "row", gap: 8 }}>
+            <Text style={{ ...styles.subheading, flex: 1, marginRight: 8, marginBottom: 0 }}>{theme.name}</Text>
+            <View style={{ flexDirection: "row", gap: 8, flexShrink: 0 }}>
               <Text
                 style={{
                   ...styles.badge,
@@ -173,7 +174,7 @@ export const ForecastsPdf: SectionRenderer = ({ section }) => {
             const scenario = content.scenarios?.[scenarioKey];
             if (!scenario) return null;
             return (
-              <View key={scenarioKey} style={styles.card} wrap={false}>
+              <View key={scenarioKey} style={styles.card}>
                 <Text style={{ ...styles.subheading, textTransform: "capitalize" }}>
                   {scenarioKey} Case
                 </Text>
@@ -216,7 +217,7 @@ export const NarrativeSectionPdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {content.timing && Object.keys(content.timing).length > 0 && (
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Timing Guidance</Text>
           {Object.entries(content.timing).map(([key, value]) => (
             <View key={key} style={{ marginBottom: 8 }}>
@@ -268,7 +269,7 @@ export const ExecutiveSummaryPdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {content.segments && content.segments.length > 0 && (
-        <View style={{ marginTop: 16 }}>
+        <View style={{ marginTop: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Market Analysis Matrix</Text>
           <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
             <Text style={{ ...styles.tableHeader, flex: 2 }}>Segment</Text>
@@ -302,7 +303,7 @@ export const ExecutiveSummaryPdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {content.timing && Object.keys(content.timing).length > 0 && (
-        <View style={{ marginTop: 16 }}>
+        <View style={{ marginTop: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Timing Guidance</Text>
           {Object.entries(content.timing).map(([key, value]) => (
             <View key={key} style={{ marginBottom: 8 }}>
@@ -333,10 +334,10 @@ export const CompetitiveAnalysisPdf: SectionRenderer = ({ section }) => {
     <View>
       {content.narrative && <Text style={styles.body}>{content.narrative}</Text>}
       {content.comparisons && content.comparisons.length > 0 && (
-        <View style={{ marginTop: 16 }}>
+        <View style={{ marginTop: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Peer Market Comparison</Text>
           {content.comparisons.map((comp, i) => (
-            <View key={i} style={styles.card} wrap={false}>
+            <View key={i} style={styles.card}>
               <Text style={styles.subheading}>{comp.market}</Text>
               {comp.medianPrice && (
                 <Text style={styles.bodySmall}>
@@ -380,7 +381,7 @@ export const PolishedReportPdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {content.methodology && (
-        <View style={{ marginTop: 16 }}>
+        <View style={{ marginTop: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Methodology</Text>
           <Text style={styles.body}>{content.methodology}</Text>
         </View>
@@ -403,7 +404,7 @@ export const MethodologySectionPdf: SectionRenderer = ({ section }) => {
     <View>
       {content.narrative && <Text style={styles.body}>{content.narrative}</Text>}
       {content.dataSources && content.dataSources.length > 0 && (
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Data Sources</Text>
           {content.dataSources.map((source, i) => (
             <Text key={i} style={styles.bulletItem}>
@@ -414,7 +415,7 @@ export const MethodologySectionPdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {content.confidenceNotes && (
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Confidence Notes</Text>
           <Text style={styles.body}>{content.confidenceNotes}</Text>
         </View>
@@ -503,7 +504,7 @@ function humanizeDataSource(key: string): string {
 
 function TalkingPointPdf({ tp }: { tp: { headline: string; detail: string; dataSource: string } }) {
   return (
-    <View style={{ marginBottom: 12 }} wrap={false}>
+    <View style={{ marginBottom: 12 }}>
       <Text style={styles.talkingPointHeadline}>{tp.headline}</Text>
       <Text style={styles.talkingPointDetail}>{tp.detail}</Text>
       <Text style={styles.talkingPointSource}>Source: {humanizeDataSource(tp.dataSource)}</Text>
@@ -530,7 +531,7 @@ function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["pers
       <View style={styles.divider} />
 
       {/* Narrative Lens */}
-      <View wrap={false}>
+      <View minPresenceAhead={80}>
         <Text style={styles.sectionLabel}>NARRATIVE LENS</Text>
         <Text style={styles.body}>{persona.narrativeOverlay.perspective}</Text>
         <Text style={styles.bodySmall}>
@@ -568,7 +569,7 @@ function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["pers
         <Text style={{ ...styles.tableHeader, flex: 4 }}>Interpretation</Text>
       </View>
       {persona.metricEmphasis.map((metric, i) => (
-        <View key={i} style={styles.tableRow} wrap={false}>
+        <View key={i} style={styles.tableRow}>
           <Text
             style={{
               ...styles.tableCell,
@@ -909,7 +910,6 @@ export const MarketInsightsIndexPdf: SectionRenderer = ({ section }) => {
                 borderTopColor: scoreAccentColor(data.score),
                 minHeight: 160,
               }}
-              wrap={false}
             >
               {/* Dimension name + label badge */}
               <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
@@ -1142,22 +1142,22 @@ export const TheNarrativePdf: SectionRenderer = ({ section }) => {
     <View>
       {c.editorial && <Text style={styles.body}>{c.editorial}</Text>}
       {c.themes.length > 0 && (
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Key Themes</Text>
           {c.themes.map((theme, i) => {
             // Handle both string themes (legacy) and object themes
             if (typeof theme === "string") {
               return (
-                <View key={i} style={styles.card} wrap={false}>
+                <View key={i} style={styles.card}>
                   <Text style={{ ...styles.subheading, marginBottom: 0 }}>{theme}</Text>
                 </View>
               );
             }
             return (
-              <View key={i} style={styles.card} wrap={false}>
-                <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                  <Text style={{ ...styles.subheading, marginBottom: 0 }}>{theme.name}</Text>
-                  <Text style={{ ...styles.badge, backgroundColor: theme.impact === "high" ? COLORS.success : theme.impact === "medium" ? COLORS.warning : COLORS.textSecondary }}>
+              <View key={i} style={styles.card}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                  <Text style={{ ...styles.subheading, flex: 1, marginRight: 8, marginBottom: 0 }}>{theme.name}</Text>
+                  <Text style={{ ...styles.badge, flexShrink: 0, backgroundColor: theme.impact === "high" ? COLORS.success : theme.impact === "medium" ? COLORS.warning : COLORS.textSecondary }}>
                     {theme.impact} {theme.trend === "up" ? "\u2191" : theme.trend === "down" ? "\u2193" : "\u2192"}
                   </Text>
                 </View>
@@ -1168,7 +1168,7 @@ export const TheNarrativePdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {c.marketContext.segments.length > 0 && (
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Market Segments</Text>
           <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
             <Text style={{ ...styles.tableHeader, flex: 2 }}>Segment</Text>
@@ -1210,13 +1210,13 @@ export const ForwardLookPdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {c.forecast && (
-        <View style={{ marginBottom: 12 }}>
+        <View style={{ marginBottom: 12 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Forecast</Text>
           <Text style={styles.body}>{c.forecast}</Text>
         </View>
       )}
       {c.guidance && (
-        <View>
+        <View minPresenceAhead={80}>
           <Text style={styles.subheading}>Guidance</Text>
           {typeof c.guidance === "string" ? (
             <Text style={styles.body}>{c.guidance}</Text>
@@ -1257,7 +1257,7 @@ export const ComparativePositioningPdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {c.peerRankings.length > 0 && c.peerRankings[0]?.totalMarkets > 1 && (
-        <View style={{ marginBottom: 16 }}>
+        <View style={{ marginBottom: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Market Rankings</Text>
           {c.peerRankings.map((r, i) => (
             <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: COLORS.border }}>
@@ -1270,13 +1270,13 @@ export const ComparativePositioningPdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {c.peerComparisons.length > 0 && (
-        <View>
+        <View minPresenceAhead={80}>
           <Text style={styles.subheading}>Peer Markets</Text>
           {c.peerComparisons.map((peer, i) => (
-            <View key={i} style={styles.card} wrap={false}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-                <Text style={styles.subheading}>{peer.name}, {peer.geography.state}</Text>
-                <Text style={{ ...styles.badge, backgroundColor: getRatingColor(peer.rating) }}>{peer.rating}</Text>
+            <View key={i} style={styles.card}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                <Text style={{ ...styles.subheading, flex: 1, marginRight: 8, marginBottom: 0 }}>{peer.name}, {peer.geography.state}</Text>
+                <Text style={{ ...styles.badge, flexShrink: 0, backgroundColor: getRatingColor(peer.rating) }}>{peer.rating}</Text>
               </View>
               <Text style={styles.body}>
                 Median: {peer.medianPrice >= 1_000_000 ? `$${(peer.medianPrice / 1_000_000).toFixed(1)}M` : `$${(peer.medianPrice / 1_000).toFixed(0)}K`}  |  Properties: {peer.totalProperties}
@@ -1308,19 +1308,19 @@ export const DisclaimerMethodologyPdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {c.disclaimer && (
-        <View style={{ marginBottom: 16 }}>
+        <View style={{ marginBottom: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Disclaimer</Text>
           <Text style={styles.bodySmall}>{c.disclaimer}</Text>
         </View>
       )}
       {c.methodology && (
-        <View style={{ marginBottom: 16 }}>
+        <View style={{ marginBottom: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Methodology</Text>
           <Text style={styles.body}>{c.methodology}</Text>
         </View>
       )}
       {c.dataSources.length > 0 && (
-        <View style={{ marginBottom: 16 }}>
+        <View style={{ marginBottom: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Data Sources</Text>
           {c.dataSources.map((src, i) => (
             <View key={i} style={{ flexDirection: "row", justifyContent: "space-between", paddingVertical: 4, borderBottomWidth: 1, borderBottomColor: COLORS.border }}>
@@ -1330,7 +1330,7 @@ export const DisclaimerMethodologyPdf: SectionRenderer = ({ section }) => {
           ))}
         </View>
       )}
-      <View>
+      <View minPresenceAhead={80}>
         <Text style={styles.subheading}>Confidence</Text>
         <Text style={styles.body}>
           Level: {c.confidence.level}  |  Sample size: {c.confidence.sampleSize}  |  Detail coverage: {(c.confidence.detailCoverage * 100).toFixed(0)}%

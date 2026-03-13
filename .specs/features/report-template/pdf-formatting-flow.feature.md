@@ -14,7 +14,7 @@ design_refs:
 personas:
   - report-reader
   - anti-persona-report
-status: tested
+status: implemented
 created: 2026-03-13
 updated: 2026-03-13
 ---

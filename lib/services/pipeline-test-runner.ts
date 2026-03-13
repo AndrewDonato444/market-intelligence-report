@@ -50,6 +50,8 @@ export interface TestRunInput {
   marketName: string;
   geography: { city: string; state: string; county?: string };
   useDraftPrompts?: boolean;
+  /** Real report ID for DB lookups (e.g., persona agent queries report_personas). Falls back to snapshotId if not provided. */
+  sourceReportId?: string | null;
 }
 
 export interface TestRunResult {
@@ -65,7 +67,7 @@ export interface TestRunResult {
 // --- Runner ---
 
 export async function runPipelineTest(input: TestRunInput): Promise<TestRunResult> {
-  const { snapshotId, compiledData, marketName, geography, useDraftPrompts } = input;
+  const { snapshotId, compiledData, marketName, geography, useDraftPrompts, sourceReportId } = input;
 
   const marketData: MarketData = {
     name: marketName,
@@ -104,8 +106,9 @@ export async function runPipelineTest(input: TestRunInput): Promise<TestRunResul
   const l2Start = Date.now();
   try {
     const pipelineRunner = getRunner();
-    // Use snapshot ID as a synthetic report ID (not a real report)
-    const result = await pipelineRunner.run(`test-${snapshotId}`, {
+    // Use source report ID if available so DB lookups (e.g., report_personas) work
+    const reportId = sourceReportId ?? snapshotId;
+    const result = await pipelineRunner.run(reportId, {
       userId: "test-suite",
       market: marketData,
       reportConfig: {

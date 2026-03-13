@@ -1,3 +1,5 @@
+export const maxDuration = 300; // 5 min — pipeline needs time for data fetch + Claude agents
+
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { NextResponse } from "next/server";
 import {

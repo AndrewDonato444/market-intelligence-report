@@ -6,6 +6,8 @@
  * then fires executePipeline() asynchronously.
  */
 
+export const maxDuration = 300; // 5 min — pipeline needs time for data fetch + Claude agents
+
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/supabase/admin-auth";
 import { db, schema } from "@/lib/db";

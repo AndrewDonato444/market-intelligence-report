@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/supabase/admin-auth";
 import { db, schema } from "@/lib/db";
 import { eq, asc, sum } from "drizzle-orm";
+import { reapStaleReports } from "@/lib/services/report";
 
 export interface ReportDetailSection {
   id: string;
@@ -106,6 +107,9 @@ export async function GET(
   }
 
   const { id } = await params;
+
+  // Reap stale reports so admin sees accurate status (not stuck "generating")
+  await reapStaleReports();
 
   try {
     // Fetch report with user and market joins

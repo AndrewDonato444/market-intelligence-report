@@ -35,7 +35,7 @@ export async function reapStaleReports() {
           eq(schema.reports.status, "queued"),
           eq(schema.reports.status, "generating")
         ),
-        lt(schema.reports.createdAt, cutoff)
+        lt(schema.reports.generationStartedAt, cutoff)
       )
     );
 }

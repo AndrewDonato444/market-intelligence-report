@@ -122,6 +122,10 @@ jest.mock("drizzle-orm", () => ({
   sum: jest.fn(),
 }));
 
+jest.mock("@/lib/services/report", () => ({
+  reapStaleReports: jest.fn().mockResolvedValue(undefined),
+}));
+
 const mockReportRow = {
   id: "report-1",
   title: "Naples Q1 2026",

@@ -163,6 +163,25 @@ Tests added to prevent recurrence of 5 critical bugs found during the full drift
 
 ---
 
+## Bug 12: Vercel Function Timeout Kills Pipeline Mid-Execution
+
+**Root Cause**: Three related issues caused reports to hang in "generating" status forever:
+1. `POST /api/reports` and `POST /api/admin/reports/[id]/retry` had no `maxDuration` export, so Vercel killed the serverless function at the default timeout (15-60s) before Layer 2 (Claude agents) could complete. The fire-and-forget `executePipeline()` catch block never ran, so no error was recorded.
+2. `reapStaleReports()` was only called from the user-facing reports page, not from the admin report detail route — so admins saw stale "generating" status.
+3. `reapStaleReports()` compared against `createdAt` instead of `generationStartedAt`, meaning retried reports were immediately reaped since their `createdAt` was from the original creation time.
+
+**Fix**: Added `maxDuration = 300` to both routes. Added `reapStaleReports()` call to admin report detail route. Changed stale threshold comparison from `createdAt` to `generationStartedAt`.
+
+| ID | Test | File |
+|----|------|------|
+| SVC-REAP-001 | Regression: reapStaleReports uses generationStartedAt, not createdAt | `__tests__/pipeline/stale-report-reaping.test.ts` |
+| SVC-REAP-002 | Regression: reapStaleReports sets correct error message on stale reports | `__tests__/pipeline/stale-report-reaping.test.ts` |
+| SVC-REAP-003 | Regression: POST /api/reports exports maxDuration >= 300 | `__tests__/pipeline/route-max-duration.test.ts` |
+| SVC-REAP-004 | Regression: POST /api/admin/reports/[id]/retry exports maxDuration >= 300 | `__tests__/pipeline/route-max-duration.test.ts` |
+| SVC-REAP-005 | Regression: admin report detail route calls reapStaleReports | `__tests__/pipeline/route-max-duration.test.ts` |
+
+---
+
 ## Summary
 
 | Bug | Regression Tests | Status |
@@ -178,4 +197,5 @@ Tests added to prevent recurrence of 5 critical bugs found during the full drift
 | Detail YoY empty cohorts | 2 tests | All pass |
 | Wild outlier prices | 6 tests | All pass |
 | Per-neighborhood MIN_SAMPLE | 2 tests | All pass |
-| **Total** | **38 regression tests** | **All pass** |
+| Vercel function timeout kills pipeline | 5 tests | All pass |
+| **Total** | **43 regression tests** | **All pass** |

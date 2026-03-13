@@ -65,6 +65,7 @@ export async function POST(req: Request) {
     marketName: snapshot.marketName,
     geography: snapshot.geography,
     useDraftPrompts,
+    sourceReportId: snapshot.sourceReportId,
   }).then(async (result) => {
     await db
       .update(schema.pipelineTestRuns)

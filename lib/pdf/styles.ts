@@ -52,7 +52,7 @@ export const styles = StyleSheet.create({
     width: 612,
     height: 792,
     paddingTop: 64,
-    paddingBottom: 64,
+    paddingBottom: 72,
     paddingLeft: 64,
     paddingRight: 64,
     backgroundColor: COLORS.background,

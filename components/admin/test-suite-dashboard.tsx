@@ -177,15 +177,15 @@ export function TestSuiteDashboard() {
         {runs.length === 0 ? (
           <p className="text-gray-500 text-sm">No test runs yet.</p>
         ) : (
-          <div className="border rounded-lg overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="border rounded-lg overflow-x-auto">
+            <table className="w-full text-sm table-fixed">
               <thead className="bg-gray-50 text-left">
                 <tr>
-                  <th className="px-4 py-2">Run</th>
-                  <th className="px-4 py-2">Status</th>
-                  <th className="px-4 py-2">Duration</th>
-                  <th className="px-4 py-2">Error</th>
-                  <th className="px-4 py-2">Actions</th>
+                  <th className="px-3 py-2 w-28">Run</th>
+                  <th className="px-3 py-2 w-28">Status</th>
+                  <th className="px-3 py-2 w-20">Duration</th>
+                  <th className="px-3 py-2">Error</th>
+                  <th className="px-3 py-2 w-28">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -195,7 +195,7 @@ export function TestSuiteDashboard() {
                     : 0;
                   return (
                     <tr key={run.id} className="border-t">
-                      <td className="px-4 py-2">
+                      <td className="px-3 py-2 font-mono text-xs">
                         {run.id.slice(0, 8)}
                         {run.isDraft && (
                           <span className="ml-1 text-xs bg-yellow-100 text-yellow-700 px-1 rounded">
@@ -203,23 +203,23 @@ export function TestSuiteDashboard() {
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-3 py-2">
                         {run.status === "completed" && <span className="text-green-600">✓ Complete</span>}
                         {run.status === "failed" && <span className="text-red-600">✗ Failed</span>}
                         {run.status === "running" && <span className="text-blue-600">● Running</span>}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-3 py-2">
                         {totalMs > 0 ? `${(totalMs / 1000).toFixed(1)}s` : "—"}
                       </td>
-                      <td className="px-4 py-2 text-red-600 text-xs">
+                      <td className="px-3 py-2 text-red-600 text-xs truncate" title={run.error?.message}>
                         {run.error ? `L${run.error.layer}: ${run.error.message.slice(0, 60)}` : "—"}
                       </td>
-                      <td className="px-4 py-2">
+                      <td className="px-3 py-2">
                         {run.status === "completed" && (
                           <button
                             onClick={() => handlePreviewPdf(run.id)}
                             disabled={pdfLoading === run.id}
-                            className="text-blue-600 hover:underline text-xs"
+                            className="text-blue-600 hover:underline text-xs whitespace-nowrap"
                           >
                             {pdfLoading === run.id ? "Generating..." : "Preview PDF"}
                           </button>

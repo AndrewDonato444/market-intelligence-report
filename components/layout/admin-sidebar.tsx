@@ -11,6 +11,7 @@ const navItems = [
   { label: "Eval Suite", href: "/admin/eval", icon: "beaker" },
   { label: "Data Sources", href: "/admin/data-sources", icon: "database" },
   { label: "Pipeline", href: "/admin/pipeline", icon: "pipeline" },
+  { label: "Test Suite", href: "/admin/test-suite", icon: "flask" },
   { label: "Analytics", href: "/admin/analytics", icon: "bar-chart" },
   { label: "System Monitor", href: "/admin/monitoring", icon: "activity" },
   { label: "Subscription Tiers", href: "/admin/tiers", icon: "credit-card" },
@@ -59,6 +60,11 @@ const iconMap: Record<string, React.ReactNode> = {
       <rect x="9" y="16" width="6" height="5" rx="1" />
       <path d="M5 8v3a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8" />
       <path d="M12 13v3" />
+    </svg>
+  ),
+  flask: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 3h6" /><path d="M10 3v7.4a2 2 0 0 1-.6 1.4L4 17.2a2 2 0 0 0-.6 1.4V19a2 2 0 0 0 2 2h13.2a2 2 0 0 0 2-2v-.4a2 2 0 0 0-.6-1.4L14.6 11.8a2 2 0 0 1-.6-1.4V3" />
     </svg>
   ),
   users: (

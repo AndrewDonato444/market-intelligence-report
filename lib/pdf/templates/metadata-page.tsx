@@ -38,7 +38,7 @@ export function MetadataPage({
           <View style={{ marginBottom: 24 }}>
             <Text style={styles.subheading}>Key Insights</Text>
             {pullQuotes.map((quote, i) => (
-              <View key={i} style={styles.pullQuote} wrap={false}>
+              <View key={i} style={styles.pullQuote}>
                 <Text style={styles.pullQuoteText}>
                   &ldquo;{quote.text}&rdquo;
                 </Text>

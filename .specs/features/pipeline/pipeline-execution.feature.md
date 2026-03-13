@@ -72,6 +72,20 @@ Given a report already has status "generating"
 When POST /api/reports/[id]/generate is called
 Then the response returns 409 with "already generating"
 
+### Scenario: Vercel function timeout recovery
+Given a report is stuck in "generating" status for longer than 15 minutes
+And the serverless function was killed before the catch block ran
+When any page calls reapStaleReports()
+Then the report status changes to "failed"
+And the error message is "Generation timed out. Please retry."
+And the comparison uses generationStartedAt (not createdAt)
+So that retried reports are not immediately reaped
+
+### Scenario: maxDuration prevents premature function termination
+Given the pipeline routes export maxDuration >= 300
+When the pipeline runs Layer 2 (Claude agents, ~2-4 min)
+Then the Vercel function stays alive long enough for completion
+
 ## Architecture
 
 ```
