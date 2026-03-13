@@ -91,6 +91,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       investorBuyerPercentage: 0.2,
       freeClearPercentage: 0.3,
     },
+    dataAsOfDate: null,
     ...overrides,
   };
 }

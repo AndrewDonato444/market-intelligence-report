@@ -72,6 +72,7 @@ const testAnalytics: ComputedAnalytics = {
     investorBuyerPercentage: null,
     freeClearPercentage: null,
   },
+  dataAsOfDate: null,
 } as ComputedAnalytics;
 
 function makeAgentResult(name: string): AgentResult {

@@ -119,13 +119,13 @@ export function assembleReport(
         },
         timing: {
           buyers: (insightNarrative?.insights as Record<string, unknown>)?.executiveSummary
-            ? ((insightNarrative.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>)?.timing
-              ? (((insightNarrative.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>).timing as Record<string, string>).buyers ?? null
+            ? ((insightNarrative!.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>)?.timing
+              ? (((insightNarrative!.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>).timing as Record<string, string>).buyers ?? null
               : null
             : null,
           sellers: (insightNarrative?.insights as Record<string, unknown>)?.executiveSummary
-            ? ((insightNarrative.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>)?.timing
-              ? (((insightNarrative.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>).timing as Record<string, string>).sellers ?? null
+            ? ((insightNarrative!.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>)?.timing
+              ? (((insightNarrative!.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>).timing as Record<string, string>).sellers ?? null
               : null
             : null,
         },

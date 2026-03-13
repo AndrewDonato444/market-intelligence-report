@@ -194,6 +194,7 @@ const strongAnalytics: ComputedAnalytics = {
   },
   news: { targetMarket: [], peerMarkets: {} },
   detailMetrics: defaultDetailMetrics,
+  dataAsOfDate: null,
 };
 
 // ============================================================
@@ -255,6 +256,7 @@ const lowDataAnalytics: ComputedAnalytics = {
     investorBuyerPercentage: null,
     freeClearPercentage: null,
   },
+  dataAsOfDate: null,
 };
 
 // ============================================================
@@ -304,6 +306,7 @@ const singleSegmentAnalytics: ComputedAnalytics = {
   confidence: { level: "high", sampleSize: 120, detailCoverage: 0.75, staleDataSources: [] },
   news: { targetMarket: [], peerMarkets: {} },
   detailMetrics: { ...defaultDetailMetrics, medianDaysOnMarket: 68 },
+  dataAsOfDate: null,
 };
 
 // ============================================================
@@ -469,6 +472,7 @@ const emptyAnalytics: ComputedAnalytics = {
     investorBuyerPercentage: null,
     freeClearPercentage: null,
   },
+  dataAsOfDate: null,
 };
 
 // ============================================================

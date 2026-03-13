@@ -809,7 +809,7 @@ export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
       )}
 
       {/* Data Confidence section */}
-      {c.confidence && (
+      {c.confidence?.level && (
         <View>
           <Text style={styles.subsectionHeader}>Data Confidence</Text>
           <Text style={styles.bodySmall}>
