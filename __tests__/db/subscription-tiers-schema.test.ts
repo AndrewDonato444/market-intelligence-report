@@ -108,6 +108,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       reports_per_month: 10,
       markets_created: 3,
       social_media_kits: 1,
+      email_campaigns: 1,
       personas_per_report: 3,
     };
     expect(entitlements.reports_per_month).toBe(10);
@@ -118,6 +119,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       reports_per_month: 10,
       markets_created: 3,
       social_media_kits: 1,
+      email_campaigns: 1,
       personas_per_report: 3,
     };
     expect(entitlements.reports_per_month).toBe(10);
@@ -129,6 +131,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       reports_per_month: -1,
       markets_created: -1,
       social_media_kits: -1,
+      email_campaigns: -1,
       personas_per_report: 3,
     };
     expect(entitlements.reports_per_month).toBe(-1);
@@ -141,16 +144,18 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       reports_per_month: 2,
       markets_created: 1,
       social_media_kits: 0,
+      email_campaigns: 0,
       personas_per_report: 1,
     };
     expect(entitlements.social_media_kits).toBe(0);
   });
 
-  it("has all four required entitlement keys", () => {
+  it("has all required entitlement keys", () => {
     const entitlements: schema.TierEntitlements = {
       reports_per_month: 1,
       markets_created: 1,
       social_media_kits: 0,
+      email_campaigns: 0,
       personas_per_report: 1,
     };
     expect(Object.keys(entitlements)).toEqual(
@@ -158,6 +163,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
         "reports_per_month",
         "markets_created",
         "social_media_kits",
+        "email_campaigns",
         "personas_per_report",
       ])
     );
