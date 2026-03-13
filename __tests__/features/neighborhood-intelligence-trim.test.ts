@@ -193,7 +193,7 @@ describe("Neighborhood Intelligence Trim", () => {
         "utf8"
       );
       // The neighborhoodAnalysis JSON schema instruction should not say "1-2 paragraphs"
-      const neighborhoodPromptMatch = source.match(/"neighborhoodAnalysis":\s*\{[^}]+\}/s);
+      const neighborhoodPromptMatch = source.match(/"neighborhoodAnalysis":\s*\{[^}]+\}/);
       expect(neighborhoodPromptMatch).toBeTruthy();
       expect(neighborhoodPromptMatch![0]).not.toContain("1-2 paragraphs");
       expect(source).toContain("2-4 sentences");
