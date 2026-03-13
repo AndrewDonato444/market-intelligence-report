@@ -871,3 +871,53 @@ export const advisorConversations = pgTable(
 export type AdvisorConversationsTable =
   typeof advisorConversations.$inferSelect;
 export type NewAdvisorConversation = typeof advisorConversations.$inferInsert;
+
+// --- Pipeline Test Suite Tables ---
+
+export const pipelineSnapshots = pgTable(
+  "pipeline_snapshots",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull(),
+    marketName: text("market_name").notNull(),
+    geography: jsonb("geography").notNull().$type<{ city: string; state: string; county?: string }>(),
+    compiledData: jsonb("compiled_data").notNull(),
+    propertyCount: integer("property_count").notNull().default(0),
+    hasXSentiment: boolean("has_x_sentiment").notNull().default(false),
+    peerMarketCount: integer("peer_market_count").notNull().default(0),
+    isGolden: boolean("is_golden").notNull().default(false),
+    sourceReportId: uuid("source_report_id").references(() => reports.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("pipeline_snapshots_market_name_idx").on(table.marketName),
+  ]
+);
+
+export type PipelineSnapshot = typeof pipelineSnapshots.$inferSelect;
+export type NewPipelineSnapshot = typeof pipelineSnapshots.$inferInsert;
+
+export const pipelineTestRuns = pgTable(
+  "pipeline_test_runs",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    snapshotId: uuid("snapshot_id")
+      .notNull()
+      .references(() => pipelineSnapshots.id, { onDelete: "cascade" }),
+    status: text("status").notNull().default("running"),
+    layer1Result: jsonb("layer_1_result"),
+    layer2Result: jsonb("layer_2_result"),
+    layer3Result: jsonb("layer_3_result"),
+    layerDurations: jsonb("layer_durations").$type<{ layer1Ms: number; layer2Ms: number; layer3Ms: number }>(),
+    error: jsonb("error").$type<{ layer: number; message: string; agent?: string } | null>(),
+    isDraft: boolean("is_draft").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("pipeline_test_runs_snapshot_id_idx").on(table.snapshotId),
+    index("pipeline_test_runs_status_idx").on(table.status),
+  ]
+);
+
+export type PipelineTestRun = typeof pipelineTestRuns.$inferSelect;
+export type NewPipelineTestRun = typeof pipelineTestRuns.$inferInsert;

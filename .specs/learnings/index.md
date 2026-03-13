@@ -19,6 +19,11 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-13 — Pipeline Test Suite (#PTS)
+
+- **Snapshot-and-replay pattern for pipeline testing** (`general.md`): Freeze Layer 0 `CompiledMarketData` as JSONB (~750KB), replay through Layers 1→2→3 without API calls. Separate test runner avoids production table pollution. Reuse production `renderReportPdf()` for pixel-identical PDF preview.
+- **Fire-and-forget route testing** (`testing.md`): Test the synchronous response path (run record creation + 200) separately from the async pipeline execution. Ensure test fixtures send ALL required fields, not just IDs.
+
 ### 2026-03-13 — Remove Market Scorecard Section (#209)
 
 - **Section removal blast radius** (`general.md`): Removing one report section required changes across 13 files — assembler, renderer, agent prompt, schema, validation, eval test-cases, and 6 test files. Keep DB enum for backward compatibility; `GenericSectionPdf` fallback handles old reports gracefully.

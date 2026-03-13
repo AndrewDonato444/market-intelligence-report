@@ -8,6 +8,11 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-13 — Pipeline Test Suite (#PTS)
+- **Pattern**: For fire-and-forget pipeline routes (POST starts run, updates DB on completion), test the synchronous path only — verify the run record is created with `status: "running"` and returned immediately. The async `.then()` / `.catch()` executes after the response; testing it requires flushing promises or integration tests.
+- **Pattern**: When POST API routes require multiple fields (e.g., `compiledData`, `marketName`, `geography`), tests must send ALL required fields — not just the ID. A test that only sends `snapshotId` will get 400 from the snapshot creation route, not 200. Match the API contract exactly in test fixtures.
+- **Pattern**: For admin test suite features with multiple API routes (snapshots CRUD, runs CRUD, PDF generation), organize tests in a single file grouped by `describe` blocks per route. Each block gets its own mock setup/reset. This mirrors the `pipeline-retrigger-api.test.ts` pattern.
+
 ### 2026-03-12 — Entitlement Gating Route Tests (#174)
 - **Gotcha**: `next/server` module imports `Request` from Node internals which isn't available in jsdom. Instead of switching to `@jest-environment node` (which breaks React component imports), mock `next/server` entirely with a lightweight `MockNextResponse` class that has `status`, `json()`, and a static `json()` factory. Add a `MinimalRequest` polyfill with `url`, `method`, `headers`, `_body`, and `json()` to `globalThis.Request` if undefined. This avoids both the jsdom polyfill gap and the undici/TextDecoder dependency chain.
 - **Gotcha**: Adding `fetch` on mount to an existing component (e.g., entitlement check in StepYourReview) breaks every test that renders that component or its parents. Existing `mockFetchSuccess`/`mockFetchReportError` helpers and parent shell tests all need updating to handle the new endpoint. After adding a mount-time fetch, grep for `renderReview\|step-your-review\|StepYourReview` across all test files.

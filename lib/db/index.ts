@@ -47,3 +47,7 @@ export type SubscriptionTier = typeof schema.subscriptionTiers.$inferSelect;
 export type NewSubscriptionTier = typeof schema.subscriptionTiers.$inferInsert;
 export type UsageRecord = typeof schema.usageRecords.$inferSelect;
 export type NewUsageRecord = typeof schema.usageRecords.$inferInsert;
+export type PipelineSnapshot = typeof schema.pipelineSnapshots.$inferSelect;
+export type NewPipelineSnapshot = typeof schema.pipelineSnapshots.$inferInsert;
+export type PipelineTestRun = typeof schema.pipelineTestRuns.$inferSelect;
+export type NewPipelineTestRun = typeof schema.pipelineTestRuns.$inferInsert;

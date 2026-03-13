@@ -8,6 +8,11 @@ Patterns that don't fit other categories.
 
 <!-- Conventions, naming, organization -->
 
+### 2026-03-13 — Pipeline Test Suite (#PTS)
+- **Pattern**: For pipeline testing without API calls, snapshot the `CompiledMarketData` (Layer 0 output) as JSONB in a dedicated table. ~750KB per snapshot is well within Postgres JSONB limits for an admin-only table with <50 rows. Store full data (not pointers to cache keys) to avoid fragility from cache expiration.
+- **Pattern**: The pipeline test runner (`pipeline-test-runner.ts`) is a slimmed-down version of `pipeline-executor.ts` that: (1) takes `CompiledMarketData` as input (skips Layer 0), (2) runs Layers 1→2→3 sequentially, (3) returns all intermediate results, (4) does NOT write to production `reports`/`report_sections` tables, (5) stores results in `pipeline_test_runs` instead. This separation ensures test runs never pollute production data.
+- **Pattern**: For PDF preview from test runs, reuse the exact production `renderReportPdf()` function — build a `ReportData` object from the test run's layer3Result sections, pass it through the same renderer. This ensures test PDFs match production output pixel-for-pixel.
+
 ### 2026-03-13 — Remove Market Scorecard Section (#209)
 - **Gotcha**: Removing a report section has wide blast radius — this change touched 13 files across assembler, PDF renderer, agent prompt, schema registry, validation, eval test-cases/fixtures, and 6 test files. Any section removal must audit: (1) assembler sections array, (2) NEW_SECTION_TYPES const, (3) RENDERER_MAP + component, (4) SECTION_REGISTRY_V2, (5) report-validation.ts, (6) agent prompts that reference the section, (7) all test fixtures with section counts or indices, (8) eval test cases referencing the section type.
 - **Decision**: Keep `strategic_benchmark` in DB schema enum and TypeScript type unions for backward compatibility — existing reports in the DB still contain this section type. The PDF renderer's `getSectionRenderer()` already falls back to `GenericSectionPdf` for unknown types, so old reports render without error. No migration needed.
