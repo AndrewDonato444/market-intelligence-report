@@ -16,7 +16,7 @@ updated: 2026-03-13
 
 # Cover Page Redesign
 
-**Source Files**: `lib/pdf/templates/cover-page.tsx`, `lib/pdf/document.tsx`, `lib/agents/report-assembler.ts`, `lib/pdf/styles.ts`
+**Source Files**: `lib/pdf/templates/cover-page.tsx`, `lib/pdf/document.tsx`, `lib/utils/report-title.ts`, `lib/pdf/styles.ts`
 
 ## Feature: Cover Page Redesign
 
@@ -30,7 +30,7 @@ Redesign the PDF report cover page with three improvements:
 Given a market with city "Naples", state "FL", tier "Luxury"
 And the report is generated in March 2026
 When the system auto-generates a report title
-Then the title follows the format "{City} {Tier} Market Intelligence - Q1 2026"
+Then the title follows the format "{City} {Tier} Market Intelligence — Q1 2026"
 And the title is editable by the user before generation
 
 ## Scenario: Title naming convention uses correct quarter
@@ -55,8 +55,8 @@ Then the title uses "Luxury" as the default tier
 Given a generated report with key themes from the insight-generator agent
 When the PDF cover page renders
 Then the cover page displays up to 3 key theme names below the market name
-And each theme shows its impact level as a colored dot
-And each theme shows its trend direction arrow
+And each theme shows its impact level as a colored dot and uppercase text label
+And each theme shows its trend direction arrow alongside the impact label
 
 ## Scenario: Cover page handles missing themes gracefully
 
@@ -82,6 +82,6 @@ Then all existing branding elements remain intact
 
 1. Title utility: Create generateReportTitle(city, tier, date) in lib/utils/report-title.ts
 2. Cover page props: Add keyThemes to CoverPageProps
-3. Document assembly: Pass themes from reportData.sections (the_narrative) to cover page
+3. Document assembly: Extract themes from the_narrative section in document.tsx and pass to cover page
 4. Styles: Add new styles for theme chips and legend in styles.ts
 5. Backward compatible: Existing reports without themes still render correctly
