@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import "@testing-library/jest-dom";
+import { formatMetricValue } from "@/lib/pdf/templates/renderers";
 
 describe("Data Visualization Components", () => {
   describe("File structure", () => {
@@ -144,6 +145,42 @@ describe("Data Visualization Components", () => {
 
       expect(screen.getByText("Total Volume")).toBeInTheDocument();
       expect(screen.getByText("$6.58B")).toBeInTheDocument();
+    });
+  });
+
+  describe("formatMetricValue", () => {
+    it("formats PSF metric as $/sqft with no decimals", () => {
+      expect(formatMetricValue(1450.7, "Median Price/SqFt")).toBe("$1,451/sqft");
+    });
+
+    it("formats large PSF metric with comma separators", () => {
+      expect(formatMetricValue(2345, "Median Price/SqFt")).toBe("$2,345/sqft");
+    });
+
+    it("rounds PSF metric to nearest integer", () => {
+      expect(formatMetricValue(999.4, "Median Price/SqFt")).toBe("$999/sqft");
+      expect(formatMetricValue(999.5, "Median Price/SqFt")).toBe("$1,000/sqft");
+    });
+
+    it("formats count metrics as plain numbers", () => {
+      expect(formatMetricValue(45, "Median Days on Market")).toBe("45");
+    });
+
+    it("returns N/A for null values", () => {
+      expect(formatMetricValue(null)).toBe("N/A");
+    });
+
+    it("returns string values as-is", () => {
+      expect(formatMetricValue("custom text" as unknown as string)).toBe("custom text");
+    });
+
+    it("formats default numeric values as dollar amounts", () => {
+      expect(formatMetricValue(2500000)).toBe("$2.5M");
+      expect(formatMetricValue(750000)).toBe("$750K");
+    });
+
+    it("formats List-to-Sale Ratio as percentage", () => {
+      expect(formatMetricValue(0.97, "List-to-Sale Ratio")).toBe("97.0%");
     });
   });
 });

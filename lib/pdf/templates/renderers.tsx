@@ -977,7 +977,7 @@ const PSF_METRICS = new Set([
   "Median Price/SqFt",
 ]);
 
-function formatMetricValue(val: number | string | null, metricName?: string): string {
+export function formatMetricValue(val: number | string | null, metricName?: string): string {
   if (val == null) return "N/A";
   if (typeof val === "string") return val;
 
