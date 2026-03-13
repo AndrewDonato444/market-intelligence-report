@@ -53,7 +53,7 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
     criterion: "completeness",
     fixtureId: "report-strong-market",
     expectedRubric:
-      "All 7 sections must be present. Executive briefing has headline AND narrative. Market insights index has insightsIndex. Dashboard has powerFive metrics. Neighborhood intelligence has neighborhoods array. The narrative has editorial and themes. Forward look has forecast and guidance. Comparative positioning has peer data.",
+      "All 7 sections must be present. Executive briefing has headline AND narrative. Market insights index has insightsIndex. Dashboard has powerFour metrics. Neighborhood intelligence has neighborhoods array. The narrative has editorial and themes. Forward look has forecast and guidance. Comparative positioning has peer data.",
     requiredSections: [
       "executive_briefing",
       "market_insights_index",

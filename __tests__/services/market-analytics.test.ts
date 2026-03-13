@@ -401,28 +401,26 @@ describe("Market Analytics Engine", () => {
       { name: "SFR", propertyType: "SFR", count: 20, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false, yoy: null },
     ];
 
-    it("returns 5 Power Five indicators", () => {
+    it("returns 4 Power Four indicators (Transaction Volume removed)", () => {
       const result = computeDashboard(market, yoy, detailMetrics, segments);
-      expect(result.powerFive).toHaveLength(5);
-      expect(result.powerFive.every((i) => i.category === "power_five")).toBe(true);
+      expect(result.powerFour).toHaveLength(4);
+      expect(result.powerFour.every((i) => i.category === "power_four")).toBe(true);
+      expect(result.powerFour.find((i) => i.name === "Transaction Volume")).toBeUndefined();
     });
 
-    it("returns 3 Tier Two indicators (Cash Buyer % eliminated)", () => {
+    it("returns 4 Supporting Metrics (combined tier two + three, minus removed metrics)", () => {
       const result = computeDashboard(market, yoy, detailMetrics, segments);
-      expect(result.tierTwo).toHaveLength(3);
-      expect(result.tierTwo.every((i) => i.category === "tier_two")).toBe(true);
-      expect(result.tierTwo.find((i) => i.name === "Cash Buyer %")).toBeUndefined();
-    });
-
-    it("returns 3 Tier Three indicators", () => {
-      const result = computeDashboard(market, yoy, detailMetrics, segments);
-      expect(result.tierThree).toHaveLength(3);
-      expect(result.tierThree.every((i) => i.category === "tier_three")).toBe(true);
+      expect(result.supportingMetrics).toHaveLength(4);
+      expect(result.supportingMetrics.every((i) => i.category === "supporting")).toBe(true);
+      expect(result.supportingMetrics.find((i) => i.name === "Cash Buyer %")).toBeUndefined();
+      expect(result.supportingMetrics.find((i) => i.name === "Flood Zone Exposure")).toBeUndefined();
+      expect(result.supportingMetrics.find((i) => i.name === "Free & Clear %")).toBeUndefined();
+      expect(result.supportingMetrics.find((i) => i.name === "Investor Activity Rate")).toBeDefined();
     });
 
     it("assigns trend directions based on YoY", () => {
       const result = computeDashboard(market, yoy, detailMetrics, segments);
-      const medianSold = result.powerFive.find((i) => i.name === "Median Sold Price");
+      const medianSold = result.powerFour.find((i) => i.name === "Median Sold Price");
       expect(medianSold?.trend).toBe("up"); // 8% growth
       expect(medianSold?.trendValue).toBe(0.08);
     });
@@ -430,27 +428,27 @@ describe("Market Analytics Engine", () => {
     it("assigns flat trend for small changes", () => {
       const flatYoY = { medianPriceChange: 0.005, volumeChange: -0.005, pricePerSqftChange: 0.003, averagePriceChange: 0.004, totalVolumeChange: -0.002, domChange: 0.005, listToSaleChange: -0.003 };
       const result = computeDashboard(market, flatYoY, detailMetrics, segments);
-      const medianSold = result.powerFive.find((i) => i.name === "Median Sold Price");
+      const medianSold = result.powerFour.find((i) => i.name === "Median Sold Price");
       expect(medianSold?.trend).toBe("flat");
     });
 
     it("assigns down trend for negative changes", () => {
       const downYoY = { medianPriceChange: -0.05, volumeChange: -0.1, pricePerSqftChange: -0.03, averagePriceChange: -0.04, totalVolumeChange: -0.15, domChange: 0.20, listToSaleChange: -0.05 };
       const result = computeDashboard(market, downYoY, detailMetrics, segments);
-      const medianSold = result.powerFive.find((i) => i.name === "Median Sold Price");
+      const medianSold = result.powerFour.find((i) => i.name === "Median Sold Price");
       expect(medianSold?.trend).toBe("down");
     });
 
     it("assigns DOM trend from yoy.domChange", () => {
       const result = computeDashboard(market, yoy, detailMetrics, segments);
-      const dom = result.powerFive.find((i) => i.name === "Median Days on Market");
+      const dom = result.powerFour.find((i) => i.name === "Median Days on Market");
       expect(dom?.trend).toBe("down"); // -15% DOM change
       expect(dom?.trendValue).toBe(-0.15);
     });
 
     it("assigns list-to-sale trend from yoy.listToSaleChange", () => {
       const result = computeDashboard(market, yoy, detailMetrics, segments);
-      const lts = result.powerFive.find((i) => i.name === "List-to-Sale Ratio");
+      const lts = result.powerFour.find((i) => i.name === "List-to-Sale Ratio");
       expect(lts?.trend).toBe("up"); // +2% change
       expect(lts?.trendValue).toBe(0.02);
     });
@@ -458,15 +456,15 @@ describe("Market Analytics Engine", () => {
     it("shows null trends for DOM/LTS when YoY data unavailable", () => {
       const noDetailYoY = { ...yoy, domChange: null, listToSaleChange: null };
       const result = computeDashboard(market, noDetailYoY, detailMetrics, segments);
-      const dom = result.powerFive.find((i) => i.name === "Median Days on Market");
+      const dom = result.powerFour.find((i) => i.name === "Median Days on Market");
       expect(dom?.trend).toBeNull();
-      const lts = result.powerFive.find((i) => i.name === "List-to-Sale Ratio");
+      const lts = result.powerFour.find((i) => i.name === "List-to-Sale Ratio");
       expect(lts?.trend).toBeNull();
     });
 
     it("passes raw list-to-sale ratio decimal", () => {
       const result = computeDashboard(market, yoy, detailMetrics, segments);
-      const lts = result.powerFive.find((i) => i.name === "List-to-Sale Ratio");
+      const lts = result.powerFour.find((i) => i.name === "List-to-Sale Ratio");
       // Raw decimal passed through — formatting happens in renderer
       expect(lts?.value).toBe(0.97);
     });
@@ -481,10 +479,10 @@ describe("Market Analytics Engine", () => {
         freeClearPercentage: null,
       };
       const result = computeDashboard(market, yoy, nullMetrics, segments);
-      const dom = result.powerFive.find((i) => i.name === "Median Days on Market");
+      const dom = result.powerFour.find((i) => i.name === "Median Days on Market");
       expect(dom?.value).toBeNull();
       // Cash Buyer % no longer in dashboard
-      expect(result.tierTwo.find((i) => i.name === "Cash Buyer %")).toBeUndefined();
+      expect(result.supportingMetrics.find((i) => i.name === "Cash Buyer %")).toBeUndefined();
     });
   });
 
@@ -713,9 +711,8 @@ describe("Market Analytics Engine", () => {
       expect(result.insightsIndex.value.score).toBeGreaterThanOrEqual(1);
 
       // Dashboard
-      expect(result.dashboard.powerFive).toHaveLength(5);
-      expect(result.dashboard.tierTwo).toHaveLength(3);
-      expect(result.dashboard.tierThree).toHaveLength(3);
+      expect(result.dashboard.powerFour).toHaveLength(4);
+      expect(result.dashboard.supportingMetrics).toHaveLength(4);
 
       // Neighborhoods
       expect(result.neighborhoods.length).toBeGreaterThan(0);

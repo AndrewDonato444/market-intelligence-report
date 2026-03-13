@@ -58,9 +58,8 @@ export interface ComputedAnalytics {
 
   /** Section 3: Luxury Market Dashboard — tiered indicators */
   dashboard: {
-    powerFive: DashboardIndicator[];
-    tierTwo: DashboardIndicator[];
-    tierThree: DashboardIndicator[];
+    powerFour: DashboardIndicator[];
+    supportingMetrics: DashboardIndicator[];
   };
 
   /** Section 4: Neighborhood breakdowns */
@@ -110,7 +109,7 @@ export interface DashboardIndicator {
   value: number | string | null;
   trend: "up" | "down" | "flat" | null;
   trendValue: number | null;
-  category: "power_five" | "tier_two" | "tier_three";
+  category: "power_four" | "supporting";
 }
 
 export interface NeighborhoodBreakdown {
@@ -633,27 +632,27 @@ export function computeDashboard(
   const trendDir = (val: number | null): "up" | "down" | "flat" | null =>
     val == null ? null : val > 0.01 ? "up" : val < -0.01 ? "down" : "flat";
 
-  const powerFive: DashboardIndicator[] = [
+  const powerFour: DashboardIndicator[] = [
     {
       name: "Median Sold Price",
       value: market.medianPrice,
       trend: trendDir(yoy.medianPriceChange),
       trendValue: yoy.medianPriceChange,
-      category: "power_five",
+      category: "power_four",
     },
     {
       name: "Median Price/SqFt",
       value: market.medianPricePerSqft,
       trend: trendDir(yoy.pricePerSqftChange),
       trendValue: yoy.pricePerSqftChange,
-      category: "power_five",
+      category: "power_four",
     },
     {
       name: "Median Days on Market",
       value: detailMetrics.medianDaysOnMarket,
       trend: trendDir(yoy.domChange),
       trendValue: yoy.domChange,
-      category: "power_five",
+      category: "power_four",
     },
     {
       name: "List-to-Sale Ratio",
@@ -662,66 +661,42 @@ export function computeDashboard(
         : null,
       trend: trendDir(yoy.listToSaleChange),
       trendValue: yoy.listToSaleChange,
-      category: "power_five",
-    },
-    {
-      name: "Transaction Volume",
-      value: market.totalProperties,
-      trend: trendDir(yoy.volumeChange),
-      trendValue: yoy.volumeChange,
-      category: "power_five",
+      category: "power_four",
     },
   ];
 
-  const tierTwo: DashboardIndicator[] = [
+  const supportingMetrics: DashboardIndicator[] = [
     {
       name: "Total Sales Volume",
       value: market.totalVolume,
       trend: trendDir(yoy.totalVolumeChange),
       trendValue: yoy.totalVolumeChange,
-      category: "tier_two",
+      category: "supporting",
     },
     {
       name: "Average Price",
       value: market.averagePrice,
       trend: trendDir(yoy.averagePriceChange),
       trendValue: yoy.averagePriceChange,
-      category: "tier_two",
+      category: "supporting",
     },
     {
       name: "Property Type Split",
       value: segments.map((s) => `${s.name}: ${s.count}`).join(", "),
       trend: null,
       trendValue: null,
-      category: "tier_two",
-    },
-  ];
-
-  const tierThree: DashboardIndicator[] = [
-    {
-      name: "Flood Zone Exposure",
-      value: detailMetrics.floodZonePercentage ?? null,
-      trend: null,
-      trendValue: null,
-      category: "tier_three",
+      category: "supporting",
     },
     {
       name: "Investor Activity Rate",
       value: detailMetrics.investorBuyerPercentage ?? null,
       trend: null,
       trendValue: null,
-      category: "tier_three",
-    },
-    {
-      name: "Free & Clear %",
-      value: detailMetrics.freeClearPercentage ?? null,
-      trend: null,
-      trendValue: null,
-      category: "tier_three",
+      category: "supporting",
     },
   ];
 
-  return { powerFive, tierTwo, tierThree };
+  return { powerFour, supportingMetrics };
 }
 
 // --- Zip to Neighborhood Name ---

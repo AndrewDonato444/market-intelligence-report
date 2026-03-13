@@ -80,7 +80,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       risk: { score: 7, label: "Low Risk", components: {} },
       value: { score: 6, label: "Moderate Opportunity", components: {} },
     },
-    dashboard: { powerFive: [], tierTwo: [], tierThree: [] },
+    dashboard: { powerFour: [], supportingMetrics: [] },
     neighborhoods: [
       { name: "Starwood", zipCode: "81611", propertyCount: 18, medianPrice: 8500000, medianPricePerSqft: 2200, yoyPriceChange: 0.06, amenities: [] },
       { name: "Red Mountain", zipCode: "81612", propertyCount: 15, medianPrice: 12000000, medianPricePerSqft: 2800, yoyPriceChange: 0.1, amenities: [] },

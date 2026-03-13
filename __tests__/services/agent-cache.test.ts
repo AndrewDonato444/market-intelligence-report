@@ -52,7 +52,7 @@ const testAnalytics: ComputedAnalytics = {
     risk: { score: 8, label: "Low Risk", components: {} },
     value: { score: 7, label: "Strong Opportunity", components: {} },
   },
-  dashboard: { powerFive: [], tierTwo: [], tierThree: [] },
+  dashboard: { powerFour: [], supportingMetrics: [] },
   neighborhoods: [],
   peerComparisons: [],
   peerRankings: [],

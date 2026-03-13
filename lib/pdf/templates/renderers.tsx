@@ -952,24 +952,21 @@ interface DashboardMetric {
 
 interface LuxuryMarketDashboardContent {
   dashboard: {
-    powerFive: DashboardMetric[];
-    tierTwo: DashboardMetric[];
-    tierThree: DashboardMetric[];
+    powerFour: DashboardMetric[];
+    supportingMetrics: DashboardMetric[];
   };
   detailMetrics: Record<string, number | null>;
+  narrative: string | null;
 }
 
 // Metrics displayed as percentages (e.g. 0.4 → "40%" or legacy 40 → "40%")
 const PERCENTAGE_METRICS = new Set([
-  "Flood Zone Exposure",
   "Investor Activity Rate",
-  "Free & Clear %",
 ]);
 
 // Metrics displayed as plain counts (no $ or %)
 const COUNT_METRICS = new Set([
   "Median Days on Market",
-  "Transaction Volume",
 ]);
 
 function formatMetricValue(val: number | string | null, metricName?: string): string {
@@ -1035,9 +1032,18 @@ export const LuxuryMarketDashboardPdf: SectionRenderer = ({ section }) => {
   const c = section.content as LuxuryMarketDashboardContent;
   return (
     <View>
-      <MetricTier label="POWER FIVE INDICATORS" metrics={c.dashboard.powerFive} />
-      <MetricTier label="TIER TWO METRICS" metrics={c.dashboard.tierTwo} />
-      <MetricTier label="TIER THREE METRICS" metrics={c.dashboard.tierThree} />
+      {c.narrative && (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ fontFamily: "Inter", fontSize: 10, fontStyle: "italic", color: COLORS.textPrimary, lineHeight: 1.5 }}>{c.narrative}</Text>
+        </View>
+      )}
+      <MetricTier label="POWER FOUR INDICATORS" metrics={c.dashboard.powerFour} />
+      <MetricTier label="SUPPORTING METRICS" metrics={c.dashboard.supportingMetrics} />
+      <View style={{ marginTop: 8 }}>
+        <Text style={{ fontFamily: "Inter", fontSize: 7, color: COLORS.textSecondary }}>
+          * Investor Activity Rate: Percentage of transactions where the buyer is classified as an investor (non-owner-occupied purchase)
+        </Text>
+      </View>
     </View>
   );
 };

@@ -183,7 +183,7 @@ const MOCK_COMPUTED_ANALYTICS = {
   segments: [],
   yoy: { medianPriceChange: 0.08, volumeChange: 0.12, pricePerSqftChange: 0.06 },
   insightsIndex: { liquidity: 7, timing: 8, risk: 3, value: 6, composite: 7.0 },
-  dashboard: { powerFive: [], tierTwo: [], tierThree: [] },
+  dashboard: { powerFour: [], supportingMetrics: [] },
   neighborhoods: [],
   peerComparisons: [],
   peerRankings: [],

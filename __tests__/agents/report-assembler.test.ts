@@ -42,22 +42,17 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       value: { score: 6, label: "Moderate Opportunity", components: { yoyGrowth: 0.08, psfSpread: 0.2 } },
     },
     dashboard: {
-      powerFive: [
-        { name: "Median Sold Price", value: 8000000, trend: "up", trendValue: 0.08, category: "power_five" },
-        { name: "Median Price/SqFt", value: 1600, trend: "up", trendValue: 0.06, category: "power_five" },
-        { name: "Median Days on Market", value: 45, trend: null, trendValue: null, category: "power_five" },
-        { name: "List-to-Sale Ratio", value: 97, trend: null, trendValue: null, category: "power_five" },
-        { name: "Transaction Volume", value: 30, trend: "up", trendValue: 0.05, category: "power_five" },
+      powerFour: [
+        { name: "Median Sold Price", value: 8000000, trend: "up", trendValue: 0.08, category: "power_four" },
+        { name: "Median Price/SqFt", value: 1600, trend: "up", trendValue: 0.06, category: "power_four" },
+        { name: "Median Days on Market", value: 45, trend: null, trendValue: null, category: "power_four" },
+        { name: "List-to-Sale Ratio", value: 97, trend: null, trendValue: null, category: "power_four" },
       ],
-      tierTwo: [
-        { name: "Total Sales Volume", value: 240000000, trend: null, trendValue: null, category: "tier_two" },
-        { name: "Average Price", value: 9000000, trend: null, trendValue: null, category: "tier_two" },
-        { name: "Property Type Split", value: "SFR: 20, Condo: 10", trend: null, trendValue: null, category: "tier_two" },
-      ],
-      tierThree: [
-        { name: "Flood Zone Exposure", value: 10, trend: null, trendValue: null, category: "tier_three" },
-        { name: "Investor Activity Rate", value: 20, trend: null, trendValue: null, category: "tier_three" },
-        { name: "Free & Clear %", value: 30, trend: null, trendValue: null, category: "tier_three" },
+      supportingMetrics: [
+        { name: "Total Sales Volume", value: 240000000, trend: null, trendValue: null, category: "supporting" },
+        { name: "Average Price", value: 9000000, trend: null, trendValue: null, category: "supporting" },
+        { name: "Property Type Split", value: "SFR: 20, Condo: 10", trend: null, trendValue: null, category: "supporting" },
+        { name: "Investor Activity Rate", value: 20, trend: null, trendValue: null, category: "supporting" },
       ],
     },
     neighborhoods: [
@@ -195,9 +190,8 @@ describe("Report Assembler", () => {
       const section = result.sections[2];
       expect(section.sectionType).toBe("luxury_market_dashboard");
       const content = section.content as any;
-      expect(content.dashboard.powerFive).toHaveLength(5);
-      expect(content.dashboard.tierTwo).toHaveLength(3);
-      expect(content.dashboard.tierThree).toHaveLength(3);
+      expect(content.dashboard.powerFour).toHaveLength(4);
+      expect(content.dashboard.supportingMetrics).toHaveLength(4);
     });
 
     it("Section 4 (Neighborhood Intelligence) contains data and narrative", () => {

@@ -145,7 +145,7 @@ export function assembleReport(
       },
     },
 
-    // Section 3: Luxury Market Dashboard (pure data)
+    // Section 3: Luxury Market Dashboard (data + narrative headline)
     {
       sectionNumber: 3,
       sectionType: "luxury_market_dashboard",
@@ -153,6 +153,7 @@ export function assembleReport(
       content: {
         dashboard: analytics.dashboard,
         detailMetrics: analytics.detailMetrics,
+        narrative: insightNarrative?.dashboardNarrative ?? null,
       },
     },
 

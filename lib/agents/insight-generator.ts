@@ -45,6 +45,7 @@ export interface InsightGeneratorOutput {
   editorial: {
     narrative: string;
   };
+  dashboardNarrative: string;
 }
 
 export interface InsightTheme {
@@ -261,7 +262,8 @@ Respond with a JSON object matching this exact schema:
       "buyers": "Timing recommendation for buyers",
       "sellers": "Timing recommendation for sellers"
     }
-  }
+  },
+  "dashboardNarrative": "2-3 sentences summarizing the headline story of the last 100 luxury transactions — lead with transaction count and median price, include the most significant YoY change, and end with a one-line strategic takeaway. This appears as a headline above the dashboard metrics."
 }
 
 REMINDER: Each section above must contain DIFFERENT content. overview = WHAT, neighborhoodAnalysis = EVIDENCE, editorial = WHY, executiveSummary = SO-WHAT. No sentence or finding should appear in more than one section.
@@ -403,6 +405,7 @@ export async function executeInsightGenerator(
       neighborhoodAnalysis: insights.neighborhoodAnalysis?.narrative ?? insights.executiveSummary.narrative,
       editorial: insights.editorial?.narrative ?? insights.executiveSummary.narrative,
       themes: insights.themes,
+      dashboardNarrative: insights.dashboardNarrative ?? null,
     },
     durationMs: Date.now() - start,
   };

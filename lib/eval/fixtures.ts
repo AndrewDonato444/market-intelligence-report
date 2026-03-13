@@ -109,18 +109,14 @@ const strongAnalytics: ComputedAnalytics = {
     value: dimScore(5, "Neutral", { priceToRent: 22, affordability: 0.15 }),
   },
   dashboard: {
-    powerFive: [
-      { name: "Median Price", value: 3_500_000, trend: "up", trendValue: 0.082, category: "power_five" },
-      { name: "Days On Market", value: 45, trend: "down", trendValue: -5, category: "power_five" },
-      { name: "Active Listings", value: 847, trend: "up", trendValue: 0.05, category: "power_five" },
-      { name: "List-to-Sale Ratio", value: 1.04, trend: "up", trendValue: 0.01, category: "power_five" },
-      { name: "Absorption Rate", value: 4.2, trend: "down", trendValue: -0.3, category: "power_five" },
+    powerFour: [
+      { name: "Median Price", value: 3_500_000, trend: "up", trendValue: 0.082, category: "power_four" },
+      { name: "Days On Market", value: 45, trend: "down", trendValue: -5, category: "power_four" },
+      { name: "List-to-Sale Ratio", value: 1.04, trend: "up", trendValue: 0.01, category: "power_four" },
+      { name: "Absorption Rate", value: 4.2, trend: "down", trendValue: -0.3, category: "power_four" },
     ],
-    tierTwo: [
-      { name: "Price Per SqFt", value: 1_250, trend: "up", trendValue: 0.065, category: "tier_two" },
-    ],
-    tierThree: [
-      { name: "New Construction %", value: 23, trend: "flat", trendValue: 0, category: "tier_three" },
+    supportingMetrics: [
+      { name: "Price Per SqFt", value: 1_250, trend: "up", trendValue: 0.065, category: "supporting" },
     ],
   },
   neighborhoods: [
@@ -227,12 +223,11 @@ const lowDataAnalytics: ComputedAnalytics = {
     value: dimScore(4, "Uncertain", {}),
   },
   dashboard: {
-    powerFive: [
-      { name: "Median Price", value: 1_200_000, trend: null, trendValue: null, category: "power_five" },
-      { name: "Active Listings", value: 5, trend: null, trendValue: null, category: "power_five" },
+    powerFour: [
+      { name: "Median Price", value: 1_200_000, trend: null, trendValue: null, category: "power_four" },
+      { name: "Active Listings", value: 5, trend: null, trendValue: null, category: "power_four" },
     ],
-    tierTwo: [],
-    tierThree: [],
+    supportingMetrics: [],
   },
   neighborhoods: [],
   peerComparisons: [],
@@ -289,12 +284,11 @@ const singleSegmentAnalytics: ComputedAnalytics = {
     value: dimScore(4, "Below Average", {}),
   },
   dashboard: {
-    powerFive: [
-      { name: "Median Price", value: 8_000_000, trend: "up", trendValue: 0.11, category: "power_five" },
-      { name: "Active Listings", value: 120, trend: "down", trendValue: -0.03, category: "power_five" },
+    powerFour: [
+      { name: "Median Price", value: 8_000_000, trend: "up", trendValue: 0.11, category: "power_four" },
+      { name: "Active Listings", value: 120, trend: "down", trendValue: -0.03, category: "power_four" },
     ],
-    tierTwo: [],
-    tierThree: [],
+    supportingMetrics: [],
   },
   neighborhoods: [],
   peerComparisons: [],
@@ -456,7 +450,7 @@ const emptyAnalytics: ComputedAnalytics = {
     risk: dimScore(10, "Extreme", {}),
     value: dimScore(0, "None", {}),
   },
-  dashboard: { powerFive: [], tierTwo: [], tierThree: [] },
+  dashboard: { powerFour: [], supportingMetrics: [] },
   neighborhoods: [],
   peerComparisons: [],
   peerRankings: [],
