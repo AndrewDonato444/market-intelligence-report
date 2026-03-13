@@ -84,7 +84,7 @@ Given the report contains segment metrics with transaction counts
 When the Market Intelligence Summary page renders
 Then horizontal bars show each segment's share of total transactions
 And each segment has a distinct color from the chart palette (`chart-primary`, `chart-secondary`, `chart-tertiary`, `chart-accent`)
-And a legend row for each bar shows segment name, count, and percentage
+And a legend row for each bar shows segment name and percentage
 And segments with less than 3% share are grouped into "Other"
 
 ## Scenario: YoY trend indicators show direction and magnitude
