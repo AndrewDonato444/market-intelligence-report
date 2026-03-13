@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 103 |
+| ✅ Completed | 104 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 21 |
+| ⬜ Pending | 20 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-12
@@ -326,7 +326,7 @@
 | 178 | Admin: subscription tier management — CRUD for tiers, edit entitlement caps and display pricing, reorder tiers, activate/deactivate | user-request | M | 170 | ✅ |
 | 179 | Admin: entitlement overrides — grant tier override, entitlement boost, or feature unlock to individual users. Set expiry, reason. Full audit trail view | user-request | M | 171, 112 | ✅ |
 | 180 | Default tier assignment on signup — new users auto-assigned Starter tier, tier shown in onboarding | user-request | S | 170, 3 | ✅ |
-| 181 | Entitlement gating for social media kit as Pro feature — social media kit generation restricted to Professional+ tiers, Starter sees upgrade prompt with preview of kit value | user-request | S | 173, 176 | ⬜ |
+| 181 | Entitlement gating for social media kit as Pro feature — social media kit generation restricted to Professional+ tiers, Starter sees upgrade prompt with preview of kit value | user-request | S | 173, 176 | ✅ |
 | 182 | Entitlement gating for bulk email campaigns — email campaign generation restricted to Professional+ tiers, gated same as social media kit | user-request | S | 173, 166 | ⬜ |
 | 183 | Entitlement gating for expanded transaction scope — Pro users can analyze beyond last 100 transactions, configurable cap per tier (e.g., Starter=100, Pro=500, Enterprise=unlimited) | user-request | M | 173 | ⬜ |
 

@@ -2,6 +2,7 @@ import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect, notFound } from "next/navigation";
 import { getReportWithMarket } from "@/lib/services/report";
 import { getSocialMediaKit } from "@/lib/services/social-media-kit";
+import { checkEntitlement } from "@/lib/services/entitlement-check";
 import { KitViewer } from "@/components/reports/kit-viewer";
 import { GenerateKitButton } from "@/components/reports/generate-kit-button";
 import Link from "next/link";
@@ -88,7 +89,47 @@ export default async function KitViewerPage({
     );
   }
 
-  // No kit — show generate CTA
+  // No kit — check entitlement to show appropriate CTA or upgrade prompt
+  const entitlement = await checkEntitlement(authId, "social_media_kits");
+
+  // Starter tier (cap = 0) — show upgrade prompt instead of generate CTA
+  if (entitlement.limit === 0 && !entitlement.allowed) {
+    return (
+      <div className="space-y-6">
+        <Link
+          href={`/reports/${id}`}
+          className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+        >
+          &larr; Back to Report
+        </Link>
+        <div className="py-12 max-w-md mx-auto">
+          <div className="p-6 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] space-y-4">
+            <h1 className="font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-primary)]">
+              Social Media Kit — Professional Feature
+            </h1>
+            <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+              Turn your report into ready-to-post social content:
+            </p>
+            <ul className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] space-y-2 list-disc list-inside">
+              <li>Platform-optimized posts (LinkedIn, Instagram, X, Facebook)</li>
+              <li>Persona-targeted content for your audience</li>
+              <li>Poll ideas with data-backed context</li>
+              <li>Stat callouts for quick sharing</li>
+              <li>Content calendar suggestions</li>
+            </ul>
+            <Link
+              href="/account"
+              className="block w-full text-center px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-medium text-sm rounded-[var(--radius-sm)] transition-colors hover:opacity-90"
+            >
+              View Plans to Upgrade
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Allowed or fail-open — show generate CTA
   return (
     <div className="space-y-6">
       <Link
