@@ -224,7 +224,8 @@ describe("User Entitlement Model — Existing Schema Preserved", () => {
       social_media_kits: 0,
       email_campaigns: 0,
       personas_per_report: 1,
+      transaction_limit: 100,
     };
-    expect(Object.keys(entitlements)).toHaveLength(5);
+    expect(Object.keys(entitlements)).toHaveLength(6);
   });
 });

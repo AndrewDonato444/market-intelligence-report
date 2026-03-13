@@ -182,7 +182,7 @@ describe("Data fetcher transactionLimit", () => {
     );
     expect(targetCalls.length).toBe(2);
     for (const call of targetCalls) {
-      expect(call[0].limit).toBe(500);
+      expect((call as any)[0].limit).toBe(500);
     }
   });
 
@@ -243,7 +243,7 @@ describe("Data fetcher transactionLimit", () => {
     );
     expect(targetCalls.length).toBe(2);
     for (const call of targetCalls) {
-      expect(call[0].limit).toBeUndefined();
+      expect((call as any)[0].limit).toBeUndefined();
     }
   });
 });

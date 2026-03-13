@@ -110,6 +110,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       social_media_kits: 1,
       email_campaigns: 1,
       personas_per_report: 3,
+      transaction_limit: 500,
     };
     expect(entitlements.reports_per_month).toBe(10);
   });
@@ -121,6 +122,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       social_media_kits: 1,
       email_campaigns: 1,
       personas_per_report: 3,
+      transaction_limit: 500,
     };
     expect(entitlements.reports_per_month).toBe(10);
     expect(entitlements.markets_created).toBe(3);
@@ -133,6 +135,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       social_media_kits: -1,
       email_campaigns: -1,
       personas_per_report: 3,
+      transaction_limit: -1,
     };
     expect(entitlements.reports_per_month).toBe(-1);
     expect(entitlements.markets_created).toBe(-1);
@@ -146,6 +149,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       social_media_kits: 0,
       email_campaigns: 0,
       personas_per_report: 1,
+      transaction_limit: 100,
     };
     expect(entitlements.social_media_kits).toBe(0);
   });
@@ -157,6 +161,7 @@ describe("Subscription Tiers Schema — Entitlements JSONB", () => {
       social_media_kits: 0,
       email_campaigns: 0,
       personas_per_report: 1,
+      transaction_limit: 100,
     };
     expect(Object.keys(entitlements)).toEqual(
       expect.arrayContaining([
