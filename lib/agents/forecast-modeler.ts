@@ -17,6 +17,7 @@ import type {
 } from "@/lib/agents/orchestrator";
 import type { DataAnalystOutput } from "@/lib/agents/data-analyst";
 import type { XSentimentBrief } from "@/lib/connectors/grok";
+import { formatXSentimentForPrompt } from "@/lib/agents/format-x-sentiment";
 import { env } from "@/lib/config/env";
 import { stripJsonFences } from "@/lib/utils/json";
 
@@ -93,25 +94,7 @@ function formatNewsForPrompt(
     .join("\n");
 }
 
-function formatXSentimentForPrompt(brief: XSentimentBrief): string {
-  const lines: string[] = [];
-  lines.push(`  Overall Sentiment: ${brief.sentiment}`);
-  lines.push(`  Summary: ${brief.summary}`);
-  if (brief.bullThemes.length > 0) {
-    lines.push(`  Bull Themes: ${brief.bullThemes.join("; ")}`);
-  }
-  if (brief.bearSignals.length > 0) {
-    lines.push(`  Bear Signals: ${brief.bearSignals.join("; ")}`);
-  }
-  if (brief.notableQuotes.length > 0) {
-    lines.push(`  Notable Quotes:`);
-    for (const q of brief.notableQuotes.slice(0, 5)) {
-      lines.push(`    - "${q.text}" — ${q.attribution}`);
-    }
-  }
-  if (brief.stale) lines.push(`  ⚠️ Stale data — cached from a prior fetch.`);
-  return lines.join("\n");
-}
+// formatXSentimentForPrompt imported from @/lib/agents/format-x-sentiment
 
 function buildSystemPrompt(): string {
   return `You are a specialized agent handling forward-looking market projections and scenario modeling for Market Intelligence Report.
