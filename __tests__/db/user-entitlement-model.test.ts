@@ -105,6 +105,7 @@ describe("User Entitlement Model — Value Conventions", () => {
       "reports_per_month",
       "markets_created",
       "social_media_kits",
+      "email_campaigns",
       "personas_per_report",
     ];
     validKeys.forEach((key) => {
