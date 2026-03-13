@@ -58,12 +58,6 @@ export const REPORT_SECTIONS: ReportSectionMeta[] = [
     required: true,
   },
   {
-    type: "strategic_benchmark",
-    label: "Strategic Benchmark",
-    description: "Market scorecard with strategic brief and outlook",
-    required: false,
-  },
-  {
     type: "disclaimer_methodology",
     label: "Disclaimer & Methodology",
     description: "Data sources, confidence levels, and methodology transparency",

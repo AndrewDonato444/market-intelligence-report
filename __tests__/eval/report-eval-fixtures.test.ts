@@ -24,7 +24,6 @@ const EXPECTED_SECTION_TYPES = [
   "the_narrative",
   "forward_look",
   "comparative_positioning",
-  "strategic_benchmark",
   "disclaimer_methodology",
 ];
 
@@ -82,17 +81,17 @@ describe("Report Eval Fixtures — All Fixtures Valid", () => {
       });
 
       it("should have 9 sections", () => {
-        expect(report.sections.length).toBe(9);
+        expect(report.sections.length).toBe(8);
       });
 
-      it("should have sections numbered 1-9 in order", () => {
-        for (let i = 0; i < 9; i++) {
+      it("should have sections numbered 1-8 in order", () => {
+        for (let i = 0; i < 8; i++) {
           expect(report.sections[i].sectionNumber).toBe(i + 1);
         }
       });
 
       it("should have correct section types", () => {
-        for (let i = 0; i < 9; i++) {
+        for (let i = 0; i < 8; i++) {
           expect(report.sections[i].sectionType).toBe(
             EXPECTED_SECTION_TYPES[i]
           );
@@ -168,7 +167,7 @@ describe("Report Eval Fixtures — Strong Market Details", () => {
   });
 
   it("disclaimer has disclaimer text and confidence", () => {
-    const content = report.sections[8].content as Record<string, unknown>;
+    const content = report.sections[7].content as Record<string, unknown>;
     expect(content.disclaimer).toBeTruthy();
     // methodology may be null if polish-agent didn't run in upstream
     expect(content.confidence).toBeDefined();
@@ -240,7 +239,7 @@ describe("Report Eval Fixtures — Stale Sources", () => {
   });
 
   it("methodology section includes data sources", () => {
-    const content = report.sections[8].content as Record<string, unknown>;
+    const content = report.sections[7].content as Record<string, unknown>;
     const dataSources = content.dataSources as Array<{
       name: string;
       status: string;
@@ -263,7 +262,7 @@ describe("Report Eval Fixtures — summarizeReportFixture", () => {
     const fixture = getReportFixture("report-strong-market");
     const summary = summarizeReportFixture(fixture);
     expect(summary).toContain("Palm Beach Strong Market");
-    expect(summary).toContain("Sections: 9");
+    expect(summary).toContain("Sections: 8");
     expect(summary).toContain("Confidence: high");
     expect(summary).toContain("executive_briefing");
   });

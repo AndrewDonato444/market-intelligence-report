@@ -105,8 +105,7 @@ jest.mock("@/lib/agents/schema", () => ({
     { sectionType: "the_narrative", sourceAgent: "insight-generator", required: true, reportOrder: 5 },
     { sectionType: "forward_look", sourceAgent: "forecast-modeler", required: false, reportOrder: 6 },
     { sectionType: "comparative_positioning", sourceAgent: "assembler", required: true, reportOrder: 7 },
-    { sectionType: "strategic_benchmark", sourceAgent: "polish-agent", required: false, reportOrder: 8 },
-    { sectionType: "disclaimer_methodology", sourceAgent: "assembler", required: true, reportOrder: 9 },
+    { sectionType: "disclaimer_methodology", sourceAgent: "assembler", required: true, reportOrder: 8 },
   ],
 }));
 
@@ -220,15 +219,14 @@ const MOCK_ASSEMBLED_REPORT = {
     { sectionNumber: 5, sectionType: "the_narrative", title: "The Narrative", content: {} },
     { sectionNumber: 6, sectionType: "forward_look", title: "Forward Look", content: {} },
     { sectionNumber: 7, sectionType: "comparative_positioning", title: "Comparative Positioning", content: {} },
-    { sectionNumber: 8, sectionType: "strategic_benchmark", title: "Strategic Benchmark", content: {} },
-    { sectionNumber: 9, sectionType: "disclaimer_methodology", title: "Disclaimer & Methodology", content: {} },
+    { sectionNumber: 8, sectionType: "disclaimer_methodology", title: "Disclaimer & Methodology", content: {} },
   ],
   metadata: {
     generatedAt: "2026-03-09T12:00:00.000Z",
     totalDurationMs: 15000,
     agentDurations: { "insight-generator": 5000, "forecast-modeler": 4000, "polish-agent": 3000 },
     confidence: { level: "high", staleDataSources: [], sampleSize: 45 },
-    sectionCount: 9,
+    sectionCount: 8,
   },
 };
 
@@ -398,8 +396,8 @@ describe("Pipeline Executor Service (v2)", () => {
       // Flush microtasks so fire-and-forget logActivity completes
       await new Promise((r) => setTimeout(r, 0));
 
-      // Should insert 9 sections + 1 activity log entry
-      expect(mockDb.insert).toHaveBeenCalledTimes(10);
+      // Should insert 8 sections + 1 activity log entry
+      expect(mockDb.insert).toHaveBeenCalledTimes(9);
     });
 
     it("SVC-PIPE-009: sets report status to completed on success", async () => {

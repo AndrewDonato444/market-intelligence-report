@@ -29,8 +29,8 @@ Agents receive **pre-compiled data** as inputs. They never call APIs directly.
 | 5 | The Narrative — "What's Really Happening" | 1–2 | Analytical voice; qualitative intelligence |
 | 6 | Forward Look & Advisory Implications | 1 | Actionable guidance by audience type |
 | 7 | Comparative Market Positioning | 1 | Market vs. peer luxury destinations |
-| 8 | Advisor's Strategic Benchmark | 1 | Segment scorecard + strategic brief |
-| 9 | Disclaimer & Methodology | ½ | Legal + data sources |
+| 8 | Disclaimer & Methodology | ½ | Legal + data sources |
+| ~~8~~ | ~~Advisor's Strategic Benchmark~~ | — | REMOVED — duplicated Sections 2 & 3 |
 
 ---
 
@@ -168,16 +168,12 @@ Agents receive **pre-compiled data** as inputs. They never call APIs directly.
 | Average price/sqft per peer | Peer search data | `/v2/PropertySearch` | `sale.saleprice / summary.sqft` |
 | Relative value positioning | Cross-market comparison | `/v2/PropertySearch` | Price/sqft ranking across all markets |
 
-### Section 8: Advisor's Strategic Benchmark
+### ~~Section 8: Advisor's Strategic Benchmark~~ — REMOVED
 
-| Metric | Root Data Source | Agent |
-|--------|----------------|-------|
-| Segment scorecard (A+ through C) | Segment metrics + YoY | Computation layer (existing `assignRating()`) |
-| Action recommendation per segment | Scorecard + trends | Insight Generator or Polish Agent (Claude) |
-| Advisor's strategic brief (3-5 sentences) | All analytics | Polish Agent (Claude, pre-filled framework) |
-| Report attribution | User profile data | Assembly layer (templated) |
+> This section was cut from the report. Scorecard data duplicated Sections 2 & 3.
+> `computeScorecard()` still runs in Layer 1 — ratings feed into other sections.
 
-### Section 9: Disclaimer & Methodology
+### Section 8: Disclaimer & Methodology
 
 | Metric | Root Data Source | Agent |
 |--------|----------------|-------|
@@ -330,7 +326,7 @@ interface ComputedAnalytics {
     monthsOfSupply: number; // if active listing data available
   }>;
 
-  // Section 8: Segment scorecard
+  // Segment scorecard (computed but no longer assembled into a report section)
   segmentScorecard: Array<{
     segment: string;
     rating: string;          // A+, A, B+, B, C+, C
@@ -368,8 +364,7 @@ interface ComputedAnalytics {
 
 ### Agent 3: Polish Agent
 **Receives:** All upstream agent outputs + ComputedAnalytics (for fact-checking)
-**Produces:** Sections 8 (partial), 9
-- Advisor's Strategic Brief: pre-filled advisory framework
+**Produces:** Methodology content for Section 8
 - Polished section revisions, pull quotes, consistency check
 - Methodology: data sources, confidence documentation
 
@@ -378,15 +373,13 @@ interface ComputedAnalytics {
 - **Section 3**: Luxury Market Dashboard → computed indicators formatted into tiers
 - **Section 4**: Neighborhood Intelligence (data portion) → computed per-zip metrics
 - **Section 7**: Comparative Market Positioning → computed peer comparison table
-- **Section 8.1**: Market Segment Scorecard → existing `assignRating()` function
 
 ### Sections Requiring Narrative (Claude agents)
 - **Section 1**: Executive Briefing → Insight Generator
 - **Section 4** (narrative portions): Causal analysis, forward outlook → Insight Generator + Forecast Modeler
 - **Section 5**: The Narrative → Insight Generator
 - **Section 6**: Forward Look → Forecast Modeler
-- **Section 8.2**: Advisor's Strategic Brief → Polish Agent
-- **Section 9**: Methodology note → Polish Agent
+- **Section 8**: Methodology note → Polish Agent
 
 ---
 

@@ -2,11 +2,15 @@
  * Report Assembler — Layer 3
  *
  * Merges ComputedAnalytics (Layer 1) with agent narratives (Layer 2)
- * into the final 9-section report structure.
+ * into the final 8-section report structure (9 with persona intelligence).
  *
  * Sections 2, 3, 7 = pure data (no agent narrative needed)
- * Sections 1, 4, 5, 8 = data + narrative
- * Sections 6, 9 = narrative only
+ * Sections 1, 4, 5 = data + narrative
+ * Sections 6, 8 = narrative only
+ *
+ * Note: Section 8 "Strategic Benchmark" was removed (scorecard data
+ * duplicated Sections 3 & 2). Disclaimer & Methodology is now Section 8,
+ * Persona Intelligence is now Section 9.
  */
 
 import type { AgentResult, SectionOutput } from "@/lib/agents/orchestrator";
@@ -60,7 +64,6 @@ export const NEW_SECTION_TYPES = [
   "the_narrative",
   "forward_look",
   "comparative_positioning",
-  "strategic_benchmark",
   "disclaimer_methodology",
   "persona_intelligence",
 ] as const;
@@ -205,21 +208,9 @@ export function assembleReport(
       },
     },
 
-    // Section 8: Strategic Benchmark (data + polish-agent narrative)
+    // Section 8: Disclaimer & Methodology (template + confidence)
     {
       sectionNumber: 8,
-      sectionType: "strategic_benchmark",
-      title: "Strategic Benchmark",
-      content: {
-        scorecard: analytics.scorecard,
-        narrative: polishNarrative?.strategicBrief ?? null,
-        personaFraming,
-      },
-    },
-
-    // Section 9: Disclaimer & Methodology (template + confidence)
-    {
-      sectionNumber: 9,
       sectionType: "disclaimer_methodology",
       title: "Disclaimer & Methodology",
       content: {
@@ -231,10 +222,10 @@ export function assembleReport(
     },
   ];
 
-  // Section 10: Persona Intelligence Briefing (only when persona output exists)
+  // Section 9: Persona Intelligence Briefing (only when persona output exists)
   if (personaOutput) {
     sections.push({
-      sectionNumber: 10,
+      sectionNumber: 9,
       sectionType: "persona_intelligence",
       title: "Persona Intelligence Briefing",
       content: {

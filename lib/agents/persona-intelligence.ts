@@ -176,8 +176,8 @@ DATA CONFIDENCE: ${analytics.confidence.level} (sample: ${analytics.confidence.s
         upstreamSection += `Briefing: ${meta.executiveBriefing || "N/A"}\n`;
       } else if (agentName === "forecast-modeler" && meta.guidance) {
         upstreamSection += `\n### Forecast Modeler\nGuidance: ${meta.guidance}\n`;
-      } else if (agentName === "polish-agent" && meta.strategicBrief) {
-        upstreamSection += `\n### Polish Agent\nStrategic Brief: ${meta.strategicBrief}\n`;
+      } else if (agentName === "polish-agent" && meta.methodology) {
+        upstreamSection += `\n### Polish Agent\nMethodology: ${meta.methodology}\n`;
       }
     }
   }

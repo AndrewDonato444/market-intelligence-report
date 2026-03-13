@@ -19,6 +19,11 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-13 — Remove Market Scorecard Section (#209)
+
+- **Section removal blast radius** (`general.md`): Removing one report section required changes across 13 files — assembler, renderer, agent prompt, schema, validation, eval test-cases, and 6 test files. Keep DB enum for backward compatibility; `GenericSectionPdf` fallback handles old reports gracefully.
+- **Section renumbering cascade** (`general.md`): When removing mid-sequence, all subsequent section numbers and test fixture indices must shift. Search `sections[N]` patterns across all tests.
+
 ### 2026-03-12 — Bulk Email Campaign Viewer (#167)
 
 - **Mirror-and-adapt pattern for viewer components** (`general.md`): The email campaign viewer mirrors the social media kit viewer (kit-viewer.tsx → email-viewer.tsx, generate-kit-button.tsx → generate-email-button.tsx, kit/page.tsx → emails/page.tsx) but adds email-specific features: collapsible bodies, subject/preview text fields, drip sequence ordering, newsletter bulk copy, persona filter pills with accent-light styling, CTA button previews, and a regeneration confirmation dialog. Reading the reference implementation first and adapting saves time vs building from scratch.

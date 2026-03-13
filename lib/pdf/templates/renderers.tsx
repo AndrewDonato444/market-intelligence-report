@@ -1268,57 +1268,6 @@ export const ComparativePositioningPdf: SectionRenderer = ({ section }) => {
 
 // --- Strategic Benchmark (v2) ---
 
-interface StrategicBenchmarkContent {
-  narrative: string | null;
-  scorecard: Array<{
-    segment: string;
-    rating: string;
-    medianPrice: number;
-    yoyChange: number;
-    trend: string;
-    propertyCount: number;
-  }>;
-  personaFraming?: unknown;
-}
-
-export const StrategicBenchmarkPdf: SectionRenderer = ({ section }) => {
-  const c = section.content as StrategicBenchmarkContent;
-  return (
-    <View>
-      {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
-      {c.scorecard.length > 0 && (
-        <View style={{ marginTop: 12 }}>
-          <Text style={styles.subheading}>Market Scorecard</Text>
-          <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
-            <Text style={{ ...styles.tableHeader, flex: 2 }}>Segment</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>Rating</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>Median</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>YoY</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>Trend</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>Count</Text>
-          </View>
-          {c.scorecard.map((row, i) => (
-            <View key={i} style={styles.tableRow}>
-              <Text style={{ ...styles.tableCell, flex: 2 }}>{row.segment}</Text>
-              <Text style={{ ...styles.tableCell, flex: 1, color: getRatingColor(row.rating), fontWeight: 700 }}>{row.rating}</Text>
-              <Text style={{ ...styles.tableCell, flex: 1 }}>
-                {row.medianPrice >= 1_000_000 ? `$${(row.medianPrice / 1_000_000).toFixed(1)}M` : `$${(row.medianPrice / 1_000).toFixed(0)}K`}
-              </Text>
-              <Text style={{ ...styles.tableCell, flex: 1, color: row.yoyChange >= 0 ? COLORS.success : COLORS.error }}>
-                {(row.yoyChange * 100).toFixed(1)}%
-              </Text>
-              <Text style={{ ...styles.tableCell, flex: 1 }}>
-                {row.trend === "up" ? "↑" : row.trend === "down" ? "↓" : "→"}
-              </Text>
-              <Text style={{ ...styles.tableCell, flex: 1 }}>{row.propertyCount}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
-
 // --- Disclaimer & Methodology (v2) ---
 
 interface DisclaimerMethodologyContent {
@@ -1404,7 +1353,6 @@ const RENDERER_MAP: Record<string, SectionRenderer> = {
   the_narrative: TheNarrativePdf,
   forward_look: ForwardLookPdf,
   comparative_positioning: ComparativePositioningPdf,
-  strategic_benchmark: StrategicBenchmarkPdf,
   disclaimer_methodology: DisclaimerMethodologyPdf,
   persona_intelligence: PersonaIntelligencePdf,
 };

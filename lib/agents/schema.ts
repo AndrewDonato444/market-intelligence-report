@@ -86,9 +86,8 @@ export const SECTION_REGISTRY_V2: SectionRegistryEntry[] = [
   { sectionType: "the_narrative", sourceAgent: "insight-generator", required: true, reportOrder: 5 },
   { sectionType: "forward_look", sourceAgent: "forecast-modeler", required: false, reportOrder: 6 },
   { sectionType: "comparative_positioning", sourceAgent: "assembler", required: true, reportOrder: 7 },
-  { sectionType: "strategic_benchmark", sourceAgent: "polish-agent", required: false, reportOrder: 8 },
-  { sectionType: "disclaimer_methodology", sourceAgent: "assembler", required: true, reportOrder: 9 },
-  { sectionType: "persona_intelligence", sourceAgent: "persona-intelligence", required: false, reportOrder: 10 },
+  { sectionType: "disclaimer_methodology", sourceAgent: "assembler", required: true, reportOrder: 8 },
+  { sectionType: "persona_intelligence", sourceAgent: "persona-intelligence", required: false, reportOrder: 9 },
 ];
 
 // --- Report Data ---

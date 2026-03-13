@@ -53,7 +53,7 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
     criterion: "completeness",
     fixtureId: "report-strong-market",
     expectedRubric:
-      "All 9 sections must be present. Executive briefing has headline AND narrative. Market insights index has insightsIndex. Dashboard has powerFive metrics. Neighborhood intelligence has neighborhoods array. The narrative has editorial and themes. Forward look has forecast and guidance. Comparative positioning has peer data. Strategic benchmark has scorecard. Disclaimer has methodology.",
+      "All 8 sections must be present. Executive briefing has headline AND narrative. Market insights index has insightsIndex. Dashboard has powerFive metrics. Neighborhood intelligence has neighborhoods array. The narrative has editorial and themes. Forward look has forecast and guidance. Comparative positioning has peer data. Disclaimer has methodology.",
     requiredSections: [
       "executive_briefing",
       "market_insights_index",
@@ -62,17 +62,16 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
       "the_narrative",
       "forward_look",
       "comparative_positioning",
-      "strategic_benchmark",
       "disclaimer_methodology",
     ],
   },
   {
     id: "rtc-05",
-    description: "Completeness — empty market still produces 9 sections",
+    description: "Completeness — empty market still produces 8 sections",
     criterion: "completeness",
     fixtureId: "report-empty-market",
     expectedRubric:
-      "Even with 0 properties, all 9 sections must exist. Executive briefing headline should show 0 properties, $0 median. Data-only sections (market insights, dashboard, comparative) may have empty arrays but must be present. Narrative sections may be null (no agent ran) — that is expected, not a failure. Metadata confidence must be 'low'.",
+      "Even with 0 properties, all 8 sections must exist. Executive briefing headline should show 0 properties, $0 median. Data-only sections (market insights, dashboard, comparative) may have empty arrays but must be present. Narrative sections may be null (no agent ran) — that is expected, not a failure. Metadata confidence must be 'low'.",
     requiredSections: [
       "executive_briefing",
       "market_insights_index",
@@ -81,7 +80,6 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
       "the_narrative",
       "forward_look",
       "comparative_positioning",
-      "strategic_benchmark",
       "disclaimer_methodology",
     ],
   },
@@ -91,12 +89,11 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
     criterion: "completeness",
     fixtureId: "report-partial-upstream",
     expectedRubric:
-      "All 9 sections must exist even when forecast-modeler didn't run. Forward look section should have null forecast/guidance (not crash). Insight-generator narratives should still appear in exec briefing, the narrative, and neighborhood sections. Strategic benchmark should still have scorecard data.",
+      "All 8 sections must exist even when forecast-modeler didn't run. Forward look section should have null forecast/guidance (not crash). Insight-generator narratives should still appear in exec briefing, the narrative, and neighborhood sections.",
     requiredSections: [
       "executive_briefing",
       "forward_look",
       "the_narrative",
-      "strategic_benchmark",
     ],
   },
 
@@ -127,8 +124,8 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
     criterion: "narrative-quality",
     fixtureId: "report-single-segment",
     expectedRubric:
-      "With only one segment (Mountain Estate), the report must not reference nonexistent segments. Scorecard should have exactly 1 entry. Market context in the_narrative should show 1 segment. No cross-segment comparisons should appear in the assembled data. If narratives are null (no upstream agents), scorecard still shows correct single segment.",
-    requiredSections: ["the_narrative", "strategic_benchmark"],
+      "With only one segment (Mountain Estate), the report must not reference nonexistent segments. Market context in the_narrative should show 1 segment. No cross-segment comparisons should appear in the assembled data. If narratives are null (no upstream agents), the section should still render correctly.",
+    requiredSections: ["the_narrative"],
   },
 
   // ============================================================
@@ -140,7 +137,7 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
     criterion: "formatting",
     fixtureId: "report-strong-market",
     expectedRubric:
-      "Sections must be numbered 1 through 9 in ascending order. Section types must match: 1=executive_briefing, 2=market_insights_index, 3=luxury_market_dashboard, 4=neighborhood_intelligence, 5=the_narrative, 6=forward_look, 7=comparative_positioning, 8=strategic_benchmark, 9=disclaimer_methodology. No duplicate section numbers.",
+      "Sections must be numbered 1 through 8 in ascending order. Section types must match: 1=executive_briefing, 2=market_insights_index, 3=luxury_market_dashboard, 4=neighborhood_intelligence, 5=the_narrative, 6=forward_look, 7=comparative_positioning, 8=disclaimer_methodology. No duplicate section numbers.",
     requiredSections: [
       "executive_briefing",
       "market_insights_index",
@@ -149,7 +146,6 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
       "the_narrative",
       "forward_look",
       "comparative_positioning",
-      "strategic_benchmark",
       "disclaimer_methodology",
     ],
   },
@@ -202,8 +198,8 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
     criterion: "actionability",
     fixtureId: "report-ultra-luxury",
     expectedRubric:
-      "Executive briefing headline should show $15M median and 89 properties. Scorecard should include segments (Estate at $18M, Modern at $14M, Condo/Penthouse at $8.5M). If narrative timing exists, it should be appropriate for $10M+ market dynamics — not advice calibrated for $500K homes. Peer comparisons should not exist (ultra-luxury fixture has none).",
-    requiredSections: ["executive_briefing", "strategic_benchmark"],
+      "Executive briefing headline should show $15M median and 89 properties. If narrative timing exists, it should be appropriate for $10M+ market dynamics — not advice calibrated for $500K homes. Peer comparisons should not exist (ultra-luxury fixture has none).",
+    requiredSections: ["executive_briefing"],
   },
 
   // ============================================================
@@ -236,7 +232,6 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
       "Executive briefing headline shows $15M median — vocabulary should match this tier. Scorecard segments (Estate, Modern, Condo/Penthouse) should be preserved exactly. Dashboard metrics should be scaled to ultra-luxury levels ($3,800/sqft median). If narratives exist, language should reflect estate-level transactions, not entry-level market terminology.",
     requiredSections: [
       "executive_briefing",
-      "strategic_benchmark",
       "luxury_market_dashboard",
     ],
   },

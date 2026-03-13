@@ -231,11 +231,10 @@ describe("Report Template Engine", () => {
       expect(renderer).not.toBe(mod.GenericSectionPdf);
     });
 
-    it("PDF-V2-08: returns StrategicBenchmarkPdf for strategic_benchmark", async () => {
+    it("PDF-V2-08: strategic_benchmark falls back to GenericSectionPdf (removed section)", async () => {
       const mod = await import("@/lib/pdf/templates/renderers");
       const renderer = mod.getSectionRenderer("strategic_benchmark");
-      expect(renderer).toBe(mod.StrategicBenchmarkPdf);
-      expect(renderer).not.toBe(mod.GenericSectionPdf);
+      expect(renderer).toBe(mod.GenericSectionPdf);
     });
 
     it("PDF-V2-09: returns DisclaimerMethodologyPdf for disclaimer_methodology", async () => {
