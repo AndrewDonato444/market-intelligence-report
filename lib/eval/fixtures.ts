@@ -118,7 +118,6 @@ const strongAnalytics: ComputedAnalytics = {
     ],
     tierTwo: [
       { name: "Price Per SqFt", value: 1_250, trend: "up", trendValue: 0.065, category: "tier_two" },
-      { name: "Cash Buyer %", value: 32, trend: "up", trendValue: 3, category: "tier_two" },
     ],
     tierThree: [
       { name: "New Construction %", value: 23, trend: "flat", trendValue: 0, category: "tier_three" },
@@ -504,7 +503,7 @@ const insightGeneratorUpstream: AgentResult = {
       content: {
         themes: [
           { name: "Waterfront Compression", impact: "high", trend: "up", narrative: "Only 124 waterfront listings remain..." },
-          { name: "Cash Buyer Dominance", impact: "medium", trend: "up", narrative: "32% of transactions are cash..." },
+          { name: "Investor Activity Surge", impact: "medium", trend: "up", narrative: "20% of transactions involve investor buyers..." },
         ],
       },
     },
@@ -525,7 +524,7 @@ const insightGeneratorUpstream: AgentResult = {
     executiveBriefing: "Palm Beach luxury market commands $3.5M median...",
     neighborhoodAnalysis: "South of Southern Blvd leads with $4.2M median...",
     editorial: "The defining story of Palm Beach luxury real estate...",
-    themes: ["Waterfront Compression", "Cash Buyer Dominance"],
+    themes: ["Waterfront Compression", "Investor Activity Surge"],
   },
   durationMs: 12000,
 };

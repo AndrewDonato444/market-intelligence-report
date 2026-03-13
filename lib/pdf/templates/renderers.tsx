@@ -964,7 +964,6 @@ const PERCENTAGE_METRICS = new Set([
   "Flood Zone Exposure",
   "Investor Activity Rate",
   "Free & Clear %",
-  "Cash Buyer %",
 ]);
 
 // Metrics displayed as plain counts (no $ or %)

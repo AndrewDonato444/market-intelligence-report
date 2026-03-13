@@ -13,8 +13,8 @@ function makeSection(overrides: Record<string, unknown> = {}) {
         liquidity: {
           score: 8,
           label: "Strong",
-          components: { cashBuyerPct: 0.67, transactionVolume: 2234, freeClearPct: 0.42 },
-          interpretation: "High cash-buyer concentration (67%) signals strong capital flow",
+          components: { transactionVolume: 2234, freeClearPct: 0.42 },
+          interpretation: "2234 transactions indicate active trading volume. 42% free & clear ownership signals strong capital independence",
         },
         timing: {
           score: 7,
@@ -99,7 +99,7 @@ describe("Market Insights Index Redesign (#203)", () => {
     it("renders interpretation text for each dimension", async () => {
       const { MarketInsightsIndexPdf } = await import("@/lib/pdf/templates/renderers");
       render(React.createElement(MarketInsightsIndexPdf, { section: makeSection() }));
-      expect(screen.getByText(/High cash-buyer concentration/)).toBeInTheDocument();
+      expect(screen.getByText(/2234 transactions indicate active trading volume/)).toBeInTheDocument();
       expect(screen.getByText(/Strong price momentum/)).toBeInTheDocument();
       expect(screen.getByText(/No flood zone exposure/)).toBeInTheDocument();
       expect(screen.getByText(/Modest 3% growth/)).toBeInTheDocument();
@@ -111,7 +111,7 @@ describe("Market Insights Index Redesign (#203)", () => {
         liquidity: {
           score: 3,
           label: "Weak",
-          components: { cashBuyerPct: 0.1 },
+          components: { transactionVolume: 5, freeClearPct: 0.1 },
         },
       });
       render(React.createElement(MarketInsightsIndexPdf, { section }));
@@ -124,7 +124,7 @@ describe("Market Insights Index Redesign (#203)", () => {
     it("renders component values formatted as percentages when < 1", async () => {
       const { MarketInsightsIndexPdf } = await import("@/lib/pdf/templates/renderers");
       render(React.createElement(MarketInsightsIndexPdf, { section: makeSection() }));
-      expect(screen.getByText(/67\.0%/)).toBeInTheDocument();
+      expect(screen.getByText(/42\.0%/)).toBeInTheDocument();
     });
 
     it("renders component values as plain numbers when >= 1", async () => {
@@ -139,12 +139,12 @@ describe("Market Insights Index Redesign (#203)", () => {
         liquidity: {
           score: 5,
           label: "Moderate",
-          components: { cashBuyerPct: null, transactionVolume: 100, freeClearPct: null },
+          components: { transactionVolume: 100, freeClearPct: null },
         },
       });
       render(React.createElement(MarketInsightsIndexPdf, { section }));
       const naTexts = screen.getAllByText(/N\/A/);
-      expect(naTexts.length).toBeGreaterThanOrEqual(2);
+      expect(naTexts.length).toBeGreaterThanOrEqual(1);
     });
   });
 

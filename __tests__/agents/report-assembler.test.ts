@@ -50,7 +50,6 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
         { name: "Transaction Volume", value: 30, trend: "up", trendValue: 0.05, category: "power_five" },
       ],
       tierTwo: [
-        { name: "Cash Buyer %", value: 40, trend: null, trendValue: null, category: "tier_two" },
         { name: "Total Sales Volume", value: 240000000, trend: null, trendValue: null, category: "tier_two" },
         { name: "Average Price", value: 9000000, trend: null, trendValue: null, category: "tier_two" },
         { name: "Property Type Split", value: "SFR: 20, Condo: 10", trend: null, trendValue: null, category: "tier_two" },
@@ -197,7 +196,7 @@ describe("Report Assembler", () => {
       expect(section.sectionType).toBe("luxury_market_dashboard");
       const content = section.content as any;
       expect(content.dashboard.powerFive).toHaveLength(5);
-      expect(content.dashboard.tierTwo).toHaveLength(4);
+      expect(content.dashboard.tierTwo).toHaveLength(3);
       expect(content.dashboard.tierThree).toHaveLength(3);
     });
 

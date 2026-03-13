@@ -484,10 +484,6 @@ function computeLiquidityScore(
   detail: DetailDerivedMetrics,
   market: ComputedAnalytics["market"]
 ): DimensionScore {
-  // Cash buyer concentration drives liquidity
-  const cashScore = detail.cashBuyerPercentage != null
-    ? clamp(detail.cashBuyerPercentage * 15, 1, 10)
-    : 5;
   // Transaction volume (more = more liquid)
   const volumeScore = clamp(Math.min(market.totalProperties / 10, 10), 1, 10);
   // Free & clear = capital independence
@@ -495,22 +491,21 @@ function computeLiquidityScore(
     ? clamp(detail.freeClearPercentage * 12, 1, 10)
     : 5;
 
-  const score = clamp(Math.round((cashScore + volumeScore + freeClearScore) / 3), 1, 10);
+  const score = clamp(Math.round((volumeScore + freeClearScore) / 2), 1, 10);
 
   // Build plain-language interpretation
   const parts: string[] = [];
-  if (detail.cashBuyerPercentage != null) {
-    const pct = Math.round(detail.cashBuyerPercentage * 100);
-    parts.push(pct >= 40 ? `High cash-buyer concentration (${pct}%) signals strong capital flow` : pct >= 20 ? `${pct}% cash buyers — moderate capital independence` : `Low cash-buyer share (${pct}%) — financing-dependent market`);
-  }
   if (market.totalProperties > 50) parts.push(`${market.totalProperties} transactions indicate active trading volume`);
   else if (market.totalProperties > 0) parts.push(`Limited transaction count (${market.totalProperties}) — thinner market`);
+  if (detail.freeClearPercentage != null) {
+    const pct = Math.round(detail.freeClearPercentage * 100);
+    parts.push(pct >= 30 ? `${pct}% free & clear ownership signals strong capital independence` : pct >= 15 ? `${pct}% free & clear — moderate capital independence` : `Low free & clear share (${pct}%) — financing-dependent market`);
+  }
 
   return {
     score,
     label: score >= 7 ? "Strong" : score >= 4 ? "Moderate" : "Weak",
     components: {
-      cashBuyerPct: detail.cashBuyerPercentage,
       transactionVolume: market.totalProperties,
       freeClearPct: detail.freeClearPercentage,
     },
@@ -679,13 +674,6 @@ export function computeDashboard(
   ];
 
   const tierTwo: DashboardIndicator[] = [
-    {
-      name: "Cash Buyer %",
-      value: detailMetrics.cashBuyerPercentage ?? null,
-      trend: null,
-      trendValue: null,
-      category: "tier_two",
-    },
     {
       name: "Total Sales Volume",
       value: market.totalVolume,

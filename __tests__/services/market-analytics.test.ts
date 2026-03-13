@@ -341,7 +341,10 @@ describe("Market Analytics Engine", () => {
 
     it("includes component breakdowns", () => {
       const result = computeInsightsIndex(baseMarket, baseYoY, baseDetailMetrics, baseSegments);
-      expect(result.liquidity.components.cashBuyerPct).toBe(0.4);
+      // Cash buyer eliminated from liquidity — only transactionVolume and freeClearPct
+      expect(result.liquidity.components.cashBuyerPct).toBeUndefined();
+      expect(result.liquidity.components.transactionVolume).toBe(50);
+      expect(result.liquidity.components.freeClearPct).toBe(0.3);
       expect(result.timing.components.medianDOM).toBe(45);
       expect(result.risk.components.floodZonePct).toBe(0.1);
       expect(result.value.components.yoyGrowth).toBe(0.08);
@@ -404,10 +407,11 @@ describe("Market Analytics Engine", () => {
       expect(result.powerFive.every((i) => i.category === "power_five")).toBe(true);
     });
 
-    it("returns 4 Tier Two indicators", () => {
+    it("returns 3 Tier Two indicators (Cash Buyer % eliminated)", () => {
       const result = computeDashboard(market, yoy, detailMetrics, segments);
-      expect(result.tierTwo).toHaveLength(4);
+      expect(result.tierTwo).toHaveLength(3);
       expect(result.tierTwo.every((i) => i.category === "tier_two")).toBe(true);
+      expect(result.tierTwo.find((i) => i.name === "Cash Buyer %")).toBeUndefined();
     });
 
     it("returns 3 Tier Three indicators", () => {
@@ -479,8 +483,8 @@ describe("Market Analytics Engine", () => {
       const result = computeDashboard(market, yoy, nullMetrics, segments);
       const dom = result.powerFive.find((i) => i.name === "Median Days on Market");
       expect(dom?.value).toBeNull();
-      const cash = result.tierTwo.find((i) => i.name === "Cash Buyer %");
-      expect(cash?.value).toBeNull();
+      // Cash Buyer % no longer in dashboard
+      expect(result.tierTwo.find((i) => i.name === "Cash Buyer %")).toBeUndefined();
     });
   });
 
@@ -710,7 +714,7 @@ describe("Market Analytics Engine", () => {
 
       // Dashboard
       expect(result.dashboard.powerFive).toHaveLength(5);
-      expect(result.dashboard.tierTwo).toHaveLength(4);
+      expect(result.dashboard.tierTwo).toHaveLength(3);
       expect(result.dashboard.tierThree).toHaveLength(3);
 
       // Neighborhoods

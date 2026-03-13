@@ -75,7 +75,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
     ],
     yoy: { medianPriceChange: 0.08, volumeChange: 0.12, pricePerSqftChange: 0.05, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     insightsIndex: {
-      liquidity: { score: 7, label: "Strong", components: { cashBuyerPct: 0.54, transactionVolume: 120 } },
+      liquidity: { score: 7, label: "Strong", components: { transactionVolume: 120, freeClearPct: 0.45 } },
       timing: { score: 6, label: "Favorable", components: {} },
       risk: { score: 7, label: "Low Risk", components: {} },
       value: { score: 6, label: "Moderate Opportunity", components: {} },
