@@ -163,8 +163,8 @@ Given a campaign with status "generating" or "queued" exists
 When the user navigates to /reports/[id]/emails
 Then a generating status message is shown: "Your email campaign is being generated..."
 And a progress indicator or spinner is displayed
-And the page polls GET /api/reports/[id]/email-campaign/status every 3 seconds
-And when status changes to "completed", the viewer renders automatically
+And the embedded GenerateEmailButton polls GET /api/reports/[id]/email-campaign/status every 3 seconds
+And when status changes to "completed", a "View Email Campaign" link appears (page is server-rendered, so user clicks to see the viewer)
 
 ### Scenario: Campaign generation failed
 Given a campaign with status "failed" exists
@@ -179,21 +179,32 @@ Given the user is viewing the email campaign
 When the user clicks the back link
 Then they return to the report detail page at /reports/[id]
 
+### Scenario: Refresh individual content section
+Given the user is viewing a completed campaign
+When the user clicks the refresh icon on any content section header
+Then POST /api/reports/[id]/email-campaign/regenerate is called with that section's contentType
+And the section shows a spinning refresh indicator while regenerating
+And after regeneration completes, the section content updates in place
+And an "Updated!" indicator appears for 3 seconds
+And the refresh icon is available on all 6 content sections
+
 ### Scenario: Regenerate campaign from viewer
 Given the user is viewing a completed campaign
 When the user clicks "Regenerate Campaign"
-Then a confirmation prompt appears: "This will replace your current email campaign. Continue?"
+Then a confirmation popover appears below the button: "This will replace your current email campaign. Continue?"
 And on confirm, POST /api/reports/[id]/email-campaign/generate is called
-And the page transitions to the generating state
-And on cancel, nothing happens
+And the page redirects to the report detail page (which shows generating state)
+And on cancel, the popover closes and nothing happens
 
 ### Scenario: Generate Email Campaign button on report detail page
 Given a completed report exists
 When the user views the report detail page
 Then a "Generate Email Campaign" button is shown (if no campaign exists)
-Or a "View Email Campaign" link is shown (if campaign is completed)
-Or a generating status is shown (if campaign is in progress)
+Or a "View Email Campaign" link is shown (if campaign is completed), with a "Regenerate" button beside it
+Or a "Generating Email Campaign..." disabled button is shown (if campaign is in progress)
+Or a failed state with error message and "Retry" button is shown (if generation failed)
 And the button/link follows the same pattern as the social media kit button
+And the component supports a `compact` prop for condensed display (shorter labels like "Generate Emails", "View Emails", "Retry Emails")
 
 ### Scenario: API returns campaign content for authorized user
 Given a completed campaign exists for the user's report
