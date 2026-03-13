@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 106 |
+| ✅ Completed | 107 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 18 |
 | ⏸️ Blocked | 0 |
@@ -340,7 +340,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 200 | Cover page redesign — create naming convention for report titles, move Key Themes summary to cover page with proper formatting, define what rating chips/data chips mean | user-feedback | M | 50 | ⬜ |
+| 200 | Cover page redesign — create naming convention for report titles, move Key Themes summary to cover page with proper formatting, define what rating chips/data chips mean | user-feedback | M | 50 | ✅ |
 | 201 | New "Market Intelligence Summary" section — "At a Glance" section after cover before Executive Brief, include charts (not just text/metrics), visual summary of report highlights | user-feedback | L | 50, 55 | ⬜ |
 | 202 | Executive Brief improvements — add explainer text for each tile/metric, pull and display data dates (freshness), add headers for each pro item | user-feedback | M | 50 | ⬜ |
 | 203 | Market Insights Index redesign — add usage context ("how to read this index"), ensure every index returns a rating (no blanks), redesign layout from rectangles to square tile structure | user-feedback | M | 50, 31 | ⬜ |

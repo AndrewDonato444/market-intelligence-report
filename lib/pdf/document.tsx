@@ -5,6 +5,7 @@
 import React from "react";
 import { Document } from "@react-pdf/renderer";
 import { CoverPage } from "./templates/cover-page";
+import type { CoverKeyTheme } from "./templates/cover-page";
 import { TableOfContents } from "./templates/table-of-contents";
 import { InsightsIndex } from "./templates/insights-index";
 import { SectionPage } from "./templates/section-page";
@@ -35,12 +36,35 @@ export interface ReportDocumentProps {
   marketName: string;
 }
 
+/**
+ * Extract key themes from the_narrative section for the cover page.
+ */
+function extractKeyThemes(sections: ReportData["sections"]): CoverKeyTheme[] {
+  const narrativeSection = sections.find((s) => s.sectionType === "the_narrative");
+  if (!narrativeSection) return [];
+
+  const content = narrativeSection.content as {
+    themes?: Array<{ name: string; impact: string; trend: string } | string>;
+  };
+  if (!content.themes || !Array.isArray(content.themes)) return [];
+
+  return content.themes
+    .filter((t): t is { name: string; impact: string; trend: string } => typeof t !== "string" && !!t.name)
+    .map((t) => ({
+      name: t.name,
+      impact: (t.impact as CoverKeyTheme["impact"]) || "medium",
+      trend: (t.trend as CoverKeyTheme["trend"]) || "neutral",
+    }));
+}
+
 export function ReportDocument({
   reportData,
   branding,
   title,
   marketName,
 }: ReportDocumentProps) {
+  const keyThemes = extractKeyThemes(reportData.sections);
+
   return (
     <Document
       title={title}
@@ -58,6 +82,7 @@ export function ReportDocument({
         email={branding.email}
         agentTitle={branding.title}
         brandColors={branding.brandColors}
+        keyThemes={keyThemes}
       />
       <TableOfContents sections={reportData.sections} />
       <InsightsIndex

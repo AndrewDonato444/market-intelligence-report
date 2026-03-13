@@ -101,7 +101,9 @@ function formatCurrency(value: number): string {
 
 function generateTitle(city: string, tier: string): string {
   const tierLabel = TIER_LABELS[tier] || "Luxury";
-  return `${city} ${tierLabel} Market Intelligence Report`;
+  const now = new Date();
+  const quarter = Math.floor(now.getMonth() / 3) + 1;
+  return `${city} ${tierLabel} Market Intelligence \u2014 Q${quarter} ${now.getFullYear()}`;
 }
 
 // ---------------------------------------------------------------------------
