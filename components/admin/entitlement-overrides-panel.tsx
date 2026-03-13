@@ -6,6 +6,7 @@ const ENTITLEMENT_LABELS: Record<string, string> = {
   reports_per_month: "Reports per month",
   markets_created: "Markets",
   social_media_kits: "Social media kits",
+  email_campaigns: "Email campaigns",
   personas_per_report: "Personas per report",
 };
 

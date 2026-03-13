@@ -76,11 +76,12 @@ export default async function AccountPage() {
       }
 
       // 3. Check entitlements for all types
-      const [reportsCheck, marketsCheck, kitsCheck, personasCheck] =
+      const [reportsCheck, marketsCheck, kitsCheck, emailCampaignsCheck, personasCheck] =
         await Promise.all([
           checkEntitlement(profile.id, "reports_per_month"),
           checkEntitlement(profile.id, "markets_created"),
           checkEntitlement(profile.id, "social_media_kits"),
+          checkEntitlement(profile.id, "email_campaigns"),
           checkEntitlement(profile.id, "personas_per_report"),
         ]);
 
@@ -111,6 +112,7 @@ export default async function AccountPage() {
           reports_per_month: number;
           markets_created: number;
           social_media_kits: number;
+          email_campaigns: number;
           personas_per_report: number;
         };
         nextTier = {
@@ -139,6 +141,11 @@ export default async function AccountPage() {
             used: kitsCheck.used,
             limit: kitsCheck.limit,
             remaining: kitsCheck.remaining,
+          },
+          emailCampaigns: {
+            used: emailCampaignsCheck.used,
+            limit: emailCampaignsCheck.limit,
+            remaining: emailCampaignsCheck.remaining,
           },
           personasPerReport: {
             used: personasCheck.used,

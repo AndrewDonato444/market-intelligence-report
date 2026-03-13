@@ -5,6 +5,13 @@ import Link from "next/link";
 
 type CampaignStatus = "none" | "queued" | "generating" | "completed" | "failed";
 
+type EntitlementState =
+  | { status: "loading" }
+  | { status: "allowed"; limit: number; used: number; remaining: number }
+  | { status: "not_included" } // Starter tier — cap is 0
+  | { status: "at_cap"; limit: number; used: number } // Professional at monthly cap
+  | { status: "error" }; // Fail-open
+
 interface GenerateEmailButtonProps {
   reportId: string;
   initialCampaignStatus?: CampaignStatus;
@@ -21,6 +28,57 @@ export function GenerateEmailButton({
   const [campaignStatus, setCampaignStatus] = useState<CampaignStatus>(initialCampaignStatus);
   const [errorMessage, setErrorMessage] = useState<string | null>(initialErrorMessage);
   const [triggering, setTriggering] = useState(false);
+  const [entitlement, setEntitlement] = useState<EntitlementState>(
+    // Skip entitlement check for campaigns already in progress or completed
+    initialCampaignStatus === "completed" || initialCampaignStatus === "generating" || initialCampaignStatus === "queued"
+      ? { status: "allowed", limit: -1, used: 0, remaining: -1 }
+      : { status: "loading" }
+  );
+
+  // Preflight entitlement check on mount (only for statuses that need it)
+  useEffect(() => {
+    if (
+      initialCampaignStatus === "completed" ||
+      initialCampaignStatus === "generating" ||
+      initialCampaignStatus === "queued"
+    ) {
+      return;
+    }
+
+    let cancelled = false;
+
+    async function fetchEntitlement() {
+      try {
+        const res = await fetch("/api/entitlements/check?type=email_campaigns");
+        if (!res.ok) {
+          if (!cancelled) setEntitlement({ status: "error" });
+          return;
+        }
+        const data = await res.json();
+
+        if (cancelled) return;
+
+        if (data.limit === 0) {
+          setEntitlement({ status: "not_included" });
+        } else if (!data.allowed && data.limit > 0) {
+          setEntitlement({ status: "at_cap", limit: data.limit, used: data.used });
+        } else {
+          setEntitlement({
+            status: "allowed",
+            limit: data.limit,
+            used: data.used,
+            remaining: data.remaining,
+          });
+        }
+      } catch {
+        // Fail-open: show generate button on error
+        if (!cancelled) setEntitlement({ status: "error" });
+      }
+    }
+
+    fetchEntitlement();
+    return () => { cancelled = true; };
+  }, [initialCampaignStatus]);
 
   const pollStatus = useCallback(async () => {
     try {
@@ -148,7 +206,74 @@ export function GenerateEmailButton({
     );
   }
 
-  // Default — no campaign yet
+  // --- Entitlement-gated states (campaign status is "none") ---
+
+  // Loading entitlement check
+  if (entitlement.status === "loading") {
+    return (
+      <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] opacity-50 whitespace-nowrap">
+        {compact ? "..." : "Checking availability..."}
+      </span>
+    );
+  }
+
+  // Starter tier — email campaigns not included (cap = 0)
+  if (entitlement.status === "not_included") {
+    if (compact) {
+      return (
+        <Link
+          href="/account"
+          className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:border-[var(--color-accent)] transition-colors whitespace-nowrap"
+        >
+          Pro Feature
+        </Link>
+      );
+    }
+
+    return (
+      <div className="p-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+        <p className="font-[family-name:var(--font-serif)] text-sm font-bold text-[var(--color-primary)] mb-2">
+          Email Campaigns — Professional Feature
+        </p>
+        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mb-3">
+          Turn your report into ready-to-send email content:
+        </p>
+        <ul className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] space-y-1 mb-4 list-disc list-inside">
+          <li>Drip sequences for nurturing leads</li>
+          <li>Market update newsletters</li>
+          <li>Persona-targeted email copy</li>
+          <li>Subject lines and CTAs</li>
+          <li>Campaign scheduling suggestions</li>
+        </ul>
+        <Link
+          href="/account"
+          className="inline-block w-full text-center px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-medium text-xs rounded-[var(--radius-sm)] transition-colors hover:opacity-90"
+        >
+          View Plans to Upgrade
+        </Link>
+      </div>
+    );
+  }
+
+  // Professional user at monthly cap
+  if (entitlement.status === "at_cap") {
+    if (compact) {
+      return (
+        <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
+          Limit reached
+        </span>
+      );
+    }
+
+    return (
+      <div className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] space-y-1">
+        <p className="font-medium">Monthly limit reached</p>
+        <p>{entitlement.used} of {entitlement.limit} campaigns used this month</p>
+      </div>
+    );
+  }
+
+  // Default — allowed or fail-open — show generate button
   return (
     <button
       onClick={handleGenerate}

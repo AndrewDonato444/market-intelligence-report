@@ -80,6 +80,7 @@ export type TierEntitlements = {
   reports_per_month: number;    // -1 = unlimited
   markets_created: number;      // -1 = unlimited
   social_media_kits: number;    // 0 = not included, 1 = per-report, -1 = unlimited
+  email_campaigns: number;      // 0 = not included, 1 = per-report, -1 = unlimited
   personas_per_report: number;  // always numeric (1 or 3)
 };
 

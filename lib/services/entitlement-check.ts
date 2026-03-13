@@ -18,6 +18,7 @@ const DEFAULT_ENTITLEMENTS: TierEntitlements = {
   reports_per_month: 2,
   markets_created: 1,
   social_media_kits: 0,
+  email_campaigns: 0,
   personas_per_report: 1,
 };
 

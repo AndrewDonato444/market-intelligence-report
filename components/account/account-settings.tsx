@@ -17,6 +17,7 @@ export interface SubscriptionData {
     reports: EntitlementData;
     markets: EntitlementData;
     socialMediaKits: EntitlementData;
+    emailCampaigns: EntitlementData;
     personasPerReport: EntitlementData;
   };
   billingPeriod: { start: string; end: string };
@@ -27,6 +28,7 @@ export interface SubscriptionData {
       reports_per_month: number;
       markets_created: number;
       social_media_kits: number;
+      email_campaigns: number;
       personas_per_report: number;
     };
   } | null;
@@ -124,7 +126,7 @@ function UsageEntitlementBar({
 
 function SubscriptionSection({ data }: { data: SubscriptionData }) {
   const { tierName, tierDescription, displayPrice, entitlements, billingPeriod, nextTier } = data;
-  const { reports, markets, socialMediaKits, personasPerReport } = entitlements;
+  const { reports, markets, socialMediaKits, emailCampaigns, personasPerReport } = entitlements;
 
   const hasReportAtCap = reports.limit > 0 && reports.remaining <= 0;
 
@@ -191,6 +193,27 @@ function SubscriptionSection({ data }: { data: SubscriptionData }) {
           </p>
         )}
 
+        {/* Email Campaigns */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+            Email Campaigns
+          </span>
+          <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+            {emailCampaigns.limit === 0 ? (
+              <span className="text-[var(--color-text-tertiary)]">Not included in your plan</span>
+            ) : emailCampaigns.limit === -1 ? (
+              "Unlimited"
+            ) : (
+              `Included (${emailCampaigns.limit} per report)`
+            )}
+          </span>
+        </div>
+        {emailCampaigns.limit === 0 && nextTier && (
+          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] -mt-3 mb-4">
+            Upgrade to {nextTier.name} to generate email campaigns from your reports
+          </p>
+        )}
+
         {/* Buyer Personas */}
         <div className="flex items-center justify-between mb-4">
           <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
@@ -240,6 +263,13 @@ function SubscriptionSection({ data }: { data: SubscriptionData }) {
               <span className="text-[var(--color-text-secondary)]">
                 {nextTier.entitlements.social_media_kits > 0 ? "Included" : "Not included"}
                 {socialMediaKits.limit === 0 && <span className="text-[var(--color-text-tertiary)]"> (not in your plan)</span>}
+              </span>
+            </div>
+            <div className="flex justify-between font-[family-name:var(--font-sans)] text-sm">
+              <span className="text-[var(--color-text)]">Email campaigns</span>
+              <span className="text-[var(--color-text-secondary)]">
+                {nextTier.entitlements.email_campaigns > 0 ? "Included" : "Not included"}
+                {emailCampaigns.limit === 0 && <span className="text-[var(--color-text-tertiary)]"> (not in your plan)</span>}
               </span>
             </div>
             <div className="flex justify-between font-[family-name:var(--font-sans)] text-sm">
