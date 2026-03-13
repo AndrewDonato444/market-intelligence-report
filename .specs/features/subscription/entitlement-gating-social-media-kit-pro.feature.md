@@ -50,11 +50,10 @@ Then the kit page shows the upgrade prompt instead of "No Social Media Kit Found
 ### Scenario: Upgrade prompt previews kit value
 Given an agent on the Starter plan viewing the upgrade prompt
 Then the prompt includes a list of what the kit generates:
-  - Platform-optimized social posts
-  - LinkedIn, Instagram, X, and Facebook captions
-  - Persona-targeted content
+  - Platform-optimized posts (LinkedIn, Instagram, X, Facebook)
+  - Persona-targeted content for your audience
   - Poll ideas with data-backed context
-  - Stat callouts for sharing
+  - Stat callouts for quick sharing
   - Content calendar suggestions
 
 ### Scenario: Professional user at cap sees limit-reached message, not upgrade prompt
