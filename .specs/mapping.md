@@ -62,13 +62,16 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | buyer-personas | [Persona Content in PDF Template](.specs/features/buyer-personas/persona-content-pdf-template.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | buyer-personas | [Persona Intelligence Agent](.specs/features/buyer-personas/persona-intelligence-agent.feature.md) | `lib/agents/persona-intelligence.ts` | see spec | see spec | implemented |
 | buyer-personas | [Persona Selection UI](.specs/features/buyer-personas/persona-selection-ui.feature.md) | `components/reports/report-wizard.tsx` | see spec | see spec | implemented |
+| dashboard | [How To Guide](.specs/features/dashboard/how-to-guide.feature.md) | `app/(protected)/how-to/page.tsx` | see spec | see spec | implemented |
 | data-infrastructure | [Agent Output Cache](.specs/features/data-infrastructure/agent-output-cache.feature.md) | `lib/services/agent-cache.ts` | see spec | see spec | implemented |
 | data-infrastructure | [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md) | `app/api/usage/route.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
 | data-infrastructure | [Cache Layer — DB-backed with TTL by Data Type](.specs/features/data-infrastructure/cache-layer.feature.md) | `lib/services/cache.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
 | data-infrastructure | [Data Freshness Indicators + Staleness Fallback](.specs/features/data-infrastructure/data-freshness.feature.md) | `lib/services/data-freshness.ts` | see spec | see spec | implemented |
+| data-infrastructure | [Grok x_search Connector](.specs/features/data-infrastructure/grok-connector.feature.md) | `lib/connectors/grok.ts` | see spec | see spec | implemented |
 | data-infrastructure | [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md) | `lib/connectors/realestateapi.ts` | see spec | see spec | implemented |
 | data-infrastructure | [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md) | `lib/connectors/scrapingdog.ts` | see spec | see spec | implemented |
-| foundation | [Authentication with Supabase](.specs/features/foundation/authentication.feature.md) | `middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
+| email-campaigns | [Bulk Email Campaign Agent](.specs/features/email-campaigns/bulk-email-campaign-agent.feature.md) | `lib/agents/email-campaign.ts` | see spec | see spec | implemented |
+| foundation | [Authentication with Supabase](.specs/features/foundation/authentication.feature.md) | `middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/layout.tsx, app/auth/callback/route.ts, app/auth/verified/page.tsx` | see spec | see spec | implemented |
 | foundation | [Base App Layout](.specs/features/foundation/base-layout.feature.md) | `components/layout/top-nav.tsx, components/layout/sidebar.tsx, components/layout/page-shell.tsx, app/(protected)/layout.tsx` | see spec | see spec | implemented |
 | foundation | [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md) | `lib/db/schema.ts, lib/db/index.ts, lib/db/migrations/` | see spec | see spec | implemented |
 | foundation | [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md) | `lib/config/env.ts, .env.local.example` | see spec | see spec | implemented |
@@ -91,6 +94,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-template | [PDF Export + Digital Sharing Links](.specs/features/report-template/pdf-export-sharing.feature.md) | `lib/services/report-sharing.ts` | see spec | see spec | implemented |
 | report-template | [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
+| reports | [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md) | `app/api/reports/[id]/kit/generate/route.ts` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Regeneration](.specs/features/social-media-kit/kit-regeneration.feature.md) | `app/api/reports/[id]/kit/regenerate/route.ts, lib/services/social-media-kit.ts, lib/agents/social-media.ts, components/reports/kit-viewer.tsx` | see spec | see spec | implemented |
@@ -131,8 +135,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 98 |
-| **Total** | **103** |
+| implemented | 102 |
+| **Total** | **107** |
 
 ---
 
@@ -147,6 +151,7 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
+- [Bulk Email Campaign Agent](.specs/features/email-campaigns/bulk-email-campaign-agent.feature.md)
 
 ### Tested
 
@@ -194,10 +199,12 @@ _None_
 - [Persona Content in PDF Template](.specs/features/buyer-personas/persona-content-pdf-template.feature.md)
 - [Persona Intelligence Agent](.specs/features/buyer-personas/persona-intelligence-agent.feature.md)
 - [Persona Selection UI](.specs/features/buyer-personas/persona-selection-ui.feature.md)
+- [How To Guide](.specs/features/dashboard/how-to-guide.feature.md)
 - [Agent Output Cache](.specs/features/data-infrastructure/agent-output-cache.feature.md)
 - [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md)
 - [Cache Layer — DB-backed with TTL by Data Type](.specs/features/data-infrastructure/cache-layer.feature.md)
 - [Data Freshness Indicators + Staleness Fallback](.specs/features/data-infrastructure/data-freshness.feature.md)
+- [Grok x_search Connector](.specs/features/data-infrastructure/grok-connector.feature.md)
 - [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md)
 - [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md)
 - [Authentication with Supabase](.specs/features/foundation/authentication.feature.md)
@@ -222,6 +229,7 @@ _None_
 - [PDF Export + Digital Sharing Links](.specs/features/report-template/pdf-export-sharing.feature.md)
 - [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md)
 - [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md)
+- [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md)
 - [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md)
 - [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md)
 - [Social Media Kit Regeneration](.specs/features/social-media-kit/kit-regeneration.feature.md)
@@ -263,6 +271,7 @@ See `.specs/design-system/tokens.md` for token reference.
 
 | Component | Status | Source |
 |-----------|--------|--------|
+| accordion | stub | [doc](.specs/design-system/components/accordion.md) |
 | animated-container | documented | [doc](.specs/design-system/components/animated-container.md) |
 | closing-statement | stub | [doc](.specs/design-system/components/closing-statement.md) |
 | data-callout | stub | [doc](.specs/design-system/components/data-callout.md) |
@@ -275,7 +284,9 @@ See `.specs/design-system/tokens.md` for token reference.
 | persona-card | stub | [doc](.specs/design-system/components/persona-card.md) |
 | persona-preview-panel | stub | [doc](.specs/design-system/components/persona-preview-panel.md) |
 | process-narrative | stub | [doc](.specs/design-system/components/process-narrative.md) |
+| quick-start-checklist | stub | [doc](.specs/design-system/components/quick-start-checklist.md) |
 | report-breakdown | stub | [doc](.specs/design-system/components/report-breakdown.md) |
+| step-card | stub | [doc](.specs/design-system/components/step-card.md) |
 | toggle-card | stub | [doc](.specs/design-system/components/toggle-card.md) |
 | tooltip | documented | [doc](.specs/design-system/components/tooltip.md) |
 

@@ -67,6 +67,13 @@ export const socialMediaKitStatusEnum = pgEnum("social_media_kit_status", [
   "failed",
 ]);
 
+export const emailCampaignStatusEnum = pgEnum("email_campaign_status", [
+  "queued",
+  "generating",
+  "completed",
+  "failed",
+]);
+
 // --- Tier Entitlements Type ---
 
 export type TierEntitlements = {
@@ -725,3 +732,102 @@ export const usageRecords = pgTable(
 
 export type UsageRecordsTable = typeof usageRecords.$inferSelect;
 export type NewUsageRecord = typeof usageRecords.$inferInsert;
+
+// --- Email Campaign Content Types ---
+
+export type DripEmail = {
+  sequenceOrder: number;
+  dayOffset: number;
+  subject: string;
+  previewText: string;
+  body: string;
+  cta: string;
+  reportSection: string;
+};
+
+export type NewsletterContent = {
+  headline: string;
+  subheadline: string;
+  contentBlocks: Array<{
+    heading: string;
+    body: string;
+    keyMetric: string;
+  }>;
+  footerCta: string;
+};
+
+export type PersonaEmail = {
+  personaSlug: string;
+  personaName: string;
+  subject: string;
+  previewText: string;
+  body: string;
+  cta: string;
+  vocabularyUsed: string[];
+};
+
+export type SubjectLineSet = {
+  emailContext: string;
+  variants: Array<{
+    style: string;
+    subject: string;
+    previewText: string;
+  }>;
+};
+
+export type CtaBlock = {
+  context: string;
+  buttonText: string;
+  supportingCopy: string;
+  placement: string;
+};
+
+export type ReEngagementEmail = {
+  hook: string;
+  body: string;
+  cta: string;
+  tone: string;
+};
+
+export type EmailCampaignContent = {
+  dripSequence: DripEmail[];
+  newsletter: NewsletterContent;
+  personaEmails: PersonaEmail[];
+  subjectLines: SubjectLineSet[];
+  ctaBlocks: CtaBlock[];
+  reEngagementEmails: ReEngagementEmail[];
+};
+
+// --- Email Campaigns Table ---
+
+export const emailCampaigns = pgTable(
+  "email_campaigns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    status: emailCampaignStatusEnum("status").notNull().default("queued"),
+    content: jsonb("content").$type<EmailCampaignContent>(),
+    errorMessage: text("error_message"),
+    generatedAt: timestamp("generated_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("email_campaigns_report_id_idx").on(table.reportId),
+    index("email_campaigns_user_id_idx").on(table.userId),
+    index("email_campaigns_status_idx").on(table.status),
+    uniqueIndex("email_campaigns_report_id_unique").on(table.reportId),
+  ]
+);
+
+export type EmailCampaignsTable = typeof emailCampaigns.$inferSelect;
+export type NewEmailCampaign = typeof emailCampaigns.$inferInsert;
