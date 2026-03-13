@@ -718,7 +718,36 @@ interface ExecutiveBriefingContent {
   };
   narrative: string | null;
   confidence: { level: string; sampleSize: number };
+  dataAsOfDate?: string | null;
+  metricExplainers?: {
+    marketRating: string;
+    medianPrice: string;
+    yoyChange: string;
+    properties: string;
+  };
+  timing?: {
+    buyers: string | null;
+    sellers: string | null;
+  };
   personaFraming?: unknown;
+}
+
+/**
+ * Format an ISO date string (or Date) as "Month YYYY" for data freshness display.
+ * Falls back to generation date formatting if provided.
+ */
+export function formatDataFreshnessDate(isoDate: string | null | undefined, fallbackDate?: Date): string | null {
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  if (isoDate) {
+    const d = new Date(isoDate);
+    if (!isNaN(d.getTime())) {
+      return `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+    }
+  }
+  if (fallbackDate) {
+    return `${MONTHS[fallbackDate.getMonth()]} ${fallbackDate.getFullYear()}`;
+  }
+  return null;
 }
 
 export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
@@ -730,41 +759,94 @@ export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
   const yoyPct = (h.yoyPriceChange * 100).toFixed(1);
   const yoyDir = h.yoyPriceChange > 0 ? "↑" : h.yoyPriceChange < 0 ? "↓" : "→";
 
+  const freshnessLabel = formatDataFreshnessDate(c.dataAsOfDate, new Date());
+
   return (
     <View>
+      {/* Data freshness date */}
+      {freshnessLabel && (
+        <Text style={styles.dataFreshness}>Data as of {freshnessLabel}</Text>
+      )}
+
       {/* Headline metrics row */}
       <View style={{ flexDirection: "row", marginBottom: 16, gap: 12 }}>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Market Rating</Text>
           <Text style={{ fontFamily: "Playfair Display", fontSize: 28, color: getRatingColor(h.rating) }}>{h.rating}</Text>
+          {c.metricExplainers?.marketRating && (
+            <Text style={styles.metricExplainer}>{c.metricExplainers.marketRating}</Text>
+          )}
         </View>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Median Price</Text>
           <Text style={{ fontFamily: "Playfair Display", fontSize: 20, color: COLORS.primary }}>{priceFmt}</Text>
+          {c.metricExplainers?.medianPrice && (
+            <Text style={styles.metricExplainer}>{c.metricExplainers.medianPrice}</Text>
+          )}
         </View>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>YoY Change</Text>
           <Text style={{ fontFamily: "Inter", fontSize: 16, color: h.yoyPriceChange >= 0 ? COLORS.success : COLORS.error }}>{yoyDir} {yoyPct}%</Text>
+          {c.metricExplainers?.yoyChange && (
+            <Text style={styles.metricExplainer}>{c.metricExplainers.yoyChange}</Text>
+          )}
         </View>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Properties</Text>
           <Text style={{ fontFamily: "Inter", fontSize: 16, color: COLORS.primary }}>{h.totalProperties}</Text>
+          {c.metricExplainers?.properties && (
+            <Text style={styles.metricExplainer}>{c.metricExplainers.properties}</Text>
+          )}
         </View>
       </View>
-      {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
-      <Text style={styles.bodySmall}>
-        Confidence: {c.confidence.level} (n={c.confidence.sampleSize})
-      </Text>
+
+      {/* Market Overview section */}
+      {c.narrative && (
+        <View>
+          <Text style={styles.subsectionHeader}>Market Overview</Text>
+          <Text style={styles.body}>{c.narrative}</Text>
+        </View>
+      )}
+
+      {/* Data Confidence section */}
+      {c.confidence?.level && (
+        <View>
+          <Text style={styles.subsectionHeader}>Data Confidence</Text>
+          <Text style={styles.bodySmall}>
+            {c.confidence.level.charAt(0).toUpperCase() + c.confidence.level.slice(1)} confidence (n={c.confidence.sampleSize} transactions)
+          </Text>
+        </View>
+      )}
+
+      {/* Timing Guidance section */}
+      {(c.timing?.buyers || c.timing?.sellers) && (
+        <View>
+          <Text style={styles.subsectionHeader}>Timing Guidance</Text>
+          {c.timing.buyers && (
+            <Text style={styles.body}>
+              <Text style={{ fontWeight: 700 }}>Buyers: </Text>
+              {c.timing.buyers}
+            </Text>
+          )}
+          {c.timing.sellers && (
+            <Text style={styles.body}>
+              <Text style={{ fontWeight: 700 }}>Sellers: </Text>
+              {c.timing.sellers}
+            </Text>
+          )}
+        </View>
+      )}
     </View>
   );
 };
 
-// --- Market Insights Index (v2) ---
+// --- Market Insights Index (v2 redesign — 2x2 square tiles + usage context) ---
 
 interface InsightDimension {
   label: string;
   score: number | null;
   components: Record<string, number | null>;
+  interpretation?: string;
 }
 
 interface MarketInsightsIndexContent {
@@ -776,32 +858,81 @@ interface MarketInsightsIndexContent {
   };
 }
 
+function scoreAccentColor(score: number | null): string {
+  if (score == null) return COLORS.textSecondary;
+  if (score >= 7) return COLORS.success;
+  if (score >= 4) return COLORS.warning;
+  return COLORS.error;
+}
+
 export const MarketInsightsIndexPdf: SectionRenderer = ({ section }) => {
   const c = section.content as MarketInsightsIndexContent;
   const dimensions = [
-    { key: "risk", data: c.insightsIndex.risk },
-    { key: "value", data: c.insightsIndex.value },
-    { key: "timing", data: c.insightsIndex.timing },
-    { key: "liquidity", data: c.insightsIndex.liquidity },
+    { key: "Liquidity", data: c.insightsIndex.liquidity },
+    { key: "Timing", data: c.insightsIndex.timing },
+    { key: "Risk", data: c.insightsIndex.risk },
+    { key: "Value", data: c.insightsIndex.value },
   ];
+
+  // 2x2 grid: rows of 2
+  const rows = [dimensions.slice(0, 2), dimensions.slice(2, 4)];
 
   return (
     <View>
-      {dimensions.map(({ key, data }) => (
-        <View key={key} style={styles.card} wrap={false}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-            <Text style={styles.subheading}>{key.charAt(0).toUpperCase() + key.slice(1)}</Text>
-            <Text style={{ ...styles.badge, backgroundColor: data.score != null && data.score >= 7 ? COLORS.success : data.score != null && data.score >= 4 ? COLORS.warning : COLORS.textSecondary }}>
-              {data.label}
-            </Text>
-          </View>
-          {data.score != null && (
-            <Text style={{ fontFamily: "Inter", fontSize: 24, color: COLORS.accent, marginBottom: 4 }}>{data.score}/10</Text>
-          )}
-          {Object.entries(data.components).map(([compKey, val]) => (
-            <Text key={compKey} style={styles.bodySmall}>
-              {compKey.replace(/([A-Z])/g, " $1").replace(/^./, (ch) => ch.toUpperCase())}: {val != null ? (typeof val === "number" && Math.abs(val) < 1 ? `${(val * 100).toFixed(1)}%` : val.toLocaleString()) : "N/A"}
-            </Text>
+      {/* Usage context block */}
+      <View style={{ backgroundColor: COLORS.primaryLight, borderRadius: 4, padding: 12, marginBottom: 16, borderLeftWidth: 3, borderLeftColor: COLORS.accent }}>
+        <Text style={{ fontFamily: "Inter", fontSize: 10, fontWeight: 700, color: COLORS.primary, marginBottom: 4 }}>How to Read This Index</Text>
+        <Text style={{ fontFamily: "Inter", fontSize: 9, color: COLORS.textSecondary, lineHeight: 1.5 }}>
+          Each dimension is scored 1–10. Scores of 7 or above indicate strength; 4–6 are moderate; below 4 signals caution. The four dimensions measure: Liquidity (capital flow and transaction activity), Timing (price momentum and market pace), Risk (environmental and concentration exposure), and Value (appreciation potential and opportunity spread).
+        </Text>
+      </View>
+
+      {/* 2x2 square tile grid */}
+      {rows.map((row, rowIdx) => (
+        <View key={rowIdx} style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
+          {row.map(({ key, data }) => (
+            <View
+              key={key}
+              style={{
+                flex: 1,
+                backgroundColor: COLORS.surface,
+                borderRadius: 4,
+                padding: 12,
+                borderWidth: 1,
+                borderColor: COLORS.border,
+                borderTopWidth: 3,
+                borderTopColor: scoreAccentColor(data.score),
+                minHeight: 160,
+              }}
+              wrap={false}
+            >
+              {/* Dimension name + label badge */}
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <Text style={{ fontFamily: "Inter", fontSize: 10, fontWeight: 700, color: COLORS.primary, textTransform: "uppercase" }}>{key}</Text>
+                <Text style={{ ...styles.badge, backgroundColor: scoreAccentColor(data.score) }}>
+                  {data.label}
+                </Text>
+              </View>
+
+              {/* Score */}
+              <Text style={{ fontFamily: "Playfair Display", fontSize: 22, color: scoreAccentColor(data.score), marginBottom: 4 }}>
+                {data.score != null ? data.score : "—"}/10
+              </Text>
+
+              {/* Interpretation */}
+              {data.interpretation && (
+                <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, lineHeight: 1.4, marginBottom: 6 }}>
+                  {data.interpretation}
+                </Text>
+              )}
+
+              {/* Component breakdown */}
+              {Object.entries(data.components).map(([compKey, val]) => (
+                <Text key={compKey} style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary, lineHeight: 1.4 }}>
+                  {compKey.replace(/([A-Z])/g, " $1").replace(/^./, (ch) => ch.toUpperCase())}: {val != null ? (typeof val === "number" && Math.abs(val) < 1 ? `${(val * 100).toFixed(1)}%` : val.toLocaleString()) : "N/A"}
+                </Text>
+              ))}
+            </View>
           ))}
         </View>
       ))}
@@ -821,25 +952,21 @@ interface DashboardMetric {
 
 interface LuxuryMarketDashboardContent {
   dashboard: {
-    powerFive: DashboardMetric[];
-    tierTwo: DashboardMetric[];
-    tierThree: DashboardMetric[];
+    powerFour: DashboardMetric[];
+    supportingMetrics: DashboardMetric[];
   };
   detailMetrics: Record<string, number | null>;
+  narrative: string | null;
 }
 
 // Metrics displayed as percentages (e.g. 0.4 → "40%" or legacy 40 → "40%")
 const PERCENTAGE_METRICS = new Set([
-  "Flood Zone Exposure",
   "Investor Activity Rate",
-  "Free & Clear %",
-  "Cash Buyer %",
 ]);
 
 // Metrics displayed as plain counts (no $ or %)
 const COUNT_METRICS = new Set([
   "Median Days on Market",
-  "Transaction Volume",
 ]);
 
 function formatMetricValue(val: number | string | null, metricName?: string): string {
@@ -905,9 +1032,18 @@ export const LuxuryMarketDashboardPdf: SectionRenderer = ({ section }) => {
   const c = section.content as LuxuryMarketDashboardContent;
   return (
     <View>
-      <MetricTier label="POWER FIVE INDICATORS" metrics={c.dashboard.powerFive} />
-      <MetricTier label="TIER TWO METRICS" metrics={c.dashboard.tierTwo} />
-      <MetricTier label="TIER THREE METRICS" metrics={c.dashboard.tierThree} />
+      {c.narrative && (
+        <View style={{ marginBottom: 16 }}>
+          <Text style={{ fontFamily: "Inter", fontSize: 10, fontStyle: "italic", color: COLORS.textPrimary, lineHeight: 1.5 }}>{c.narrative}</Text>
+        </View>
+      )}
+      <MetricTier label="POWER FOUR INDICATORS" metrics={c.dashboard.powerFour} />
+      <MetricTier label="SUPPORTING METRICS" metrics={c.dashboard.supportingMetrics} />
+      <View style={{ marginTop: 8 }}>
+        <Text style={{ fontFamily: "Inter", fontSize: 7, color: COLORS.textSecondary }}>
+          * Investor Activity Rate: Percentage of transactions where the buyer is classified as an investor (non-owner-occupied purchase)
+        </Text>
+      </View>
     </View>
   );
 };
@@ -916,6 +1052,7 @@ export const LuxuryMarketDashboardPdf: SectionRenderer = ({ section }) => {
 
 interface NeighborhoodIntelligenceContent {
   narrative: string | null;
+  sourceAttribution: string | null;
   neighborhoods: Array<{
     name: string;
     zipCode: string;
@@ -931,6 +1068,11 @@ export const NeighborhoodIntelligencePdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
+      {c.sourceAttribution && (
+        <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary, marginTop: 4, marginBottom: 12 }}>
+          Source: {c.sourceAttribution}
+        </Text>
+      )}
       {c.neighborhoods.length > 0 && (
         <View style={{ marginTop: 12 }}>
           <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
@@ -1137,57 +1279,6 @@ export const ComparativePositioningPdf: SectionRenderer = ({ section }) => {
 
 // --- Strategic Benchmark (v2) ---
 
-interface StrategicBenchmarkContent {
-  narrative: string | null;
-  scorecard: Array<{
-    segment: string;
-    rating: string;
-    medianPrice: number;
-    yoyChange: number;
-    trend: string;
-    propertyCount: number;
-  }>;
-  personaFraming?: unknown;
-}
-
-export const StrategicBenchmarkPdf: SectionRenderer = ({ section }) => {
-  const c = section.content as StrategicBenchmarkContent;
-  return (
-    <View>
-      {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
-      {c.scorecard.length > 0 && (
-        <View style={{ marginTop: 12 }}>
-          <Text style={styles.subheading}>Market Scorecard</Text>
-          <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
-            <Text style={{ ...styles.tableHeader, flex: 2 }}>Segment</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>Rating</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>Median</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>YoY</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>Trend</Text>
-            <Text style={{ ...styles.tableHeader, flex: 1 }}>Count</Text>
-          </View>
-          {c.scorecard.map((row, i) => (
-            <View key={i} style={styles.tableRow}>
-              <Text style={{ ...styles.tableCell, flex: 2 }}>{row.segment}</Text>
-              <Text style={{ ...styles.tableCell, flex: 1, color: getRatingColor(row.rating), fontWeight: 700 }}>{row.rating}</Text>
-              <Text style={{ ...styles.tableCell, flex: 1 }}>
-                {row.medianPrice >= 1_000_000 ? `$${(row.medianPrice / 1_000_000).toFixed(1)}M` : `$${(row.medianPrice / 1_000).toFixed(0)}K`}
-              </Text>
-              <Text style={{ ...styles.tableCell, flex: 1, color: row.yoyChange >= 0 ? COLORS.success : COLORS.error }}>
-                {(row.yoyChange * 100).toFixed(1)}%
-              </Text>
-              <Text style={{ ...styles.tableCell, flex: 1 }}>
-                {row.trend === "up" ? "↑" : row.trend === "down" ? "↓" : "→"}
-              </Text>
-              <Text style={{ ...styles.tableCell, flex: 1 }}>{row.propertyCount}</Text>
-            </View>
-          ))}
-        </View>
-      )}
-    </View>
-  );
-};
-
 // --- Disclaimer & Methodology (v2) ---
 
 interface DisclaimerMethodologyContent {
@@ -1273,7 +1364,6 @@ const RENDERER_MAP: Record<string, SectionRenderer> = {
   the_narrative: TheNarrativePdf,
   forward_look: ForwardLookPdf,
   comparative_positioning: ComparativePositioningPdf,
-  strategic_benchmark: StrategicBenchmarkPdf,
   disclaimer_methodology: DisclaimerMethodologyPdf,
   persona_intelligence: PersonaIntelligencePdf,
 };

@@ -372,10 +372,10 @@ describe("Agent Output Schema + Validation", () => {
   });
 
   describe("SECTION_REGISTRY_V2", () => {
-    it("defines all 10 v2 section types", async () => {
+    it("defines all 8 v2 section types (strategic_benchmark + disclaimer_methodology removed)", async () => {
       const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
 
-      expect(SECTION_REGISTRY_V2).toHaveLength(10);
+      expect(SECTION_REGISTRY_V2).toHaveLength(8);
       const types = SECTION_REGISTRY_V2.map((r) => r.sectionType);
       expect(types).toEqual([
         "executive_briefing",
@@ -385,17 +385,17 @@ describe("Agent Output Schema + Validation", () => {
         "the_narrative",
         "forward_look",
         "comparative_positioning",
-        "strategic_benchmark",
-        "disclaimer_methodology",
         "persona_intelligence",
       ]);
+      expect(types).not.toContain("strategic_benchmark");
+      expect(types).not.toContain("disclaimer_methodology");
     });
 
-    it("has unique, sequential report orders 1-10", async () => {
+    it("has unique, sequential report orders 1-8", async () => {
       const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
 
       const orders = SECTION_REGISTRY_V2.map((r) => r.reportOrder);
-      expect(orders).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      expect(orders).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     });
 
     it("marks required vs optional correctly", async () => {
@@ -415,11 +415,9 @@ describe("Agent Output Schema + Validation", () => {
         "neighborhood_intelligence",
         "the_narrative",
         "comparative_positioning",
-        "disclaimer_methodology",
       ]);
       expect(optional).toEqual([
         "forward_look",
-        "strategic_benchmark",
         "persona_intelligence",
       ]);
     });
@@ -441,12 +439,12 @@ describe("Agent Output Schema + Validation", () => {
         "luxury_market_dashboard",
         "neighborhood_intelligence",
         "comparative_positioning",
-        "disclaimer_methodology",
       ]);
       // narrative agents
       expect(byAgent.get("insight-generator")).toEqual(["the_narrative"]);
       expect(byAgent.get("forecast-modeler")).toEqual(["forward_look"]);
-      expect(byAgent.get("polish-agent")).toEqual(["strategic_benchmark"]);
+      // polish-agent no longer owns any section (strategic_benchmark removed)
+      expect(byAgent.get("polish-agent")).toBeUndefined();
       // persona agent
       expect(byAgent.get("persona-intelligence")).toEqual([
         "persona_intelligence",

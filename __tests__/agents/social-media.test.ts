@@ -258,7 +258,7 @@ describe("Social Media Agent", () => {
       expect(result.durationMs).toBeGreaterThanOrEqual(0);
       expect(result.metadata.promptTokens).toBe(5000);
       expect(result.metadata.completionTokens).toBe(8000);
-      expect(result.metadata.modelUsed).toBe("claude-sonnet-4-6");
+      expect(result.metadata.modelUsed).toBe("claude-haiku-4-5-20251001");
     });
   });
 
@@ -292,7 +292,7 @@ describe("Social Media Agent", () => {
       const call = mockCreate.mock.calls[0][0];
       expect(call.system).toContain("luxury");
       expect(call.system).toContain("social media");
-      expect(call.model).toBe("claude-sonnet-4-6");
+      expect(call.model).toBe("claude-haiku-4-5-20251001");
     });
 
     it("user prompt includes report sections and market data", async () => {

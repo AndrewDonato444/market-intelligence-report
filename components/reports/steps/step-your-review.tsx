@@ -82,8 +82,6 @@ const ALL_SECTIONS = [
   "the_narrative",
   "forward_look",
   "comparative_positioning",
-  "strategic_benchmark",
-  "disclaimer_methodology",
   "persona_intelligence",
 ];
 
@@ -101,7 +99,9 @@ function formatCurrency(value: number): string {
 
 function generateTitle(city: string, tier: string): string {
   const tierLabel = TIER_LABELS[tier] || "Luxury";
-  return `${city} ${tierLabel} Market Intelligence Report`;
+  const now = new Date();
+  const quarter = Math.floor(now.getMonth() / 3) + 1;
+  return `${city} ${tierLabel} Market Intelligence \u2014 Q${quarter} ${now.getFullYear()}`;
 }
 
 // ---------------------------------------------------------------------------
@@ -206,6 +206,9 @@ export function StepYourReview({
   const [entitlementLoading, setEntitlementLoading] = useState(true);
   const [gateDismissed, setGateDismissed] = useState(false);
 
+  // Transaction scope entitlement
+  const [txScope, setTxScope] = useState<EntitlementState | null>(null);
+
   // Report step 5 as always valid
   useEffect(() => {
     onValidationChange?.(true);
@@ -229,6 +232,25 @@ export function StepYourReview({
         setEntitlement(null);
         setEntitlementLoading(false);
       })
+      .finally(() => clearTimeout(timeout));
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, []);
+
+  // Fetch transaction scope entitlement on mount
+  useEffect(() => {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    fetch("/api/entitlements/check?type=transaction_limit", {
+      signal: controller.signal,
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data: EntitlementState) => setTxScope(data))
+      .catch(() => setTxScope(null))
       .finally(() => clearTimeout(timeout));
 
     return () => {
@@ -423,6 +445,35 @@ export function StepYourReview({
             </p>
           )}
         </ReviewSectionCard>
+
+        {/* Transaction Scope Indicator */}
+        {txScope && (
+          <motion.div
+            variants={fadeVariant}
+            className="rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="uppercase text-xs font-semibold text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)]">
+                  Transaction Scope
+                </span>
+                <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mt-0.5">
+                  {txScope.limit === -1
+                    ? "Unlimited transaction scope"
+                    : `Analyzing up to ${txScope.limit} transactions per period`}
+                </p>
+              </div>
+              {txScope.limit !== -1 && txScope.limit <= 100 && (
+                <a
+                  href={VIEW_PLANS_HREF}
+                  className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)] whitespace-nowrap"
+                >
+                  Upgrade for deeper analysis
+                </a>
+              )}
+            </div>
+          </motion.div>
+        )}
 
         {/* Report Title */}
         <motion.div variants={fadeVariant} className="pt-2">

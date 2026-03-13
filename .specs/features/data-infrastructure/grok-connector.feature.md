@@ -4,6 +4,7 @@ domain: data-infrastructure
 source: lib/connectors/grok.ts
 tests:
   - __tests__/connectors/grok.test.ts
+  - __tests__/services/data-source-registry.test.ts
 components: []
 personas:
   - rising-star-agent
@@ -77,6 +78,21 @@ Then it extracts text from output[].type="message".content[].type="output_text".
 And it strips any accidental markdown code fences
 And it JSON.parses the text into XSentimentBrief fields
 And missing fields default to empty arrays or "neutral"
+
+### Scenario: Return null on unparseable JSON response
+Given the xAI API returns a 200 response
+But the response text is not valid JSON
+When the connector attempts to parse the output
+Then it falls through to the error handler
+And returns stale cache if available, otherwise null (no throw)
+And a warning is logged
+
+### Scenario: Grok registered in Data Source Registry
+Given the default DataSourceRegistry singleton
+When querying registered connectors
+Then "grok" is present with requiredEnvVars ["XAI_API_KEY"]
+And cacheTtlSeconds is 604800 (7 days)
+And endpoint is "/v1/responses (x_search)"
 
 ### Scenario: Build search query from market geography
 Given a market with city "Palm Beach" and state "FL"

@@ -21,12 +21,12 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 101 |
+| ✅ Completed | 116 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 5 |
+| ⬜ Pending | 12 |
 | ⏸️ Blocked | 0 |
 
-**Last updated**: 2026-03-12
+**Last updated**: 2026-03-13
 
 ---
 
@@ -302,7 +302,10 @@
 | 164 | Social media kit regeneration — regenerate the full kit or specific content types if the agent wants fresh alternatives | user-request | S | 162 | ✅ |
 | 165 | Social media kit in admin — kits visible in admin report detail, generation stats in analytics (kit generation rate, most-used content types) | user-request | M | 160, 121, 130 | ✅ |
 
-**Goal**: After generating a report, agents can generate a Social Media Kit — a comprehensive, text-based content package with posts, captions, polls, stat callouts, and content calendar suggestions, all grounded in their specific report data. Agents copy the content to their own social media tools and customize as needed.
+| 166 | Bulk Email Campaign Agent — Claude agent that reads a finalized report and generates email campaign content: drip sequences, market update newsletters, persona-targeted email copy, subject lines, CTAs — all grounded in report data | user-request | L | 30, 36, 160 | ✅ |
+| 167 | Bulk email campaign viewer — browse generated email content by campaign type, filter by persona, copy-to-clipboard, preview formatting | user-request | M | 166 | ✅ |
+
+**Goal**: After generating a report, agents can generate a Social Media Kit and Bulk Email Campaigns — comprehensive, text-based content packages with posts, captions, polls, stat callouts, email sequences, and content calendar suggestions, all grounded in their specific report data. Agents copy the content to their own tools and customize as needed.
 
 ---
 
@@ -323,18 +326,47 @@
 | 178 | Admin: subscription tier management — CRUD for tiers, edit entitlement caps and display pricing, reorder tiers, activate/deactivate | user-request | M | 170 | ✅ |
 | 179 | Admin: entitlement overrides — grant tier override, entitlement boost, or feature unlock to individual users. Set expiry, reason. Full audit trail view | user-request | M | 171, 112 | ✅ |
 | 180 | Default tier assignment on signup — new users auto-assigned Starter tier, tier shown in onboarding | user-request | S | 170, 3 | ✅ |
+| 181 | Entitlement gating for social media kit as Pro feature — social media kit generation restricted to Professional+ tiers, Starter sees upgrade prompt with preview of kit value | user-request | S | 173, 176 | ✅ |
+| 182 | Entitlement gating for bulk email campaigns — email campaign generation restricted to Professional+ tiers, gated same as social media kit | user-request | S | 173, 166 | ✅ |
+| 183 | Entitlement gating for expanded transaction scope — Pro users can analyze beyond last 100 transactions, configurable cap per tier (e.g., Starter=100, Pro=500, Enterprise=unlimited) | user-request | M | 173 | ✅ |
 
-**Goal**: Every gated action (create report, create market, generate social media kit) checks the user's tier entitlements before proceeding. Admins can create/edit tiers, grant overrides to individual users, and see a full audit trail. Users see their usage vs. caps and upgrade prompts. No payment processing — tiers are admin-assigned until Stripe is connected.
+**Goal**: Every gated action (create report, create market, generate social media kit, generate email campaigns, expanded transaction scope) checks the user's tier entitlements before proceeding. Admins can create/edit tiers, grant overrides to individual users, and see a full audit trail. Users see their usage vs. caps and upgrade prompts. No payment processing — tiers are admin-assigned until Stripe is connected.
 
 ---
 
-## Phase 19: Report Advisor (Chat)
+## Phase 19: Report Output V2
+
+> Comprehensive report restructuring based on user feedback. Redesign section layout, remove weak sections, add clarity and definitions, tighten narratives, and improve data transparency. Touches Layer 1 computation, Layer 2 agent prompts, Layer 3 assembly, and PDF rendering.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 200 | Cover page redesign — create naming convention for report titles, move Key Themes summary to cover page with proper formatting, define what rating chips/data chips mean | user-feedback | M | 50 | ✅ |
+| 201 | New "Market Intelligence Summary" section — "At a Glance" section after cover before Executive Brief, include charts (not just text/metrics), visual summary of report highlights | user-feedback | L | 50, 55 | ✅ |
+| 202 | Executive Brief improvements — add explainer text for each tile/metric, pull and display data dates (freshness), add headers for each pro item | user-feedback | M | 50 | ✅ |
+| 203 | Market Insights Index redesign — add usage context ("how to read this index"), ensure every index returns a rating (no blanks), redesign layout from rectangles to square tile structure | user-feedback | M | 50, 31 | ✅ |
+| 204 | Luxury Market Dashboard restructuring — Power Five: remove Transaction Volume. Tier Two: remove Cash Buyer, TSV, Flood Zone Exposure. Combine Tier Two + Three. Keep Investor Activity Rate with definition. Add 3-sentence narrative headline about last 100 sales | user-feedback | L | 50, 31, 32 | ✅ |
+| 205 | Neighborhood Intelligence trim — add source attribution (where narrative comes from), significantly reduce text volume, tighten narrative output from agent | user-feedback | M | 32 | ✅ |
+| 206 | Market Segments rating transparency — explain how segment ratings are calculated, show methodology inline in the section | user-feedback | S | 31 | ⬜ |
+| 207 | Comparative Position data definitions — define all data points clearly with inline explanations so reader understands each metric | user-feedback | S | 50 | ⬜ |
+| 208 | Strategic Benchmark reframing — adjust framing from scorecard-like to more strategic positioning language, less grading more advising | user-feedback | M | 35 | ⬜ |
+| 209 | Remove Market Scorecard section — cut entirely from report assembly and PDF rendering | user-feedback | S | 50 | ✅ |
+| 210 | Remove Methodology section from report — cut from PDF, move disclaimer/advisory language to front-end UI | user-feedback | S | 50 | ✅ |
+| 211 | Eliminate cash buyers from liquidity metrics — cross-cutting data change in Layer 1 computation affecting dashboard and all liquidity calculations | user-feedback | M | 31 | ✅ |
+| 212 | YoY calculation transparency — add explanation of how YoY stats are calculated, visible in-report or in front-end UI | user-feedback | S | 31 | ⬜ |
+| 213 | Front-end UI transaction disclaimer — add disclaimer/advisory sales language about "based on last 100 transactions" to report view page and creation flow | user-feedback | S | 42 | ⬜ |
+| 214 | Pro feature: expanded transaction scope — support analyzing more than last 100 transactions, configurable per tier, update data fetcher + pipeline to accept transaction count param | user-feedback | L | 22, 80, 183 | ⬜ |
+
+**Goal**: The report output is tighter, clearer, and more actionable. Weak sections (Market Scorecard, Methodology) are removed. Every metric and rating is defined. Narratives are shorter and sourced. The cover page leads with Key Themes. A new "At a Glance" summary with charts gives readers an instant overview. Cash buyers are stripped from liquidity metrics. Pro users can expand beyond 100 transactions.
+
+---
+
+## Phase 20: Report Advisor (Chat)
 
 > AI-powered contextual advisor that turns a static report into an interactive strategy session. Agents chat about their specific report to get meeting prep, persona-specific talking points, objection handling, and strategic recommendations — all grounded in their actual data. Gated by subscription tier.
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 190 | Advisor data model — `advisor_conversations` table (conversationId, reportId, userId, messages JSONB, turnCount, createdAt, updatedAt) + indexes on reportId and userId | vision | S | 2 | ⬜ |
+| 190 | Advisor data model — `advisor_conversations` table (conversationId, reportId, userId, messages JSONB, turnCount, createdAt, updatedAt) + indexes on reportId and userId | vision | S | 2 | ✅ |
 | 191 | Advisor chat API endpoint — streaming Claude endpoint that receives report content + persona specs as system context, maintains conversation history within session, enforces turn limits per entitlement | vision | L | 190, 30, 57 | ⬜ |
 | 192 | Advisor chat UI — slide-out chat panel on report view page, message input with send, streaming response display, conversation history within session, clear "Ask about this report" entry point | vision | L | 191, 42 | ⬜ |
 | 193 | Entitlement gating for advisor — check `advisor_conversations` entitlement before allowing chat, show soft gate with upgrade messaging for Starter tier, enforce per-report turn cap for Professional tier | vision | S | 191, 173 | ⬜ |
@@ -447,6 +479,20 @@
 - **Phase 19 can start immediately** — #190 has no dependency on other pending phases
 - System prompt template is at `.specs/reference/report-advisor-system-prompt.md`
 
+### Phase Dependencies (Phase 20 — Report Output V2)
+- Phase 20 touches all 4 layers: Layer 1 (#211 liquidity metrics), Layer 2 (#204-#205 agent prompts), Layer 3 (#209-#210 assembly), and PDF rendering (#200-#208)
+- #200-#210 (section changes) only depend on existing Phase 6 components (#50) and Phase 4 agents (#31, #32, #35) — all completed
+- #211 (eliminate cash buyers) is a Layer 1 computation change — affects `market-analytics.ts`
+- #213 (front-end disclaimer) is independent UI work
+- #214 (expanded transactions) depends on entitlement gating (#183) and data fetcher (#22, #80) — the only cross-phase dependency
+- **Phase 20 can start immediately** — all deps are completed except #183 (for #214 only)
+- **Recommended build order**: #209-#210 (removals) → #211 (data fix) → #200-#203 (cover + new sections) → #204-#208 (section redesigns) → #212-#213 (transparency) → #214 (pro feature, after #183)
+
+### Phase Dependencies (Phase 17/18 additions)
+- #166-#167 (bulk email) follow same pattern as #161-#163 (social media agent) — depend on agent framework and report output
+- #181-#182 (pro gating for social/email) depend on entitlement utility (#173) which is already completed
+- #183 (expanded transaction gating) depends on #173 — already completed. #214 depends on #183
+
 ### Parallelization Opportunities
 After Phase 1, multiple workstreams can run in parallel:
 - **Workstream A**: #10, #11, #12, #13 (user & market setup)
@@ -465,6 +511,9 @@ UX redesign + admin expansion (Phases 12–16):
 - **Workstream J**: #160-#165 (social media kit) — independent, can run anytime after report pipeline is stable
 - **Workstream K**: #170-#173 (entitlement foundation) → #174-#180 (gating + admin) — foundation can start immediately, gating added incrementally
 - **Workstream L**: #190-#192 (report advisor) → #193 (gating, after K) → #194 (admin analytics) — can start immediately, gating wired after entitlement foundation
+- **Workstream M**: #209-#210, #211, #200-#208, #212-#213 (report output V2) — can start immediately, all deps met
+- **Workstream N**: #166-#167 (bulk email campaigns) — can start after social media kit agent pattern is established
+- **Workstream O**: #181-#183 (pro feature gating) → #214 (expanded transactions) — entitlement foundation already complete
 
 ---
 

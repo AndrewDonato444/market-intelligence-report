@@ -343,8 +343,8 @@ export function SectionRenderer({ section }: { section: ReportSection }) {
       body = <NarrativeSectionRenderer content={content as any} />;
       break;
     case "disclaimer_methodology":
-      body = <DisclaimerMethodologyRenderer content={content as any} />;
-      break;
+      // Removed from reports — silently skip for old stored reports
+      return null;
     default:
       body = <GenericSectionRenderer content={content} />;
       break;

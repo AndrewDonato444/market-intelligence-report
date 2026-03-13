@@ -210,7 +210,7 @@ describe("User Sidebar — Eval removal", () => {
     const links = screen.getAllByRole("link");
     const labels = links.map((l) => l.textContent);
 
-    expect(labels).toEqual(["Dashboard", "Reports", "Markets", "Settings"]);
+    expect(labels).toEqual(["Dashboard", "How To", "Reports", "Markets", "Settings"]);
   });
 
   it("should NOT contain an Eval link", () => {

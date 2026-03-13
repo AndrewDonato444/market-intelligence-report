@@ -26,6 +26,7 @@ import {
   type AssemblyDurations,
 } from "@/lib/agents/report-assembler";
 import { logActivity } from "@/lib/services/activity-log";
+import { checkEntitlement } from "@/lib/services/entitlement-check";
 import {
   buildErrorDetails,
   recordErrorDetails,
@@ -143,6 +144,16 @@ export async function executePipeline(reportId: string): Promise<void> {
   const abortController = new AbortController();
 
   try {
+    // --- Resolve transaction scope entitlement ---
+    let transactionLimit: number | undefined;
+    try {
+      const txEntitlement = await checkEntitlement(report.userId, "transaction_limit");
+      transactionLimit = txEntitlement.limit === -1 ? undefined : txEntitlement.limit || undefined;
+    } catch {
+      // Fail-open: use default (API default ~100)
+      console.warn("[pipeline-executor] Failed to resolve transaction_limit entitlement, using default");
+    }
+
     // --- Layer 0: Data Fetch ---
     const fetchStart = Date.now();
     const compiledData = await fetchAllMarketData({
@@ -150,6 +161,7 @@ export async function executePipeline(reportId: string): Promise<void> {
       reportId,
       market: marketData,
       abortSignal: abortController.signal,
+      transactionLimit,
     });
     const fetchMs = Date.now() - fetchStart;
 

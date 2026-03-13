@@ -54,8 +54,8 @@ describe("View Report Read-Only", () => {
     });
   });
 
-  describe("CMP-RO-02: DisclaimerMethodologyRenderer", () => {
-    it("renders disclaimer_methodology section with narrative text", async () => {
+  describe("CMP-RO-02: disclaimer_methodology silently skipped", () => {
+    it("returns null for disclaimer_methodology sections (removed from report)", async () => {
       const { SectionRenderer } = await import(
         "@/components/reports/report-preview"
       );
@@ -65,45 +65,6 @@ describe("View Report Read-Only", () => {
         content: {
           narrative: "This report was generated using proprietary algorithms.",
           methodology: "Data sourced from MLS records and public filings.",
-          dataDisclaimer:
-            "All projections are estimates and should not be used as sole basis for decisions.",
-          highlights: ["Uses 12-month rolling data", "Cross-referenced sources"],
-        },
-      };
-
-      render(React.createElement(SectionRenderer, { section }));
-
-      expect(
-        screen.getByText("Disclaimer & Methodology")
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          "This report was generated using proprietary algorithms."
-        )
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          "Data sourced from MLS records and public filings."
-        )
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(
-          "All projections are estimates and should not be used as sole basis for decisions."
-        )
-      ).toBeInTheDocument();
-    });
-
-    it("does NOT render raw JSON for disclaimer_methodology", async () => {
-      const { SectionRenderer } = await import(
-        "@/components/reports/report-preview"
-      );
-      const section = {
-        sectionType: "disclaimer_methodology",
-        title: "Disclaimer & Methodology",
-        content: {
-          narrative: "Generated using algorithms.",
-          methodology: "MLS data.",
-          dataDisclaimer: "Estimates only.",
         },
       };
 
@@ -111,9 +72,8 @@ describe("View Report Read-Only", () => {
         React.createElement(SectionRenderer, { section })
       );
 
-      // Should not contain a <pre> tag (JSON dump)
-      const preElements = container.querySelectorAll("pre");
-      expect(preElements.length).toBe(0);
+      // Should render nothing — section is silently skipped
+      expect(container.innerHTML).toBe("");
     });
   });
 

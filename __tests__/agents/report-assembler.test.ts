@@ -42,23 +42,17 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       value: { score: 6, label: "Moderate Opportunity", components: { yoyGrowth: 0.08, psfSpread: 0.2 } },
     },
     dashboard: {
-      powerFive: [
-        { name: "Median Sold Price", value: 8000000, trend: "up", trendValue: 0.08, category: "power_five" },
-        { name: "Median Price/SqFt", value: 1600, trend: "up", trendValue: 0.06, category: "power_five" },
-        { name: "Median Days on Market", value: 45, trend: null, trendValue: null, category: "power_five" },
-        { name: "List-to-Sale Ratio", value: 97, trend: null, trendValue: null, category: "power_five" },
-        { name: "Transaction Volume", value: 30, trend: "up", trendValue: 0.05, category: "power_five" },
+      powerFour: [
+        { name: "Median Sold Price", value: 8000000, trend: "up", trendValue: 0.08, category: "power_four" },
+        { name: "Median Price/SqFt", value: 1600, trend: "up", trendValue: 0.06, category: "power_four" },
+        { name: "Median Days on Market", value: 45, trend: null, trendValue: null, category: "power_four" },
+        { name: "List-to-Sale Ratio", value: 97, trend: null, trendValue: null, category: "power_four" },
       ],
-      tierTwo: [
-        { name: "Cash Buyer %", value: 40, trend: null, trendValue: null, category: "tier_two" },
-        { name: "Total Sales Volume", value: 240000000, trend: null, trendValue: null, category: "tier_two" },
-        { name: "Average Price", value: 9000000, trend: null, trendValue: null, category: "tier_two" },
-        { name: "Property Type Split", value: "SFR: 20, Condo: 10", trend: null, trendValue: null, category: "tier_two" },
-      ],
-      tierThree: [
-        { name: "Flood Zone Exposure", value: 10, trend: null, trendValue: null, category: "tier_three" },
-        { name: "Investor Activity Rate", value: 20, trend: null, trendValue: null, category: "tier_three" },
-        { name: "Free & Clear %", value: 30, trend: null, trendValue: null, category: "tier_three" },
+      supportingMetrics: [
+        { name: "Total Sales Volume", value: 240000000, trend: null, trendValue: null, category: "supporting" },
+        { name: "Average Price", value: 9000000, trend: null, trendValue: null, category: "supporting" },
+        { name: "Property Type Split", value: "SFR: 20, Condo: 10", trend: null, trendValue: null, category: "supporting" },
+        { name: "Investor Activity Rate", value: 20, trend: null, trendValue: null, category: "supporting" },
       ],
     },
     neighborhoods: [
@@ -91,6 +85,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       investorBuyerPercentage: 0.2,
       freeClearPercentage: 0.3,
     },
+    dataAsOfDate: null,
     ...overrides,
   };
 }
@@ -125,7 +120,6 @@ function makeAgentResults(): Record<string, AgentResult> {
       agentName: "polish-agent",
       sections: [],
       metadata: {
-        strategicBrief: "The Naples ultra-luxury market earns an 'A' rating...",
         methodology: "Analysis based on 30 property records with 33% detail coverage...",
       },
       durationMs: 3000,
@@ -147,21 +141,28 @@ const defaultDurations: AssemblyDurations = {
 
 describe("Report Assembler", () => {
   describe("assembleReport", () => {
-    it("produces exactly 9 sections", () => {
+    it("produces exactly 7 sections (no persona agent)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      expect(result.sections).toHaveLength(9);
+      expect(result.sections).toHaveLength(7);
     });
 
-    it("sections are numbered 1 through 9", () => {
+    it("sections are numbered 1 through 7", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const numbers = result.sections.map((s) => s.sectionNumber);
-      expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+      expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7]);
     });
 
-    it("section types match first 9 of NEW_SECTION_TYPES (no persona agent)", () => {
+    it("section types match first 7 of NEW_SECTION_TYPES (no persona agent)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const types = result.sections.map((s) => s.sectionType);
-      expect(types).toEqual([...NEW_SECTION_TYPES].slice(0, 9));
+      expect(types).toEqual([...NEW_SECTION_TYPES].slice(0, 7));
+    });
+
+    it("does NOT include strategic_benchmark or disclaimer_methodology sections", () => {
+      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
+      const types = result.sections.map((s) => s.sectionType);
+      expect(types).not.toContain("strategic_benchmark");
+      expect(types).not.toContain("disclaimer_methodology");
     });
 
     it("Section 1 (Executive Briefing) contains headline data and narrative", () => {
@@ -189,9 +190,8 @@ describe("Report Assembler", () => {
       const section = result.sections[2];
       expect(section.sectionType).toBe("luxury_market_dashboard");
       const content = section.content as any;
-      expect(content.dashboard.powerFive).toHaveLength(5);
-      expect(content.dashboard.tierTwo).toHaveLength(4);
-      expect(content.dashboard.tierThree).toHaveLength(3);
+      expect(content.dashboard.powerFour).toHaveLength(4);
+      expect(content.dashboard.supportingMetrics).toHaveLength(4);
     });
 
     it("Section 4 (Neighborhood Intelligence) contains data and narrative", () => {
@@ -231,29 +231,42 @@ describe("Report Assembler", () => {
       expect(content.peerRankings).toHaveLength(3);
     });
 
-    it("Section 8 (Strategic Benchmark) contains scorecard and narrative", () => {
-      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      const section = result.sections[7];
-      expect(section.sectionType).toBe("strategic_benchmark");
-      const content = section.content as any;
-      expect(content.scorecard).toHaveLength(2);
-      expect(content.narrative).toContain("A");
-    });
+    it("SVC-RA-01 | Regression: executive_briefing headline includes totalVolume and YoY fields for PDF template", () => {
+      const analytics = makeAnalytics({
+        market: {
+          totalProperties: 50,
+          medianPrice: 12000000,
+          averagePrice: 14000000,
+          medianPricePerSqft: 2000,
+          totalVolume: 600000000,
+          rating: "A",
+        },
+        yoy: {
+          medianPriceChange: 0.1,
+          volumeChange: 0.15,
+          pricePerSqftChange: 0.08,
+          averagePriceChange: 0.12,
+          totalVolumeChange: 0.2,
+          domChange: null,
+          listToSaleChange: null,
+        },
+      });
+      const result = assembleReport(analytics, makeAgentResults(), defaultDurations);
+      const content = result.sections[0].content as any;
 
-    it("Section 9 (Disclaimer) contains disclaimer text and methodology", () => {
-      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      const section = result.sections[8];
-      expect(section.sectionType).toBe("disclaimer_methodology");
-      const content = section.content as any;
-      expect(content.disclaimer).toBe(DISCLAIMER_TEXT);
-      expect(content.methodology).toContain("30 property records");
-      expect(content.confidence.level).toBe("high");
-      expect(content.dataSources).toHaveLength(3);
+      // PDF template reads from content.headline — these must all be present
+      expect(content.headline.medianPrice).toBe(12000000);
+      expect(content.headline.totalProperties).toBe(50);
+      expect(content.headline.totalVolume).toBe(600000000);
+      expect(content.headline.rating).toBe("A");
+      expect(content.headline.yoyPriceChange).toBe(0.1);
+      expect(content.headline.yoyVolumeChange).toBe(0.2);
+      expect(content.headline.yoyTransactionCountChange).toBe(0.15);
     });
 
     it("handles missing agent results gracefully", () => {
       const result = assembleReport(makeAnalytics(), {}, defaultDurations);
-      expect(result.sections).toHaveLength(9);
+      expect(result.sections).toHaveLength(7);
 
       // Narrative-dependent sections should have null narratives
       const exec = result.sections[0].content as any;
@@ -266,20 +279,6 @@ describe("Report Assembler", () => {
       expect(forecast.forecast).toBeNull();
     });
 
-    it("marks stale data sources in disclaimer", () => {
-      const analytics = makeAnalytics({
-        confidence: {
-          level: "low",
-          sampleSize: 5,
-          detailCoverage: 0.1,
-          staleDataSources: ["realestateapi:search", "realestateapi:detail"],
-        },
-      });
-      const result = assembleReport(analytics, makeAgentResults(), defaultDurations);
-      const disclaimer = result.sections[8].content as any;
-      expect(disclaimer.dataSources[0].status).toBe("stale"); // search
-      expect(disclaimer.dataSources[1].status).toBe("stale"); // detail
-    });
   });
 
   describe("metadata", () => {
@@ -304,7 +303,7 @@ describe("Report Assembler", () => {
 
     it("includes section count", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      expect(result.metadata.sectionCount).toBe(9);
+      expect(result.metadata.sectionCount).toBe(7);
     });
 
     it("includes generatedAt timestamp", () => {
@@ -315,26 +314,6 @@ describe("Report Assembler", () => {
     });
   });
 
-  describe("data sources summary", () => {
-    it("marks all sources fresh when no stale data", () => {
-      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      const disclaimer = result.sections[8].content as any;
-      expect(disclaimer.dataSources[0]).toEqual({
-        name: "RealEstateAPI (Property Search)",
-        status: "fresh",
-      });
-    });
-
-    it("marks detail source unavailable when no detail coverage", () => {
-      const analytics = makeAnalytics({
-        confidence: { level: "medium", sampleSize: 5, detailCoverage: 0, staleDataSources: [] },
-      });
-      const result = assembleReport(analytics, makeAgentResults(), defaultDurations);
-      const disclaimer = result.sections[8].content as any;
-      expect(disclaimer.dataSources[1].status).toBe("unavailable");
-    });
-  });
-
   describe("DISCLAIMER_TEXT", () => {
     it("is a non-empty string", () => {
       expect(DISCLAIMER_TEXT.length).toBeGreaterThan(100);
@@ -342,9 +321,11 @@ describe("Report Assembler", () => {
   });
 
   describe("NEW_SECTION_TYPES", () => {
-    it("contains exactly 10 section types (including persona_intelligence)", () => {
-      expect(NEW_SECTION_TYPES).toHaveLength(10);
-      expect(NEW_SECTION_TYPES[9]).toBe("persona_intelligence");
+    it("contains exactly 8 section types (including persona_intelligence, no disclaimer_methodology)", () => {
+      expect(NEW_SECTION_TYPES).toHaveLength(8);
+      expect(NEW_SECTION_TYPES[7]).toBe("persona_intelligence");
+      expect([...NEW_SECTION_TYPES]).not.toContain("strategic_benchmark");
+      expect([...NEW_SECTION_TYPES]).not.toContain("disclaimer_methodology");
     });
   });
 
@@ -450,22 +431,22 @@ describe("Report Assembler", () => {
       },
     };
 
-    it("produces 10 sections when persona intelligence is present", () => {
+    it("produces 8 sections when persona intelligence is present", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      expect(result.sections).toHaveLength(10);
+      expect(result.sections).toHaveLength(8);
     });
 
-    it("Section 10 has sectionType persona_intelligence", () => {
+    it("Section 8 has sectionType persona_intelligence", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      const section10 = result.sections[9];
-      expect(section10.sectionNumber).toBe(10);
-      expect(section10.sectionType).toBe("persona_intelligence");
-      expect(section10.title).toBe("Persona Intelligence Briefing");
+      const section8 = result.sections[7];
+      expect(section8.sectionNumber).toBe(8);
+      expect(section8.sectionType).toBe("persona_intelligence");
+      expect(section8.title).toBe("Persona Intelligence Briefing");
     });
 
-    it("Section 10 content has hybrid strategy, personas, blended, and meta", () => {
+    it("Section 8 content has hybrid strategy, personas, blended, and meta", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      const content = result.sections[9].content as any;
+      const content = result.sections[7].content as any;
       expect(content.strategy).toBe("hybrid");
       expect(content.personas).toHaveLength(2);
       expect(content.personas[0].personaSlug).toBe("business-mogul");
@@ -476,10 +457,10 @@ describe("Report Assembler", () => {
       expect(content.meta.primaryPersona).toBe("business-mogul");
     });
 
-    it("narrative sections (1, 5, 6, 8) receive personaFraming from primary persona", () => {
+    it("narrative sections (1, 5, 6) receive personaFraming from primary persona", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
 
-      const framingSections = [0, 4, 5, 7]; // indices for sections 1, 5, 6, 8
+      const framingSections = [0, 4, 5]; // indices for sections 1, 5, 6
       for (const idx of framingSections) {
         const content = result.sections[idx].content as any;
         expect(content.personaFraming).toBeDefined();
@@ -493,14 +474,14 @@ describe("Report Assembler", () => {
     it("personaFraming is null when no persona agent result", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
 
-      const framingSections = [0, 4, 5, 7]; // indices for sections 1, 5, 6, 8
+      const framingSections = [0, 4, 5]; // indices for sections 1, 5, 6
       for (const idx of framingSections) {
         const content = result.sections[idx].content as any;
         expect(content.personaFraming).toBeNull();
       }
     });
 
-    it("produces 9 sections when persona agent was skipped", () => {
+    it("produces 7 sections when persona agent was skipped", () => {
       const agentResults = {
         ...makeAgentResults(),
         "persona-intelligence": {
@@ -511,7 +492,7 @@ describe("Report Assembler", () => {
         },
       };
       const result = assembleReport(makeAnalytics(), agentResults, defaultDurations);
-      expect(result.sections).toHaveLength(9);
+      expect(result.sections).toHaveLength(7);
     });
 
     it("metadata includes persona agent duration in totalDurationMs", () => {
@@ -523,10 +504,10 @@ describe("Report Assembler", () => {
 
     it("sectionCount reflects actual count with persona section", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      expect(result.metadata.sectionCount).toBe(10);
+      expect(result.metadata.sectionCount).toBe(8);
     });
 
-    it("all 10 section types match NEW_SECTION_TYPES when persona present", () => {
+    it("all 8 section types match NEW_SECTION_TYPES when persona present", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
       const types = result.sections.map((s) => s.sectionType);
       expect(types).toEqual([...NEW_SECTION_TYPES]);

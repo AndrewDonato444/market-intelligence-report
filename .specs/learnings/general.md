@@ -8,6 +8,14 @@ Patterns that don't fit other categories.
 
 <!-- Conventions, naming, organization -->
 
+### 2026-03-13 — Remove Market Scorecard Section (#209)
+- **Gotcha**: Removing a report section has wide blast radius — this change touched 13 files across assembler, PDF renderer, agent prompt, schema registry, validation, eval test-cases/fixtures, and 6 test files. Any section removal must audit: (1) assembler sections array, (2) NEW_SECTION_TYPES const, (3) RENDERER_MAP + component, (4) SECTION_REGISTRY_V2, (5) report-validation.ts, (6) agent prompts that reference the section, (7) all test fixtures with section counts or indices, (8) eval test cases referencing the section type.
+- **Decision**: Keep `strategic_benchmark` in DB schema enum and TypeScript type unions for backward compatibility — existing reports in the DB still contain this section type. The PDF renderer's `getSectionRenderer()` already falls back to `GenericSectionPdf` for unknown types, so old reports render without error. No migration needed.
+- **Pattern**: When removing a section mid-sequence, renumber all subsequent sections and update all test assertions that reference section indices (e.g., `sections[8]` → `sections[7]` for disclaimer). Search for `sections[N]` patterns across all test files.
+
+### 2026-03-12 — Bulk Email Campaign Viewer (#167)
+- **Pattern**: Mirror-and-adapt for viewer components — when building a new content viewer (email campaign) that follows an existing pattern (social media kit), read all 3 reference files (viewer, button, page) first, then adapt. Key differences are additive (collapsible bodies, subject lines, newsletter bulk copy, confirmation dialog) rather than structural. The page component, polling pattern, section refresh pattern, and copy button pattern are identical across both viewers.
+
 ### 2026-03-11 — Usage Tracking (#172)
 - **Pattern**: Implicit monthly reset — no cron job needed. Monthly entitlements have `periodStart` = 1st of month and `periodEnd` = 1st of next month. When a new month starts, there's simply no record for that period yet. The first gated action creates one with count=1. Old records stay for historical reference (Account & Billing page, analytics).
 - **Pattern**: Cumulative vs monthly entitlement classification — use const arrays (`MONTHLY_ENTITLEMENTS`, `CUMULATIVE_ENTITLEMENTS`) with type guard functions (`isMonthlyEntitlement`, `isCumulativeEntitlement`). Cumulative entitlements use a fixed epoch (`2024-01-01T00:00:00Z`) as periodStart and null periodEnd — one row per user per cumulative entitlement, ever. Unknown types default to monthly for safety.

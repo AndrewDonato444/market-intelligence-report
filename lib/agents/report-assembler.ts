@@ -2,11 +2,15 @@
  * Report Assembler — Layer 3
  *
  * Merges ComputedAnalytics (Layer 1) with agent narratives (Layer 2)
- * into the final 9-section report structure.
+ * into the final 7-section report structure (8 with persona intelligence).
  *
  * Sections 2, 3, 7 = pure data (no agent narrative needed)
- * Sections 1, 4, 5, 8 = data + narrative
- * Sections 6, 9 = narrative only
+ * Sections 1, 4, 5 = data + narrative
+ * Section 6 = narrative only
+ *
+ * Note: Strategic Benchmark and Disclaimer & Methodology sections were
+ * removed. Disclaimer/advisory language lives in the front-end UI.
+ * Persona Intelligence is now Section 8 (when present).
  */
 
 import type { AgentResult, SectionOutput } from "@/lib/agents/orchestrator";
@@ -60,8 +64,6 @@ export const NEW_SECTION_TYPES = [
   "the_narrative",
   "forward_look",
   "comparative_positioning",
-  "strategic_benchmark",
-  "disclaimer_methodology",
   "persona_intelligence",
 ] as const;
 
@@ -80,7 +82,8 @@ export interface PersonaFraming {
 // --- Assembly ---
 
 /**
- * Assembles the final 9-section report from computed analytics and agent results.
+ * Assembles the final 7-section report (8 with persona intelligence)
+ * from computed analytics and agent results.
  */
 export function assembleReport(
   analytics: ComputedAnalytics,
@@ -89,7 +92,6 @@ export function assembleReport(
 ): AssembledReport {
   const insightNarrative = extractNarrative(agentResults, "insight-generator");
   const forecastNarrative = extractNarrative(agentResults, "forecast-modeler");
-  const polishNarrative = extractNarrative(agentResults, "polish-agent");
 
   // Extract persona intelligence output (if available and not skipped)
   const personaFraming = extractPersonaFraming(agentResults);
@@ -105,11 +107,33 @@ export function assembleReport(
         headline: {
           medianPrice: analytics.market.medianPrice,
           totalProperties: analytics.market.totalProperties,
+          totalVolume: analytics.market.totalVolume,
           rating: analytics.market.rating,
           yoyPriceChange: analytics.yoy.medianPriceChange,
+          yoyVolumeChange: analytics.yoy.totalVolumeChange,
+          yoyTransactionCountChange: analytics.yoy.volumeChange,
         },
         narrative: insightNarrative?.executiveBriefing ?? null,
         confidence: analytics.confidence,
+        dataAsOfDate: analytics.dataAsOfDate ?? null,
+        metricExplainers: {
+          marketRating: "Overall market health based on growth, liquidity, and risk indicators",
+          medianPrice: "50th percentile sale price across all luxury transactions in the analysis period",
+          yoyChange: "Year-over-year change in median sale price compared to the same period last year",
+          properties: "Total luxury property transactions included in this analysis",
+        },
+        timing: {
+          buyers: (insightNarrative?.insights as Record<string, unknown>)?.executiveSummary
+            ? ((insightNarrative!.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>)?.timing
+              ? (((insightNarrative!.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>).timing as Record<string, string>).buyers ?? null
+              : null
+            : null,
+          sellers: (insightNarrative?.insights as Record<string, unknown>)?.executiveSummary
+            ? ((insightNarrative!.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>)?.timing
+              ? (((insightNarrative!.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>).timing as Record<string, string>).sellers ?? null
+              : null
+            : null,
+        },
         personaFraming,
       },
     },
@@ -124,7 +148,7 @@ export function assembleReport(
       },
     },
 
-    // Section 3: Luxury Market Dashboard (pure data)
+    // Section 3: Luxury Market Dashboard (data + narrative headline)
     {
       sectionNumber: 3,
       sectionType: "luxury_market_dashboard",
@@ -132,6 +156,7 @@ export function assembleReport(
       content: {
         dashboard: analytics.dashboard,
         detailMetrics: analytics.detailMetrics,
+        narrative: insightNarrative?.dashboardNarrative ?? null,
       },
     },
 
@@ -143,6 +168,7 @@ export function assembleReport(
       content: {
         neighborhoods: analytics.neighborhoods,
         narrative: insightNarrative?.neighborhoodAnalysis ?? null,
+        sourceAttribution: buildSourceAttribution(analytics),
       },
     },
 
@@ -186,36 +212,12 @@ export function assembleReport(
       },
     },
 
-    // Section 8: Strategic Benchmark (data + polish-agent narrative)
-    {
-      sectionNumber: 8,
-      sectionType: "strategic_benchmark",
-      title: "Strategic Benchmark",
-      content: {
-        scorecard: analytics.scorecard,
-        narrative: polishNarrative?.strategicBrief ?? null,
-        personaFraming,
-      },
-    },
-
-    // Section 9: Disclaimer & Methodology (template + confidence)
-    {
-      sectionNumber: 9,
-      sectionType: "disclaimer_methodology",
-      title: "Disclaimer & Methodology",
-      content: {
-        disclaimer: DISCLAIMER_TEXT,
-        methodology: polishNarrative?.methodology ?? null,
-        confidence: analytics.confidence,
-        dataSources: buildDataSourcesSummary(analytics),
-      },
-    },
   ];
 
-  // Section 10: Persona Intelligence Briefing (only when persona output exists)
+  // Section 8: Persona Intelligence Briefing (only when persona output exists)
   if (personaOutput) {
     sections.push({
-      sectionNumber: 10,
+      sectionNumber: 8,
       sectionType: "persona_intelligence",
       title: "Persona Intelligence Briefing",
       content: {
@@ -284,6 +286,23 @@ function extractPersonaFraming(
 }
 
 /**
+ * Build source attribution string for section 4 (Neighborhood Intelligence).
+ * Returns null if no transaction data exists.
+ */
+function buildSourceAttribution(analytics: ComputedAnalytics): string | null {
+  if (analytics.neighborhoods.length === 0 || analytics.market.totalProperties === 0) {
+    return null;
+  }
+
+  const count = analytics.market.totalProperties;
+  const dateStr = analytics.dataAsOfDate
+    ? `, through ${new Date(analytics.dataAsOfDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`
+    : "";
+
+  return `Analysis of ${count} transactions via RealEstateAPI${dateStr}`;
+}
+
+/**
  * Extract PersonaIntelligenceOutput from agent results.
  * Returns null if persona-intelligence agent didn't run, was skipped, or has no output.
  */
@@ -303,37 +322,3 @@ function extractPersonaIntelligenceOutput(
   return output;
 }
 
-function buildDataSourcesSummary(
-  analytics: ComputedAnalytics
-): Array<{ name: string; status: string }> {
-  const sources: Array<{ name: string; status: string }> = [
-    {
-      name: "RealEstateAPI (Property Search)",
-      status: analytics.confidence.staleDataSources.some((s) =>
-        s.includes("search")
-      )
-        ? "stale"
-        : "fresh",
-    },
-    {
-      name: "RealEstateAPI (Property Detail)",
-      status: analytics.confidence.staleDataSources.some((s) =>
-        s.includes("detail")
-      )
-        ? "stale"
-        : analytics.confidence.detailCoverage > 0
-          ? "fresh"
-          : "unavailable",
-    },
-    {
-      name: "ScrapingDog (Local Search)",
-      status: analytics.confidence.staleDataSources.some((s) =>
-        s.includes("scrapingdog")
-      )
-        ? "stale"
-        : "fresh",
-    },
-  ];
-
-  return sources;
-}

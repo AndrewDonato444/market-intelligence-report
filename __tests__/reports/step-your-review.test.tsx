@@ -228,7 +228,10 @@ describe("Step 5: Review & Generate (#156)", () => {
     it("CMP-156-12: auto-generates title from market and tier", async () => {
       renderReview();
       const titleInput = screen.getByLabelText("Report title") as HTMLInputElement;
-      expect(titleInput.value).toBe("Naples Luxury Market Intelligence Report");
+      // Title now uses quarterly naming convention: {City} {Tier} Market Intelligence — Q{N} {Year}
+      const now = new Date();
+      const quarter = Math.floor(now.getMonth() / 3) + 1;
+      expect(titleInput.value).toBe(`Naples Luxury Market Intelligence \u2014 Q${quarter} ${now.getFullYear()}`);
     });
 
     it("CMP-156-13: title is editable", async () => {

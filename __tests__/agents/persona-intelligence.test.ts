@@ -139,7 +139,7 @@ function buildContext(overrides: Partial<AgentContext> = {}): AgentContext {
     upstreamResults: {
       "insight-generator": { agentName: "insight-generator", sections: [], metadata: { insights: { overview: { narrative: "Naples ultra-luxury shows resilience", highlights: [], recommendations: [] }, themes: [{ name: "Ultra-Luxury Resilience", impact: "high", trend: "up", narrative: "Strong demand" }], executiveSummary: { narrative: "Strong market", highlights: [], timing: { buyers: "Act now", sellers: "Favorable" } } }, executiveBriefing: "Naples ultra-luxury shows resilience", themes: ["Ultra-Luxury Resilience"] }, durationMs: 5000 },
       "forecast-modeler": { agentName: "forecast-modeler", sections: [], metadata: { forecast: { projections: [], scenarios: [] }, guidance: "Positive outlook" }, durationMs: 4000 },
-      "polish-agent": { agentName: "polish-agent", sections: [], metadata: { strategicBrief: "Market positioned for growth", methodology: "Data-driven approach" }, durationMs: 3000 },
+      "polish-agent": { agentName: "polish-agent", sections: [], metadata: { methodology: "Data-driven approach" }, durationMs: 3000 },
     },
     abortSignal: new AbortController().signal,
     computedAnalytics: { market: a.market, segments: a.segments, yoy: a.yoy, confidence: { ...a.confidence, detailCoverage: 0.8 }, insightsIndex: { overall: "A", segments: {} }, dashboard: {}, detailMetrics: {}, neighborhoods: [], peerComparisons: [], peerRankings: [], scorecard: {} } as any,

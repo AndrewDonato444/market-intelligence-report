@@ -105,7 +105,9 @@ describe("User Entitlement Model — Value Conventions", () => {
       "reports_per_month",
       "markets_created",
       "social_media_kits",
+      "email_campaigns",
       "personas_per_report",
+      "transaction_limit",
     ];
     validKeys.forEach((key) => {
       const override = { entitlementType: key, value: 10 };
@@ -216,13 +218,15 @@ describe("User Entitlement Model — Existing Schema Preserved", () => {
     expect(schema.subscriptionTiers).toBeDefined();
   });
 
-  it("TierEntitlements type still has all four keys", () => {
+  it("TierEntitlements type still has all required keys", () => {
     const entitlements: schema.TierEntitlements = {
       reports_per_month: 1,
       markets_created: 1,
       social_media_kits: 0,
+      email_campaigns: 0,
       personas_per_report: 1,
+      transaction_limit: 100,
     };
-    expect(Object.keys(entitlements)).toHaveLength(4);
+    expect(Object.keys(entitlements)).toHaveLength(6);
   });
 });

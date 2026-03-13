@@ -1,4 +1,4 @@
-import { median, average, clamp, percentChange } from "@/lib/utils/math";
+import { median, average, clamp, percentChange, removeOutliers } from "@/lib/utils/math";
 
 describe("Math Utilities", () => {
   describe("median", () => {
@@ -58,6 +58,41 @@ describe("Math Utilities", () => {
 
     it("clamps to max", () => {
       expect(clamp(15, 0, 10)).toBe(10);
+    });
+  });
+
+  describe("removeOutliers", () => {
+    it("UT-MATH-01 | returns input unchanged when fewer than 4 values", () => {
+      expect(removeOutliers([1, 2, 3])).toEqual([1, 2, 3]);
+    });
+
+    it("UT-MATH-02 | removes extreme outliers from dataset", () => {
+      const data = [10, 11, 12, 13, 14, 15, 500];
+      const result = removeOutliers(data);
+      expect(result).not.toContain(500);
+      expect(result.length).toBeLessThan(data.length);
+    });
+
+    it("UT-MATH-03 | keeps all values when no outliers exist", () => {
+      const data = [10, 11, 12, 13, 14];
+      const result = removeOutliers(data);
+      expect(result).toEqual([10, 11, 12, 13, 14]);
+    });
+
+    it("UT-MATH-04 | respects custom k parameter for wider/narrower fences", () => {
+      const data = [10, 11, 12, 13, 14, 15, 100];
+      // With k=1.5 (default), 100 should be removed
+      expect(removeOutliers(data, 1.5)).not.toContain(100);
+      // With k=100 (extremely wide), nothing removed
+      expect(removeOutliers(data, 100)).toContain(100);
+    });
+
+    it("UT-MATH-05 | handles luxury real estate price outliers", () => {
+      // Simulates the $403M outlier bug
+      const prices = [10e6, 12e6, 11e6, 13e6, 9e6, 403e6];
+      const filtered = removeOutliers(prices, 2.0);
+      expect(filtered).not.toContain(403e6);
+      expect(filtered.length).toBe(5);
     });
   });
 

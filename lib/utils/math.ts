@@ -24,6 +24,28 @@ export function clamp(value: number, min: number, max: number): number {
 }
 
 /**
+ * Remove outliers using IQR (interquartile range) method.
+ * Returns values within [Q1 - k*IQR, Q3 + k*IQR].
+ * Default k=1.5 is the standard Tukey fence.
+ * Requires at least 4 values to compute quartiles; returns input unchanged otherwise.
+ */
+export function removeOutliers(values: number[], k = 1.5): number[] {
+  if (values.length < 4) return values;
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const q1Idx = Math.floor(sorted.length * 0.25);
+  const q3Idx = Math.floor(sorted.length * 0.75);
+  const q1 = sorted[q1Idx];
+  const q3 = sorted[q3Idx];
+  const iqr = q3 - q1;
+
+  const lower = q1 - k * iqr;
+  const upper = q3 + k * iqr;
+
+  return sorted.filter((v) => v >= lower && v <= upper);
+}
+
+/**
  * Calculate percentage change between two values.
  * Returns null if prior is zero or either value is null.
  */

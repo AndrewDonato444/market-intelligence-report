@@ -8,6 +8,7 @@ jest.mock("@/lib/config/env", () => ({
   env: {
     REALESTATEAPI_KEY: "test-reapi-key",
     SCRAPINGDOG_API_KEY: "test-sd-key",
+    XAI_API_KEY: "test-xai-key",
   },
 }));
 
@@ -30,11 +31,12 @@ beforeEach(() => {
 // --- SVC-DSR-01: Registry initialization ---
 
 describe("SVC-DSR-01: Registry initialization", () => {
-  test("default registry has realestateapi and scrapingdog registered", () => {
+  test("default registry has realestateapi, scrapingdog, and grok registered", () => {
     const sources = registry.getAll();
-    expect(sources).toHaveLength(2);
+    expect(sources).toHaveLength(3);
     expect(sources.map((s) => s.name)).toContain("realestateapi");
     expect(sources.map((s) => s.name)).toContain("scrapingdog");
+    expect(sources.map((s) => s.name)).toContain("grok");
   });
 
   test("each connector has required metadata", () => {
@@ -141,11 +143,18 @@ describe("SVC-DSR-03: Health checks", () => {
     });
     // ScrapingDog fails
     mockFetch.mockRejectedValueOnce(new Error("Unauthorized"));
+    // Grok succeeds
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ status: "ok" }),
+    });
 
     const results = await registry.checkAllHealth();
-    expect(Object.keys(results)).toHaveLength(2);
+    expect(Object.keys(results)).toHaveLength(3);
     expect(results["realestateapi"].status).toBe("healthy");
     expect(results["scrapingdog"].status).toBe("unhealthy");
+    expect(results["grok"].status).toBe("healthy");
   });
 
   test("getHealthSnapshot returns last cached health", async () => {
@@ -216,12 +225,17 @@ describe("SVC-DSR-05: Serialization", () => {
       json: async () => ({ status: "ok" }),
     });
     mockFetch.mockRejectedValueOnce(new Error("fail"));
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      status: 200,
+      json: async () => ({ status: "ok" }),
+    });
 
     await registry.checkAllHealth();
 
     const json = registry.toJSON();
     expect(Array.isArray(json)).toBe(true);
-    expect(json.length).toBe(2);
+    expect(json.length).toBe(3);
 
     const reapi = json.find((s) => s.name === "realestateapi");
     expect(reapi).toBeDefined();

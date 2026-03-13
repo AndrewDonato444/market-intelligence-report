@@ -13,7 +13,7 @@ import type { CompiledMarketData, PeerMarketData } from "@/lib/services/data-fet
 import type { PropertySummary, PropertyDetail } from "@/lib/connectors/realestateapi";
 import type { NewsArticle } from "@/lib/connectors/scrapingdog";
 import type { XSentimentBrief } from "@/lib/connectors/grok";
-import { median, average, clamp, percentChange } from "@/lib/utils/math";
+import { median, average, clamp, percentChange, removeOutliers } from "@/lib/utils/math";
 
 // Re-export computation functions from data-analyst for backward compat
 export {
@@ -58,9 +58,8 @@ export interface ComputedAnalytics {
 
   /** Section 3: Luxury Market Dashboard — tiered indicators */
   dashboard: {
-    powerFive: DashboardIndicator[];
-    tierTwo: DashboardIndicator[];
-    tierThree: DashboardIndicator[];
+    powerFour: DashboardIndicator[];
+    supportingMetrics: DashboardIndicator[];
   };
 
   /** Section 4: Neighborhood breakdowns */
@@ -92,6 +91,9 @@ export interface ComputedAnalytics {
 
   /** Metrics derived from PropertyDetail records */
   detailMetrics: DetailDerivedMetrics;
+
+  /** Most recent transaction sale date in the dataset (ISO string) — for data freshness display */
+  dataAsOfDate: string | null;
 }
 
 export interface DimensionScore {
@@ -107,7 +109,7 @@ export interface DashboardIndicator {
   value: number | string | null;
   trend: "up" | "down" | "flat" | null;
   trendValue: number | null;
-  category: "power_five" | "tier_two" | "tier_three";
+  category: "power_four" | "supporting";
 }
 
 export interface NeighborhoodBreakdown {
@@ -219,6 +221,9 @@ export function computeMarketAnalytics(
   // --- Scorecard (Section 8) ---
   const scorecard = computeScorecard(segments, yoy);
 
+  // --- Data freshness (most recent sale date) ---
+  const dataAsOfDate = computeDataAsOfDate(properties);
+
   return {
     market: marketMetrics,
     segments,
@@ -236,7 +241,21 @@ export function computeMarketAnalytics(
     scorecard,
     confidence,
     detailMetrics,
+    dataAsOfDate,
   };
+}
+
+// --- Data freshness ---
+
+export function computeDataAsOfDate(properties: PropertySummary[]): string | null {
+  let latest: Date | null = null;
+  for (const prop of properties) {
+    if (!prop.lastSaleDate) continue;
+    const d = new Date(prop.lastSaleDate);
+    if (isNaN(d.getTime())) continue;
+    if (!latest || d > latest) latest = d;
+  }
+  return latest ? latest.toISOString().slice(0, 10) : null;
 }
 
 // --- Computation helpers ---
@@ -292,18 +311,24 @@ function computeOverallMetrics(
   properties: PropertySummary[],
   yoy: YoYMetrics
 ): ComputedAnalytics["market"] {
-  const allPrices = properties
+  const rawPrices = properties
     .map((p) => p.price ?? p.lastSalePrice)
     .filter((p): p is number => p != null);
+
+  // Apply IQR outlier filtering to prices to remove wild outliers
+  // (e.g. $403M on 1 transaction). Use k=2.0 for luxury markets (wider fences).
+  const allPrices = removeOutliers(rawPrices, 2.0);
+
   const allPsf = properties
     .filter((p) => p.price != null && p.sqft != null)
     .map((p) => p.price! / p.sqft!);
+  const filteredPsf = removeOutliers(allPsf, 2.0);
 
   return {
     totalProperties: properties.length,
     medianPrice: median(allPrices),
     averagePrice: average(allPrices),
-    medianPricePerSqft: allPsf.length > 0 ? median(allPsf) : null,
+    medianPricePerSqft: filteredPsf.length > 0 ? median(filteredPsf) : null,
     totalVolume: allPrices.reduce((sum, p) => sum + p, 0),
     rating: assignRating(yoy.medianPriceChange, yoy.volumeChange, properties.length),
   };
@@ -378,6 +403,11 @@ export function computeDetailYoY(
   currentDetails: PropertyDetail[],
   priorDetails: PropertyDetail[]
 ): { domChange: number | null; listToSaleChange: number | null } {
+  // Need both cohorts with at least 1 detail record to compute meaningful YoY
+  if (currentDetails.length === 0 || priorDetails.length === 0) {
+    return { domChange: null, listToSaleChange: null };
+  }
+
   const current = computeDetailMetrics(currentDetails);
   const prior = computeDetailMetrics(priorDetails);
 
@@ -464,10 +494,6 @@ function computeLiquidityScore(
   detail: DetailDerivedMetrics,
   market: ComputedAnalytics["market"]
 ): DimensionScore {
-  // Cash buyer concentration drives liquidity
-  const cashScore = detail.cashBuyerPercentage != null
-    ? clamp(detail.cashBuyerPercentage * 15, 1, 10)
-    : 5;
   // Transaction volume (more = more liquid)
   const volumeScore = clamp(Math.min(market.totalProperties / 10, 10), 1, 10);
   // Free & clear = capital independence
@@ -475,22 +501,21 @@ function computeLiquidityScore(
     ? clamp(detail.freeClearPercentage * 12, 1, 10)
     : 5;
 
-  const score = clamp(Math.round((cashScore + volumeScore + freeClearScore) / 3), 1, 10);
+  const score = clamp(Math.round((volumeScore + freeClearScore) / 2), 1, 10);
 
   // Build plain-language interpretation
   const parts: string[] = [];
-  if (detail.cashBuyerPercentage != null) {
-    const pct = Math.round(detail.cashBuyerPercentage * 100);
-    parts.push(pct >= 40 ? `High cash-buyer concentration (${pct}%) signals strong capital flow` : pct >= 20 ? `${pct}% cash buyers — moderate capital independence` : `Low cash-buyer share (${pct}%) — financing-dependent market`);
-  }
   if (market.totalProperties > 50) parts.push(`${market.totalProperties} transactions indicate active trading volume`);
   else if (market.totalProperties > 0) parts.push(`Limited transaction count (${market.totalProperties}) — thinner market`);
+  if (detail.freeClearPercentage != null) {
+    const pct = Math.round(detail.freeClearPercentage * 100);
+    parts.push(pct >= 30 ? `${pct}% free & clear ownership signals strong capital independence` : pct >= 15 ? `${pct}% free & clear — moderate capital independence` : `Low free & clear share (${pct}%) — financing-dependent market`);
+  }
 
   return {
     score,
     label: score >= 7 ? "Strong" : score >= 4 ? "Moderate" : "Weak",
     components: {
-      cashBuyerPct: detail.cashBuyerPercentage,
       transactionVolume: market.totalProperties,
       freeClearPct: detail.freeClearPercentage,
     },
@@ -618,27 +643,27 @@ export function computeDashboard(
   const trendDir = (val: number | null): "up" | "down" | "flat" | null =>
     val == null ? null : val > 0.01 ? "up" : val < -0.01 ? "down" : "flat";
 
-  const powerFive: DashboardIndicator[] = [
+  const powerFour: DashboardIndicator[] = [
     {
       name: "Median Sold Price",
       value: market.medianPrice,
       trend: trendDir(yoy.medianPriceChange),
       trendValue: yoy.medianPriceChange,
-      category: "power_five",
+      category: "power_four",
     },
     {
       name: "Median Price/SqFt",
       value: market.medianPricePerSqft,
       trend: trendDir(yoy.pricePerSqftChange),
       trendValue: yoy.pricePerSqftChange,
-      category: "power_five",
+      category: "power_four",
     },
     {
       name: "Median Days on Market",
       value: detailMetrics.medianDaysOnMarket,
       trend: trendDir(yoy.domChange),
       trendValue: yoy.domChange,
-      category: "power_five",
+      category: "power_four",
     },
     {
       name: "List-to-Sale Ratio",
@@ -647,74 +672,89 @@ export function computeDashboard(
         : null,
       trend: trendDir(yoy.listToSaleChange),
       trendValue: yoy.listToSaleChange,
-      category: "power_five",
-    },
-    {
-      name: "Transaction Volume",
-      value: market.totalProperties,
-      trend: trendDir(yoy.volumeChange),
-      trendValue: yoy.volumeChange,
-      category: "power_five",
+      category: "power_four",
     },
   ];
 
-  const tierTwo: DashboardIndicator[] = [
-    {
-      name: "Cash Buyer %",
-      value: detailMetrics.cashBuyerPercentage ?? null,
-      trend: null,
-      trendValue: null,
-      category: "tier_two",
-    },
+  const supportingMetrics: DashboardIndicator[] = [
     {
       name: "Total Sales Volume",
       value: market.totalVolume,
       trend: trendDir(yoy.totalVolumeChange),
       trendValue: yoy.totalVolumeChange,
-      category: "tier_two",
+      category: "supporting",
     },
     {
       name: "Average Price",
       value: market.averagePrice,
       trend: trendDir(yoy.averagePriceChange),
       trendValue: yoy.averagePriceChange,
-      category: "tier_two",
+      category: "supporting",
     },
     {
       name: "Property Type Split",
       value: segments.map((s) => `${s.name}: ${s.count}`).join(", "),
       trend: null,
       trendValue: null,
-      category: "tier_two",
-    },
-  ];
-
-  const tierThree: DashboardIndicator[] = [
-    {
-      name: "Flood Zone Exposure",
-      value: detailMetrics.floodZonePercentage ?? null,
-      trend: null,
-      trendValue: null,
-      category: "tier_three",
+      category: "supporting",
     },
     {
       name: "Investor Activity Rate",
       value: detailMetrics.investorBuyerPercentage ?? null,
       trend: null,
       trendValue: null,
-      category: "tier_three",
-    },
-    {
-      name: "Free & Clear %",
-      value: detailMetrics.freeClearPercentage ?? null,
-      trend: null,
-      trendValue: null,
-      category: "tier_three",
+      category: "supporting",
     },
   ];
 
-  return { powerFive, tierTwo, tierThree };
+  return { powerFour, supportingMetrics };
 }
+
+// --- Well-known zip-to-neighborhood fallback ---
+// When PropertyDetail.neighborhood.name is null (common for LA, Miami, etc.),
+// this static map provides human-readable names instead of raw zip codes.
+
+const WELL_KNOWN_ZIP_NEIGHBORHOODS: Record<string, string> = {
+  // Los Angeles
+  "90077": "Bel Air", "90210": "Beverly Hills", "90212": "Beverly Hills",
+  "90024": "Westwood", "90049": "Brentwood", "90046": "Hollywood Hills",
+  "90069": "West Hollywood", "90272": "Pacific Palisades", "90265": "Malibu",
+  "90291": "Venice", "90402": "Santa Monica", "90403": "Santa Monica",
+  "90048": "Beverly Grove", "90036": "Miracle Mile / Hancock Park",
+  "90028": "Hollywood", "90068": "Hollywood Hills", "90027": "Los Feliz",
+  "90039": "Silver Lake", "90026": "Echo Park", "90004": "Larchmont",
+  "90019": "Mid-City", "90035": "Beverlywood", "90064": "Rancho Park",
+  "90025": "West LA", "90067": "Century City", "90095": "UCLA / Westwood",
+  "90274": "Palos Verdes", "90275": "Rancho Palos Verdes",
+  "91436": "Encino", "91316": "Encino", "91356": "Tarzana",
+  "91423": "Sherman Oaks", "91403": "Sherman Oaks",
+  "91604": "Studio City", "91602": "Studio City",
+  "90041": "Eagle Rock", "90065": "Mount Washington",
+  "90032": "El Sereno", "90042": "Highland Park",
+  // Naples / SW Florida
+  "34102": "Old Naples", "34103": "Park Shore / Pelican Bay",
+  "34104": "East Naples", "34105": "Pine Ridge", "34108": "Pelican Marsh / Bay Colony",
+  "34109": "North Naples", "34110": "North Naples / Vanderbilt Beach",
+  "34112": "East Naples", "34113": "Marco Island Corridor",
+  "34119": "Livingston Corridor", "34120": "Golden Gate Estates",
+  "34134": "Bonita Springs",
+  // Miami
+  "33101": "Downtown Miami", "33109": "Key Biscayne", "33129": "Brickell",
+  "33130": "Brickell / Downtown", "33131": "Brickell", "33132": "Edgewater / Wynwood",
+  "33133": "Coconut Grove", "33137": "Wynwood / Design District",
+  "33139": "Miami Beach / South Beach", "33140": "Miami Beach / Mid-Beach",
+  "33141": "Miami Beach / Surfside", "33154": "Bal Harbour",
+  "33156": "Pinecrest", "33158": "Palmetto Bay",
+  // Palm Beach
+  "33480": "Palm Beach", "33401": "West Palm Beach",
+  // New York
+  "10065": "Upper East Side", "10021": "Upper East Side",
+  "10022": "Midtown East", "10019": "Midtown West / Hell's Kitchen",
+  "10013": "Tribeca / SoHo", "10012": "SoHo / NoHo", "10014": "West Village",
+  "10011": "Chelsea", "10023": "Upper West Side", "10024": "Upper West Side",
+  "10128": "Upper East Side / Yorkville", "10075": "Upper East Side",
+  "10007": "Financial District / Tribeca",
+};
 
 // --- Zip to Neighborhood Name ---
 
@@ -767,18 +807,34 @@ export function computeNeighborhoods(
 
   const neighborhoods: NeighborhoodBreakdown[] = [];
 
+  // Minimum sample size for per-neighborhood YoY (Bug 5 fix)
+  const NEIGHBORHOOD_MIN_SAMPLE = 3;
+
   for (const [zip, props] of byZip) {
-    const prices = props
+    const rawPrices = props
       .map((p) => p.price ?? p.lastSalePrice)
       .filter((p): p is number => p != null);
-    const psfValues = props
+
+    // Apply outlier filtering per-neighborhood (Bug 4 fix)
+    const prices = removeOutliers(rawPrices, 2.0);
+
+    const rawPsf = props
       .filter((p) => p.price != null && p.sqft != null)
       .map((p) => p.price! / p.sqft!);
+    const psfValues = removeOutliers(rawPsf, 2.0);
 
     // YoY for this neighborhood (uses splitByYear for same fallback logic)
     const { currentYearProps: currentProps, priorYearProps: priorProps } =
       splitByYear(props, currentYear);
-    const localYoY = computeYoY(currentProps, priorProps);
+
+    // Bug 5 fix: enforce per-segment MIN_SAMPLE before computing YoY.
+    // Without this, neighborhoods with 1 transaction in one year and 0 in the
+    // other produce -100% YoY which is misleading, not a real crash.
+    let yoyPriceChange: number | null = null;
+    if (currentProps.length >= NEIGHBORHOOD_MIN_SAMPLE && priorProps.length >= NEIGHBORHOOD_MIN_SAMPLE) {
+      const localYoY = computeYoY(currentProps, priorProps);
+      yoyPriceChange = localYoY.medianPriceChange;
+    }
 
     // Flatten amenities for this neighborhood (we don't have per-zip amenities,
     // so all amenities apply to the market as a whole)
@@ -790,12 +846,12 @@ export function computeNeighborhoods(
     }
 
     neighborhoods.push({
-      name: zipToNeighborhood?.get(zip) ?? zip,
+      name: zipToNeighborhood?.get(zip) ?? WELL_KNOWN_ZIP_NEIGHBORHOODS[zip] ?? zip,
       zipCode: zip,
       propertyCount: props.length,
       medianPrice: median(prices),
       medianPricePerSqft: psfValues.length > 0 ? median(psfValues) : null,
-      yoyPriceChange: localYoY.medianPriceChange,
+      yoyPriceChange,
       amenities: flatAmenities,
     });
   }

@@ -54,6 +54,7 @@ type SubscriptionData = {
     reports: EntitlementData;
     markets: EntitlementData;
     socialMediaKits: EntitlementData;
+    emailCampaigns: EntitlementData;
     personasPerReport: EntitlementData;
   };
   billingPeriod: { start: string; end: string };
@@ -64,6 +65,7 @@ type SubscriptionData = {
       reports_per_month: number;
       markets_created: number;
       social_media_kits: number;
+      email_campaigns: number;
       personas_per_report: number;
     };
   } | null;
@@ -79,6 +81,7 @@ function makeProps(overrides: Partial<SubscriptionData> = {}): SubscriptionData 
       reports: { used: 7, limit: 10, remaining: 3 },
       markets: { used: 2, limit: 3, remaining: 1 },
       socialMediaKits: { used: 0, limit: 1, remaining: 1 },
+      emailCampaigns: { used: 0, limit: 1, remaining: 1 },
       personasPerReport: { used: 0, limit: 3, remaining: 3 },
     },
     billingPeriod: { start: "2026-03-01", end: "2026-03-31" },
@@ -137,6 +140,7 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 0, limit: 2, remaining: 2 },
             markets: { used: 0, limit: 1, remaining: 1 },
             socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+            emailCampaigns: { used: 0, limit: 0, remaining: 0 },
             personasPerReport: { used: 0, limit: 1, remaining: 1 },
           },
         })
@@ -193,7 +197,9 @@ describe("CMP-AB: Account & Billing Page", () => {
   describe("Scenario: Social media kit included", () => {
     it("CMP-AB-13: shows Included (1 per report) for Professional tier", () => {
       renderAccountSettings(makeProps());
-      expect(screen.getByText(/Included \(1 per report\)/)).toBeInTheDocument();
+      // Both social media kits and email campaigns show "Included (1 per report)"
+      const matches = screen.getAllByText(/Included \(1 per report\)/);
+      expect(matches.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -207,16 +213,19 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 0, limit: 2, remaining: 2 },
             markets: { used: 0, limit: 1, remaining: 1 },
             socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+            emailCampaigns: { used: 0, limit: 0, remaining: 0 },
             personasPerReport: { used: 0, limit: 1, remaining: 1 },
           },
           nextTier: {
             name: "Professional",
             displayPrice: "$199/mo",
-            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, personas_per_report: 3 },
+            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, email_campaigns: 1, personas_per_report: 3 },
           },
         })
       );
-      expect(screen.getByText(/Not included in your plan/)).toBeInTheDocument();
+      // Both social media kits and email campaigns show "Not included in your plan"
+      const matches = screen.getAllByText(/Not included in your plan/);
+      expect(matches.length).toBeGreaterThanOrEqual(1);
     });
 
     it("CMP-AB-15: shows upgrade prompt for social media kits", () => {
@@ -228,16 +237,19 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 0, limit: 2, remaining: 2 },
             markets: { used: 0, limit: 1, remaining: 1 },
             socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+            emailCampaigns: { used: 0, limit: 0, remaining: 0 },
             personasPerReport: { used: 0, limit: 1, remaining: 1 },
           },
           nextTier: {
             name: "Professional",
             displayPrice: "$199/mo",
-            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, personas_per_report: 3 },
+            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, email_campaigns: 1, personas_per_report: 3 },
           },
         })
       );
-      expect(screen.getByText(/Upgrade to Professional/)).toBeInTheDocument();
+      // Both social media and email show upgrade text
+      const matches = screen.getAllByText(/Upgrade to Professional/);
+      expect(matches.length).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -251,6 +263,7 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 0, limit: 2, remaining: 2 },
             markets: { used: 0, limit: 1, remaining: 1 },
             socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+            emailCampaigns: { used: 0, limit: 0, remaining: 0 },
             personasPerReport: { used: 0, limit: 1, remaining: 1 },
           },
         })
@@ -269,12 +282,13 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 2, limit: 2, remaining: 0 },
             markets: { used: 1, limit: 1, remaining: 0 },
             socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+            emailCampaigns: { used: 0, limit: 0, remaining: 0 },
             personasPerReport: { used: 0, limit: 1, remaining: 1 },
           },
           nextTier: {
             name: "Professional",
             displayPrice: "$199/mo",
-            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, personas_per_report: 3 },
+            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, email_campaigns: 1, personas_per_report: 3 },
           },
         })
       );
@@ -294,12 +308,13 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 2, limit: 2, remaining: 0 },
             markets: { used: 1, limit: 1, remaining: 0 },
             socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+            emailCampaigns: { used: 0, limit: 0, remaining: 0 },
             personasPerReport: { used: 0, limit: 1, remaining: 1 },
           },
           nextTier: {
             name: "Professional",
             displayPrice: "$199/mo",
-            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, personas_per_report: 3 },
+            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, email_campaigns: 1, personas_per_report: 3 },
           },
         })
       );
@@ -315,12 +330,13 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 2, limit: 2, remaining: 0 },
             markets: { used: 1, limit: 1, remaining: 0 },
             socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+            emailCampaigns: { used: 0, limit: 0, remaining: 0 },
             personasPerReport: { used: 0, limit: 1, remaining: 1 },
           },
           nextTier: {
             name: "Professional",
             displayPrice: "$199/mo",
-            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, personas_per_report: 3 },
+            entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, email_campaigns: 1, personas_per_report: 3 },
           },
         })
       );
@@ -336,6 +352,7 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 9, limit: 10, remaining: 1 },
             markets: { used: 2, limit: 3, remaining: 1 },
             socialMediaKits: { used: 0, limit: 1, remaining: 1 },
+            emailCampaigns: { used: 0, limit: 1, remaining: 1 },
             personasPerReport: { used: 0, limit: 3, remaining: 3 },
           },
         })
@@ -354,6 +371,7 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 9, limit: 10, remaining: 1 },
             markets: { used: 2, limit: 3, remaining: 1 },
             socialMediaKits: { used: 0, limit: 1, remaining: 1 },
+            emailCampaigns: { used: 0, limit: 1, remaining: 1 },
             personasPerReport: { used: 0, limit: 3, remaining: 3 },
           },
         })
@@ -372,6 +390,7 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 42, limit: -1, remaining: -1 },
             markets: { used: 5, limit: -1, remaining: -1 },
             socialMediaKits: { used: 0, limit: -1, remaining: -1 },
+            emailCampaigns: { used: 0, limit: -1, remaining: -1 },
             personasPerReport: { used: 0, limit: 3, remaining: 3 },
           },
         })
@@ -388,6 +407,7 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 42, limit: -1, remaining: -1 },
             markets: { used: 5, limit: -1, remaining: -1 },
             socialMediaKits: { used: 0, limit: -1, remaining: -1 },
+            emailCampaigns: { used: 0, limit: -1, remaining: -1 },
             personasPerReport: { used: 0, limit: 3, remaining: 3 },
           },
         })
@@ -404,6 +424,7 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 42, limit: -1, remaining: -1 },
             markets: { used: 5, limit: -1, remaining: -1 },
             socialMediaKits: { used: 0, limit: -1, remaining: -1 },
+            emailCampaigns: { used: 0, limit: -1, remaining: -1 },
             personasPerReport: { used: 0, limit: 3, remaining: 3 },
           },
         })
@@ -439,12 +460,13 @@ describe("CMP-AB: Account & Billing Page", () => {
         reports: { used: 2, limit: 2, remaining: 0 },
         markets: { used: 1, limit: 1, remaining: 0 },
         socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+        emailCampaigns: { used: 0, limit: 0, remaining: 0 },
         personasPerReport: { used: 0, limit: 1, remaining: 1 },
       },
       nextTier: {
         name: "Professional",
         displayPrice: "$199/mo",
-        entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, personas_per_report: 3 },
+        entitlements: { reports_per_month: 10, markets_created: 3, social_media_kits: 1, email_campaigns: 1, personas_per_report: 3 },
       },
     });
 
@@ -480,6 +502,7 @@ describe("CMP-AB: Account & Billing Page", () => {
             reports: { used: 3, limit: 5, remaining: 2 },
             markets: { used: 0, limit: 1, remaining: 1 },
             socialMediaKits: { used: 0, limit: 0, remaining: 0 },
+            emailCampaigns: { used: 0, limit: 0, remaining: 0 },
             personasPerReport: { used: 0, limit: 1, remaining: 1 },
           },
         })

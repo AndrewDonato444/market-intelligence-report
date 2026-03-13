@@ -95,6 +95,74 @@ Tests added to prevent recurrence of 5 critical bugs found during the full drift
 
 ---
 
+## Bug 7: "At a Glance" Shows All Zeros (PDF Template Path Mismatch)
+
+**Root Cause**: `insights-index.tsx` PDF template read flat fields like `execContent?.medianPrice`, but `report-assembler.ts` nests them under `headline` object (`execContent?.headline?.medianPrice`). Also missing `totalVolume`, `yoyVolumeChange`, `yoyTransactionCountChange` fields from assembler.
+
+**Fix**: Updated PDF template to read from `headline` nested object. Added missing fields to report-assembler headline output.
+
+| ID | Test | File |
+|----|------|------|
+| SVC-RA-01 | Regression: headline includes totalVolume, yoyVolumeChange, yoyTransactionCountChange | `__tests__/agents/report-assembler.test.ts` |
+
+---
+
+## Bug 8: Neighborhood Names Show Raw Zip Codes
+
+**Root Cause**: `buildZipToNeighborhoodMap()` falls back to the raw zip code when the API doesn't return `neighborhood.name`. Many luxury zips (90210, 90077, etc.) had no neighborhood resolution.
+
+**Fix**: Added `WELL_KNOWN_ZIP_NEIGHBORHOODS` static map (~70 entries for LA, Naples, Miami, Palm Beach, NYC) as intermediate fallback before raw zip.
+
+| ID | Test | File |
+|----|------|------|
+| SVC-MA-01 | Regression: well-known zip returns neighborhood name (Beverly Hills, Bel Air) | `__tests__/services/market-analytics.test.ts` |
+| SVC-MA-02 | Regression: unknown zip falls back to zip code | `__tests__/services/market-analytics.test.ts` |
+
+---
+
+## Bug 9: Days on Market / List-to-Sale = N/A (Empty Detail Cohorts)
+
+**Root Cause**: Small detail samples with uneven period splits cause null `percentChange` when one cohort is empty. `computeDetailYoY` didn't guard against empty arrays before computing averages.
+
+**Fix**: Added early return with `{ domChange: null, listToSaleChange: null }` when either cohort is empty.
+
+| ID | Test | File |
+|----|------|------|
+| SVC-MA-03 | Regression: returns null domChange/listToSaleChange when prior cohort is empty | `__tests__/services/market-analytics.test.ts` |
+| SVC-MA-04 | Regression: returns null when current cohort is empty | `__tests__/services/market-analytics.test.ts` |
+
+---
+
+## Bug 10: Wild Outlier Prices ($403M on 1 Transaction)
+
+**Root Cause**: No outlier filtering in the computation pipeline. Single anomalous records (e.g. $403M) distort median, average, and volume calculations.
+
+**Fix**: Added `removeOutliers()` IQR-based filter to `lib/utils/math.ts` (Tukey fences with k=2.0 for luxury markets). Applied in `computeOverallMetrics` and per-neighborhood price/PSF calculations.
+
+| ID | Test | File |
+|----|------|------|
+| UT-MATH-01 | returns input unchanged when fewer than 4 values | `__tests__/utils/math.test.ts` |
+| UT-MATH-02 | removes extreme outliers from dataset | `__tests__/utils/math.test.ts` |
+| UT-MATH-03 | keeps all values when no outliers exist | `__tests__/utils/math.test.ts` |
+| UT-MATH-04 | respects custom k parameter for wider/narrower fences | `__tests__/utils/math.test.ts` |
+| UT-MATH-05 | handles luxury real estate price outliers ($403M) | `__tests__/utils/math.test.ts` |
+| SVC-MA-05 | Regression: outlier prices do not skew median | `__tests__/services/market-analytics.test.ts` |
+
+---
+
+## Bug 11: -100.0% YoY on Many Neighborhoods (MIN_SAMPLE Not Enforced)
+
+**Root Cause**: Per-neighborhood YoY was computed even with 1 transaction in one year and 0 in another, producing misleading -100% changes. No minimum sample size was enforced at the neighborhood level.
+
+**Fix**: Added `NEIGHBORHOOD_MIN_SAMPLE = 3` check before calling `computeYoY` per-neighborhood. Insufficient samples return `yoyPriceChange: null` instead of -100%.
+
+| ID | Test | File |
+|----|------|------|
+| SVC-MA-06 | Regression: tiny samples show null YoY instead of -100% | `__tests__/services/market-analytics.test.ts` |
+| SVC-MA-07 | Regression: sufficient samples (3+3) compute YoY normally | `__tests__/services/market-analytics.test.ts` |
+
+---
+
 ## Summary
 
 | Bug | Regression Tests | Status |
@@ -105,4 +173,9 @@ Tests added to prevent recurrence of 5 critical bugs found during the full drift
 | reportMetrics type mismatch | 2 tests | All pass |
 | Admin data-sources missing auth | 6 tests | All pass |
 | REAPI property type validation | 9 tests | All pass |
-| **Total** | **25 regression tests** | **All pass** |
+| At a Glance shows all zeros | 1 test | All pass |
+| Neighborhood names show raw zips | 2 tests | All pass |
+| Detail YoY empty cohorts | 2 tests | All pass |
+| Wild outlier prices | 6 tests | All pass |
+| Per-neighborhood MIN_SAMPLE | 2 tests | All pass |
+| **Total** | **38 regression tests** | **All pass** |

@@ -67,13 +67,22 @@ export const socialMediaKitStatusEnum = pgEnum("social_media_kit_status", [
   "failed",
 ]);
 
+export const emailCampaignStatusEnum = pgEnum("email_campaign_status", [
+  "queued",
+  "generating",
+  "completed",
+  "failed",
+]);
+
 // --- Tier Entitlements Type ---
 
 export type TierEntitlements = {
   reports_per_month: number;    // -1 = unlimited
   markets_created: number;      // -1 = unlimited
   social_media_kits: number;    // 0 = not included, 1 = per-report, -1 = unlimited
+  email_campaigns: number;      // 0 = not included, 1 = per-report, -1 = unlimited
   personas_per_report: number;  // always numeric (1 or 3)
+  transaction_limit: number;    // max transactions per search period (-1 = unlimited)
 };
 
 // --- Subscription Tiers Table ---
@@ -725,3 +734,141 @@ export const usageRecords = pgTable(
 
 export type UsageRecordsTable = typeof usageRecords.$inferSelect;
 export type NewUsageRecord = typeof usageRecords.$inferInsert;
+
+// --- Email Campaign Content Types ---
+
+export type DripEmail = {
+  sequenceOrder: number;
+  dayOffset: number;
+  subject: string;
+  previewText: string;
+  body: string;
+  cta: string;
+  reportSection: string;
+};
+
+export type NewsletterContent = {
+  headline: string;
+  subheadline: string;
+  contentBlocks: Array<{
+    heading: string;
+    body: string;
+    keyMetric: string;
+  }>;
+  footerCta: string;
+};
+
+export type PersonaEmail = {
+  personaSlug: string;
+  personaName: string;
+  subject: string;
+  previewText: string;
+  body: string;
+  cta: string;
+  vocabularyUsed: string[];
+};
+
+export type SubjectLineSet = {
+  emailContext: string;
+  variants: Array<{
+    style: string;
+    subject: string;
+    previewText: string;
+  }>;
+};
+
+export type CtaBlock = {
+  context: string;
+  buttonText: string;
+  supportingCopy: string;
+  placement: string;
+};
+
+export type ReEngagementEmail = {
+  hook: string;
+  body: string;
+  cta: string;
+  tone: string;
+};
+
+export type EmailCampaignContent = {
+  dripSequence: DripEmail[];
+  newsletter: NewsletterContent;
+  personaEmails: PersonaEmail[];
+  subjectLines: SubjectLineSet[];
+  ctaBlocks: CtaBlock[];
+  reEngagementEmails: ReEngagementEmail[];
+};
+
+// --- Email Campaigns Table ---
+
+export const emailCampaigns = pgTable(
+  "email_campaigns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    status: emailCampaignStatusEnum("status").notNull().default("queued"),
+    content: jsonb("content").$type<EmailCampaignContent>(),
+    errorMessage: text("error_message"),
+    generatedAt: timestamp("generated_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("email_campaigns_report_id_idx").on(table.reportId),
+    index("email_campaigns_user_id_idx").on(table.userId),
+    index("email_campaigns_status_idx").on(table.status),
+    uniqueIndex("email_campaigns_report_id_unique").on(table.reportId),
+  ]
+);
+
+export type EmailCampaignsTable = typeof emailCampaigns.$inferSelect;
+export type NewEmailCampaign = typeof emailCampaigns.$inferInsert;
+
+// --- Advisor Conversation Types ---
+
+export type AdvisorMessage = {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string; // ISO 8601
+};
+
+// --- Advisor Conversations Table ---
+
+export const advisorConversations = pgTable(
+  "advisor_conversations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    messages: jsonb("messages").notNull().$type<AdvisorMessage[]>().default([]),
+    turnCount: integer("turn_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("advisor_conversations_report_id_idx").on(table.reportId),
+    index("advisor_conversations_user_id_idx").on(table.userId),
+  ]
+);
+
+export type AdvisorConversationsTable =
+  typeof advisorConversations.$inferSelect;
+export type NewAdvisorConversation = typeof advisorConversations.$inferInsert;

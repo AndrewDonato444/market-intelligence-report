@@ -75,12 +75,12 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
     ],
     yoy: { medianPriceChange: 0.08, volumeChange: 0.12, pricePerSqftChange: 0.05, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null },
     insightsIndex: {
-      liquidity: { score: 7, label: "Strong", components: { cashBuyerPct: 0.54, transactionVolume: 120 } },
+      liquidity: { score: 7, label: "Strong", components: { transactionVolume: 120, freeClearPct: 0.45 } },
       timing: { score: 6, label: "Favorable", components: {} },
       risk: { score: 7, label: "Low Risk", components: {} },
       value: { score: 6, label: "Moderate Opportunity", components: {} },
     },
-    dashboard: { powerFive: [], tierTwo: [], tierThree: [] },
+    dashboard: { powerFour: [], supportingMetrics: [] },
     neighborhoods: [
       { name: "Starwood", zipCode: "81611", propertyCount: 18, medianPrice: 8500000, medianPricePerSqft: 2200, yoyPriceChange: 0.06, amenities: [] },
       { name: "Red Mountain", zipCode: "81612", propertyCount: 15, medianPrice: 12000000, medianPricePerSqft: 2800, yoyPriceChange: 0.1, amenities: [] },
@@ -92,6 +92,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
     confidence: { level: "high", sampleSize: 120, detailCoverage: 0.8, staleDataSources: [] },
     news: { targetMarket: [], peerMarkets: {} },
     detailMetrics: { medianDaysOnMarket: 128, cashBuyerPercentage: 0.54, listToSaleRatio: 0.96, floodZonePercentage: 0.02, investorBuyerPercentage: 0.18, freeClearPercentage: 0.45 },
+    dataAsOfDate: null,
     ...overrides,
   };
 }

@@ -45,6 +45,7 @@ export interface InsightGeneratorOutput {
   editorial: {
     narrative: string;
   };
+  dashboardNarrative: string;
 }
 
 export interface InsightTheme {
@@ -137,7 +138,7 @@ CONTRARIAN FRAMING:
 
 SECTION DIFFERENTIATION RULES (CRITICAL — each output field has a distinct analytical job):
 - "overview" = Executive Briefing: The 30-second board-room summary. Lead with the single most important finding, then market vital signs. This is the WHAT.
-- "neighborhoodAnalysis" = Neighborhood Intelligence: Ground-level data. Specific neighborhoods, property-type breakdowns, micro-market patterns. This is the RAW EVIDENCE.
+- "neighborhoodAnalysis" = Neighborhood Intelligence: 2-4 sentences maximum of cross-neighborhood pattern analysis. Lead with the most notable micro-market pattern, include one contrarian or surprising finding. Do NOT restate per-neighborhood numbers visible in the data table (median prices, counts, YoY %). Focus on relative positioning, migration signals, and micro-market dynamics. This is the INTERPRETIVE LAYER on top of the raw data table.
 - "editorial" = The Narrative: Strategic interpretation and thematic synthesis. Connect the dots between segments. Explain WHY the data looks the way it does. This is the INTERPRETATION.
 - "executiveSummary" = Executive Summary: Actionable conclusions and timing. What should the agent DO with this information? This is the SO-WHAT.
 - DO NOT repeat the same finding, sentence, or data point across sections. Each section must advance the analysis. If a metric appears in the overview, the editorial must interpret it differently, not restate it.
@@ -229,7 +230,7 @@ DATA CONFIDENCE: ${analysis.confidence.level} (sample: ${analysis.confidence.sam
 ${analysis.confidence.staleDataSources.length > 0 ? `STALE SOURCES: ${analysis.confidence.staleDataSources.join(", ")}` : ""}
 ${insufficientData ? "\n⚠️ INSUFFICIENT DATA: Provide caveated analysis. Do not fabricate specific numbers." : ""}
 ${neighborhoods && neighborhoods.length > 0 ? `\nNEIGHBORHOOD BREAKDOWN:\n${neighborhoods.slice(0, 8).map((n) => `  - ${n.name}: ${n.propertyCount} properties, median ${formatCurrency(n.medianPrice)}${n.medianPricePerSqft ? `, $${n.medianPricePerSqft}/sqft` : ""}${n.yoyPriceChange != null ? `, YoY ${formatPercent(n.yoyPriceChange)}` : ""}`).join("\n")}` : ""}
-${detailMetrics ? `\nDETAIL METRICS:\n- Median Days on Market: ${detailMetrics.medianDaysOnMarket ?? "N/A"}\n- List-to-Sale Ratio: ${detailMetrics.listToSaleRatio != null ? `${(detailMetrics.listToSaleRatio * 100).toFixed(1)}%` : "N/A"}\n- Cash Buyer %: ${detailMetrics.cashBuyerPercentage != null ? `${(detailMetrics.cashBuyerPercentage * 100).toFixed(1)}%` : "N/A"}\n- Flood Zone %: ${detailMetrics.floodZonePercentage != null ? `${(detailMetrics.floodZonePercentage * 100).toFixed(1)}%` : "N/A"}` : ""}
+${detailMetrics ? `\nDETAIL METRICS:\n- Median Days on Market: ${detailMetrics.medianDaysOnMarket ?? "N/A"}\n- List-to-Sale Ratio: ${detailMetrics.listToSaleRatio != null ? `${(detailMetrics.listToSaleRatio * 100).toFixed(1)}%` : "N/A"}\n- Flood Zone %: ${detailMetrics.floodZonePercentage != null ? `${(detailMetrics.floodZonePercentage * 100).toFixed(1)}%` : "N/A"}` : ""}
 ${news && news.targetMarket.length > 0 ? `\nRECENT NEWS:\n${formatNewsForPrompt(news.targetMarket)}` : ""}
 ${xSentiment ? `\nX SOCIAL SENTIMENT (from real-time X/Twitter posts via Grok):\n${formatXSentimentForPrompt(xSentiment)}` : ""}
 
@@ -249,7 +250,7 @@ Respond with a JSON object matching this exact schema:
     }
   ],
   "neighborhoodAnalysis": {
-    "narrative": "1-2 paragraphs of ground-level neighborhood intelligence — the RAW EVIDENCE (specific neighborhoods, property-type breakdowns, micro-market patterns, data-dense). Do NOT repeat the overview narrative."
+    "narrative": "2-4 sentences maximum of neighborhood intelligence. Lead with the single most important cross-neighborhood pattern. Include one contrarian or surprising neighborhood-level finding. Do NOT list individual neighborhood median prices, property counts, or YoY percentages visible in the data table. Focus on relative positioning, migration signals, and micro-market dynamics."
   },
   "editorial": {
     "narrative": "2-3 paragraphs of strategic interpretation — the WHY (connect dots between segments, explain what drives the patterns, thematic synthesis). Do NOT repeat the overview or neighborhood narratives."
@@ -261,7 +262,8 @@ Respond with a JSON object matching this exact schema:
       "buyers": "Timing recommendation for buyers",
       "sellers": "Timing recommendation for sellers"
     }
-  }
+  },
+  "dashboardNarrative": "2-3 sentences summarizing the headline story of the last 100 luxury transactions — lead with transaction count and median price, include the most significant YoY change, and end with a one-line strategic takeaway. This appears as a headline above the dashboard metrics."
 }
 
 REMINDER: Each section above must contain DIFFERENT content. overview = WHAT, neighborhoodAnalysis = EVIDENCE, editorial = WHY, executiveSummary = SO-WHAT. No sentence or finding should appear in more than one section.
@@ -403,6 +405,7 @@ export async function executeInsightGenerator(
       neighborhoodAnalysis: insights.neighborhoodAnalysis?.narrative ?? insights.executiveSummary.narrative,
       editorial: insights.editorial?.narrative ?? insights.executiveSummary.narrative,
       themes: insights.themes,
+      dashboardNarrative: insights.dashboardNarrative ?? null,
     },
     durationMs: Date.now() - start,
   };
