@@ -833,3 +833,42 @@ export const emailCampaigns = pgTable(
 
 export type EmailCampaignsTable = typeof emailCampaigns.$inferSelect;
 export type NewEmailCampaign = typeof emailCampaigns.$inferInsert;
+
+// --- Advisor Conversation Types ---
+
+export type AdvisorMessage = {
+  role: "user" | "assistant";
+  content: string;
+  timestamp: string; // ISO 8601
+};
+
+// --- Advisor Conversations Table ---
+
+export const advisorConversations = pgTable(
+  "advisor_conversations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    messages: jsonb("messages").notNull().$type<AdvisorMessage[]>().default([]),
+    turnCount: integer("turn_count").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("advisor_conversations_report_id_idx").on(table.reportId),
+    index("advisor_conversations_user_id_idx").on(table.userId),
+  ]
+);
+
+export type AdvisorConversationsTable =
+  typeof advisorConversations.$inferSelect;
+export type NewAdvisorConversation = typeof advisorConversations.$inferInsert;

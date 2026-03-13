@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 111 |
+| ✅ Completed | 112 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 15 |
+| ⬜ Pending | 14 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-13
@@ -366,7 +366,7 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 190 | Advisor data model — `advisor_conversations` table (conversationId, reportId, userId, messages JSONB, turnCount, createdAt, updatedAt) + indexes on reportId and userId | vision | S | 2 | ⬜ |
+| 190 | Advisor data model — `advisor_conversations` table (conversationId, reportId, userId, messages JSONB, turnCount, createdAt, updatedAt) + indexes on reportId and userId | vision | S | 2 | ✅ |
 | 191 | Advisor chat API endpoint — streaming Claude endpoint that receives report content + persona specs as system context, maintains conversation history within session, enforces turn limits per entitlement | vision | L | 190, 30, 57 | ⬜ |
 | 192 | Advisor chat UI — slide-out chat panel on report view page, message input with send, streaming response display, conversation history within session, clear "Ask about this report" entry point | vision | L | 191, 42 | ⬜ |
 | 193 | Entitlement gating for advisor — check `advisor_conversations` entitlement before allowing chat, show soft gate with upgrade messaging for Starter tier, enforce per-report turn cap for Professional tier | vision | S | 191, 173 | ⬜ |

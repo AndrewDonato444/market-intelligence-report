@@ -132,6 +132,41 @@ describe("Database Schema", () => {
     });
   });
 
+  describe("Advisor conversations table", () => {
+    it("exports advisorConversations table", () => {
+      expect(schema.advisorConversations).toBeDefined();
+    });
+
+    it("has required columns", () => {
+      const columns = Object.keys(schema.advisorConversations);
+      expect(columns).toContain("id");
+      expect(columns).toContain("reportId");
+      expect(columns).toContain("userId");
+      expect(columns).toContain("messages");
+      expect(columns).toContain("turnCount");
+      expect(columns).toContain("createdAt");
+      expect(columns).toContain("updatedAt");
+    });
+
+    it("exports AdvisorMessage type", () => {
+      // Type-level check: ensure AdvisorMessage is a valid type
+      const msg: schema.AdvisorMessage = {
+        role: "user",
+        content: "test",
+        timestamp: "2026-03-13T00:00:00Z",
+      };
+      expect(msg.role).toBe("user");
+      expect(msg.content).toBe("test");
+    });
+
+    it("exports table types", () => {
+      expect(schema.advisorConversations).toBeDefined();
+      // Type assertion to verify inferred types exist
+      type _Select = schema.AdvisorConversationsTable;
+      type _Insert = schema.NewAdvisorConversation;
+    });
+  });
+
   describe("Enums", () => {
     it("exports report status enum", () => {
       expect(schema.reportStatusEnum).toBeDefined();
