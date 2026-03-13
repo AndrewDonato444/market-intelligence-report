@@ -357,4 +357,29 @@ export const styles = StyleSheet.create({
     fontSize: 8,
     color: COLORS.textSecondary,
   },
+  // Executive Brief Improvements
+  metricExplainer: {
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textTertiary,
+    marginTop: 4,
+    textAlign: "center" as const,
+    lineHeight: 1.4,
+  },
+  subsectionHeader: {
+    fontFamily: "Inter",
+    fontSize: 12,
+    fontWeight: 600,
+    color: COLORS.textSecondary,
+    textTransform: "uppercase" as const,
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    marginTop: 16,
+  },
+  dataFreshness: {
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textTertiary,
+    marginBottom: 16,
+  },
 });

@@ -718,7 +718,36 @@ interface ExecutiveBriefingContent {
   };
   narrative: string | null;
   confidence: { level: string; sampleSize: number };
+  dataAsOfDate?: string | null;
+  metricExplainers?: {
+    marketRating: string;
+    medianPrice: string;
+    yoyChange: string;
+    properties: string;
+  };
+  timing?: {
+    buyers: string | null;
+    sellers: string | null;
+  };
   personaFraming?: unknown;
+}
+
+/**
+ * Format an ISO date string (or Date) as "Month YYYY" for data freshness display.
+ * Falls back to generation date formatting if provided.
+ */
+export function formatDataFreshnessDate(isoDate: string | null | undefined, fallbackDate?: Date): string | null {
+  const MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  if (isoDate) {
+    const d = new Date(isoDate);
+    if (!isNaN(d.getTime())) {
+      return `${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+    }
+  }
+  if (fallbackDate) {
+    return `${MONTHS[fallbackDate.getMonth()]} ${fallbackDate.getFullYear()}`;
+  }
+  return null;
 }
 
 export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
@@ -730,31 +759,83 @@ export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
   const yoyPct = (h.yoyPriceChange * 100).toFixed(1);
   const yoyDir = h.yoyPriceChange > 0 ? "↑" : h.yoyPriceChange < 0 ? "↓" : "→";
 
+  const freshnessLabel = formatDataFreshnessDate(c.dataAsOfDate, new Date());
+
   return (
     <View>
+      {/* Data freshness date */}
+      {freshnessLabel && (
+        <Text style={styles.dataFreshness}>Data as of {freshnessLabel}</Text>
+      )}
+
       {/* Headline metrics row */}
       <View style={{ flexDirection: "row", marginBottom: 16, gap: 12 }}>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Market Rating</Text>
           <Text style={{ fontFamily: "Playfair Display", fontSize: 28, color: getRatingColor(h.rating) }}>{h.rating}</Text>
+          {c.metricExplainers?.marketRating && (
+            <Text style={styles.metricExplainer}>{c.metricExplainers.marketRating}</Text>
+          )}
         </View>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Median Price</Text>
           <Text style={{ fontFamily: "Playfair Display", fontSize: 20, color: COLORS.primary }}>{priceFmt}</Text>
+          {c.metricExplainers?.medianPrice && (
+            <Text style={styles.metricExplainer}>{c.metricExplainers.medianPrice}</Text>
+          )}
         </View>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>YoY Change</Text>
           <Text style={{ fontFamily: "Inter", fontSize: 16, color: h.yoyPriceChange >= 0 ? COLORS.success : COLORS.error }}>{yoyDir} {yoyPct}%</Text>
+          {c.metricExplainers?.yoyChange && (
+            <Text style={styles.metricExplainer}>{c.metricExplainers.yoyChange}</Text>
+          )}
         </View>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Properties</Text>
           <Text style={{ fontFamily: "Inter", fontSize: 16, color: COLORS.primary }}>{h.totalProperties}</Text>
+          {c.metricExplainers?.properties && (
+            <Text style={styles.metricExplainer}>{c.metricExplainers.properties}</Text>
+          )}
         </View>
       </View>
-      {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
-      <Text style={styles.bodySmall}>
-        Confidence: {c.confidence.level} (n={c.confidence.sampleSize})
-      </Text>
+
+      {/* Market Overview section */}
+      {c.narrative && (
+        <View>
+          <Text style={styles.subsectionHeader}>Market Overview</Text>
+          <Text style={styles.body}>{c.narrative}</Text>
+        </View>
+      )}
+
+      {/* Data Confidence section */}
+      {c.confidence && (
+        <View>
+          <Text style={styles.subsectionHeader}>Data Confidence</Text>
+          <Text style={styles.bodySmall}>
+            {c.confidence.level.charAt(0).toUpperCase() + c.confidence.level.slice(1)} confidence (n={c.confidence.sampleSize} transactions)
+          </Text>
+        </View>
+      )}
+
+      {/* Timing Guidance section */}
+      {(c.timing?.buyers || c.timing?.sellers) && (
+        <View>
+          <Text style={styles.subsectionHeader}>Timing Guidance</Text>
+          {c.timing.buyers && (
+            <Text style={styles.body}>
+              <Text style={{ fontWeight: 700 }}>Buyers: </Text>
+              {c.timing.buyers}
+            </Text>
+          )}
+          {c.timing.sellers && (
+            <Text style={styles.body}>
+              <Text style={{ fontWeight: 700 }}>Sellers: </Text>
+              {c.timing.sellers}
+            </Text>
+          )}
+        </View>
+      )}
     </View>
   );
 };

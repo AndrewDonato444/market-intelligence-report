@@ -88,6 +88,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-editor | [Report History + Versioning](.specs/features/report-editor/report-history.feature.md) | `lib/services/report-history.ts` | see spec | see spec | implemented |
 | report-editor | [Report Templates](.specs/features/report-editor/report-templates.feature.md) | `lib/services/report-templates.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Cover Page Redesign](.specs/features/report-output-v2/cover-page-redesign.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
+| report-output-v2 | [Executive Brief Improvements](.specs/features/report-output-v2/executive-brief-improvements.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-output-v2 | [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md) | `lib/pdf/templates/insights-index.tsx` | see spec | see spec | implemented |
 | report-template | [Agent Branding Injection](.specs/features/report-template/agent-branding.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | report-template | [Data Visualization Components](.specs/features/report-template/data-visualization.feature.md) | `lib/pdf/components/data-viz.tsx` | see spec | see spec | implemented |
@@ -141,8 +142,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 108 |
-| **Total** | **113** |
+| implemented | 109 |
+| **Total** | **114** |
 
 ---
 
@@ -229,6 +230,7 @@ _None_
 - [Report History + Versioning](.specs/features/report-editor/report-history.feature.md)
 - [Report Templates](.specs/features/report-editor/report-templates.feature.md)
 - [Cover Page Redesign](.specs/features/report-output-v2/cover-page-redesign.feature.md)
+- [Executive Brief Improvements](.specs/features/report-output-v2/executive-brief-improvements.feature.md)
 - [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md)
 - [Agent Branding Injection](.specs/features/report-template/agent-branding.feature.md)
 - [Data Visualization Components](.specs/features/report-template/data-visualization.feature.md)

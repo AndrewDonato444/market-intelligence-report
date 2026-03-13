@@ -92,6 +92,9 @@ export interface ComputedAnalytics {
 
   /** Metrics derived from PropertyDetail records */
   detailMetrics: DetailDerivedMetrics;
+
+  /** Most recent transaction sale date in the dataset (ISO string) — for data freshness display */
+  dataAsOfDate: string | null;
 }
 
 export interface DimensionScore {
@@ -219,6 +222,9 @@ export function computeMarketAnalytics(
   // --- Scorecard (Section 8) ---
   const scorecard = computeScorecard(segments, yoy);
 
+  // --- Data freshness (most recent sale date) ---
+  const dataAsOfDate = computeDataAsOfDate(properties);
+
   return {
     market: marketMetrics,
     segments,
@@ -236,7 +242,21 @@ export function computeMarketAnalytics(
     scorecard,
     confidence,
     detailMetrics,
+    dataAsOfDate,
   };
+}
+
+// --- Data freshness ---
+
+export function computeDataAsOfDate(properties: PropertySummary[]): string | null {
+  let latest: Date | null = null;
+  for (const prop of properties) {
+    if (!prop.lastSaleDate) continue;
+    const d = new Date(prop.lastSaleDate);
+    if (isNaN(d.getTime())) continue;
+    if (!latest || d > latest) latest = d;
+  }
+  return latest ? latest.toISOString().slice(0, 10) : null;
 }
 
 // --- Computation helpers ---

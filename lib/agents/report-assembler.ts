@@ -110,6 +110,25 @@ export function assembleReport(
         },
         narrative: insightNarrative?.executiveBriefing ?? null,
         confidence: analytics.confidence,
+        dataAsOfDate: analytics.dataAsOfDate ?? null,
+        metricExplainers: {
+          marketRating: "Overall market health based on growth, liquidity, and risk indicators",
+          medianPrice: "50th percentile sale price across all luxury transactions in the analysis period",
+          yoyChange: "Year-over-year change in median sale price compared to the same period last year",
+          properties: "Total luxury property transactions included in this analysis",
+        },
+        timing: {
+          buyers: (insightNarrative?.insights as Record<string, unknown>)?.executiveSummary
+            ? ((insightNarrative.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>)?.timing
+              ? (((insightNarrative.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>).timing as Record<string, string>).buyers ?? null
+              : null
+            : null,
+          sellers: (insightNarrative?.insights as Record<string, unknown>)?.executiveSummary
+            ? ((insightNarrative.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>)?.timing
+              ? (((insightNarrative.insights as Record<string, unknown>).executiveSummary as Record<string, unknown>).timing as Record<string, string>).sellers ?? null
+              : null
+            : null,
+        },
         personaFraming,
       },
     },
