@@ -36,12 +36,12 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
   },
   {
     id: "rtc-03",
-    description: "Data Accuracy — stale sources flagged in methodology",
+    description: "Data Accuracy — stale sources flagged in metadata confidence",
     criterion: "data-accuracy",
     fixtureId: "report-stale-sources",
     expectedRubric:
-      "Disclaimer/methodology section must include data sources summary. Sources flagged as stale in confidence metadata (Property Detail, Local Search) should appear with 'stale' status. Fresh sources should show 'fresh'. This transparency is critical for report credibility.",
-    requiredSections: ["disclaimer_methodology"],
+      "Report metadata confidence must include staleDataSources array. Sources flagged as stale (Property Detail, Local Search) should appear in the array. Fresh sources should not appear. This transparency is critical for report credibility and is surfaced in the front-end UI disclaimer.",
+    requiredSections: ["executive_briefing"],
   },
 
   // ============================================================
@@ -49,11 +49,11 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
   // ============================================================
   {
     id: "rtc-04",
-    description: "Completeness — strong market has all 9 sections populated",
+    description: "Completeness — strong market has all 7 sections populated",
     criterion: "completeness",
     fixtureId: "report-strong-market",
     expectedRubric:
-      "All 8 sections must be present. Executive briefing has headline AND narrative. Market insights index has insightsIndex. Dashboard has powerFive metrics. Neighborhood intelligence has neighborhoods array. The narrative has editorial and themes. Forward look has forecast and guidance. Comparative positioning has peer data. Disclaimer has methodology.",
+      "All 7 sections must be present. Executive briefing has headline AND narrative. Market insights index has insightsIndex. Dashboard has powerFive metrics. Neighborhood intelligence has neighborhoods array. The narrative has editorial and themes. Forward look has forecast and guidance. Comparative positioning has peer data.",
     requiredSections: [
       "executive_briefing",
       "market_insights_index",
@@ -62,16 +62,15 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
       "the_narrative",
       "forward_look",
       "comparative_positioning",
-      "disclaimer_methodology",
     ],
   },
   {
     id: "rtc-05",
-    description: "Completeness — empty market still produces 8 sections",
+    description: "Completeness — empty market still produces 7 sections",
     criterion: "completeness",
     fixtureId: "report-empty-market",
     expectedRubric:
-      "Even with 0 properties, all 8 sections must exist. Executive briefing headline should show 0 properties, $0 median. Data-only sections (market insights, dashboard, comparative) may have empty arrays but must be present. Narrative sections may be null (no agent ran) — that is expected, not a failure. Metadata confidence must be 'low'.",
+      "Even with 0 properties, all 7 sections must exist. Executive briefing headline should show 0 properties, $0 median. Data-only sections (market insights, dashboard, comparative) may have empty arrays but must be present. Narrative sections may be null (no agent ran) — that is expected, not a failure. Metadata confidence must be 'low'.",
     requiredSections: [
       "executive_briefing",
       "market_insights_index",
@@ -80,7 +79,6 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
       "the_narrative",
       "forward_look",
       "comparative_positioning",
-      "disclaimer_methodology",
     ],
   },
   {
@@ -89,7 +87,7 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
     criterion: "completeness",
     fixtureId: "report-partial-upstream",
     expectedRubric:
-      "All 8 sections must exist even when forecast-modeler didn't run. Forward look section should have null forecast/guidance (not crash). Insight-generator narratives should still appear in exec briefing, the narrative, and neighborhood sections.",
+      "All 7 sections must exist even when forecast-modeler didn't run. Forward look section should have null forecast/guidance (not crash). Insight-generator narratives should still appear in exec briefing, the narrative, and neighborhood sections.",
     requiredSections: [
       "executive_briefing",
       "forward_look",
@@ -133,11 +131,11 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
   // ============================================================
   {
     id: "rtc-10",
-    description: "Formatting — sections numbered 1-9 in correct order",
+    description: "Formatting — sections numbered 1-7 in correct order",
     criterion: "formatting",
     fixtureId: "report-strong-market",
     expectedRubric:
-      "Sections must be numbered 1 through 8 in ascending order. Section types must match: 1=executive_briefing, 2=market_insights_index, 3=luxury_market_dashboard, 4=neighborhood_intelligence, 5=the_narrative, 6=forward_look, 7=comparative_positioning, 8=disclaimer_methodology. No duplicate section numbers.",
+      "Sections must be numbered 1 through 7 in ascending order. Section types must match: 1=executive_briefing, 2=market_insights_index, 3=luxury_market_dashboard, 4=neighborhood_intelligence, 5=the_narrative, 6=forward_look, 7=comparative_positioning. No duplicate section numbers.",
     requiredSections: [
       "executive_briefing",
       "market_insights_index",
@@ -146,7 +144,6 @@ export const REPORT_EVAL_TEST_CASES: ReportEvalTestCase[] = [
       "the_narrative",
       "forward_look",
       "comparative_positioning",
-      "disclaimer_methodology",
     ],
   },
   {

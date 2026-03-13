@@ -105,7 +105,6 @@ jest.mock("@/lib/agents/schema", () => ({
     { sectionType: "the_narrative", sourceAgent: "insight-generator", required: true, reportOrder: 5 },
     { sectionType: "forward_look", sourceAgent: "forecast-modeler", required: false, reportOrder: 6 },
     { sectionType: "comparative_positioning", sourceAgent: "assembler", required: true, reportOrder: 7 },
-    { sectionType: "disclaimer_methodology", sourceAgent: "assembler", required: true, reportOrder: 8 },
   ],
 }));
 
@@ -219,14 +218,13 @@ const MOCK_ASSEMBLED_REPORT = {
     { sectionNumber: 5, sectionType: "the_narrative", title: "The Narrative", content: {} },
     { sectionNumber: 6, sectionType: "forward_look", title: "Forward Look", content: {} },
     { sectionNumber: 7, sectionType: "comparative_positioning", title: "Comparative Positioning", content: {} },
-    { sectionNumber: 8, sectionType: "disclaimer_methodology", title: "Disclaimer & Methodology", content: {} },
   ],
   metadata: {
     generatedAt: "2026-03-09T12:00:00.000Z",
     totalDurationMs: 15000,
     agentDurations: { "insight-generator": 5000, "forecast-modeler": 4000, "polish-agent": 3000 },
     confidence: { level: "high", staleDataSources: [], sampleSize: 45 },
-    sectionCount: 8,
+    sectionCount: 7,
   },
 };
 
@@ -387,7 +385,7 @@ describe("Pipeline Executor Service (v2)", () => {
       expect(durations.agentDurations).toEqual(MOCK_PIPELINE_RESULT.agentTimings);
     });
 
-    it("SVC-PIPE-008: saves 9 assembled sections to report_sections table", async () => {
+    it("SVC-PIPE-008: saves 8 assembled sections to report_sections table", async () => {
       setupDbMocks(MOCK_REPORT_ROW, MOCK_MARKET_ROW);
       mockRun.mockResolvedValue(MOCK_PIPELINE_RESULT);
 
@@ -396,8 +394,8 @@ describe("Pipeline Executor Service (v2)", () => {
       // Flush microtasks so fire-and-forget logActivity completes
       await new Promise((r) => setTimeout(r, 0));
 
-      // Should insert 8 sections + 1 activity log entry
-      expect(mockDb.insert).toHaveBeenCalledTimes(9);
+      // Should insert 7 sections + 1 activity log entry
+      expect(mockDb.insert).toHaveBeenCalledTimes(8);
     });
 
     it("SVC-PIPE-009: sets report status to completed on success", async () => {

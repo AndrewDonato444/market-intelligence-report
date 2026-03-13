@@ -372,10 +372,10 @@ describe("Agent Output Schema + Validation", () => {
   });
 
   describe("SECTION_REGISTRY_V2", () => {
-    it("defines all 9 v2 section types (strategic_benchmark removed)", async () => {
+    it("defines all 8 v2 section types (strategic_benchmark + disclaimer_methodology removed)", async () => {
       const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
 
-      expect(SECTION_REGISTRY_V2).toHaveLength(9);
+      expect(SECTION_REGISTRY_V2).toHaveLength(8);
       const types = SECTION_REGISTRY_V2.map((r) => r.sectionType);
       expect(types).toEqual([
         "executive_briefing",
@@ -385,17 +385,17 @@ describe("Agent Output Schema + Validation", () => {
         "the_narrative",
         "forward_look",
         "comparative_positioning",
-        "disclaimer_methodology",
         "persona_intelligence",
       ]);
       expect(types).not.toContain("strategic_benchmark");
+      expect(types).not.toContain("disclaimer_methodology");
     });
 
-    it("has unique, sequential report orders 1-9", async () => {
+    it("has unique, sequential report orders 1-8", async () => {
       const { SECTION_REGISTRY_V2 } = await import("@/lib/agents/schema");
 
       const orders = SECTION_REGISTRY_V2.map((r) => r.reportOrder);
-      expect(orders).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9]);
+      expect(orders).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
     });
 
     it("marks required vs optional correctly", async () => {
@@ -415,7 +415,6 @@ describe("Agent Output Schema + Validation", () => {
         "neighborhood_intelligence",
         "the_narrative",
         "comparative_positioning",
-        "disclaimer_methodology",
       ]);
       expect(optional).toEqual([
         "forward_look",
@@ -440,7 +439,6 @@ describe("Agent Output Schema + Validation", () => {
         "luxury_market_dashboard",
         "neighborhood_intelligence",
         "comparative_positioning",
-        "disclaimer_methodology",
       ]);
       // narrative agents
       expect(byAgent.get("insight-generator")).toEqual(["the_narrative"]);

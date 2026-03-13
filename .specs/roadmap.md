@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 112 |
+| ✅ Completed | 113 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 14 |
 | ⏸️ Blocked | 0 |
@@ -350,7 +350,7 @@
 | 207 | Comparative Position data definitions — define all data points clearly with inline explanations so reader understands each metric | user-feedback | S | 50 | ⬜ |
 | 208 | Strategic Benchmark reframing — adjust framing from scorecard-like to more strategic positioning language, less grading more advising | user-feedback | M | 35 | ⬜ |
 | 209 | Remove Market Scorecard section — cut entirely from report assembly and PDF rendering | user-feedback | S | 50 | ✅ |
-| 210 | Remove Methodology section from report — cut from PDF, move disclaimer/advisory language to front-end UI | user-feedback | S | 50 | ⬜ |
+| 210 | Remove Methodology section from report — cut from PDF, move disclaimer/advisory language to front-end UI | user-feedback | S | 50 | ✅ |
 | 211 | Eliminate cash buyers from liquidity metrics — cross-cutting data change in Layer 1 computation affecting dashboard and all liquidity calculations | user-feedback | M | 31 | ⬜ |
 | 212 | YoY calculation transparency — add explanation of how YoY stats are calculated, visible in-report or in front-end UI | user-feedback | S | 31 | ⬜ |
 | 213 | Front-end UI transaction disclaimer — add disclaimer/advisory sales language about "based on last 100 transactions" to report view page and creation flow | user-feedback | S | 42 | ⬜ |

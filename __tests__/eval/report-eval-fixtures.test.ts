@@ -24,7 +24,6 @@ const EXPECTED_SECTION_TYPES = [
   "the_narrative",
   "forward_look",
   "comparative_positioning",
-  "disclaimer_methodology",
 ];
 
 // --- Fixture registry ---
@@ -80,18 +79,18 @@ describe("Report Eval Fixtures — All Fixtures Valid", () => {
         report = fixture.report;
       });
 
-      it("should have 8 sections", () => {
-        expect(report.sections.length).toBe(8);
+      it("should have 7 sections", () => {
+        expect(report.sections.length).toBe(7);
       });
 
-      it("should have sections numbered 1-8 in order", () => {
-        for (let i = 0; i < 8; i++) {
+      it("should have sections numbered 1-7 in order", () => {
+        for (let i = 0; i < 7; i++) {
           expect(report.sections[i].sectionNumber).toBe(i + 1);
         }
       });
 
       it("should have correct section types", () => {
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 7; i++) {
           expect(report.sections[i].sectionType).toBe(
             EXPECTED_SECTION_TYPES[i]
           );
@@ -166,12 +165,9 @@ describe("Report Eval Fixtures — Strong Market Details", () => {
     expect(content.guidance).toBeTruthy();
   });
 
-  it("disclaimer has disclaimer text and confidence", () => {
-    const content = report.sections[7].content as Record<string, unknown>;
-    expect(content.disclaimer).toBeTruthy();
-    // methodology may be null if polish-agent didn't run in upstream
-    expect(content.confidence).toBeDefined();
-    expect(Array.isArray(content.dataSources)).toBe(true);
+  it("disclaimer text is exported from report-assembler (moved to front-end UI)", () => {
+    const { DISCLAIMER_TEXT } = require("@/lib/agents/report-assembler");
+    expect(DISCLAIMER_TEXT.length).toBeGreaterThan(100);
   });
 
   it("metadata confidence is high with 847 sample", () => {
@@ -238,14 +234,8 @@ describe("Report Eval Fixtures — Stale Sources", () => {
     report = getReportFixture("report-stale-sources").report;
   });
 
-  it("methodology section includes data sources", () => {
-    const content = report.sections[7].content as Record<string, unknown>;
-    const dataSources = content.dataSources as Array<{
-      name: string;
-      status: string;
-    }>;
-    expect(dataSources).toBeDefined();
-    expect(dataSources.length).toBeGreaterThan(0);
+  it("stale sources are tracked in metadata (disclaimer moved to front-end UI)", () => {
+    expect(report.metadata.confidence.staleDataSources.length).toBeGreaterThan(0);
   });
 
   it("metadata confidence shows stale sources in raw list", () => {
@@ -262,7 +252,7 @@ describe("Report Eval Fixtures — summarizeReportFixture", () => {
     const fixture = getReportFixture("report-strong-market");
     const summary = summarizeReportFixture(fixture);
     expect(summary).toContain("Palm Beach Strong Market");
-    expect(summary).toContain("Sections: 8");
+    expect(summary).toContain("Sections: 7");
     expect(summary).toContain("Confidence: high");
     expect(summary).toContain("executive_briefing");
   });

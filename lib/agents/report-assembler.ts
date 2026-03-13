@@ -2,15 +2,15 @@
  * Report Assembler — Layer 3
  *
  * Merges ComputedAnalytics (Layer 1) with agent narratives (Layer 2)
- * into the final 8-section report structure (9 with persona intelligence).
+ * into the final 7-section report structure (8 with persona intelligence).
  *
  * Sections 2, 3, 7 = pure data (no agent narrative needed)
  * Sections 1, 4, 5 = data + narrative
- * Sections 6, 8 = narrative only
+ * Section 6 = narrative only
  *
- * Note: Section 8 "Strategic Benchmark" was removed (scorecard data
- * duplicated Sections 3 & 2). Disclaimer & Methodology is now Section 8,
- * Persona Intelligence is now Section 9.
+ * Note: Strategic Benchmark and Disclaimer & Methodology sections were
+ * removed. Disclaimer/advisory language lives in the front-end UI.
+ * Persona Intelligence is now Section 8 (when present).
  */
 
 import type { AgentResult, SectionOutput } from "@/lib/agents/orchestrator";
@@ -64,7 +64,6 @@ export const NEW_SECTION_TYPES = [
   "the_narrative",
   "forward_look",
   "comparative_positioning",
-  "disclaimer_methodology",
   "persona_intelligence",
 ] as const;
 
@@ -83,7 +82,8 @@ export interface PersonaFraming {
 // --- Assembly ---
 
 /**
- * Assembles the final 9-section report from computed analytics and agent results.
+ * Assembles the final 7-section report (8 with persona intelligence)
+ * from computed analytics and agent results.
  */
 export function assembleReport(
   analytics: ComputedAnalytics,
@@ -92,7 +92,6 @@ export function assembleReport(
 ): AssembledReport {
   const insightNarrative = extractNarrative(agentResults, "insight-generator");
   const forecastNarrative = extractNarrative(agentResults, "forecast-modeler");
-  const polishNarrative = extractNarrative(agentResults, "polish-agent");
 
   // Extract persona intelligence output (if available and not skipped)
   const personaFraming = extractPersonaFraming(agentResults);
@@ -208,24 +207,12 @@ export function assembleReport(
       },
     },
 
-    // Section 8: Disclaimer & Methodology (template + confidence)
-    {
-      sectionNumber: 8,
-      sectionType: "disclaimer_methodology",
-      title: "Disclaimer & Methodology",
-      content: {
-        disclaimer: DISCLAIMER_TEXT,
-        methodology: polishNarrative?.methodology ?? null,
-        confidence: analytics.confidence,
-        dataSources: buildDataSourcesSummary(analytics),
-      },
-    },
   ];
 
-  // Section 9: Persona Intelligence Briefing (only when persona output exists)
+  // Section 8: Persona Intelligence Briefing (only when persona output exists)
   if (personaOutput) {
     sections.push({
-      sectionNumber: 9,
+      sectionNumber: 8,
       sectionType: "persona_intelligence",
       title: "Persona Intelligence Briefing",
       content: {
@@ -313,37 +300,3 @@ function extractPersonaIntelligenceOutput(
   return output;
 }
 
-function buildDataSourcesSummary(
-  analytics: ComputedAnalytics
-): Array<{ name: string; status: string }> {
-  const sources: Array<{ name: string; status: string }> = [
-    {
-      name: "RealEstateAPI (Property Search)",
-      status: analytics.confidence.staleDataSources.some((s) =>
-        s.includes("search")
-      )
-        ? "stale"
-        : "fresh",
-    },
-    {
-      name: "RealEstateAPI (Property Detail)",
-      status: analytics.confidence.staleDataSources.some((s) =>
-        s.includes("detail")
-      )
-        ? "stale"
-        : analytics.confidence.detailCoverage > 0
-          ? "fresh"
-          : "unavailable",
-    },
-    {
-      name: "ScrapingDog (Local Search)",
-      status: analytics.confidence.staleDataSources.some((s) =>
-        s.includes("scrapingdog")
-      )
-        ? "stale"
-        : "fresh",
-    },
-  ];
-
-  return sources;
-}

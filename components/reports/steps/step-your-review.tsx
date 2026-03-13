@@ -82,8 +82,6 @@ const ALL_SECTIONS = [
   "the_narrative",
   "forward_look",
   "comparative_positioning",
-  "strategic_benchmark",
-  "disclaimer_methodology",
   "persona_intelligence",
 ];
 

@@ -8,6 +8,7 @@ import { ReportPreview } from "@/components/reports/report-preview";
 import { ReportActions } from "@/components/reports/report-actions";
 import { GenerateKitButton } from "@/components/reports/generate-kit-button";
 import { GenerateEmailButton } from "@/components/reports/generate-email-button";
+import { ReportDisclaimer } from "@/components/reports/report-disclaimer";
 
 export default async function ReportDetailPage({
   params,
@@ -69,6 +70,7 @@ export default async function ReportDetailPage({
             initialCampaignStatus={emailCampaign ? (emailCampaign.status as "queued" | "generating" | "completed" | "failed") : "none"}
             initialErrorMessage={emailCampaign?.errorMessage ?? null}
           />
+          <ReportDisclaimer />
           <ReportPreview sections={sections} />
         </>
       )}

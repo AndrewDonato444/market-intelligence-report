@@ -147,35 +147,28 @@ const defaultDurations: AssemblyDurations = {
 
 describe("Report Assembler", () => {
   describe("assembleReport", () => {
-    it("produces exactly 8 sections (no persona agent)", () => {
+    it("produces exactly 7 sections (no persona agent)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      expect(result.sections).toHaveLength(8);
+      expect(result.sections).toHaveLength(7);
     });
 
-    it("sections are numbered 1 through 8", () => {
+    it("sections are numbered 1 through 7", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const numbers = result.sections.map((s) => s.sectionNumber);
-      expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7, 8]);
+      expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7]);
     });
 
-    it("section types match first 8 of NEW_SECTION_TYPES (no persona agent)", () => {
+    it("section types match first 7 of NEW_SECTION_TYPES (no persona agent)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const types = result.sections.map((s) => s.sectionType);
-      expect(types).toEqual([...NEW_SECTION_TYPES].slice(0, 8));
+      expect(types).toEqual([...NEW_SECTION_TYPES].slice(0, 7));
     });
 
-    it("does NOT include a strategic_benchmark section", () => {
+    it("does NOT include strategic_benchmark or disclaimer_methodology sections", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const types = result.sections.map((s) => s.sectionType);
       expect(types).not.toContain("strategic_benchmark");
-    });
-
-    it("Section 8 is Disclaimer & Methodology (not strategic_benchmark)", () => {
-      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      const section8 = result.sections.find((s) => s.sectionNumber === 8);
-      expect(section8).toBeDefined();
-      expect(section8!.sectionType).toBe("disclaimer_methodology");
-      expect(section8!.sectionType).not.toBe("strategic_benchmark");
+      expect(types).not.toContain("disclaimer_methodology");
     });
 
     it("Section 1 (Executive Briefing) contains headline data and narrative", () => {
@@ -245,20 +238,9 @@ describe("Report Assembler", () => {
       expect(content.peerRankings).toHaveLength(3);
     });
 
-    it("Section 8 (Disclaimer) contains disclaimer text and methodology", () => {
-      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      const section = result.sections[7];
-      expect(section.sectionType).toBe("disclaimer_methodology");
-      const content = section.content as any;
-      expect(content.disclaimer).toBe(DISCLAIMER_TEXT);
-      expect(content.methodology).toContain("30 property records");
-      expect(content.confidence.level).toBe("high");
-      expect(content.dataSources).toHaveLength(3);
-    });
-
     it("handles missing agent results gracefully", () => {
       const result = assembleReport(makeAnalytics(), {}, defaultDurations);
-      expect(result.sections).toHaveLength(8);
+      expect(result.sections).toHaveLength(7);
 
       // Narrative-dependent sections should have null narratives
       const exec = result.sections[0].content as any;
@@ -271,20 +253,6 @@ describe("Report Assembler", () => {
       expect(forecast.forecast).toBeNull();
     });
 
-    it("marks stale data sources in disclaimer", () => {
-      const analytics = makeAnalytics({
-        confidence: {
-          level: "low",
-          sampleSize: 5,
-          detailCoverage: 0.1,
-          staleDataSources: ["realestateapi:search", "realestateapi:detail"],
-        },
-      });
-      const result = assembleReport(analytics, makeAgentResults(), defaultDurations);
-      const disclaimer = result.sections[7].content as any;
-      expect(disclaimer.dataSources[0].status).toBe("stale"); // search
-      expect(disclaimer.dataSources[1].status).toBe("stale"); // detail
-    });
   });
 
   describe("metadata", () => {
@@ -309,7 +277,7 @@ describe("Report Assembler", () => {
 
     it("includes section count", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      expect(result.metadata.sectionCount).toBe(8);
+      expect(result.metadata.sectionCount).toBe(7);
     });
 
     it("includes generatedAt timestamp", () => {
@@ -320,26 +288,6 @@ describe("Report Assembler", () => {
     });
   });
 
-  describe("data sources summary", () => {
-    it("marks all sources fresh when no stale data", () => {
-      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      const disclaimer = result.sections[7].content as any;
-      expect(disclaimer.dataSources[0]).toEqual({
-        name: "RealEstateAPI (Property Search)",
-        status: "fresh",
-      });
-    });
-
-    it("marks detail source unavailable when no detail coverage", () => {
-      const analytics = makeAnalytics({
-        confidence: { level: "medium", sampleSize: 5, detailCoverage: 0, staleDataSources: [] },
-      });
-      const result = assembleReport(analytics, makeAgentResults(), defaultDurations);
-      const disclaimer = result.sections[7].content as any;
-      expect(disclaimer.dataSources[1].status).toBe("unavailable");
-    });
-  });
-
   describe("DISCLAIMER_TEXT", () => {
     it("is a non-empty string", () => {
       expect(DISCLAIMER_TEXT.length).toBeGreaterThan(100);
@@ -347,10 +295,11 @@ describe("Report Assembler", () => {
   });
 
   describe("NEW_SECTION_TYPES", () => {
-    it("contains exactly 9 section types (including persona_intelligence)", () => {
-      expect(NEW_SECTION_TYPES).toHaveLength(9);
-      expect(NEW_SECTION_TYPES[8]).toBe("persona_intelligence");
+    it("contains exactly 8 section types (including persona_intelligence, no disclaimer_methodology)", () => {
+      expect(NEW_SECTION_TYPES).toHaveLength(8);
+      expect(NEW_SECTION_TYPES[7]).toBe("persona_intelligence");
       expect([...NEW_SECTION_TYPES]).not.toContain("strategic_benchmark");
+      expect([...NEW_SECTION_TYPES]).not.toContain("disclaimer_methodology");
     });
   });
 
@@ -456,22 +405,22 @@ describe("Report Assembler", () => {
       },
     };
 
-    it("produces 9 sections when persona intelligence is present", () => {
+    it("produces 8 sections when persona intelligence is present", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      expect(result.sections).toHaveLength(9);
+      expect(result.sections).toHaveLength(8);
     });
 
-    it("Section 9 has sectionType persona_intelligence", () => {
+    it("Section 8 has sectionType persona_intelligence", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      const section9 = result.sections[8];
-      expect(section9.sectionNumber).toBe(9);
-      expect(section9.sectionType).toBe("persona_intelligence");
-      expect(section9.title).toBe("Persona Intelligence Briefing");
+      const section8 = result.sections[7];
+      expect(section8.sectionNumber).toBe(8);
+      expect(section8.sectionType).toBe("persona_intelligence");
+      expect(section8.title).toBe("Persona Intelligence Briefing");
     });
 
-    it("Section 9 content has hybrid strategy, personas, blended, and meta", () => {
+    it("Section 8 content has hybrid strategy, personas, blended, and meta", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      const content = result.sections[8].content as any;
+      const content = result.sections[7].content as any;
       expect(content.strategy).toBe("hybrid");
       expect(content.personas).toHaveLength(2);
       expect(content.personas[0].personaSlug).toBe("business-mogul");
@@ -506,7 +455,7 @@ describe("Report Assembler", () => {
       }
     });
 
-    it("produces 8 sections when persona agent was skipped", () => {
+    it("produces 7 sections when persona agent was skipped", () => {
       const agentResults = {
         ...makeAgentResults(),
         "persona-intelligence": {
@@ -517,7 +466,7 @@ describe("Report Assembler", () => {
         },
       };
       const result = assembleReport(makeAnalytics(), agentResults, defaultDurations);
-      expect(result.sections).toHaveLength(8);
+      expect(result.sections).toHaveLength(7);
     });
 
     it("metadata includes persona agent duration in totalDurationMs", () => {
@@ -529,10 +478,10 @@ describe("Report Assembler", () => {
 
     it("sectionCount reflects actual count with persona section", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      expect(result.metadata.sectionCount).toBe(9);
+      expect(result.metadata.sectionCount).toBe(8);
     });
 
-    it("all 9 section types match NEW_SECTION_TYPES when persona present", () => {
+    it("all 8 section types match NEW_SECTION_TYPES when persona present", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
       const types = result.sections.map((s) => s.sectionType);
       expect(types).toEqual([...NEW_SECTION_TYPES]);

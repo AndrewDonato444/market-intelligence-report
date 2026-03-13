@@ -58,12 +58,6 @@ export const REPORT_SECTIONS: ReportSectionMeta[] = [
     required: true,
   },
   {
-    type: "disclaimer_methodology",
-    label: "Disclaimer & Methodology",
-    description: "Data sources, confidence levels, and methodology transparency",
-    required: true,
-  },
-  {
     type: "persona_intelligence",
     label: "Persona Intelligence",
     description: "Buyer persona-specific insights and narrative framing",
