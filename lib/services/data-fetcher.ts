@@ -48,6 +48,8 @@ export interface DataFetchOptions {
   amenityCategories?: string[];
   /** News query topics to search via ScrapingDog. Default: standard luxury set */
   newsQueries?: string[];
+  /** Max transactions per search period, resolved from user's tier entitlement. Default: none (API default) */
+  transactionLimit?: number;
 }
 
 export interface CompiledMarketData {
@@ -129,6 +131,7 @@ export async function fetchAllMarketData(
     representativeComps = DEFAULT_REPRESENTATIVE_COMPS,
     amenityCategories = DEFAULT_AMENITY_CATEGORIES,
     newsQueries = DEFAULT_NEWS_QUERIES,
+    transactionLimit,
   } = options;
 
   const connectorOpts = { userId, reportId };
@@ -155,6 +158,7 @@ export async function fetchAllMarketData(
   checkAbort(abortSignal);
 
   const searchParams = buildSearchParamsFromMarket(market);
+  if (transactionLimit) searchParams.limit = transactionLimit;
   const periods = computePeriodBounds();
   let currentPeriodProps: PropertySummary[] = [];
   let priorPeriodProps: PropertySummary[] = [];

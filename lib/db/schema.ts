@@ -82,6 +82,7 @@ export type TierEntitlements = {
   social_media_kits: number;    // 0 = not included, 1 = per-report, -1 = unlimited
   email_campaigns: number;      // 0 = not included, 1 = per-report, -1 = unlimited
   personas_per_report: number;  // always numeric (1 or 3)
+  transaction_limit: number;    // max transactions per search period (-1 = unlimited)
 };
 
 // --- Subscription Tiers Table ---
