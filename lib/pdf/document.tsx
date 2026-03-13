@@ -10,6 +10,7 @@ import { TableOfContents } from "./templates/table-of-contents";
 import { InsightsIndex } from "./templates/insights-index";
 import { SectionPage } from "./templates/section-page";
 import { MetadataPage } from "./templates/metadata-page";
+import { filterSections } from "./section-filter";
 import type { ReportData } from "@/lib/agents/schema";
 
 export interface BrandColors {
@@ -64,6 +65,7 @@ export function ReportDocument({
   marketName,
 }: ReportDocumentProps) {
   const keyThemes = extractKeyThemes(reportData.sections);
+  const filteredSections = filterSections(reportData.sections);
 
   return (
     <Document
@@ -84,12 +86,12 @@ export function ReportDocument({
         brandColors={branding.brandColors}
         keyThemes={keyThemes}
       />
-      <TableOfContents sections={reportData.sections} />
+      <TableOfContents sections={filteredSections} />
       <InsightsIndex
         metadata={reportData.metadata}
         sections={reportData.sections}
       />
-      {reportData.sections.map((section) => (
+      {filteredSections.map((section) => (
         <SectionPage
           key={section.sectionType}
           section={section}

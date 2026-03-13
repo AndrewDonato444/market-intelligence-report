@@ -30,7 +30,7 @@ export const MarketOverviewPdf: SectionRenderer = ({ section }) => {
     <View>
       {content.narrative && <Text style={styles.body}>{content.narrative}</Text>}
       {content.highlights && content.highlights.length > 0 && (
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Highlights</Text>
           {content.highlights.map((item, i) => (
             <Text key={i} style={styles.bulletItem}>
@@ -41,7 +41,7 @@ export const MarketOverviewPdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {content.recommendations && content.recommendations.length > 0 && (
-        <View style={{ marginTop: 12 }}>
+        <View style={{ marginTop: 12 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Recommendations</Text>
           {content.recommendations.map((item, i) => (
             <Text key={i} style={styles.bulletItem}>
@@ -139,7 +139,7 @@ export const ForecastsPdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {content.projections && content.projections.length > 0 && (
-        <View style={{ marginBottom: 16 }}>
+        <View style={{ marginBottom: 16 }} minPresenceAhead={80}>
           <Text style={styles.subheading}>Projections</Text>
           {/* Table header */}
           <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
@@ -167,7 +167,7 @@ export const ForecastsPdf: SectionRenderer = ({ section }) => {
         </View>
       )}
       {content.scenarios && (
-        <View>
+        <View minPresenceAhead={80}>
           <Text style={styles.subheading}>Scenarios</Text>
           {(["base", "bull", "bear"] as const).map((scenarioKey) => {
             const scenario = content.scenarios?.[scenarioKey];
@@ -515,8 +515,10 @@ function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["pers
   const isPrimary = persona.selectionOrder === 1;
   return (
     <View style={isPrimary ? styles.personaCardPrimary : styles.personaCard}>
-      {/* Persona name */}
-      <Text style={styles.personaName}>{persona.personaName}</Text>
+      {/* Persona name — minPresenceAhead keeps header with first content */}
+      <View minPresenceAhead={80}>
+        <Text style={styles.personaName}>{persona.personaName}</Text>
+      </View>
       {isPrimary && <Text style={styles.primaryPersonaLabel}>PRIMARY PERSONA</Text>}
 
       {/* Talking Points */}
@@ -1350,11 +1352,9 @@ export const GenericSectionPdf: SectionRenderer = ({ section }) => {
   if (typeof content === "string") {
     return <Text style={styles.body}>{content}</Text>;
   }
-  return (
-    <Text style={styles.body}>
-      {JSON.stringify(content, null, 2)}
-    </Text>
-  );
+  // Unknown section types are filtered before reaching here,
+  // but as defense-in-depth render nothing instead of raw JSON.
+  return null;
 };
 
 // --- Renderer dispatch ---
