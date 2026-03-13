@@ -12,6 +12,7 @@ import type { MarketData } from "@/lib/agents/orchestrator";
 import type { CompiledMarketData, PeerMarketData } from "@/lib/services/data-fetcher";
 import type { PropertySummary, PropertyDetail } from "@/lib/connectors/realestateapi";
 import type { NewsArticle } from "@/lib/connectors/scrapingdog";
+import type { XSentimentBrief } from "@/lib/connectors/grok";
 import { median, average, clamp, percentChange } from "@/lib/utils/math";
 
 // Re-export computation functions from data-analyst for backward compat
@@ -77,6 +78,9 @@ export interface ComputedAnalytics {
     targetMarket: NewsArticle[];
     peerMarkets: Record<string, NewsArticle[]>;
   };
+
+  /** X social sentiment (passthrough from Layer 0, optional — requires XAI_API_KEY) */
+  xSentiment?: XSentimentBrief | null;
 
   /** Confidence metadata */
   confidence: {
@@ -228,6 +232,7 @@ export function computeMarketAnalytics(
       targetMarket: data.news?.targetMarket ?? [],
       peerMarkets: data.news?.peerMarkets ?? {},
     },
+    xSentiment: data.xSentiment ?? null,
     scorecard,
     confidence,
     detailMetrics,

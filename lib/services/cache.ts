@@ -8,6 +8,7 @@ import { eq, lt } from "drizzle-orm";
 export const SOURCE_TTLS: Record<string, number> = {
   realestateapi: 86400, // 24h — transaction data is stable within a day
   scrapingdog: 604800, // 7d — neighborhood context changes slowly
+  grok: 604800, // 7d — social sentiment + grok-4 is expensive
   anthropic: 0, // never cache — AI outputs should always be fresh
   "agent-output": 604800, // 7d — agent outputs only change when source data changes
 };

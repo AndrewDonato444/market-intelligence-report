@@ -90,8 +90,12 @@ POST /api/reports/[id]/generate
        ├─ 4-Layer Pipeline:
        │     │
        │     ├─ Layer 0: fetchAllMarketData() → CompiledMarketData
+       │     │     Includes: properties, details, comps, news, amenities,
+       │     │     peer markets, xSentiment (optional, from Grok x_search)
        │     ├─ Layer 1: computeMarketAnalytics() → ComputedAnalytics
+       │     │     xSentiment passed through (narrative data for agents)
        │     ├─ Layer 2: Claude agents (insight-generator, forecast-modeler, polish-agent, persona-intelligence)
+       │     │     Agents receive xSentiment as "X SOCIAL SENTIMENT" prompt section
        │     └─ Layer 3: assembleReport() → ReportData
        │
        │  Note: data-analyst functions are used in Layer 0/1 (not a separate pipeline agent).

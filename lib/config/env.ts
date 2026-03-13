@@ -47,6 +47,10 @@ export const env = {
   get SCRAPINGDOG_API_KEY() {
     return requiredEnv("SCRAPINGDOG_API_KEY");
   },
+  /** Optional: xAI API key for Grok x_search social sentiment */
+  get XAI_API_KEY() {
+    return optionalEnv("XAI_API_KEY");
+  },
 
   // --- Storage ---
   get S3_BUCKET() {

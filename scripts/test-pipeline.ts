@@ -167,6 +167,7 @@ async function runLayer0(useCached: boolean): Promise<CompiledMarketData> {
     console.log(`  Amenity categories: ${Object.keys(data.neighborhood.amenities).length}`);
     console.log(`  News articles (target): ${data.news?.targetMarket?.length ?? 0}`);
     console.log(`  News articles (peers): ${Object.values(data.news?.peerMarkets ?? {}).reduce((sum, arr) => sum + arr.length, 0)}`);
+    console.log(`  X sentiment: ${data.xSentiment ? `${data.xSentiment.sentiment} (${data.xSentiment.bullThemes.length} bull, ${data.xSentiment.bearSignals.length} bear)${data.xSentiment.stale ? " [stale]" : ""}` : "skipped (no XAI_API_KEY)"}`);
     console.log(`  Stale sources: ${data.fetchMetadata.staleDataSources.length}`);
     console.log(`  Errors: ${data.fetchMetadata.errors.length}`);
     if (data.fetchMetadata.errors.length > 0) {

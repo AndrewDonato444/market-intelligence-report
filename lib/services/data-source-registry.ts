@@ -208,8 +208,69 @@ function makeScrapingDogConnector(): DataSourceConnector {
   };
 }
 
+function makeGrokConnector(): DataSourceConnector {
+  return {
+    name: "grok",
+    description: "X social sentiment via Grok x_search — real-time market intelligence from X posts",
+    endpoints: ["/v1/responses (x_search)"],
+    cacheTtlSeconds: SOURCE_TTLS.grok ?? 604800,
+    requiredEnvVars: ["XAI_API_KEY"],
+    healthCheck: async () => {
+      const start = Date.now();
+      const apiKey = process.env.XAI_API_KEY;
+
+      if (!apiKey) {
+        return {
+          status: "degraded",
+          latencyMs: 0,
+          lastChecked: new Date(),
+          error: "Missing XAI_API_KEY environment variable (optional)",
+        };
+      }
+
+      // Lightweight check: call the API with a minimal prompt (no x_search tool)
+      // to verify auth without consuming x_search credits
+      try {
+        const res = await fetch("https://api.x.ai/v1/responses", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify({
+            model: "grok-4",
+            input: [{ role: "user", content: "ping" }],
+            max_output_tokens: 10,
+          }),
+        });
+
+        const latencyMs = Date.now() - start;
+
+        if (!res.ok) {
+          return {
+            status: "unhealthy",
+            latencyMs,
+            lastChecked: new Date(),
+            error: `API returned ${res.status}: ${res.statusText}`,
+          };
+        }
+
+        return { status: "healthy", latencyMs, lastChecked: new Date() };
+      } catch (err) {
+        return {
+          status: "unhealthy",
+          latencyMs: Date.now() - start,
+          lastChecked: new Date(),
+          error: err instanceof Error ? err.message : String(err),
+        };
+      }
+    },
+  };
+}
+
 // --- Default registry singleton ---
 
 export const registry = new DataSourceRegistry();
 registry.register(makeRealEstateApiConnector());
 registry.register(makeScrapingDogConnector());
+registry.register(makeGrokConnector());

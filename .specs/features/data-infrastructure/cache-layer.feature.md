@@ -78,6 +78,7 @@ Given the TTL configuration defines different durations per source
 When data from different sources is cached
 Then RealEstateAPI data uses 24h TTL (transaction data)
 And ScrapingDog data uses 7d TTL (neighborhood context is stable)
+And Grok data uses 7d TTL (social sentiment + grok-4 is expensive)
 And Anthropic data uses 0 TTL (never cached)
 And agent-output data uses 7d TTL (only changes when source data hash changes)
 
@@ -109,6 +110,7 @@ And the key is human-readable for debugging
 |--------|-----|-----------|
 | `realestateapi` | 86400s (24h) | Transaction data is stable within a day |
 | `scrapingdog` | 604800s (7d) | Neighborhood context changes slowly |
+| `grok` | 604800s (7d) | Social sentiment via x_search — expensive API, data valid for ~1 week |
 | `anthropic` | 0 (never) | AI outputs should always be fresh |
 | `agent-output` | 604800s (7d) | Agent outputs only change when source data changes (new hash) |
 
@@ -120,6 +122,7 @@ Examples:
 - `reapi:property-search:naples-fl-6m-ultra`
 - `reapi:property-detail:12345`
 - `scrapingdog:local:naples-fl-restaurants`
+- `grok:x_sentiment:city=Naples&state=FL`
 
 ### Service API
 

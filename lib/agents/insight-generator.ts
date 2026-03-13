@@ -17,6 +17,7 @@ import type {
 } from "@/lib/agents/orchestrator";
 import type { DataAnalystOutput } from "@/lib/agents/data-analyst";
 import type { ComputedAnalytics } from "@/lib/services/market-analytics";
+import type { XSentimentBrief } from "@/lib/connectors/grok";
 import { env } from "@/lib/config/env";
 import { stripJsonFences } from "@/lib/utils/json";
 
@@ -85,6 +86,26 @@ function formatNewsForPrompt(
     .join("\n");
 }
 
+function formatXSentimentForPrompt(brief: XSentimentBrief): string {
+  const lines: string[] = [];
+  lines.push(`  Overall Sentiment: ${brief.sentiment}`);
+  lines.push(`  Summary: ${brief.summary}`);
+  if (brief.bullThemes.length > 0) {
+    lines.push(`  Bull Themes: ${brief.bullThemes.join("; ")}`);
+  }
+  if (brief.bearSignals.length > 0) {
+    lines.push(`  Bear Signals: ${brief.bearSignals.join("; ")}`);
+  }
+  if (brief.notableQuotes.length > 0) {
+    lines.push(`  Notable Quotes:`);
+    for (const q of brief.notableQuotes.slice(0, 5)) {
+      lines.push(`    - "${q.text}" — ${q.attribution}`);
+    }
+  }
+  if (brief.stale) lines.push(`  ⚠️ Stale data — cached from a prior fetch.`);
+  return lines.join("\n");
+}
+
 function buildSystemPrompt(): string {
   return `You are a specialized agent handling strategic market narrative generation and thematic analysis for Market Intelligence Report.
 
@@ -118,6 +139,7 @@ OUTPUT RULES:
 - Must avoid: Generic language ("the market is healthy"), promotional tone, restating raw metrics without strategic interpretation, hedging language that adds no value ("it remains to be seen", "may or may not", "only time will tell")
 - CRITICAL: Only reference numbers that appear in the input data. Do NOT fabricate, extrapolate, or invent metrics that were not provided (e.g., do not create price-per-sqft figures, property counts, or volume numbers unless they are explicitly in the input). When a metric is not available, either omit it or note its absence.
 - When news articles are provided, reference specific news developments to ground themes in current events. Cite the source name when referencing a news item.
+- When X social sentiment data is provided, use it to validate or challenge themes from news and data. Social sentiment captures insider broker commentary, contrarian takes, and real-time market mood that traditional news often misses. Reference specific bull/bear themes or notable quotes when they add a perspective not already covered by news or data.
 
 QUOTABLE MOMENTS (CRITICAL):
 - Every section MUST contain at least one "quotable moment" — a specific stat paired with a strategic implication that the agent can drop into a client conversation.
@@ -173,7 +195,8 @@ function buildUserPrompt(
   analysis: DataAnalystOutput,
   news?: { targetMarket: Array<{ title: string; snippet: string; source: string; lastUpdated: string }> },
   neighborhoods?: ComputedAnalytics["neighborhoods"],
-  detailMetrics?: ComputedAnalytics["detailMetrics"]
+  detailMetrics?: ComputedAnalytics["detailMetrics"],
+  xSentiment?: XSentimentBrief | null
 ): string {
   const { market } = context;
   const tierLabel =
@@ -225,6 +248,7 @@ ${insufficientData ? "\n⚠️ INSUFFICIENT DATA: Provide caveated analysis. Do 
 ${neighborhoods && neighborhoods.length > 0 ? `\nNEIGHBORHOOD BREAKDOWN:\n${neighborhoods.slice(0, 8).map((n) => `  - ${n.name}: ${n.propertyCount} properties, median ${formatCurrency(n.medianPrice)}${n.medianPricePerSqft ? `, $${n.medianPricePerSqft}/sqft` : ""}${n.yoyPriceChange != null ? `, YoY ${formatPercent(n.yoyPriceChange)}` : ""}`).join("\n")}` : ""}
 ${detailMetrics ? `\nDETAIL METRICS:\n- Median Days on Market: ${detailMetrics.medianDaysOnMarket ?? "N/A"}\n- List-to-Sale Ratio: ${detailMetrics.listToSaleRatio != null ? `${(detailMetrics.listToSaleRatio * 100).toFixed(1)}%` : "N/A"}\n- Cash Buyer %: ${detailMetrics.cashBuyerPercentage != null ? `${(detailMetrics.cashBuyerPercentage * 100).toFixed(1)}%` : "N/A"}\n- Flood Zone %: ${detailMetrics.floodZonePercentage != null ? `${(detailMetrics.floodZonePercentage * 100).toFixed(1)}%` : "N/A"}` : ""}
 ${news && news.targetMarket.length > 0 ? `\nRECENT NEWS:\n${formatNewsForPrompt(news.targetMarket)}` : ""}
+${xSentiment ? `\nX SOCIAL SENTIMENT (from real-time X/Twitter posts via Grok):\n${formatXSentimentForPrompt(xSentiment)}` : ""}
 
 Respond with a JSON object matching this exact schema:
 {
@@ -317,7 +341,8 @@ export async function executeInsightGenerator(
     analysis,
     newsData,
     analytics?.neighborhoods,
-    analytics?.detailMetrics
+    analytics?.detailMetrics,
+    analytics?.xSentiment
   );
 
   // Call Claude

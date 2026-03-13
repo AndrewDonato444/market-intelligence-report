@@ -66,6 +66,20 @@ When the forecast-modeler is executing
 Then it checks the abort signal before making Claude API calls
 And it throws an error with retriable: false if aborted
 
+### Scenario: Includes X social sentiment in forecast assumptions when available
+Given the agent context contains xSentiment data from Grok x_search
+When constructing the Claude prompt
+Then the prompt includes an "X SOCIAL SENTIMENT" section
+And the system prompt instructs Claude to use bull/bear themes to inform scenario assumptions
+And bear signals may strengthen the bear case scenario
+And bull themes may strengthen the bull case scenario
+
+### Scenario: Omits X social sentiment section when data is null
+Given the agent context does NOT contain xSentiment data (XAI_API_KEY not set)
+When constructing the Claude prompt
+Then the prompt does NOT include an "X SOCIAL SENTIMENT" section
+And the agent produces forecasts without X sentiment influence
+
 ### Scenario: Conforms to pipeline agent interface
 Given the forecast-modeler agent definition
 Then it has name "forecast-modeler"
@@ -82,6 +96,11 @@ Data Analyst Output (upstreamResults["data-analyst"].metadata.analysis)
   ├── segments: [{ name, medianPrice, rating, ... }]
   ├── yoy: { medianPriceChange, volumeChange, ... }
   └── confidence: { level, sampleSize, ... }
+
+X Social Sentiment (optional, from Grok x_search)
+  ├── bullThemes: ["strong demand", ...]
+  ├── bearSignals: ["insurance costs", ...]
+  └── sentiment: positive|negative|mixed|neutral
                     │
                     ▼
          ┌──────────────────────┐
@@ -89,7 +108,8 @@ Data Analyst Output (upstreamResults["data-analyst"].metadata.analysis)
          │  (Claude API)        │
          │                      │
          │  Historical data +   │
-         │  YoY trends →        │
+         │  YoY trends +        │
+         │  X sentiment →       │
          │  Projections         │
          └──────────┬───────────┘
                     │

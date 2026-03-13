@@ -27,6 +27,10 @@ import {
   type LocalBusiness,
   type NewsArticle,
 } from "@/lib/connectors/scrapingdog";
+import {
+  searchXSentiment,
+  type XSentimentBrief,
+} from "@/lib/connectors/grok";
 import { registry } from "@/lib/services/data-source-registry";
 
 // --- Types ---
@@ -71,6 +75,8 @@ export interface CompiledMarketData {
     peerMarkets: Record<string, NewsArticle[]>;
     stale: boolean;
   };
+  /** X social sentiment brief from Grok x_search (optional, null if XAI_API_KEY not set) */
+  xSentiment?: XSentimentBrief | null;
   fetchMetadata: {
     totalApiCalls: number;
     totalDurationMs: number;
@@ -256,6 +262,27 @@ export async function fetchAllMarketData(
   apiCalls += news.callCount;
   if (news.stale) staleDataSources.push("scrapingdog:news");
 
+  // --- Step 7: Fetch X social sentiment (optional — requires XAI_API_KEY) ---
+  checkAbort(abortSignal);
+
+  let xSentiment: XSentimentBrief | null = null;
+  try {
+    xSentiment = await searchXSentiment(
+      { city: market.geography.city, state: market.geography.state },
+      connectorOpts
+    );
+    if (xSentiment) {
+      apiCalls++;
+      if (xSentiment.stale) staleDataSources.push("grok:x_sentiment");
+    }
+  } catch (err) {
+    errors.push({
+      source: "grok",
+      endpoint: "/v1/responses",
+      error: `X sentiment: ${err instanceof Error ? err.message : String(err)}`,
+    });
+  }
+
   return {
     targetMarket: {
       properties: targetProperties,
@@ -274,6 +301,7 @@ export async function fetchAllMarketData(
       peerMarkets: news.peerArticles,
       stale: news.stale,
     },
+    xSentiment,
     fetchMetadata: {
       totalApiCalls: apiCalls,
       totalDurationMs: Date.now() - start,

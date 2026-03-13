@@ -74,6 +74,21 @@ Then the prompt includes the market name, city, state
 And the prompt includes the luxury tier label
 And the prompt includes the specific segment and YoY data
 
+### Scenario: Includes X social sentiment in Claude prompt when available
+Given the agent context contains xSentiment data from Grok x_search
+When constructing the Claude prompt
+Then the prompt includes an "X SOCIAL SENTIMENT" section
+And the section contains overall sentiment direction
+And the section contains bull themes and bear signals
+And the section contains notable quotes (up to 5)
+And the system prompt instructs Claude to use X sentiment to validate or challenge themes from news and data
+
+### Scenario: Omits X social sentiment section when data is null
+Given the agent context does NOT contain xSentiment data (XAI_API_KEY not set)
+When constructing the Claude prompt
+Then the prompt does NOT include an "X SOCIAL SENTIMENT" section
+And the agent produces output without X sentiment influence
+
 ### Scenario: Structures output for downstream consumption
 Given the insight-generator has completed
 Then its metadata contains the full narrative output
@@ -88,6 +103,13 @@ Data Analyst Output (upstreamResults["data-analyst"].metadata.analysis)
   ├── segments: [{ name, count, medianPrice, rating, ... }]
   ├── yoy: { medianPriceChange, volumeChange, ... }
   └── confidence: { level, sampleSize, ... }
+
+X Social Sentiment (optional, from Grok x_search)
+  ├── summary: synthesis of X posts
+  ├── bullThemes: ["strong demand", ...]
+  ├── bearSignals: ["insurance costs", ...]
+  ├── notableQuotes: [{ text, attribution }]
+  └── sentiment: positive|negative|mixed|neutral
                     │
                     ▼
          ┌─────────────────────┐
@@ -95,7 +117,9 @@ Data Analyst Output (upstreamResults["data-analyst"].metadata.analysis)
          │   (Claude API)      │
          │                     │
          │  Prompt = market +  │
-         │  data + instructions│
+         │  data + news +      │
+         │  X sentiment +      │
+         │  instructions       │
          └─────────┬───────────┘
                     │
                     ▼

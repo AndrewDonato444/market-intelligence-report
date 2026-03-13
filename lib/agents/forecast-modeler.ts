@@ -16,6 +16,7 @@ import type {
   SectionOutput,
 } from "@/lib/agents/orchestrator";
 import type { DataAnalystOutput } from "@/lib/agents/data-analyst";
+import type { XSentimentBrief } from "@/lib/connectors/grok";
 import { env } from "@/lib/config/env";
 import { stripJsonFences } from "@/lib/utils/json";
 
@@ -92,6 +93,26 @@ function formatNewsForPrompt(
     .join("\n");
 }
 
+function formatXSentimentForPrompt(brief: XSentimentBrief): string {
+  const lines: string[] = [];
+  lines.push(`  Overall Sentiment: ${brief.sentiment}`);
+  lines.push(`  Summary: ${brief.summary}`);
+  if (brief.bullThemes.length > 0) {
+    lines.push(`  Bull Themes: ${brief.bullThemes.join("; ")}`);
+  }
+  if (brief.bearSignals.length > 0) {
+    lines.push(`  Bear Signals: ${brief.bearSignals.join("; ")}`);
+  }
+  if (brief.notableQuotes.length > 0) {
+    lines.push(`  Notable Quotes:`);
+    for (const q of brief.notableQuotes.slice(0, 5)) {
+      lines.push(`    - "${q.text}" — ${q.attribution}`);
+    }
+  }
+  if (brief.stale) lines.push(`  ⚠️ Stale data — cached from a prior fetch.`);
+  return lines.join("\n");
+}
+
 function buildSystemPrompt(): string {
   return `You are a specialized agent handling forward-looking market projections and scenario modeling for Market Intelligence Report.
 
@@ -119,6 +140,7 @@ OUTPUT RULES:
 - Must include: Price ranges (never just point estimates), explicit confidence levels per projection, clearly stated assumptions for each scenario, projections grounded in the provided YoY trend data, wider confidence ranges for longer time horizons, a clear BUY/HOLD/SELL posture for each timing recommendation
 - Must avoid: Extreme or sensational scenarios, point estimates without ranges, speculation beyond what the data supports, guarantees or certainty language ("will," "guaranteed," "certain"), vague directional statements without quantification, hedging that communicates nothing ("it remains to be seen", "only time will tell")
 - When news articles are provided, reference relevant news developments in scenario assumptions and monitoring areas. Cite the source name when referencing a news item.
+- When X social sentiment data is provided, use bull/bear themes to inform scenario assumptions. Social sentiment from brokers and market participants can surface leading indicators (e.g., rising skepticism, deal flow acceleration) that should influence scenario probabilities and monitoring triggers.
 
 EXAMPLES OF GOOD OUTPUT:
 
@@ -184,7 +206,8 @@ function buildUserPrompt(
   news?: {
     targetMarket: Array<{ title: string; snippet: string; source: string; lastUpdated: string }>;
     peerMarkets: Record<string, Array<{ title: string; snippet: string; source: string; lastUpdated: string }>>;
-  }
+  },
+  xSentiment?: XSentimentBrief | null
 ): string {
   const { market } = context;
   const tierLabel = TIER_LABELS[market.luxuryTier] || market.luxuryTier;
@@ -233,6 +256,7 @@ DATA CONFIDENCE: ${analysis.confidence.level} (sample: ${analysis.confidence.sam
 ${analysis.market.totalProperties === 0 ? "\n🚫 ZERO PROPERTIES: This market has NO recorded transactions. Do NOT produce specific median price projections — use 0 for all medianPrice fields in the projections array. Price ranges should also be 0. All confidence levels must be \"low\". Focus entirely on qualitative monitoring framework and scenario narratives explaining what would need to change for this market to become active." : lowConfidence ? "\n⚠️ LOW CONFIDENCE DATA: Use wide ranges, low confidence ratings, and include explicit caveats. Do not produce specific point estimates or precise medianPrice values — use broad round numbers only." : ""}
 ${news && news.targetMarket.length > 0 ? `\nRECENT NEWS (Target Market):\n${formatNewsForPrompt(news.targetMarket)}` : ""}
 ${news && Object.entries(news.peerMarkets).some(([, articles]) => articles.length > 0) ? `\nRECENT NEWS (Peer Markets):\n${Object.entries(news.peerMarkets).filter(([, articles]) => articles.length > 0).map(([name, articles]) => `  ${name}:\n${formatNewsForPrompt(articles)}`).join("\n")}` : ""}
+${xSentiment ? `\nX SOCIAL SENTIMENT (from real-time X/Twitter posts via Grok):\n${formatXSentimentForPrompt(xSentiment)}` : ""}
 
 Respond with a JSON object matching this exact schema:
 {
@@ -325,7 +349,7 @@ export async function executeForecastModeler(
         peerMarkets: analytics.news?.peerMarkets ?? {},
       }
     : undefined;
-  const userPrompt = buildUserPrompt(context, analysis, newsData);
+  const userPrompt = buildUserPrompt(context, analysis, newsData, analytics?.xSentiment);
 
   let forecast: ForecastModelerOutput;
   try {

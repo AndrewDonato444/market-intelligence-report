@@ -22,13 +22,14 @@ updated: 2026-03-09
 
 ## Feature: Data Source Registry
 
-A pluggable connector management system with health checks. Provides a standard interface for all external data connectors (RealEstateAPI, ScrapingDog, future sources), runtime health checking, and an admin UI to view connector status.
+A pluggable connector management system with health checks. Provides a standard interface for all external data connectors (RealEstateAPI, ScrapingDog, Grok), runtime health checking, and an admin UI to view connector status.
 
 ### Scenario: Register connectors at startup
 Given the application starts
 When the data source registry initializes
 Then it registers the RealEstateAPI connector with name "realestateapi"
 And it registers the ScrapingDog connector with name "scrapingdog"
+And it registers the Grok connector with name "grok"
 And each connector has metadata (name, description, endpoints, cacheTtl, requiredEnvVars)
 
 ### Scenario: Health check a healthy connector
@@ -45,6 +46,13 @@ And the SCRAPINGDOG_API_KEY environment variable is empty
 When a health check runs for "scrapingdog"
 Then the connector status is "degraded"
 And the error message indicates the missing API key
+
+### Scenario: Health check optional Grok connector with missing API key
+Given the Grok connector is registered
+And the XAI_API_KEY environment variable is empty
+When a health check runs for "grok"
+Then the connector status is "degraded"
+And the note indicates "(optional)" since the pipeline works without it
 
 ### Scenario: Health check a connector with failed API call
 Given the RealEstateAPI connector is registered
@@ -110,6 +118,15 @@ And if a connector is unhealthy, it logs a warning but still attempts the call (
 │  │  Cache TTL: 7d     │  Last check: 2m ago          │    │
 │  │  Env: SCRAPINGDOG_API_KEY ✓                       │    │
 │  │  ⚠ API key unauthorized — check plan/credits      │    │
+│  └─────────────────────────────────────────────────┘    │
+│                                                         │
+│  ┌─────────────────────────────────────────────────┐    │
+│  │  Grok (x_search)                ● Healthy       │    │
+│  │  X social sentiment via Grok x_search            │    │
+│  │                                                   │    │
+│  │  Endpoints: /v1/responses (x_search)              │    │
+│  │  Cache TTL: 7d     │  Last check: 2m ago          │    │
+│  │  Env: XAI_API_KEY ✓  (optional)                   │    │
 │  └─────────────────────────────────────────────────┘    │
 │                                                         │
 └─────────────────────────────────────────────────────────┘
