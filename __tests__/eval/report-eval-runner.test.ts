@@ -312,7 +312,7 @@ describe("Report Eval Runner — fixture integration", () => {
       const fixture = getReportFixture(tc.fixtureId);
       expect(fixture).toBeDefined();
       expect(fixture.report).toBeDefined();
-      expect(fixture.report.sections.length).toBe(9);
+      expect(fixture.report.sections.length).toBe(8);
     }
   });
 

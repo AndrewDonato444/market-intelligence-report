@@ -80,7 +80,7 @@ describe("Report Eval Fixtures — All Fixtures Valid", () => {
         report = fixture.report;
       });
 
-      it("should have 9 sections", () => {
+      it("should have 8 sections", () => {
         expect(report.sections.length).toBe(8);
       });
 

@@ -44,7 +44,7 @@ export const REPORT_EVAL_FIXTURES: Record<string, ReportEvalFixture> = {
     id: "report-strong-market",
     name: "Palm Beach Strong Market (Full Report)",
     description:
-      "Complete 9-section report from strong market with full upstream agent results",
+      "Complete 8-section report from strong market with full upstream agent results",
     report: buildReportFromFixture("fixture-strong-market-upstream"),
     sourceFixtureId: "fixture-strong-market-upstream",
   },
@@ -52,7 +52,7 @@ export const REPORT_EVAL_FIXTURES: Record<string, ReportEvalFixture> = {
     id: "report-empty-market",
     name: "Eureka Empty Market (Full Report)",
     description:
-      "9-section report from zero-property market — tests graceful degradation",
+      "8-section report from zero-property market — tests graceful degradation",
     report: buildReportFromFixture("fixture-empty-market"),
     sourceFixtureId: "fixture-empty-market",
   },
@@ -60,7 +60,7 @@ export const REPORT_EVAL_FIXTURES: Record<string, ReportEvalFixture> = {
     id: "report-low-data",
     name: "Big Sky Low Data (Full Report)",
     description:
-      "9-section report from 5-property market — tests low-confidence handling",
+      "8-section report from 5-property market — tests low-confidence handling",
     report: buildReportFromFixture("fixture-low-data"),
     sourceFixtureId: "fixture-low-data",
   },
