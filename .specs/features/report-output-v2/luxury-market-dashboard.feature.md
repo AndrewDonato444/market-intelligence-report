@@ -10,7 +10,7 @@ components: []
 personas:
   - established-practitioner
   - report-reader
-status: specced
+status: implemented
 created: 2026-03-13
 updated: 2026-03-13
 ---
