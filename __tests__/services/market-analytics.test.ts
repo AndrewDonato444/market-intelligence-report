@@ -863,4 +863,145 @@ describe("Market Analytics Engine", () => {
       expect(result.market.totalVolume).toBe(15000000);
     });
   });
+
+  // --- Regression tests for data quality bugs ---
+
+  describe("SVC-MA: Regression — neighborhood names (Bug 2)", () => {
+    it("SVC-MA-01 | uses well-known zip lookup when PropertyDetail has no neighborhood.name", () => {
+      const data = makeCompiledData({
+        targetMarket: {
+          properties: [
+            makeProperty({ id: "p1", zip: "90210", price: 15000000, lastSalePrice: 15000000 }),
+            makeProperty({ id: "p2", zip: "90210", price: 20000000, lastSalePrice: 20000000 }),
+            makeProperty({ id: "p3", zip: "90077", price: 25000000, lastSalePrice: 25000000 }),
+          ],
+          stale: false,
+          details: [
+            // neighborhood.name is null — simulating LA data
+            makeDetail({ id: "p1", propertyInfo: { address: { zip: "90210" } } as any, neighborhood: null }),
+          ],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
+          comps: [],
+        },
+      });
+      const result = computeMarketAnalytics(data, testMarket);
+      const bh = result.neighborhoods.find((n) => n.zipCode === "90210");
+      const ba = result.neighborhoods.find((n) => n.zipCode === "90077");
+      expect(bh?.name).toBe("Beverly Hills");
+      expect(ba?.name).toBe("Bel Air");
+    });
+
+    it("SVC-MA-02 | falls back to zip code when no known mapping exists", () => {
+      const data = makeCompiledData({
+        targetMarket: {
+          properties: [
+            makeProperty({ id: "p1", zip: "99999", price: 10000000, lastSalePrice: 10000000 }),
+          ],
+          stale: false,
+          details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
+          comps: [],
+        },
+      });
+      const result = computeMarketAnalytics(data, testMarket);
+      expect(result.neighborhoods[0].name).toBe("99999");
+    });
+  });
+
+  describe("SVC-MA: Regression — detail YoY empty cohorts (Bug 3)", () => {
+    it("SVC-MA-03 | returns null domChange/listToSaleChange when prior cohort is empty", () => {
+      const current = [makeDetail({ id: "d1", mlsHistory: [{ daysOnMarket: 30, price: 10000000 } as any] })];
+      const result = computeDetailYoY(current, []);
+      expect(result.domChange).toBeNull();
+      expect(result.listToSaleChange).toBeNull();
+    });
+
+    it("SVC-MA-04 | returns null when current cohort is empty", () => {
+      const prior = [makeDetail({ id: "d1", mlsHistory: [{ daysOnMarket: 45, price: 8000000 } as any] })];
+      const result = computeDetailYoY([], prior);
+      expect(result.domChange).toBeNull();
+      expect(result.listToSaleChange).toBeNull();
+    });
+  });
+
+  describe("SVC-MA: Regression — outlier price filtering (Bug 4)", () => {
+    it("SVC-MA-05 | outlier prices do not skew median", () => {
+      const data = makeCompiledData({
+        targetMarket: {
+          properties: [
+            makeProperty({ id: "p1", price: 10000000, lastSalePrice: 10000000 }),
+            makeProperty({ id: "p2", price: 12000000, lastSalePrice: 12000000 }),
+            makeProperty({ id: "p3", price: 11000000, lastSalePrice: 11000000 }),
+            makeProperty({ id: "p4", price: 13000000, lastSalePrice: 13000000 }),
+            makeProperty({ id: "p5", price: 9000000, lastSalePrice: 9000000 }),
+            // Wild outlier — $403M on a single transaction
+            makeProperty({ id: "p6", price: 403000000, lastSalePrice: 403000000 }),
+          ],
+          stale: false,
+          details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
+          comps: [],
+        },
+      });
+      const result = computeMarketAnalytics(data, testMarket);
+      // Without outlier filtering, median would be skewed by the $403M outlier
+      // With filtering, median should be around $10M-$13M range
+      expect(result.market.medianPrice).toBeLessThan(50000000);
+      expect(result.market.medianPrice).toBeGreaterThan(5000000);
+    });
+  });
+
+  describe("SVC-MA: Regression — per-neighborhood MIN_SAMPLE for YoY (Bug 5)", () => {
+    it("SVC-MA-06 | neighborhoods with tiny samples show null YoY instead of -100%", () => {
+      // Create a neighborhood with only 1 current-year and 0 prior-year transactions
+      const data = makeCompiledData({
+        targetMarket: {
+          properties: [
+            makeProperty({ id: "p1", zip: "90210", price: 15000000, lastSalePrice: 15000000, lastSaleDate: "2026-01-15" }),
+            // No 2025 properties for this zip
+          ],
+          stale: false,
+          details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
+          comps: [],
+        },
+      });
+      const result = computeMarketAnalytics(data, testMarket);
+      const bh = result.neighborhoods.find((n) => n.zipCode === "90210");
+      // Should be null (insufficient sample) instead of -100%
+      expect(bh?.yoyPriceChange).toBeNull();
+    });
+
+    it("SVC-MA-07 | neighborhoods with sufficient samples compute YoY normally", () => {
+      const data = makeCompiledData({
+        targetMarket: {
+          properties: [
+            // 3 current year (2026)
+            makeProperty({ id: "c1", zip: "34102", price: 10000000, lastSalePrice: 10000000, lastSaleDate: "2026-01-15" }),
+            makeProperty({ id: "c2", zip: "34102", price: 12000000, lastSalePrice: 12000000, lastSaleDate: "2026-02-15" }),
+            makeProperty({ id: "c3", zip: "34102", price: 11000000, lastSalePrice: 11000000, lastSaleDate: "2026-03-15" }),
+            // 3 prior year (2025)
+            makeProperty({ id: "p1", zip: "34102", price: 9000000, lastSalePrice: 9000000, lastSaleDate: "2025-06-01" }),
+            makeProperty({ id: "p2", zip: "34102", price: 10000000, lastSalePrice: 10000000, lastSaleDate: "2025-07-01" }),
+            makeProperty({ id: "p3", zip: "34102", price: 8000000, lastSalePrice: 8000000, lastSaleDate: "2025-08-01" }),
+          ],
+          stale: false,
+          details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
+          comps: [],
+        },
+      });
+      const result = computeMarketAnalytics(data, testMarket);
+      const naples = result.neighborhoods.find((n) => n.zipCode === "34102");
+      // With 3 samples each, YoY should be computed (not null)
+      expect(naples?.yoyPriceChange).not.toBeNull();
+      // Median current = 11M, median prior = 9M → ~22% increase
+      expect(naples!.yoyPriceChange!).toBeGreaterThan(0);
+    });
+  });
 });

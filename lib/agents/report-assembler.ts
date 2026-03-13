@@ -107,8 +107,11 @@ export function assembleReport(
         headline: {
           medianPrice: analytics.market.medianPrice,
           totalProperties: analytics.market.totalProperties,
+          totalVolume: analytics.market.totalVolume,
           rating: analytics.market.rating,
           yoyPriceChange: analytics.yoy.medianPriceChange,
+          yoyVolumeChange: analytics.yoy.totalVolumeChange,
+          yoyTransactionCountChange: analytics.yoy.volumeChange,
         },
         narrative: insightNarrative?.executiveBriefing ?? null,
         confidence: analytics.confidence,

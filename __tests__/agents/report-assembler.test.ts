@@ -231,6 +231,39 @@ describe("Report Assembler", () => {
       expect(content.peerRankings).toHaveLength(3);
     });
 
+    it("SVC-RA-01 | Regression: executive_briefing headline includes totalVolume and YoY fields for PDF template", () => {
+      const analytics = makeAnalytics({
+        market: {
+          totalProperties: 50,
+          medianPrice: 12000000,
+          averagePrice: 14000000,
+          medianPricePerSqft: 2000,
+          totalVolume: 600000000,
+          rating: "A",
+        },
+        yoy: {
+          medianPriceChange: 0.1,
+          volumeChange: 0.15,
+          pricePerSqftChange: 0.08,
+          averagePriceChange: 0.12,
+          totalVolumeChange: 0.2,
+          domChange: null,
+          listToSaleChange: null,
+        },
+      });
+      const result = assembleReport(analytics, makeAgentResults(), defaultDurations);
+      const content = result.sections[0].content as any;
+
+      // PDF template reads from content.headline — these must all be present
+      expect(content.headline.medianPrice).toBe(12000000);
+      expect(content.headline.totalProperties).toBe(50);
+      expect(content.headline.totalVolume).toBe(600000000);
+      expect(content.headline.rating).toBe("A");
+      expect(content.headline.yoyPriceChange).toBe(0.1);
+      expect(content.headline.yoyVolumeChange).toBe(0.2);
+      expect(content.headline.yoyTransactionCountChange).toBe(0.15);
+    });
+
     it("handles missing agent results gracefully", () => {
       const result = assembleReport(makeAnalytics(), {}, defaultDurations);
       expect(result.sections).toHaveLength(7);

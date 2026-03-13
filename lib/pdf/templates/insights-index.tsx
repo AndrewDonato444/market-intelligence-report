@@ -67,12 +67,15 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
     (s) => s.sectionType === "executive_briefing"
   );
   const execContent = execBriefing?.content as {
-    medianPrice?: number;
-    totalVolume?: number;
-    properties?: number;
-    yoyChange?: number;
-    yoyVolumeChange?: number;
-    yoyTransactionCountChange?: number;
+    headline?: {
+      medianPrice?: number;
+      totalProperties?: number;
+      totalVolume?: number;
+      rating?: string;
+      yoyPriceChange?: number | null;
+      yoyVolumeChange?: number | null;
+      yoyTransactionCountChange?: number | null;
+    };
     highlights?: string[];
     narrative?: string;
   } | undefined;
@@ -94,11 +97,12 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
     segments?: Array<{ name: string; count: number; medianPrice: number; rating: string }>;
   } | undefined;
 
-  // Headline metrics
-  const totalTransactions = execContent?.properties ?? 0;
-  const totalVolume = execContent?.totalVolume ?? 0;
-  const medianPrice = execContent?.medianPrice ?? 0;
-  const yoyPriceChange = execContent?.yoyChange ?? 0;
+  // Headline metrics — read from nested headline object
+  const headline = execContent?.headline;
+  const totalTransactions = headline?.totalProperties ?? 0;
+  const totalVolume = headline?.totalVolume ?? 0;
+  const medianPrice = headline?.medianPrice ?? 0;
+  const yoyPriceChange = headline?.yoyPriceChange ?? 0;
 
   // Insights index dimensions
   const dimensions: Array<{ label: string; score: number }> = [];
@@ -115,9 +119,9 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
   const segments = dashContent?.segments ?? [];
   const showSegments = segments.length >= 2;
 
-  // YoY trends
-  const yoyVolumeChange = execContent?.yoyVolumeChange ?? 0;
-  const yoyTransactionCountChange = execContent?.yoyTransactionCountChange ?? 0;
+  // YoY trends — read from nested headline object
+  const yoyVolumeChange = headline?.yoyVolumeChange ?? 0;
+  const yoyTransactionCountChange = headline?.yoyTransactionCountChange ?? 0;
 
   // Highlights from executive briefing
   const highlights = (execContent?.highlights ?? []).slice(0, 3);
