@@ -51,6 +51,19 @@ When MetricCard renders
 Then it shows the label in small caps
 And the value prominently styled
 
+### Scenario: Price per square foot metric formatting
+Given a metric named "Median Price/SqFt" (in PSF_METRICS set)
+When formatMetricValue renders the value
+Then it formats as dollar amount with no decimals plus /sqft suffix
+And example: 1450.7 renders as "$1,451/sqft"
+
+### Scenario: TrendIndicator converts proportions to display percentages
+Given a TrendIndicator with a proportion value (e.g. 0.082)
+When TrendIndicator renders
+Then it multiplies the value by 100 to get a percentage
+And displays with 1 decimal place and sign prefix (e.g. "+8.2%")
+And values where |percentage| < 1 show as flat with em-dash arrow
+
 ## Learnings
 
 (To be filled after implementation)

@@ -73,7 +73,9 @@ Given report metadata with unknown confidence level
 And no market overview section present
 When the insights index renders
 Then it still renders with available data
-And missing fields show fallback text
+And hasTransactionData is false when totalProperties is 0
+And Transactions, Volume, and Median Price cards show em-dash (—) fallback
+And YoY Price card always displays a formatted value (e.g. "0.0%")
 
 ## Document Assembly Order
 

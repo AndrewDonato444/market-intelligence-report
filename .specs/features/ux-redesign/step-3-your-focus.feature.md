@@ -40,24 +40,31 @@ And they see two sections: "Market Segments" and "Property Types"
 Given the agent is on Step 3
 Then they see a grid of segment cards, one for each available segment
 And each card shows an icon, the segment name, and a one-line description
-And the available segments are: Waterfront, Golf Course, Gated Community, Ski-In/Ski-Out, Mountain View, Historic District, New Development, Equestrian, Beachfront, Lakefront, Vineyard, Desert, Island
+And the available segments are: High-Rise, Penthouse, Townhouse, Arts & Culture District, Trophy Home, Waterfront, Beachfront, Lakefront, Private Dock / Marina, Island, Golf Course, Gated Community, Ski-In/Ski-Out, Mountain View, Equestrian, Country Estate, Historic District, New Development, Vineyard, Desert
 And no segments are pre-selected by default (unless smart defaults apply)
 
 ### Scenario: Segment card descriptions use agent vocabulary
 Given the agent is viewing segment cards
-Then "Waterfront" shows "Lakefront, riverfront, and canal-front properties"
+Then "High-Rise" shows "Luxury condo towers and skyscraper residences"
+And "Penthouse" shows "Top-floor premium units with panoramic views"
+And "Townhouse" shows "Townhouses, brownstones, and row houses"
+And "Arts & Culture District" shows "Trendy creative neighborhoods and gallery districts"
+And "Trophy Home" shows "Celebrity estates and iconic luxury properties"
+And "Waterfront" shows "Lakefront, riverfront, and canal-front properties"
+And "Beachfront" shows "Direct ocean or gulf access"
+And "Lakefront" shows "Direct lake access"
+And "Private Dock / Marina" shows "Deep-water access and private marina communities"
+And "Island" shows "Island and barrier island properties"
 And "Golf Course" shows "Golf and country club communities"
 And "Gated Community" shows "Private, access-controlled enclaves"
-And "Beachfront" shows "Direct ocean or gulf access"
-And "New Development" shows "Recently built or under construction"
-And "Historic District" shows "Designated historic neighborhoods"
 And "Ski-In/Ski-Out" shows "Direct slope access properties"
 And "Mountain View" shows "Properties with mountain vistas"
 And "Equestrian" shows "Horse properties and equestrian estates"
-And "Lakefront" shows "Direct lake access"
+And "Country Estate" shows "Large acreage estates and gentleman's farms"
+And "Historic District" shows "Designated historic neighborhoods"
+And "New Development" shows "Recently built or under construction"
 And "Vineyard" shows "Wine country and vineyard estates"
 And "Desert" shows "Desert landscape properties"
-And "Island" shows "Island and barrier island properties"
 
 ### Scenario: Agent toggles a segment card
 Given the agent is on Step 3
@@ -94,11 +101,22 @@ Note: For v1, smart defaults are derived from a static mapping of state to commo
 ### Scenario: Smart default mapping by state
 Given the agent's state from Step 1
 Then the following defaults apply:
-- FL, HI, SC, NC, GA, AL, MS, LA, TX (Gulf/Atlantic coast) -> Waterfront, Beachfront, Golf Course + Single Family, Estate, Condo
-- CA -> Waterfront, Vineyard, New Development + Single Family, Estate, Condo
+- NY -> High-Rise, Penthouse, Townhouse + Condo, Co-op, Penthouse, Townhouse
+- NJ -> Townhouse, Waterfront, Gated Community + Condo, Co-op, Penthouse, Townhouse
+- CT -> Country Estate, Waterfront, Gated Community + Condo, Co-op, Penthouse, Townhouse
+- MA -> Townhouse, Historic District, Waterfront + Condo, Co-op, Penthouse, Townhouse
+- IL -> High-Rise, Penthouse, Townhouse + Single Family, Estate, Condo
+- FL -> Waterfront, Beachfront, High-Rise, Marina + Single Family, Estate, Condo
+- HI -> Waterfront, Beachfront, Island + Single Family, Estate, Condo
+- SC, NC, GA, AL, MS, LA, TX (Gulf/Atlantic coast) -> Waterfront, Beachfront, Golf Course + Single Family, Estate, Condo
+- CA -> High-Rise, Beachfront, Trophy Home, Vineyard + Single Family, Estate, Condo
+- WA -> Waterfront, High-Rise, Mountain View + Single Family, Estate, Condo
+- OR -> Waterfront, Vineyard, Mountain View + Single Family, Estate, Condo
 - CO, MT, WY, UT, ID -> Ski-In/Ski-Out, Mountain View + Chalet, Estate, Single Family
-- NY, NJ, CT, MA -> Gated Community, Waterfront + Condo, Co-op, Penthouse, Townhouse
-- AZ, NV, NM -> Desert, Golf Course + Estate, Single Family, Villa
+- AZ, NV -> Desert, Golf Course + Estate, Single Family, Villa
+- NM -> Desert, Golf Course + Estate, Single Family, Villa
+- VA -> Historic District, Waterfront, Equestrian + Single Family, Estate
+- DC -> Townhouse, Historic District + Single Family, Estate
 - All other states -> Gated Community + Single Family, Estate
 Note: If the agent changes a pre-selected card, the "Popular in your area" badge remains but the card becomes unselected
 

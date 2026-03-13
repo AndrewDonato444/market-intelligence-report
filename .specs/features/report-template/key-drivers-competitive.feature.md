@@ -57,6 +57,12 @@ Given a methodology section with content
 When rendered
 Then it shows methodology text content
 
+### Scenario: Peer rankings hidden when only one market
+Given competitive_market_analysis with peerRankings where totalMarkets <= 1
+When rendered
+Then the "Market Rankings" section is not shown
+And peer comparison cards still render normally
+
 ## Learnings
 
 (To be filled after implementation)

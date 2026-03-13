@@ -60,6 +60,12 @@ Then it shows the narrative and highlights
 And no segment table is shown
 And no errors occur
 
+### Scenario: Rating fallback to C when null or undefined
+Given an executive briefing with a null or undefined rating
+When rendered
+Then the rating defaults to "C"
+And getRatingColor returns error color for C-rated items
+
 ## Learnings
 
 (To be filled after implementation)
