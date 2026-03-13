@@ -165,6 +165,7 @@ export function assembleReport(
       content: {
         neighborhoods: analytics.neighborhoods,
         narrative: insightNarrative?.neighborhoodAnalysis ?? null,
+        sourceAttribution: buildSourceAttribution(analytics),
       },
     },
 
@@ -279,6 +280,23 @@ function extractPersonaFraming(
     deEmphasis: primary.narrativeOverlay.deEmphasis,
     toneGuidance: primary.narrativeOverlay.toneGuidance,
   };
+}
+
+/**
+ * Build source attribution string for section 4 (Neighborhood Intelligence).
+ * Returns null if no transaction data exists.
+ */
+function buildSourceAttribution(analytics: ComputedAnalytics): string | null {
+  if (analytics.neighborhoods.length === 0 || analytics.market.totalProperties === 0) {
+    return null;
+  }
+
+  const count = analytics.market.totalProperties;
+  const dateStr = analytics.dataAsOfDate
+    ? `, through ${new Date(analytics.dataAsOfDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`
+    : "";
+
+  return `Analysis of ${count} transactions via RealEstateAPI${dateStr}`;
 }
 
 /**

@@ -80,6 +80,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | marketing | [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md) | `app/page.tsx` | see spec | see spec | implemented |
 | pipeline | [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md) | `lib/services/data-source-registry.ts` | see spec | see spec | implemented |
 | pipeline | [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md) | `lib/services/pipeline-executor.ts` | see spec | see spec | implemented |
+| report-advisor | [Advisor Data Model](.specs/features/report-advisor/advisor-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | report-builder | [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
 | report-builder | [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md) | `(deleted — replaced by unified-report-entry)` | see spec | see spec | archived |
 | report-builder | [Report Preview](.specs/features/report-builder/report-preview.feature.md) | `components/reports/report-preview.tsx` | see spec | see spec | implemented |
@@ -88,10 +89,14 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-editor | [Report History + Versioning](.specs/features/report-editor/report-history.feature.md) | `lib/services/report-history.ts` | see spec | see spec | implemented |
 | report-editor | [Report Templates](.specs/features/report-editor/report-templates.feature.md) | `lib/services/report-templates.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Cover Page Redesign](.specs/features/report-output-v2/cover-page-redesign.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
+| report-output-v2 | [Eliminate Cash Buyers from Liquidity Metrics](.specs/features/report-output-v2/eliminate-cash-buyers.feature.md) | `lib/services/market-analytics.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Executive Brief Improvements](.specs/features/report-output-v2/executive-brief-improvements.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
+| report-output-v2 | [Luxury Market Dashboard Restructuring](.specs/features/report-output-v2/luxury-market-dashboard.feature.md) | `lib/services/market-analytics.ts, lib/pdf/templates/renderers.tsx, lib/agents/insight-generator.ts, lib/agents/report-assembler.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Market Insights Index Redesign](.specs/features/report-output-v2/market-insights-index-redesign.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-output-v2 | [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md) | `lib/pdf/templates/insights-index.tsx` | see spec | see spec | implemented |
+| report-output-v2 | [Neighborhood Intelligence Trim](.specs/features/report-output-v2/neighborhood-intelligence-trim.feature.md) | `lib/agents/insight-generator.ts, lib/pdf/templates/renderers.tsx, lib/agents/report-assembler.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Remove Market Scorecard Section](.specs/features/report-output-v2/remove-market-scorecard.feature.md) | `lib/agents/report-assembler.ts, lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
+| report-output-v2 | [Remove Methodology Section](.specs/features/report-output-v2/remove-methodology.feature.md) | `lib/agents/report-assembler.ts, lib/agents/schema.ts, lib/services/report-validation.ts, components/reports/report-disclaimer.tsx, components/reports/report-preview.tsx` | see spec | see spec | implemented |
 | report-template | [Agent Branding Injection](.specs/features/report-template/agent-branding.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | report-template | [Data Visualization Components](.specs/features/report-template/data-visualization.feature.md) | `lib/pdf/components/data-viz.tsx` | see spec | see spec | implemented |
 | report-template | [Executive Summary + Market Analysis Matrix](.specs/features/report-template/executive-summary-matrix.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
@@ -144,8 +149,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 111 |
-| **Total** | **116** |
+| implemented | 116 |
+| **Total** | **121** |
 
 ---
 
@@ -225,6 +230,7 @@ _None_
 - [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md)
 - [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md)
 - [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md)
+- [Advisor Data Model](.specs/features/report-advisor/advisor-data-model.feature.md)
 - [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md)
 - [Report Preview](.specs/features/report-builder/report-preview.feature.md)
 - [Unified Report Generation Entry Point](.specs/features/report-builder/unified-report-entry.feature.md)
@@ -232,10 +238,14 @@ _None_
 - [Report History + Versioning](.specs/features/report-editor/report-history.feature.md)
 - [Report Templates](.specs/features/report-editor/report-templates.feature.md)
 - [Cover Page Redesign](.specs/features/report-output-v2/cover-page-redesign.feature.md)
+- [Eliminate Cash Buyers from Liquidity Metrics](.specs/features/report-output-v2/eliminate-cash-buyers.feature.md)
 - [Executive Brief Improvements](.specs/features/report-output-v2/executive-brief-improvements.feature.md)
+- [Luxury Market Dashboard Restructuring](.specs/features/report-output-v2/luxury-market-dashboard.feature.md)
 - [Market Insights Index Redesign](.specs/features/report-output-v2/market-insights-index-redesign.feature.md)
 - [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md)
+- [Neighborhood Intelligence Trim](.specs/features/report-output-v2/neighborhood-intelligence-trim.feature.md)
 - [Remove Market Scorecard Section](.specs/features/report-output-v2/remove-market-scorecard.feature.md)
+- [Remove Methodology Section](.specs/features/report-output-v2/remove-methodology.feature.md)
 - [Agent Branding Injection](.specs/features/report-template/agent-branding.feature.md)
 - [Data Visualization Components](.specs/features/report-template/data-visualization.feature.md)
 - [Executive Summary + Market Analysis Matrix](.specs/features/report-template/executive-summary-matrix.feature.md)

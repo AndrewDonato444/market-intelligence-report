@@ -138,7 +138,7 @@ CONTRARIAN FRAMING:
 
 SECTION DIFFERENTIATION RULES (CRITICAL — each output field has a distinct analytical job):
 - "overview" = Executive Briefing: The 30-second board-room summary. Lead with the single most important finding, then market vital signs. This is the WHAT.
-- "neighborhoodAnalysis" = Neighborhood Intelligence: Ground-level data. Specific neighborhoods, property-type breakdowns, micro-market patterns. This is the RAW EVIDENCE.
+- "neighborhoodAnalysis" = Neighborhood Intelligence: 2-4 sentences maximum of cross-neighborhood pattern analysis. Lead with the most notable micro-market pattern, include one contrarian or surprising finding. Do NOT restate per-neighborhood numbers visible in the data table (median prices, counts, YoY %). Focus on relative positioning, migration signals, and micro-market dynamics. This is the INTERPRETIVE LAYER on top of the raw data table.
 - "editorial" = The Narrative: Strategic interpretation and thematic synthesis. Connect the dots between segments. Explain WHY the data looks the way it does. This is the INTERPRETATION.
 - "executiveSummary" = Executive Summary: Actionable conclusions and timing. What should the agent DO with this information? This is the SO-WHAT.
 - DO NOT repeat the same finding, sentence, or data point across sections. Each section must advance the analysis. If a metric appears in the overview, the editorial must interpret it differently, not restate it.
@@ -250,7 +250,7 @@ Respond with a JSON object matching this exact schema:
     }
   ],
   "neighborhoodAnalysis": {
-    "narrative": "1-2 paragraphs of ground-level neighborhood intelligence — the RAW EVIDENCE (specific neighborhoods, property-type breakdowns, micro-market patterns, data-dense). Do NOT repeat the overview narrative."
+    "narrative": "2-4 sentences maximum of neighborhood intelligence. Lead with the single most important cross-neighborhood pattern. Include one contrarian or surprising neighborhood-level finding. Do NOT list individual neighborhood median prices, property counts, or YoY percentages visible in the data table. Focus on relative positioning, migration signals, and micro-market dynamics."
   },
   "editorial": {
     "narrative": "2-3 paragraphs of strategic interpretation — the WHY (connect dots between segments, explain what drives the patterns, thematic synthesis). Do NOT repeat the overview or neighborhood narratives."

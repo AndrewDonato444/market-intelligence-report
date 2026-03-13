@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 115 |
+| ✅ Completed | 116 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 13 |
+| ⬜ Pending | 12 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-13
@@ -345,7 +345,7 @@
 | 202 | Executive Brief improvements — add explainer text for each tile/metric, pull and display data dates (freshness), add headers for each pro item | user-feedback | M | 50 | ✅ |
 | 203 | Market Insights Index redesign — add usage context ("how to read this index"), ensure every index returns a rating (no blanks), redesign layout from rectangles to square tile structure | user-feedback | M | 50, 31 | ✅ |
 | 204 | Luxury Market Dashboard restructuring — Power Five: remove Transaction Volume. Tier Two: remove Cash Buyer, TSV, Flood Zone Exposure. Combine Tier Two + Three. Keep Investor Activity Rate with definition. Add 3-sentence narrative headline about last 100 sales | user-feedback | L | 50, 31, 32 | ✅ |
-| 205 | Neighborhood Intelligence trim — add source attribution (where narrative comes from), significantly reduce text volume, tighten narrative output from agent | user-feedback | M | 32 | ⬜ |
+| 205 | Neighborhood Intelligence trim — add source attribution (where narrative comes from), significantly reduce text volume, tighten narrative output from agent | user-feedback | M | 32 | ✅ |
 | 206 | Market Segments rating transparency — explain how segment ratings are calculated, show methodology inline in the section | user-feedback | S | 31 | ⬜ |
 | 207 | Comparative Position data definitions — define all data points clearly with inline explanations so reader understands each metric | user-feedback | S | 50 | ⬜ |
 | 208 | Strategic Benchmark reframing — adjust framing from scorecard-like to more strategic positioning language, less grading more advising | user-feedback | M | 35 | ⬜ |

@@ -1052,6 +1052,7 @@ export const LuxuryMarketDashboardPdf: SectionRenderer = ({ section }) => {
 
 interface NeighborhoodIntelligenceContent {
   narrative: string | null;
+  sourceAttribution: string | null;
   neighborhoods: Array<{
     name: string;
     zipCode: string;
@@ -1067,6 +1068,11 @@ export const NeighborhoodIntelligencePdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {c.narrative && <Text style={styles.body}>{c.narrative}</Text>}
+      {c.sourceAttribution && (
+        <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary, marginTop: 4, marginBottom: 12 }}>
+          Source: {c.sourceAttribution}
+        </Text>
+      )}
       {c.neighborhoods.length > 0 && (
         <View style={{ marginTop: 12 }}>
           <View style={{ ...styles.tableRow, borderBottomWidth: 2 }}>
