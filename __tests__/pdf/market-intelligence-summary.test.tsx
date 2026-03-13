@@ -19,7 +19,7 @@ function makeMetadata(overrides: Record<string, unknown> = {}) {
 }
 
 function makeSections(overrides: {
-  executiveBriefing?: Record<string, unknown>;
+  executiveBriefing?: { headline?: Record<string, unknown>; highlights?: string[] };
   marketInsightsIndex?: Record<string, unknown>;
   luxuryMarketDashboard?: Record<string, unknown>;
 } = {}) {
@@ -28,18 +28,22 @@ function makeSections(overrides: {
       sectionType: "executive_briefing",
       title: "Executive Briefing",
       content: {
-        rating: "A+",
-        medianPrice: 2950000,
-        totalVolume: 6580000000,
-        properties: 2234,
-        yoyChange: 8.2,
+        headline: {
+          medianPrice: 2950000,
+          totalProperties: 2234,
+          totalVolume: 6580000000,
+          rating: "A+",
+          yoyPriceChange: 0.082,
+          yoyVolumeChange: -0.124,
+          yoyTransactionCountChange: 0.031,
+          ...overrides.executiveBriefing?.headline,
+        },
         narrative: "Ultra-luxury waterfront outperformed broader market by 23%.",
-        highlights: [
+        highlights: overrides.executiveBriefing?.highlights ?? [
           "Ultra-luxury waterfront outperformed broader market by 23%",
           "Cash transactions dominated at 67% — highest in 3 years",
           "Supply constraints tightening: 2.1 months inventory vs 3.8 regional",
         ],
-        ...overrides.executiveBriefing,
       },
     },
     {
@@ -118,7 +122,7 @@ describe("Market Intelligence Summary", () => {
 
     it("shows negative YoY change with minus sign", async () => {
       const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
-      render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections({ executiveBriefing: { yoyChange: -5.3 } }) }));
+      render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections({ executiveBriefing: { headline: { yoyPriceChange: -0.053 } } }) }));
       const yoyValues = screen.getAllByText("-5.3%");
       expect(yoyValues.length).toBeGreaterThanOrEqual(1);
     });
@@ -201,7 +205,7 @@ describe("Market Intelligence Summary", () => {
     it("renders Year-over-Year section title", async () => {
       const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
       render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections({
-        executiveBriefing: { yoyChange: 8.2, yoyVolumeChange: -12.4, yoyTransactionCountChange: 3.1 },
+        executiveBriefing: { headline: { yoyPriceChange: 0.082, yoyVolumeChange: -0.124, yoyTransactionCountChange: 0.031 } },
       }) }));
       expect(screen.getByText("Year-over-Year")).toBeInTheDocument();
     });
@@ -209,7 +213,7 @@ describe("Market Intelligence Summary", () => {
     it("shows up arrow for positive changes", async () => {
       const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
       render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections({
-        executiveBriefing: { yoyChange: 8.2, yoyVolumeChange: 5.0, yoyTransactionCountChange: 3.1 },
+        executiveBriefing: { headline: { yoyPriceChange: 0.082, yoyVolumeChange: 0.05, yoyTransactionCountChange: 0.031 } },
       }) }));
       const arrows = screen.getAllByText("\u25B2");
       expect(arrows.length).toBeGreaterThanOrEqual(3);
@@ -218,7 +222,7 @@ describe("Market Intelligence Summary", () => {
     it("shows down arrow for negative changes", async () => {
       const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
       render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections({
-        executiveBriefing: { yoyChange: -5.0, yoyVolumeChange: -12.4, yoyTransactionCountChange: -2.0 },
+        executiveBriefing: { headline: { yoyPriceChange: -0.05, yoyVolumeChange: -0.124, yoyTransactionCountChange: -0.02 } },
       }) }));
       const arrows = screen.getAllByText("\u25BC");
       expect(arrows.length).toBeGreaterThanOrEqual(3);
@@ -227,7 +231,7 @@ describe("Market Intelligence Summary", () => {
     it("shows flat indicator for changes within 1%", async () => {
       const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
       render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections({
-        executiveBriefing: { yoyChange: 0.5, yoyVolumeChange: -0.3, yoyTransactionCountChange: 0.0 },
+        executiveBriefing: { headline: { yoyPriceChange: 0.005, yoyVolumeChange: -0.003, yoyTransactionCountChange: 0.0 } },
       }) }));
       const flatIndicators = screen.getAllByText("\u2014");
       expect(flatIndicators.length).toBeGreaterThanOrEqual(3);
@@ -409,7 +413,8 @@ describe("Market Intelligence Summary", () => {
   describe("TrendIndicator", () => {
     it("shows up arrow for positive change", async () => {
       const { TrendIndicator } = await import("@/lib/pdf/components/data-viz");
-      render(React.createElement(TrendIndicator, { label: "Median Price", value: 8.2 }));
+      // value is a proportion: 0.082 = 8.2%
+      render(React.createElement(TrendIndicator, { label: "Median Price", value: 0.082 }));
       expect(screen.getByText("Median Price")).toBeInTheDocument();
       expect(screen.getByText("+8.2%")).toBeInTheDocument();
       expect(screen.getByText("\u25B2")).toBeInTheDocument();
@@ -417,7 +422,8 @@ describe("Market Intelligence Summary", () => {
 
     it("shows down arrow for negative change", async () => {
       const { TrendIndicator } = await import("@/lib/pdf/components/data-viz");
-      render(React.createElement(TrendIndicator, { label: "Volume", value: -12.4 }));
+      // value is a proportion: -0.124 = -12.4%
+      render(React.createElement(TrendIndicator, { label: "Volume", value: -0.124 }));
       expect(screen.getByText("Volume")).toBeInTheDocument();
       expect(screen.getByText("-12.4%")).toBeInTheDocument();
       expect(screen.getByText("\u25BC")).toBeInTheDocument();
@@ -425,7 +431,8 @@ describe("Market Intelligence Summary", () => {
 
     it("shows flat indicator for near-zero change", async () => {
       const { TrendIndicator } = await import("@/lib/pdf/components/data-viz");
-      render(React.createElement(TrendIndicator, { label: "Count", value: 0.3 }));
+      // value is a proportion: 0.003 = 0.3% (below 1% flat threshold)
+      render(React.createElement(TrendIndicator, { label: "Count", value: 0.003 }));
       expect(screen.getByText("Count")).toBeInTheDocument();
       expect(screen.getByText("+0.3%")).toBeInTheDocument();
       expect(screen.getByText("\u2014")).toBeInTheDocument();

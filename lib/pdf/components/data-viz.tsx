@@ -472,8 +472,10 @@ interface TrendIndicatorProps {
 }
 
 export function TrendIndicator({ label, value }: TrendIndicatorProps) {
-  const isFlat = Math.abs(value) < 1;
-  const isPositive = value > 0;
+  // value is a proportion (e.g. 0.08 = 8%), convert to display percentage
+  const pct = value * 100;
+  const isFlat = Math.abs(pct) < 1;
+  const isPositive = pct > 0;
 
   const arrow = isFlat ? "\u2014" : isPositive ? "\u25B2" : "\u25BC";
   const color = isFlat
@@ -482,7 +484,7 @@ export function TrendIndicator({ label, value }: TrendIndicatorProps) {
       ? COLORS.success
       : COLORS.error;
 
-  const formatted = `${value > 0 ? "+" : ""}${value}%`;
+  const formatted = `${pct > 0 ? "+" : ""}${pct.toFixed(1)}%`;
 
   return (
     <View

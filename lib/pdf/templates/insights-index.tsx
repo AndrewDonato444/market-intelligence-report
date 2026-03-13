@@ -53,7 +53,8 @@ function formatPrice(value: number): string {
 }
 
 function formatYoY(value: number): string {
-  return `${value > 0 ? "+" : ""}${value}%`;
+  const pct = (value * 100).toFixed(1);
+  return `${value > 0 ? "+" : ""}${pct}%`;
 }
 
 export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
