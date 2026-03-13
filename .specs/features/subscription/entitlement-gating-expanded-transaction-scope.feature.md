@@ -4,6 +4,8 @@ domain: subscription
 source: lib/services/pipeline-executor.ts
 tests:
   - __tests__/lib/subscription/entitlement-gating-transaction-scope.test.ts
+  - __tests__/db/subscription-tiers-schema.test.ts
+  - __tests__/db/user-entitlement-model.test.ts
 components: []
 personas:
   - rising-star-agent
@@ -61,6 +63,11 @@ And the data fetcher applies this limit to searchProperties calls
 Given the entitlement check fails due to a DB error
 When the pipeline runs
 Then the data fetcher uses the default limit (100) instead of blocking
+
+### Scenario: No transactionLimit passed to data fetcher
+Given transactionLimit is not provided in DataFetchOptions
+When the data fetcher runs property searches
+Then it does NOT set a limit on search params (uses API default)
 
 ---
 

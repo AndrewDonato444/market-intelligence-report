@@ -107,6 +107,7 @@ describe("User Entitlement Model — Value Conventions", () => {
       "social_media_kits",
       "email_campaigns",
       "personas_per_report",
+      "transaction_limit",
     ];
     validKeys.forEach((key) => {
       const override = { entitlementType: key, value: 10 };
