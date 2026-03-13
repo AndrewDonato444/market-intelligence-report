@@ -753,6 +753,9 @@ export function formatDataFreshnessDate(isoDate: string | null | undefined, fall
 export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
   const c = section.content as ExecutiveBriefingContent;
   const h = c.headline;
+  // Guard against missing/empty rating — assignRating always returns a letter grade
+  // but upstream data issues could cause it to be undefined/null
+  const rating = h.rating || "C";
   const priceFmt = h.medianPrice >= 1_000_000
     ? `$${(h.medianPrice / 1_000_000).toFixed(1)}M`
     : `$${(h.medianPrice / 1_000).toFixed(0)}K`;
@@ -772,7 +775,7 @@ export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
       <View style={{ flexDirection: "row", marginBottom: 16, gap: 12 }}>
         <View style={{ ...styles.card, flex: 1, alignItems: "center" }} wrap={false}>
           <Text style={styles.metadataLabel}>Market Rating</Text>
-          <Text style={{ fontFamily: "Playfair Display", fontSize: 28, color: getRatingColor(h.rating) }}>{h.rating}</Text>
+          <Text style={{ fontFamily: "Playfair Display", fontSize: 28, color: getRatingColor(rating) }}>{rating}</Text>
           {c.metricExplainers?.marketRating && (
             <Text style={styles.metricExplainer}>{c.metricExplainers.marketRating}</Text>
           )}
@@ -969,6 +972,11 @@ const COUNT_METRICS = new Set([
   "Median Days on Market",
 ]);
 
+// Metrics displayed as $/sqft (dollar with 0 decimals + /sqft suffix)
+const PSF_METRICS = new Set([
+  "Median Price/SqFt",
+]);
+
 function formatMetricValue(val: number | string | null, metricName?: string): string {
   if (val == null) return "N/A";
   if (typeof val === "string") return val;
@@ -990,6 +998,11 @@ function formatMetricValue(val: number | string | null, metricName?: string): st
   // Count metrics: plain number
   if (metricName && COUNT_METRICS.has(metricName)) {
     return val.toLocaleString();
+  }
+
+  // Price per sqft metrics: dollar formatting with no decimals
+  if (metricName && PSF_METRICS.has(metricName)) {
+    return `$${Math.round(val).toLocaleString()}/sqft`;
   }
 
   // Default: dollar formatting
@@ -1241,7 +1254,7 @@ export const ComparativePositioningPdf: SectionRenderer = ({ section }) => {
   const c = section.content as ComparativePositioningContent;
   return (
     <View>
-      {c.peerRankings.length > 0 && (
+      {c.peerRankings.length > 0 && c.peerRankings[0]?.totalMarkets > 1 && (
         <View style={{ marginBottom: 16 }}>
           <Text style={styles.subheading}>Market Rankings</Text>
           {c.peerRankings.map((r, i) => (

@@ -195,7 +195,6 @@ export const markets = pgTable(
     priceCeiling: integer("price_ceiling"),
     segments: jsonb("segments").$type<string[]>(),
     propertyTypes: jsonb("property_types").$type<string[]>(),
-    focusAreas: jsonb("focus_areas").$type<string[]>(),
     peerMarkets: jsonb("peer_markets").$type<
       Array<{
         name: string;

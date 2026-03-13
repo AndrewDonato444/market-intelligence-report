@@ -16,7 +16,6 @@ interface Market {
   priceCeiling: number | null;
   segments: string[] | null;
   propertyTypes: string[] | null;
-  focusAreas: string[] | null;
   isDefault: number;
   createdAt: Date;
   updatedAt: Date;

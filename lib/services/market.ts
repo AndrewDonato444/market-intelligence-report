@@ -31,7 +31,6 @@ export async function createMarket(
     priceCeiling?: number | null;
     segments?: string[];
     propertyTypes?: string[];
-    focusAreas?: string[];
   }
 ) {
   // Get user internal ID
@@ -65,7 +64,6 @@ export async function createMarket(
       priceCeiling: data.priceCeiling || null,
       segments: data.segments || null,
       propertyTypes: data.propertyTypes || null,
-      focusAreas: data.focusAreas || null,
       isDefault: isFirst ? 1 : 0,
     })
     .returning();
@@ -104,7 +102,6 @@ export async function updateMarket(
     priceCeiling?: number | null;
     segments?: string[];
     propertyTypes?: string[];
-    focusAreas?: string[];
   }
 ) {
   const [user] = await db
@@ -125,7 +122,6 @@ export async function updateMarket(
       priceCeiling: data.priceCeiling || null,
       segments: data.segments || null,
       propertyTypes: data.propertyTypes || null,
-      focusAreas: data.focusAreas || null,
       updatedAt: new Date(),
     })
     .where(

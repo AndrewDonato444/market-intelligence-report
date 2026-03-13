@@ -48,7 +48,6 @@ export interface MarketData {
   priceCeiling?: number | null;
   segments?: string[];
   propertyTypes?: string[];
-  focusAreas?: string[];
   peerMarkets?: Array<{
     name: string;
     geography: { city: string; state: string };

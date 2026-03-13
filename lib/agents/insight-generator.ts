@@ -123,7 +123,11 @@ OUTPUT RULES:
 - Must avoid: Generic language ("the market is healthy"), promotional tone, restating raw metrics without strategic interpretation, hedging language that adds no value ("it remains to be seen", "may or may not", "only time will tell")
 - CRITICAL: Only reference numbers that appear in the input data. Do NOT fabricate, extrapolate, or invent metrics that were not provided (e.g., do not create price-per-sqft figures, property counts, or volume numbers unless they are explicitly in the input). When a metric is not available, either omit it or note its absence.
 - When news articles are provided, reference specific news developments to ground themes in current events. Cite the source name when referencing a news item.
-- When X social sentiment data is provided, use it to validate or challenge themes from news and data. Social sentiment captures insider broker commentary, contrarian takes, and real-time market mood that traditional news often misses. Reference specific bull/bear themes or notable quotes when they add a perspective not already covered by news or data.
+- When X social sentiment data is provided, you MUST integrate it into your output. Specifically:
+  1. At least ONE theme must reference social sentiment insights (e.g., a bull theme from broker commentary or a bear signal from market skepticism).
+  2. The overview or editorial narrative must include at least ONE reference to social/X sentiment as a supporting or contrarian data point.
+  3. Use specific bull/bear themes or notable quotes from the X sentiment data — do not just acknowledge it generically.
+  Social sentiment captures insider broker commentary, contrarian takes, and real-time market mood that traditional news often misses. When X data aligns with news/data trends, use it as confirmation ("Social commentary from active brokers reinforces..."). When it diverges, surface the tension ("While the data shows X, broker sentiment on social platforms suggests...").
 
 QUOTABLE MOMENTS (CRITICAL):
 - Every section MUST contain at least one "quotable moment" — a specific stat paired with a strategic implication that the agent can drop into a client conversation.

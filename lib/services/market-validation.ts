@@ -16,7 +16,6 @@ export interface MarketData {
   priceCeiling?: number | null;
   segments?: string[];
   propertyTypes?: string[];
-  focusAreas?: string[];
 }
 
 export interface MarketValidationResult {
@@ -130,7 +129,6 @@ export function validateMarketData(
       priceCeiling,
       segments: data.segments || undefined,
       propertyTypes: data.propertyTypes || undefined,
-      focusAreas: data.focusAreas || undefined,
     },
   };
 }

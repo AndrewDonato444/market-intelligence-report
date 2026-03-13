@@ -71,7 +71,6 @@ interface MockMarket {
   priceCeiling: number | null;
   segments: string[] | null;
   propertyTypes: string[] | null;
-  focusAreas: string[] | null;
   isDefault: number;
   createdAt: Date;
   updatedAt: Date;
@@ -102,7 +101,6 @@ const makeMarket = (overrides: Partial<MockMarket> = {}): MockMarket => ({
   priceCeiling: null,
   segments: ["Waterfront", "Golf Course"],
   propertyTypes: null,
-  focusAreas: null,
   isDefault: 1,
   createdAt: new Date("2026-01-15"),
   updatedAt: new Date("2026-01-15"),

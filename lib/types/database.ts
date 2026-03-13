@@ -127,7 +127,6 @@ export type Database = {
       markets: {
         Row: {
           created_at: string
-          focus_areas: Json | null
           geography: Json
           id: string
           is_default: number
@@ -143,7 +142,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          focus_areas?: Json | null
           geography: Json
           id?: string
           is_default?: number
@@ -159,7 +157,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          focus_areas?: Json | null
           geography?: Json
           id?: string
           is_default?: number

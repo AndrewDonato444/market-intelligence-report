@@ -123,7 +123,11 @@ OUTPUT RULES:
 - Must include: Price ranges (never just point estimates), explicit confidence levels per projection, clearly stated assumptions for each scenario, projections grounded in the provided YoY trend data, wider confidence ranges for longer time horizons, a clear BUY/HOLD/SELL posture for each timing recommendation
 - Must avoid: Extreme or sensational scenarios, point estimates without ranges, speculation beyond what the data supports, guarantees or certainty language ("will," "guaranteed," "certain"), vague directional statements without quantification, hedging that communicates nothing ("it remains to be seen", "only time will tell")
 - When news articles are provided, reference relevant news developments in scenario assumptions and monitoring areas. Cite the source name when referencing a news item.
-- When X social sentiment data is provided, use bull/bear themes to inform scenario assumptions. Social sentiment from brokers and market participants can surface leading indicators (e.g., rising skepticism, deal flow acceleration) that should influence scenario probabilities and monitoring triggers.
+- When X social sentiment data is provided, you MUST integrate it into your output. Specifically:
+  1. At least ONE scenario assumption must reference social sentiment insights (e.g., "Social commentary from active brokers indicates rising buyer skepticism" as a bear case assumption).
+  2. At least ONE monitoring area must reference social sentiment as a leading indicator or decision trigger.
+  3. The outlook narrative must reference the current social sentiment posture (positive/negative/mixed) and what it implies for market direction.
+  Social sentiment from brokers and market participants surfaces leading indicators (e.g., rising skepticism, deal flow acceleration, shifting inventory attitudes) that should influence scenario probabilities and monitoring triggers.
 
 EXAMPLES OF GOOD OUTPUT:
 

@@ -104,6 +104,7 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
   const totalVolume = headline?.totalVolume ?? 0;
   const medianPrice = headline?.medianPrice ?? 0;
   const yoyPriceChange = headline?.yoyPriceChange ?? 0;
+  const hasTransactionData = totalTransactions > 0;
 
   // Insights index dimensions
   const dimensions: Array<{ label: string; score: number }> = [];
@@ -145,15 +146,15 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
           }}
         >
           <View style={{ flex: 1, backgroundColor: COLORS.surface, borderRadius: 4, padding: 8, borderWidth: 1, borderColor: COLORS.border, alignItems: "center" }}>
-            <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{totalTransactions.toLocaleString()}</Text>
+            <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{hasTransactionData ? totalTransactions.toLocaleString() : "\u2014"}</Text>
             <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, marginTop: 2 }}>Transactions</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: COLORS.surface, borderRadius: 4, padding: 8, borderWidth: 1, borderColor: COLORS.border, alignItems: "center" }}>
-            <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{formatVolume(totalVolume)}</Text>
+            <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{hasTransactionData ? formatVolume(totalVolume) : "\u2014"}</Text>
             <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, marginTop: 2 }}>Volume</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: COLORS.surface, borderRadius: 4, padding: 8, borderWidth: 1, borderColor: COLORS.border, alignItems: "center" }}>
-            <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{formatPrice(medianPrice)}</Text>
+            <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{hasTransactionData ? formatPrice(medianPrice) : "\u2014"}</Text>
             <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, marginTop: 2 }}>Median Price</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: COLORS.surface, borderRadius: 4, padding: 8, borderWidth: 1, borderColor: COLORS.border, alignItems: "center" }}>

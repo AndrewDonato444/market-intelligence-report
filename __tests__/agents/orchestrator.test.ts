@@ -88,7 +88,6 @@ const mockMarket = {
   priceCeiling: null,
   segments: ["waterfront", "golf course"],
   propertyTypes: ["single_family", "estate"],
-  focusAreas: [],
 };
 
 const mockReportConfig = {

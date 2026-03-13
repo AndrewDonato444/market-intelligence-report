@@ -60,7 +60,6 @@ jest.mock("@/lib/db", () => {
         priceCeiling: "price_ceiling",
         segments: "segments",
         propertyTypes: "property_types",
-        focusAreas: "focus_areas",
         peerMarkets: "peer_markets",
       },
       reportSections: {
@@ -155,7 +154,6 @@ const MOCK_MARKET_ROW = {
   priceCeiling: null,
   segments: ["Single Family", "Condo"],
   propertyTypes: ["SFR", "CONDO"],
-  focusAreas: ["Port Royal", "Aqualane Shores"],
   peerMarkets: [{ name: "Palm Beach", geography: { city: "Palm Beach", state: "FL" } }],
 };
 
@@ -256,7 +254,6 @@ describe("Pipeline Executor Service (v2)", () => {
         priceCeiling: null,
         segments: ["Single Family", "Condo"],
         propertyTypes: ["SFR", "CONDO"],
-        focusAreas: ["Port Royal", "Aqualane Shores"],
         peerMarkets: [{ name: "Palm Beach", geography: { city: "Palm Beach", state: "FL" } }],
       });
     });
@@ -267,7 +264,6 @@ describe("Pipeline Executor Service (v2)", () => {
         priceCeiling: null,
         segments: null,
         propertyTypes: null,
-        focusAreas: null,
         peerMarkets: null,
       };
 
@@ -276,7 +272,6 @@ describe("Pipeline Executor Service (v2)", () => {
       expect(result.priceCeiling).toBeNull();
       expect(result.segments).toBeUndefined();
       expect(result.propertyTypes).toBeUndefined();
-      expect(result.focusAreas).toBeUndefined();
       expect(result.peerMarkets).toBeUndefined();
     });
   });

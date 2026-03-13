@@ -72,7 +72,6 @@ export function convertMarketToMarketData(market: {
   priceCeiling?: number | null;
   segments?: string[] | null;
   propertyTypes?: string[] | null;
-  focusAreas?: string[] | null;
   peerMarkets?: Array<{ name: string; geography: { city: string; state: string } }> | null;
 }): MarketData {
   return {
@@ -83,7 +82,6 @@ export function convertMarketToMarketData(market: {
     priceCeiling: market.priceCeiling ?? null,
     segments: market.segments ?? undefined,
     propertyTypes: market.propertyTypes ?? undefined,
-    focusAreas: market.focusAreas ?? undefined,
     peerMarkets: market.peerMarkets ?? undefined,
   };
 }
