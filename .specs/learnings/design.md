@@ -18,6 +18,12 @@ Patterns for UI and design system in this codebase.
 
 <!-- Common component structures, composition -->
 
+### 2026-03-12 — Bulk Email Campaign Viewer (#167)
+- **Pattern**: Collapsible body for long-form content — email bodies collapse by default with a "View Full Email" toggle button. Each card owns its own `useState(false)` for expand state (not lifted). Toggle text switches between "▶ View Full Email" and "▼ Hide Full Email". Body renders with `whitespace-pre-line` to preserve line breaks from the agent output.
+- **Pattern**: Confirmation popover for destructive actions — "Regenerate Campaign" shows a small absolute-positioned popover (not a full modal) with "This will replace your current email campaign. Continue?" and Cancel/Confirm buttons. Uses `z-10` and `shadow-lg` for layering. Simpler than a modal — no portal, no backdrop, no focus trap needed.
+- **Pattern**: Persona filter pills use `rounded-full` (pill shape) with `bg-[var(--color-accent-light)] border-[var(--color-accent)]` for the active state, not the `bg-[var(--color-primary)] text-white` used in the kit viewer's platform filter. This matches the spec's accent-light active styling for persona context.
+- **Pattern**: CTA button preview in CTA Blocks section — render the `buttonText` inside an `inline-block` element styled as a button (`bg-[var(--color-accent)] text-[var(--color-primary)] rounded-[var(--radius-sm)]`). This gives a visual preview of what the CTA button looks like without it being an actual interactive button.
+
 ### 2026-03-12 — Auth Page Visual Differentiation
 - **Pattern**: Split-screen auth layout — layout.tsx is a minimal `flex-col md:flex-row` container; each page owns its own left panel (brand vs sizzle). This avoids route-aware logic in the layout and keeps each page self-contained.
 - **Decision**: Sign-up uses gold (`color-accent`) CTA, sign-in uses navy (`color-primary`) CTA. Visual hierarchy immediately signals which page is for new users vs returning. The sign-in page also has a gold "Create Account" callout below the form to funnel users to sign-up.

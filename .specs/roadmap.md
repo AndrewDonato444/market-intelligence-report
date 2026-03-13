@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 102 |
+| ✅ Completed | 103 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 21 |
 | ⏸️ Blocked | 0 |
@@ -303,7 +303,7 @@
 | 165 | Social media kit in admin — kits visible in admin report detail, generation stats in analytics (kit generation rate, most-used content types) | user-request | M | 160, 121, 130 | ✅ |
 
 | 166 | Bulk Email Campaign Agent — Claude agent that reads a finalized report and generates email campaign content: drip sequences, market update newsletters, persona-targeted email copy, subject lines, CTAs — all grounded in report data | user-request | L | 30, 36, 160 | ✅ |
-| 167 | Bulk email campaign viewer — browse generated email content by campaign type, filter by persona, copy-to-clipboard, preview formatting | user-request | M | 166 | ⬜ |
+| 167 | Bulk email campaign viewer — browse generated email content by campaign type, filter by persona, copy-to-clipboard, preview formatting | user-request | M | 166 | ✅ |
 
 **Goal**: After generating a report, agents can generate a Social Media Kit and Bulk Email Campaigns — comprehensive, text-based content packages with posts, captions, polls, stat callouts, email sequences, and content calendar suggestions, all grounded in their specific report data. Agents copy the content to their own tools and customize as needed.
 

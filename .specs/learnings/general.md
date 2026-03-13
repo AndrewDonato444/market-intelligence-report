@@ -8,6 +8,9 @@ Patterns that don't fit other categories.
 
 <!-- Conventions, naming, organization -->
 
+### 2026-03-12 — Bulk Email Campaign Viewer (#167)
+- **Pattern**: Mirror-and-adapt for viewer components — when building a new content viewer (email campaign) that follows an existing pattern (social media kit), read all 3 reference files (viewer, button, page) first, then adapt. Key differences are additive (collapsible bodies, subject lines, newsletter bulk copy, confirmation dialog) rather than structural. The page component, polling pattern, section refresh pattern, and copy button pattern are identical across both viewers.
+
 ### 2026-03-11 — Usage Tracking (#172)
 - **Pattern**: Implicit monthly reset — no cron job needed. Monthly entitlements have `periodStart` = 1st of month and `periodEnd` = 1st of next month. When a new month starts, there's simply no record for that period yet. The first gated action creates one with count=1. Old records stay for historical reference (Account & Billing page, analytics).
 - **Pattern**: Cumulative vs monthly entitlement classification — use const arrays (`MONTHLY_ENTITLEMENTS`, `CUMULATIVE_ENTITLEMENTS`) with type guard functions (`isMonthlyEntitlement`, `isCumulativeEntitlement`). Cumulative entitlements use a fixed epoch (`2024-01-01T00:00:00Z`) as periodStart and null periodEnd — one row per user per cumulative entitlement, ever. Unknown types default to monthly for safety.

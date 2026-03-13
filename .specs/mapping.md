@@ -71,6 +71,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | data-infrastructure | [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md) | `lib/connectors/realestateapi.ts` | see spec | see spec | implemented |
 | data-infrastructure | [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md) | `lib/connectors/scrapingdog.ts` | see spec | see spec | implemented |
 | email-campaigns | [Bulk Email Campaign Agent](.specs/features/email-campaigns/bulk-email-campaign-agent.feature.md) | `lib/agents/email-campaign.ts` | see spec | see spec | implemented |
+| email-campaigns | [Bulk Email Campaign Viewer](.specs/features/email-campaigns/email-campaign-viewer.feature.md) | `app/(protected)/reports/[id]/emails/page.tsx` | see spec | see spec | implemented |
 | foundation | [Authentication with Supabase](.specs/features/foundation/authentication.feature.md) | `middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/layout.tsx, app/auth/callback/route.ts, app/auth/verified/page.tsx` | see spec | see spec | implemented |
 | foundation | [Base App Layout](.specs/features/foundation/base-layout.feature.md) | `components/layout/top-nav.tsx, components/layout/sidebar.tsx, components/layout/page-shell.tsx, app/(protected)/layout.tsx` | see spec | see spec | implemented |
 | foundation | [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md) | `lib/db/schema.ts, lib/db/index.ts, lib/db/migrations/` | see spec | see spec | implemented |
@@ -135,8 +136,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 102 |
-| **Total** | **107** |
+| implemented | 103 |
+| **Total** | **108** |
 
 ---
 
@@ -151,7 +152,6 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
-- [Bulk Email Campaign Agent](.specs/features/email-campaigns/bulk-email-campaign-agent.feature.md)
 
 ### Tested
 
@@ -207,6 +207,8 @@ _None_
 - [Grok x_search Connector](.specs/features/data-infrastructure/grok-connector.feature.md)
 - [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md)
 - [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md)
+- [Bulk Email Campaign Agent](.specs/features/email-campaigns/bulk-email-campaign-agent.feature.md)
+- [Bulk Email Campaign Viewer](.specs/features/email-campaigns/email-campaign-viewer.feature.md)
 - [Authentication with Supabase](.specs/features/foundation/authentication.feature.md)
 - [Base App Layout](.specs/features/foundation/base-layout.feature.md)
 - [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md)

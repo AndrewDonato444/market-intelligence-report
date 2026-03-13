@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-12 — Bulk Email Campaign Viewer (#167)
+
+- **Mirror-and-adapt pattern for viewer components** (`general.md`): The email campaign viewer mirrors the social media kit viewer (kit-viewer.tsx → email-viewer.tsx, generate-kit-button.tsx → generate-email-button.tsx, kit/page.tsx → emails/page.tsx) but adds email-specific features: collapsible bodies, subject/preview text fields, drip sequence ordering, newsletter bulk copy, persona filter pills with accent-light styling, CTA button previews, and a regeneration confirmation dialog. Reading the reference implementation first and adapting saves time vs building from scratch.
+- **Collapsible body pattern for long content** (`design.md`): Email bodies are longer than social media posts — collapsed by default with "View Full Email" toggle. Uses local `useState` per card (not lifted state) since there's no cross-card interaction needed.
+- **Newsletter as singular object vs array** (`api.md`): Newsletter is a single `NewsletterContent` object (not an array) with `contentBlocks[]` inside it. Copy Full Newsletter composes headline + subheadline + all blocks + footer CTA as formatted text.
+- **Confirmation dialog for destructive actions** (`design.md`): Regenerate Campaign shows a popover confirmation ("This will replace your current email campaign. Continue?") instead of acting immediately — uses absolute positioning relative to the button, not a full modal.
+
 ### 2026-03-12 — Entitlement Gating in Report Creation (#174)
 
 - **MockNextResponse for route tests in jsdom** (`testing.md`): `next/server` imports fail in jsdom because `Request` is undefined. Mock `next/server` with a lightweight `MockNextResponse` class + `MinimalRequest` polyfill instead of switching to node environment.

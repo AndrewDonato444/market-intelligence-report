@@ -2,10 +2,12 @@ import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect, notFound } from "next/navigation";
 import { getReportWithMarket, getReportSections } from "@/lib/services/report";
 import { getSocialMediaKit } from "@/lib/services/social-media-kit";
+import { getEmailCampaign } from "@/lib/services/email-campaign";
 import { PipelineStatusDashboard } from "@/components/reports/pipeline-status";
 import { ReportPreview } from "@/components/reports/report-preview";
 import { ReportActions } from "@/components/reports/report-actions";
 import { GenerateKitButton } from "@/components/reports/generate-kit-button";
+import { GenerateEmailButton } from "@/components/reports/generate-email-button";
 
 export default async function ReportDetailPage({
   params,
@@ -30,6 +32,10 @@ export default async function ReportDetailPage({
 
   const kit = report.status === "completed"
     ? await getSocialMediaKit(id)
+    : null;
+
+  const emailCampaign = report.status === "completed"
+    ? await getEmailCampaign(id)
     : null;
 
   return (
@@ -57,6 +63,11 @@ export default async function ReportDetailPage({
             reportId={id}
             initialKitStatus={kit ? (kit.status as "queued" | "generating" | "completed" | "failed") : "none"}
             initialErrorMessage={kit?.errorMessage ?? null}
+          />
+          <GenerateEmailButton
+            reportId={id}
+            initialCampaignStatus={emailCampaign ? (emailCampaign.status as "queued" | "generating" | "completed" | "failed") : "none"}
+            initialErrorMessage={emailCampaign?.errorMessage ?? null}
           />
           <ReportPreview sections={sections} />
         </>

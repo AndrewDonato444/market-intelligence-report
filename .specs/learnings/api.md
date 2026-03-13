@@ -4,6 +4,14 @@ Patterns for API and data handling in this codebase.
 
 ---
 
+## Email Campaign Content Structure
+
+### 2026-03-12 — Bulk Email Campaign Viewer (#167)
+- **Pattern**: Newsletter is a singular object (`NewsletterContent`), not an array — it has `headline`, `subheadline`, `contentBlocks[]`, and `footerCta`. The "Copy Full Newsletter" action composes: `headline\nsubheadline\n\n[blocks joined by \n\n]\n\nfooterCta` where each block is `heading\nkeyMetric\nbody`. This formatted text preserves the newsletter's structure when pasted into an email tool.
+- **Pattern**: The status API endpoint returns `data.campaign.content` (not `data.kit.content` like the social media kit). When refreshing a section, the email viewer polls `/api/reports/${id}/email-campaign/status` and reads `data.campaign?.content`.
+
+---
+
 ## RealEstateAPI Credit Optimization
 
 The RealEstateAPI has free/cheap query modes to use before full data pulls:
