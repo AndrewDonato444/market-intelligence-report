@@ -166,8 +166,8 @@ describe("Market Insights Index Redesign (#203)", () => {
   describe("Computation: scores are always non-null", () => {
     it("computeInsightsIndex returns all 4 dimensions with numeric scores", async () => {
       const { computeInsightsIndex } = await import("@/lib/services/market-analytics");
-      const market = { totalProperties: 50, medianPrice: 2000000, totalVolume: 100000000, rating: "B" };
-      const yoy = { medianPriceChange: null, volumeChange: null, transactionCountChange: null };
+      const market = { totalProperties: 50, medianPrice: 2000000, averagePrice: 2500000, medianPricePerSqft: null, totalVolume: 100000000, rating: "B" };
+      const yoy = { medianPriceChange: null, volumeChange: null, pricePerSqftChange: null, averagePriceChange: null, totalVolumeChange: null, domChange: null, listToSaleChange: null };
       const detailMetrics = {
         cashBuyerPercentage: null,
         freeClearPercentage: null,
@@ -175,11 +175,12 @@ describe("Market Insights Index Redesign (#203)", () => {
         medianDaysOnMarket: null,
         listToSaleRatio: null,
         investorPercentage: null,
+        investorBuyerPercentage: null,
         medianPricePerSqft: null,
         medianLotSize: null,
         medianYearBuilt: null,
       };
-      const segments: Array<{ name: string; count: number; medianPrice: number; medianPricePerSqft: number | null; priceRange: { min: number; max: number }; rating: string }> = [];
+      const segments: Parameters<typeof computeInsightsIndex>[3] = [];
 
       const result = computeInsightsIndex(market, yoy, detailMetrics, segments);
 
