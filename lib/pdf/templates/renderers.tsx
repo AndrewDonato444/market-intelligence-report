@@ -840,12 +840,13 @@ export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
   );
 };
 
-// --- Market Insights Index (v2) ---
+// --- Market Insights Index (v2 redesign — 2x2 square tiles + usage context) ---
 
 interface InsightDimension {
   label: string;
   score: number | null;
   components: Record<string, number | null>;
+  interpretation?: string;
 }
 
 interface MarketInsightsIndexContent {
@@ -857,32 +858,81 @@ interface MarketInsightsIndexContent {
   };
 }
 
+function scoreAccentColor(score: number | null): string {
+  if (score == null) return COLORS.textSecondary;
+  if (score >= 7) return COLORS.success;
+  if (score >= 4) return COLORS.warning;
+  return COLORS.error;
+}
+
 export const MarketInsightsIndexPdf: SectionRenderer = ({ section }) => {
   const c = section.content as MarketInsightsIndexContent;
   const dimensions = [
-    { key: "risk", data: c.insightsIndex.risk },
-    { key: "value", data: c.insightsIndex.value },
-    { key: "timing", data: c.insightsIndex.timing },
-    { key: "liquidity", data: c.insightsIndex.liquidity },
+    { key: "Liquidity", data: c.insightsIndex.liquidity },
+    { key: "Timing", data: c.insightsIndex.timing },
+    { key: "Risk", data: c.insightsIndex.risk },
+    { key: "Value", data: c.insightsIndex.value },
   ];
+
+  // 2x2 grid: rows of 2
+  const rows = [dimensions.slice(0, 2), dimensions.slice(2, 4)];
 
   return (
     <View>
-      {dimensions.map(({ key, data }) => (
-        <View key={key} style={styles.card} wrap={false}>
-          <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: 6 }}>
-            <Text style={styles.subheading}>{key.charAt(0).toUpperCase() + key.slice(1)}</Text>
-            <Text style={{ ...styles.badge, backgroundColor: data.score != null && data.score >= 7 ? COLORS.success : data.score != null && data.score >= 4 ? COLORS.warning : COLORS.textSecondary }}>
-              {data.label}
-            </Text>
-          </View>
-          {data.score != null && (
-            <Text style={{ fontFamily: "Inter", fontSize: 24, color: COLORS.accent, marginBottom: 4 }}>{data.score}/10</Text>
-          )}
-          {Object.entries(data.components).map(([compKey, val]) => (
-            <Text key={compKey} style={styles.bodySmall}>
-              {compKey.replace(/([A-Z])/g, " $1").replace(/^./, (ch) => ch.toUpperCase())}: {val != null ? (typeof val === "number" && Math.abs(val) < 1 ? `${(val * 100).toFixed(1)}%` : val.toLocaleString()) : "N/A"}
-            </Text>
+      {/* Usage context block */}
+      <View style={{ backgroundColor: COLORS.primaryLight, borderRadius: 4, padding: 12, marginBottom: 16, borderLeftWidth: 3, borderLeftColor: COLORS.accent }}>
+        <Text style={{ fontFamily: "Inter", fontSize: 10, fontWeight: 700, color: COLORS.primary, marginBottom: 4 }}>How to Read This Index</Text>
+        <Text style={{ fontFamily: "Inter", fontSize: 9, color: COLORS.textSecondary, lineHeight: 1.5 }}>
+          Each dimension is scored 1–10. Scores of 7 or above indicate strength; 4–6 are moderate; below 4 signals caution. The four dimensions measure: Liquidity (capital flow and transaction activity), Timing (price momentum and market pace), Risk (environmental and concentration exposure), and Value (appreciation potential and opportunity spread).
+        </Text>
+      </View>
+
+      {/* 2x2 square tile grid */}
+      {rows.map((row, rowIdx) => (
+        <View key={rowIdx} style={{ flexDirection: "row", gap: 8, marginBottom: 8 }}>
+          {row.map(({ key, data }) => (
+            <View
+              key={key}
+              style={{
+                flex: 1,
+                backgroundColor: COLORS.surface,
+                borderRadius: 4,
+                padding: 12,
+                borderWidth: 1,
+                borderColor: COLORS.border,
+                borderTopWidth: 3,
+                borderTopColor: scoreAccentColor(data.score),
+                minHeight: 160,
+              }}
+              wrap={false}
+            >
+              {/* Dimension name + label badge */}
+              <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                <Text style={{ fontFamily: "Inter", fontSize: 10, fontWeight: 700, color: COLORS.primary, textTransform: "uppercase" }}>{key}</Text>
+                <Text style={{ ...styles.badge, backgroundColor: scoreAccentColor(data.score) }}>
+                  {data.label}
+                </Text>
+              </View>
+
+              {/* Score */}
+              <Text style={{ fontFamily: "Playfair Display", fontSize: 22, color: scoreAccentColor(data.score), marginBottom: 4 }}>
+                {data.score != null ? data.score : "—"}/10
+              </Text>
+
+              {/* Interpretation */}
+              {data.interpretation && (
+                <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, lineHeight: 1.4, marginBottom: 6 }}>
+                  {data.interpretation}
+                </Text>
+              )}
+
+              {/* Component breakdown */}
+              {Object.entries(data.components).map(([compKey, val]) => (
+                <Text key={compKey} style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary, lineHeight: 1.4 }}>
+                  {compKey.replace(/([A-Z])/g, " $1").replace(/^./, (ch) => ch.toUpperCase())}: {val != null ? (typeof val === "number" && Math.abs(val) < 1 ? `${(val * 100).toFixed(1)}%` : val.toLocaleString()) : "N/A"}
+                </Text>
+              ))}
+            </View>
           ))}
         </View>
       ))}
