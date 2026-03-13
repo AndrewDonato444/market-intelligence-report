@@ -21,12 +21,12 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 107 |
+| ✅ Completed | 108 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 18 |
+| ⬜ Pending | 17 |
 | ⏸️ Blocked | 0 |
 
-**Last updated**: 2026-03-12
+**Last updated**: 2026-03-13
 
 ---
 
@@ -341,7 +341,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 200 | Cover page redesign — create naming convention for report titles, move Key Themes summary to cover page with proper formatting, define what rating chips/data chips mean | user-feedback | M | 50 | ✅ |
-| 201 | New "Market Intelligence Summary" section — "At a Glance" section after cover before Executive Brief, include charts (not just text/metrics), visual summary of report highlights | user-feedback | L | 50, 55 | ⬜ |
+| 201 | New "Market Intelligence Summary" section — "At a Glance" section after cover before Executive Brief, include charts (not just text/metrics), visual summary of report highlights | user-feedback | L | 50, 55 | ✅ |
 | 202 | Executive Brief improvements — add explainer text for each tile/metric, pull and display data dates (freshness), add headers for each pro item | user-feedback | M | 50 | ⬜ |
 | 203 | Market Insights Index redesign — add usage context ("how to read this index"), ensure every index returns a rating (no blanks), redesign layout from rectangles to square tile structure | user-feedback | M | 50, 31 | ⬜ |
 | 204 | Luxury Market Dashboard restructuring — Power Five: remove Transaction Volume. Tier Two: remove Cash Buyer, TSV, Flood Zone Exposure. Combine Tier Two + Three. Keep Investor Activity Rate with definition. Add 3-sentence narrative headline about last 100 sales | user-feedback | L | 50, 31, 32 | ⬜ |

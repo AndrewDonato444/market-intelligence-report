@@ -87,6 +87,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-editor | [Report Editor](.specs/features/report-editor/report-editor.feature.md) | `components/reports/section-editor.tsx` | see spec | see spec | implemented |
 | report-editor | [Report History + Versioning](.specs/features/report-editor/report-history.feature.md) | `lib/services/report-history.ts` | see spec | see spec | implemented |
 | report-editor | [Report Templates](.specs/features/report-editor/report-templates.feature.md) | `lib/services/report-templates.ts` | see spec | see spec | implemented |
+| report-output-v2 | [Cover Page Redesign](.specs/features/report-output-v2/cover-page-redesign.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
+| report-output-v2 | [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md) | `lib/pdf/templates/insights-index.tsx` | see spec | see spec | implemented |
 | report-template | [Agent Branding Injection](.specs/features/report-template/agent-branding.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | report-template | [Data Visualization Components](.specs/features/report-template/data-visualization.feature.md) | `lib/pdf/components/data-viz.tsx` | see spec | see spec | implemented |
 | report-template | [Executive Summary + Market Analysis Matrix](.specs/features/report-template/executive-summary-matrix.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
@@ -105,8 +107,11 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | subscription | [Admin Entitlement Overrides](.specs/features/subscription/admin-entitlement-overrides.feature.md) | `app/admin/users/[id]/overrides/page.tsx` | see spec | see spec | implemented |
 | subscription | [Default Tier Assignment on Signup](.specs/features/subscription/default-tier-assignment-on-signup.feature.md) | `lib/services/profile.ts` | see spec | see spec | implemented |
 | subscription | [Entitlement Check Utility](.specs/features/subscription/entitlement-check-utility.feature.md) | `lib/services/entitlement-check.ts` | see spec | see spec | implemented |
+| subscription | [Entitlement Gating for Bulk Email Campaigns](.specs/features/subscription/entitlement-gating-bulk-email-campaigns.feature.md) | `components/reports/generate-email-button.tsx` | see spec | see spec | implemented |
+| subscription | [Entitlement Gating for Expanded Transaction Scope](.specs/features/subscription/entitlement-gating-expanded-transaction-scope.feature.md) | `lib/services/pipeline-executor.ts` | see spec | see spec | implemented |
 | subscription | [Entitlement Gating in Market Creation](.specs/features/subscription/entitlement-gating-market-creation.feature.md) | `app/api/markets/route.ts` | see spec | see spec | implemented |
 | subscription | [Entitlement Gating in Report Creation](.specs/features/subscription/entitlement-gating-report-creation.feature.md) | `app/api/reports/route.ts` | see spec | see spec | implemented |
+| subscription | [Entitlement Gating for Social Media Kit as Pro Feature](.specs/features/subscription/entitlement-gating-social-media-kit-pro.feature.md) | `components/reports/generate-kit-button.tsx` | see spec | see spec | implemented |
 | subscription | [Entitlement Gating in Social Media Kit](.specs/features/subscription/entitlement-gating-social-media-kit.feature.md) | `app/api/reports/[id]/kit/generate/route.ts` | see spec | see spec | implemented |
 | subscription | [Subscription Tier Data Model](.specs/features/subscription/subscription-tier-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | subscription | [Usage Tracking](.specs/features/subscription/usage-tracking.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
@@ -136,8 +141,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 3 |
 | tested | 0 |
-| implemented | 103 |
-| **Total** | **108** |
+| implemented | 108 |
+| **Total** | **113** |
 
 ---
 
@@ -223,6 +228,8 @@ _None_
 - [Report Editor](.specs/features/report-editor/report-editor.feature.md)
 - [Report History + Versioning](.specs/features/report-editor/report-history.feature.md)
 - [Report Templates](.specs/features/report-editor/report-templates.feature.md)
+- [Cover Page Redesign](.specs/features/report-output-v2/cover-page-redesign.feature.md)
+- [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md)
 - [Agent Branding Injection](.specs/features/report-template/agent-branding.feature.md)
 - [Data Visualization Components](.specs/features/report-template/data-visualization.feature.md)
 - [Executive Summary + Market Analysis Matrix](.specs/features/report-template/executive-summary-matrix.feature.md)
@@ -241,8 +248,11 @@ _None_
 - [Admin Entitlement Overrides](.specs/features/subscription/admin-entitlement-overrides.feature.md)
 - [Default Tier Assignment on Signup](.specs/features/subscription/default-tier-assignment-on-signup.feature.md)
 - [Entitlement Check Utility](.specs/features/subscription/entitlement-check-utility.feature.md)
+- [Entitlement Gating for Bulk Email Campaigns](.specs/features/subscription/entitlement-gating-bulk-email-campaigns.feature.md)
+- [Entitlement Gating for Expanded Transaction Scope](.specs/features/subscription/entitlement-gating-expanded-transaction-scope.feature.md)
 - [Entitlement Gating in Market Creation](.specs/features/subscription/entitlement-gating-market-creation.feature.md)
 - [Entitlement Gating in Report Creation](.specs/features/subscription/entitlement-gating-report-creation.feature.md)
+- [Entitlement Gating for Social Media Kit as Pro Feature](.specs/features/subscription/entitlement-gating-social-media-kit-pro.feature.md)
 - [Entitlement Gating in Social Media Kit](.specs/features/subscription/entitlement-gating-social-media-kit.feature.md)
 - [Subscription Tier Data Model](.specs/features/subscription/subscription-tier-data-model.feature.md)
 - [Usage Tracking](.specs/features/subscription/usage-tracking.feature.md)
@@ -279,6 +289,7 @@ See `.specs/design-system/tokens.md` for token reference.
 | data-callout | stub | [doc](.specs/design-system/components/data-callout.md) |
 | editorial-showcase | stub | [doc](.specs/design-system/components/editorial-showcase.md) |
 | hero-section | stub | [doc](.specs/design-system/components/hero-section.md) |
+| horizontal-bar-chart | stub | [doc](.specs/design-system/components/horizontal-bar-chart.md) |
 | intelligence-pillars | stub | [doc](.specs/design-system/components/intelligence-pillars.md) |
 | landing-nav | stub | [doc](.specs/design-system/components/landing-nav.md) |
 | market-autocomplete | stub | [doc](.specs/design-system/components/market-autocomplete.md) |
@@ -288,9 +299,11 @@ See `.specs/design-system/tokens.md` for token reference.
 | process-narrative | stub | [doc](.specs/design-system/components/process-narrative.md) |
 | quick-start-checklist | stub | [doc](.specs/design-system/components/quick-start-checklist.md) |
 | report-breakdown | stub | [doc](.specs/design-system/components/report-breakdown.md) |
+| segment-distribution-bar | stub | [doc](.specs/design-system/components/segment-distribution-bar.md) |
 | step-card | stub | [doc](.specs/design-system/components/step-card.md) |
 | toggle-card | stub | [doc](.specs/design-system/components/toggle-card.md) |
 | tooltip | documented | [doc](.specs/design-system/components/tooltip.md) |
+| trend-indicator | stub | [doc](.specs/design-system/components/trend-indicator.md) |
 
 ---
 
