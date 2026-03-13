@@ -4,13 +4,15 @@ domain: agent-pipeline
 source: lib/agents/data-analyst.ts
 tests:
   - __tests__/agents/data-analyst.test.ts
+  - __tests__/services/market-analytics.test.ts
+  - __tests__/utils/math.test.ts
 components: []
 personas:
   - rising-star-agent
   - competitive-veteran
 status: implemented
 created: 2026-03-09
-updated: 2026-03-10
+updated: 2026-03-13
 ---
 
 
@@ -75,6 +77,38 @@ Given the data-analyst is a pure computation layer (not a pipeline agent)
 When Layer 0 (data-fetcher.ts) fetches property data and Layer 1 (market-analytics.ts) invokes computation
 Then the module exports computation functions (computeSegmentMetrics, computeYoY, assignRating) and types
 And it does NOT export an AgentDefinition or execute(context) — it is called directly by market-analytics, not by the pipeline orchestrator
+
+### Scenario: IQR outlier filtering removes wild prices from overall metrics
+Given property data that includes an extreme outlier (e.g., $403M on 1 transaction)
+When market-analytics computes overall metrics (median, average, volume)
+Then the `removeOutliers()` IQR filter (Tukey fences, k=2.0 for luxury markets) is applied to prices
+And the outlier does not distort median, average, or volume calculations
+And per-sqft calculations also apply outlier filtering
+
+### Scenario: Per-neighborhood YoY enforces minimum sample size
+Given a neighborhood with fewer than 3 transactions in either the current or prior year
+When market-analytics computes per-neighborhood YoY
+Then `yoyPriceChange` is null (not -100% or a misleading value)
+And the `NEIGHBORHOOD_MIN_SAMPLE = 3` threshold is enforced before calling `computeYoY`
+
+### Scenario: Neighborhood names fall back to well-known zip map
+Given property data for a zip code where the API does not return `neighborhood.name`
+And the zip code is in the `WELL_KNOWN_ZIP_NEIGHBORHOODS` static map (e.g., 90210 → "Beverly Hills")
+When market-analytics builds the neighborhood breakdown
+Then the neighborhood name uses the static map entry instead of the raw zip code
+And unknown zips not in the map fall back to the raw zip code
+
+### Scenario: Empty detail cohorts return null for DOM and list-to-sale changes
+Given a small detail sample where the current or prior year cohort is empty
+When `computeDetailYoY` calculates year-over-year detail metrics
+Then it returns `{ domChange: null, listToSaleChange: null }` instead of throwing or producing NaN
+And the pipeline continues without error
+
+### Scenario: splitByYear falls back to prior two years when current year has insufficient data
+Given property data where the current calendar year has fewer than 3 sales
+When `splitByYear` partitions properties for YoY computation
+Then it compares `currentYear - 1` vs `currentYear - 2` instead of `currentYear` vs `currentYear - 1`
+And this prevents misleading YoY figures early in a calendar year
 
 ## Technical Notes
 

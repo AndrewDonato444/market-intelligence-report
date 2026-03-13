@@ -57,10 +57,11 @@ Given a report with computed analytics containing market data
 When the Market Intelligence Summary page renders
 Then a row of 4 metric cards appears at the top:
   | Metric | Source | Format |
-  | Total Transactions | market.totalProperties | "2,234" |
-  | Total Volume | market.totalVolume | "$6.58B" |
-  | Median Price | market.medianPrice | "$2.95M" |
-  | YoY Price Change | yoy.medianPriceChange | "+8.2%" with green/red color |
+  | Total Transactions | headline.totalProperties | "2,234" |
+  | Total Volume | headline.totalVolume | "$6.58B" |
+  | Median Price | headline.medianPrice | "$2.95M" |
+  | YoY Price Change | headline.yoyPriceChange | "+8.2%" with green/red color |
+And metrics are read from the nested `executive_briefing.content.headline` object (not flat fields)
 And each metric card uses `font-serif` for the value and `font-sans` for the label
 And the YoY metric is colored `color-success` for positive, `color-error` for negative
 
@@ -244,11 +245,14 @@ The `InsightsIndex` component currently receives `metadata` and `sections`. To r
 ```
 ReportData.sections (already passed as props)
   +-- executive_briefing.content
-  |     +-- rating        -> Headline: overall rating
-  |     +-- medianPrice   -> Headline: Median Price
-  |     +-- totalVolume   -> Headline: Total Volume
-  |     +-- properties    -> Headline: Total Transactions
-  |     +-- yoyChange     -> Headline: YoY Price Change
+  |     +-- headline.rating                    -> Headline: overall rating
+  |     +-- headline.medianPrice               -> Headline: Median Price
+  |     +-- headline.totalVolume               -> Headline: Total Volume
+  |     +-- headline.totalProperties           -> Headline: Total Transactions
+  |     +-- headline.yoyPriceChange            -> Headline: YoY Price Change
+  |     +-- headline.yoyVolumeChange           -> YoY trend: Volume
+  |     +-- headline.yoyTransactionCountChange -> YoY trend: Transaction Count
+  |     +-- highlights[]                       -> Key Intelligence bullets
   |
   +-- market_insights_index.content
   |     +-- liquidity.score  -> Bar chart row 1
