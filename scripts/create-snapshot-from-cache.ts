@@ -61,7 +61,7 @@ async function main() {
       ${"Newport Luxury — Cache Replay"},
       ${market.name},
       ${sql.json(market.geography)},
-      ${sql.json(compiledData)},
+      ${sql.json(compiledData as any)},
       ${propertyCount},
       ${hasXSentiment},
       ${peerMarketCount},
