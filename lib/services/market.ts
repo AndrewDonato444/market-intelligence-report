@@ -1,5 +1,5 @@
 import { db, schema } from "@/lib/db";
-import { eq, and } from "drizzle-orm";
+import { eq, and, count } from "drizzle-orm";
 
 export type { MarketData, MarketValidationResult } from "./market-validation";
 export { validateMarketData, AVAILABLE_SEGMENTS, AVAILABLE_PROPERTY_TYPES } from "./market-validation";
@@ -131,6 +131,76 @@ export async function updateMarket(
 
   if (!updated) throw new Error("Market not found");
   return updated;
+}
+
+export async function deleteMarket(authId: string, marketId: string) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.authId, authId))
+    .limit(1);
+
+  if (!user) throw new Error("User not found");
+
+  // Verify ownership
+  const [market] = await db
+    .select({ id: schema.markets.id, isDefault: schema.markets.isDefault })
+    .from(schema.markets)
+    .where(
+      and(eq(schema.markets.id, marketId), eq(schema.markets.userId, user.id))
+    )
+    .limit(1);
+
+  if (!market) throw new Error("Market not found");
+
+  // Count reports that will be cascade-deleted
+  const [{ reportCount }] = await db
+    .select({ reportCount: count() })
+    .from(schema.reports)
+    .where(eq(schema.reports.marketId, marketId));
+
+  // Delete (cascades to reports, templates, etc.)
+  await db
+    .delete(schema.markets)
+    .where(
+      and(eq(schema.markets.id, marketId), eq(schema.markets.userId, user.id))
+    );
+
+  // If we deleted the default market, promote the oldest remaining one
+  if (market.isDefault === 1) {
+    const [oldest] = await db
+      .select({ id: schema.markets.id })
+      .from(schema.markets)
+      .where(eq(schema.markets.userId, user.id))
+      .orderBy(schema.markets.createdAt)
+      .limit(1);
+
+    if (oldest) {
+      await db
+        .update(schema.markets)
+        .set({ isDefault: 1 })
+        .where(eq(schema.markets.id, oldest.id));
+    }
+  }
+
+  return { deleted: true, reportsRemoved: reportCount };
+}
+
+export async function getMarketReportCount(authId: string, marketId: string) {
+  const [user] = await db
+    .select({ id: schema.users.id })
+    .from(schema.users)
+    .where(eq(schema.users.authId, authId))
+    .limit(1);
+
+  if (!user) return 0;
+
+  const [{ reportCount }] = await db
+    .select({ reportCount: count() })
+    .from(schema.reports)
+    .where(eq(schema.reports.marketId, marketId));
+
+  return reportCount;
 }
 
 export async function updateMarketPeers(

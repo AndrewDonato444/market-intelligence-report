@@ -1,6 +1,6 @@
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { NextResponse } from "next/server";
-import { getMarket, updateMarket } from "@/lib/services/market";
+import { getMarket, updateMarket, deleteMarket } from "@/lib/services/market";
 import { validateMarketData } from "@/lib/services/market-validation";
 
 export async function GET(
@@ -52,6 +52,26 @@ export async function PUT(
     return NextResponse.json({ market });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to update market";
+    return NextResponse.json({ error: message }, { status: 400 });
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const userId = await getAuthUserId();
+  if (!userId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+
+  try {
+    const result = await deleteMarket(userId, id);
+    return NextResponse.json(result);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to delete market";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }

@@ -1,7 +1,8 @@
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { getMarkets } from "@/lib/services/market";
+import { getMarkets, getMarketReportCount } from "@/lib/services/market";
+import { DeleteMarketButton } from "@/components/markets/delete-market-button";
 
 const TIER_LABELS: Record<string, string> = {
   luxury: "Luxury",
@@ -21,6 +22,11 @@ export default async function MarketsPage() {
   if (!userId) redirect("/sign-in");
 
   const markets = await getMarkets(userId);
+
+  // Fetch report counts for each market (for delete confirmation)
+  const reportCounts = await Promise.all(
+    markets.map((m) => getMarketReportCount(userId, m.id))
+  );
 
   return (
     <div>
@@ -59,7 +65,7 @@ export default async function MarketsPage() {
         </div>
       ) : (
         <div className="grid gap-4">
-          {markets.map((market) => {
+          {markets.map((market, idx) => {
             const geo = market.geography as {
               city: string;
               state: string;
@@ -110,6 +116,11 @@ export default async function MarketsPage() {
                   >
                     Peers
                   </Link>
+                  <DeleteMarketButton
+                    marketId={market.id}
+                    marketName={market.name}
+                    reportCount={reportCounts[idx]}
+                  />
                   <div className="w-1 h-8 bg-[var(--color-accent)] rounded-full" />
                 </div>
               </div>
