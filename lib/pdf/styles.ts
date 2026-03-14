@@ -70,7 +70,7 @@ export const styles = StyleSheet.create({
   },
   coverTitle: {
     fontFamily: "Playfair Display",
-    fontSize: 36,
+    fontSize: 30,
     color: COLORS.surface,
     marginBottom: 16,
   },

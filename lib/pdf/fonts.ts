@@ -33,6 +33,9 @@ export function registerFonts() {
     ],
   });
 
+  // Disable hyphenation so titles don't break mid-word (e.g. "Intel-ligence")
+  Font.registerHyphenationCallback((word) => [word]);
+
   Font.register({
     family: "Inter",
     fonts: [
