@@ -78,6 +78,8 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
   const [retrying, setRetrying] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
   const [showRetryConfirm, setShowRetryConfirm] = useState(false);
+  const [snapshotLoading, setSnapshotLoading] = useState(false);
+  const [snapshotMessage, setSnapshotMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -122,6 +124,34 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
       setRetrying(false);
     }
   }, [reportId, fetchDetail]);
+
+  const handleSaveAsSnapshot = useCallback(async () => {
+    setSnapshotLoading(true);
+    setSnapshotMessage(null);
+    try {
+      const res = await fetch("/api/admin/test-suite/snapshots/from-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reportId }),
+      });
+      if (!res.ok) {
+        const body = await res.json();
+        throw new Error(body.error || `Failed: ${res.status}`);
+      }
+      const { snapshot } = await res.json();
+      setSnapshotMessage({
+        type: "success",
+        text: `Snapshot created: "${snapshot.name}"`,
+      });
+    } catch (err) {
+      setSnapshotMessage({
+        type: "error",
+        text: `Failed to create snapshot: ${(err as Error).message}`,
+      });
+    } finally {
+      setSnapshotLoading(false);
+    }
+  }, [reportId]);
 
   if (loading) {
     return (
@@ -295,9 +325,67 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
           {report.status}
         </span>
       </div>
-      <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-6)" }}>
+      <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-4)" }}>
         Created {formatDate(report.createdAt)} · Version {report.version}
       </p>
+
+      {/* Actions */}
+      {report.status === "completed" && (
+        <div style={{ marginBottom: "var(--spacing-4)" }}>
+          <button
+            onClick={handleSaveAsSnapshot}
+            disabled={snapshotLoading}
+            style={{
+              padding: "var(--spacing-2) var(--spacing-4)",
+              background: snapshotLoading ? "var(--color-text-secondary)" : "var(--color-primary)",
+              color: "var(--color-text-inverse, white)",
+              border: "none",
+              borderRadius: "var(--radius-sm)",
+              cursor: snapshotLoading ? "wait" : "pointer",
+              fontSize: "var(--text-sm)",
+              fontWeight: 600,
+            }}
+          >
+            {snapshotLoading ? "⟳ Creating Snapshot..." : "Save as Snapshot"}
+          </button>
+        </div>
+      )}
+
+      {/* Snapshot toast */}
+      {snapshotMessage && (
+        <div
+          style={{
+            padding: "var(--spacing-3) var(--spacing-4)",
+            marginBottom: "var(--spacing-4)",
+            background: "var(--color-surface)",
+            borderRadius: "var(--radius-md)",
+            borderLeft: `4px solid ${snapshotMessage.type === "success" ? "var(--color-accent, #CA8A04)" : "var(--color-error)"}`,
+            boxShadow: "var(--shadow-md, 0 4px 6px -1px rgba(15,23,42,0.07))",
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
+          <span style={{ fontSize: "var(--text-sm)", color: snapshotMessage.type === "success" ? "var(--color-text)" : "var(--color-error)" }}>
+            {snapshotMessage.type === "success" ? "✓ " : ""}{snapshotMessage.text}
+          </span>
+          {snapshotMessage.type === "success" && (
+            <Link
+              href="/admin/test-suite"
+              style={{
+                fontSize: "var(--text-sm)",
+                color: "var(--color-primary)",
+                textDecoration: "none",
+                fontWeight: 500,
+                whiteSpace: "nowrap",
+                marginLeft: "var(--spacing-4)",
+              }}
+            >
+              View in Test Suite →
+            </Link>
+          )}
+        </div>
+      )}
 
       {/* Info cards */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--spacing-4)", marginBottom: "var(--spacing-6)" }}>
