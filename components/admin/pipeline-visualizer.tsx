@@ -63,6 +63,7 @@ export function PipelineVisualizer() {
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<StatusFilter>("all");
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [retryingId, setRetryingId] = useState<string | null>(null);
 
   const fetchRuns = useCallback(async (statusFilter: StatusFilter) => {
     setLoading(true);
@@ -94,6 +95,25 @@ export function PipelineVisualizer() {
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id);
+  };
+
+  const handleRetry = async (reportId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setRetryingId(reportId);
+    try {
+      const res = await fetch(`/api/admin/reports/${reportId}/retry`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? `Retry failed: ${res.status}`);
+      }
+      await fetchRuns(filter);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setRetryingId(null);
+    }
   };
 
   // Unique agents across all sections for a run
@@ -220,6 +240,8 @@ export function PipelineVisualizer() {
                     statusConfig={sc}
                     agents={agents}
                     onToggle={() => toggleExpand(run.id)}
+                    retrying={retryingId === run.id}
+                    onRetry={handleRetry}
                   />
                 );
               })}
@@ -263,12 +285,16 @@ function PipelineRunRowComponent({
   statusConfig,
   agents,
   onToggle,
+  retrying,
+  onRetry,
 }: {
   run: PipelineRunRow;
   isExpanded: boolean;
   statusConfig: { label: string; color: string; bg: string };
   agents: Map<string, { count: number; sectionTypes: string[] }>;
   onToggle: () => void;
+  retrying: boolean;
+  onRetry: (reportId: string, e: React.MouseEvent) => void;
 }) {
   return (
     <>
@@ -291,13 +317,25 @@ function PipelineRunRowComponent({
           {run.marketName}
         </td>
         <td className="px-[var(--spacing-4)] py-[var(--spacing-3)]">
-          <span
-            className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
-            style={{ color: statusConfig.color, backgroundColor: statusConfig.bg }}
-            data-testid="pipeline-run-status"
-          >
-            {statusConfig.label}
-          </span>
+          <div className="flex items-center gap-[var(--spacing-2)]">
+            <span
+              className="inline-block px-2 py-0.5 rounded-full text-xs font-medium"
+              style={{ color: statusConfig.color, backgroundColor: statusConfig.bg }}
+              data-testid="pipeline-run-status"
+            >
+              {statusConfig.label}
+            </span>
+            {run.status === "failed" && (
+              <button
+                onClick={(e) => onRetry(run.id, e)}
+                disabled={retrying}
+                data-testid="pipeline-retry-btn"
+                className="px-2 py-0.5 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--color-primary)] text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+              >
+                {retrying ? "Retrying..." : "Retry"}
+              </button>
+            )}
+          </div>
         </td>
         <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-[var(--color-text-secondary)]">
           {formatDate(run.generationStartedAt)}
@@ -348,10 +386,24 @@ function PipelineRunRowComponent({
               {/* Error message */}
               {run.errorMessage && (
                 <div className="bg-[var(--color-error-light,rgba(239,68,68,0.1))] border border-[var(--color-error)] rounded-[var(--radius-sm)] p-[var(--spacing-3)]">
-                  <p className="text-xs font-semibold text-[var(--color-error)] mb-1">Error</p>
-                  <p className="text-xs text-[var(--color-error)]" data-testid="pipeline-error-message">
-                    {run.errorMessage}
-                  </p>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-semibold text-[var(--color-error)] mb-1">Error</p>
+                      <p className="text-xs text-[var(--color-error)]" data-testid="pipeline-error-message">
+                        {run.errorMessage}
+                      </p>
+                    </div>
+                    {run.status === "failed" && (
+                      <button
+                        onClick={(e) => onRetry(run.id, e)}
+                        disabled={retrying}
+                        data-testid="pipeline-retry-btn-expanded"
+                        className="ml-[var(--spacing-3)] shrink-0 px-3 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--color-primary)] text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+                      >
+                        {retrying ? "Retrying..." : "Re-run Pipeline"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
             </div>

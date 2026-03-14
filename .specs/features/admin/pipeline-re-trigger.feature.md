@@ -7,17 +7,18 @@ tests:
 components:
   - ErrorTriageDashboard
   - ReportDetailPanel
+  - PipelineVisualizer
 personas:
   - primary
   - anti-persona
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-14
 ---
 
 # Pipeline Re-trigger
 
-**Source Files**: `app/api/admin/reports/[id]/retry/route.ts`, `components/admin/error-triage-dashboard.tsx`, `components/admin/report-detail-panel.tsx`
+**Source Files**: `app/api/admin/reports/[id]/retry/route.ts`, `components/admin/error-triage-dashboard.tsx`, `components/admin/report-detail-panel.tsx`, `components/admin/pipeline-visualizer.tsx`
 **Design System**: .specs/design-system/tokens.md
 
 ## Feature: Admin Pipeline Re-trigger (#124)
@@ -40,6 +41,15 @@ Given an admin is viewing the error triage dashboard
 When the admin expands a failed report row and clicks "Re-run Pipeline"
 Then the same confirmation + retry flow executes
 And the error triage list refreshes to show updated status
+
+### Scenario: Admin triggers re-run from pipeline runs table
+Given an admin is viewing the Pipeline Runs page
+When a report row has status "Failed"
+Then an inline "Retry" button appears next to the status badge
+When the admin clicks "Retry"
+Then the report status resets to "queued" via POST /api/admin/reports/[id]/retry
+And the table refreshes to show the updated status
+And if the admin expands the failed row, a "Re-run Pipeline" button also appears in the error detail section
 
 ### Scenario: Re-run not available for non-failed reports
 Given a report with status "completed" or "generating" or "queued"
@@ -85,3 +95,4 @@ Then the API returns 401 Unauthorized
 
 - ErrorTriageDashboard: components/admin/error-triage-dashboard.tsx
 - ReportDetailPanel: components/admin/report-detail-panel.tsx
+- PipelineVisualizer: components/admin/pipeline-visualizer.tsx

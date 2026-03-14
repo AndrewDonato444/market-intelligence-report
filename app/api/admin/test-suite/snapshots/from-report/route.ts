@@ -128,5 +128,19 @@ export async function POST(req: Request) {
     })
     .returning();
 
-  return NextResponse.json({ snapshot }, { status: 201 });
+  // Return only metadata — compiledData can be huge and would blow up the response
+  return NextResponse.json(
+    {
+      snapshot: {
+        id: snapshot.id,
+        name: snapshot.name,
+        marketName: snapshot.marketName,
+        propertyCount: snapshot.propertyCount,
+        hasXSentiment: snapshot.hasXSentiment,
+        peerMarketCount: snapshot.peerMarketCount,
+        createdAt: snapshot.createdAt,
+      },
+    },
+    { status: 201 }
+  );
 }

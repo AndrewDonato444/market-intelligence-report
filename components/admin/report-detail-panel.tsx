@@ -135,7 +135,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
         body: JSON.stringify({ reportId }),
       });
       if (!res.ok) {
-        const body = await res.json();
+        const body = await res.json().catch(() => ({}));
         throw new Error(body.error || `Failed: ${res.status}`);
       }
       const { snapshot } = await res.json();
