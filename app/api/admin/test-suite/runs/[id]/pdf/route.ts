@@ -62,8 +62,8 @@ export async function POST(req: Request, { params }: Params) {
     metadata: {
       generatedAt: run.createdAt.toISOString(),
       totalDurationMs: 0,
-      layerDurations: run.layerDurations as any,
-      confidence: (run.layer1Result as any)?.confidence ?? { level: "medium", sampleSize: 0, detailCoverage: 0 },
+      agentDurations: (run.layerDurations as Record<string, number>) ?? {},
+      confidence: (run.layer1Result as any)?.confidence ?? { level: "medium", sampleSize: 0, staleDataSources: [] },
     },
   };
 
