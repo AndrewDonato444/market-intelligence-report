@@ -82,7 +82,7 @@ export async function POST(req: Request, { params }: Params) {
     marketName,
   });
 
-  return new Response(pdfBuffer, {
+  return new Response(new Uint8Array(pdfBuffer), {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
