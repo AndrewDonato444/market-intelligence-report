@@ -112,7 +112,7 @@ export async function runPipelineTest(input: TestRunInput): Promise<TestRunResul
       userId: "test-suite",
       market: marketData,
       reportConfig: {
-        customPrompts: useDraftPrompts ? { draft: true } : undefined,
+        customPrompts: useDraftPrompts ? { draft: "true" } : undefined,
       },
       computedAnalytics,
     });
