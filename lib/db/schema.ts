@@ -202,6 +202,7 @@ export const markets = pgTable(
       }>
     >(),
     isDefault: integer("is_default").notNull().default(0),
+    archivedAt: timestamp("archived_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

@@ -1,5 +1,5 @@
 import { db, schema } from "@/lib/db";
-import { eq, and, count } from "drizzle-orm";
+import { eq, and, count, isNull } from "drizzle-orm";
 
 export type { MarketData, MarketValidationResult } from "./market-validation";
 export { validateMarketData, AVAILABLE_SEGMENTS, AVAILABLE_PROPERTY_TYPES } from "./market-validation";
@@ -17,7 +17,7 @@ export async function getMarkets(authId: string) {
   return db
     .select()
     .from(schema.markets)
-    .where(eq(schema.markets.userId, user.id))
+    .where(and(eq(schema.markets.userId, user.id), isNull(schema.markets.archivedAt)))
     .orderBy(schema.markets.createdAt);
 }
 
@@ -133,7 +133,7 @@ export async function updateMarket(
   return updated;
 }
 
-export async function deleteMarket(authId: string, marketId: string) {
+export async function archiveMarket(authId: string, marketId: string) {
   const [user] = await db
     .select({ id: schema.users.id })
     .from(schema.users)
@@ -142,36 +142,33 @@ export async function deleteMarket(authId: string, marketId: string) {
 
   if (!user) throw new Error("User not found");
 
-  // Verify ownership
+  // Verify ownership and not already archived
   const [market] = await db
     .select({ id: schema.markets.id, isDefault: schema.markets.isDefault })
     .from(schema.markets)
     .where(
-      and(eq(schema.markets.id, marketId), eq(schema.markets.userId, user.id))
+      and(
+        eq(schema.markets.id, marketId),
+        eq(schema.markets.userId, user.id),
+        isNull(schema.markets.archivedAt)
+      )
     )
     .limit(1);
 
   if (!market) throw new Error("Market not found");
 
-  // Count reports that will be cascade-deleted
-  const [{ reportCount }] = await db
-    .select({ reportCount: count() })
-    .from(schema.reports)
-    .where(eq(schema.reports.marketId, marketId));
-
-  // Delete (cascades to reports, templates, etc.)
+  // Soft delete
   await db
-    .delete(schema.markets)
-    .where(
-      and(eq(schema.markets.id, marketId), eq(schema.markets.userId, user.id))
-    );
+    .update(schema.markets)
+    .set({ archivedAt: new Date(), isDefault: 0 })
+    .where(eq(schema.markets.id, marketId));
 
-  // If we deleted the default market, promote the oldest remaining one
+  // If we archived the default market, promote the oldest remaining active one
   if (market.isDefault === 1) {
     const [oldest] = await db
       .select({ id: schema.markets.id })
       .from(schema.markets)
-      .where(eq(schema.markets.userId, user.id))
+      .where(and(eq(schema.markets.userId, user.id), isNull(schema.markets.archivedAt)))
       .orderBy(schema.markets.createdAt)
       .limit(1);
 
@@ -183,7 +180,7 @@ export async function deleteMarket(authId: string, marketId: string) {
     }
   }
 
-  return { deleted: true, reportsRemoved: reportCount };
+  return { archived: true };
 }
 
 export async function getMarketReportCount(authId: string, marketId: string) {

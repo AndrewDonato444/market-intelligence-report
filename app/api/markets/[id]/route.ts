@@ -1,6 +1,6 @@
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { NextResponse } from "next/server";
-import { getMarket, updateMarket, deleteMarket } from "@/lib/services/market";
+import { getMarket, updateMarket, archiveMarket } from "@/lib/services/market";
 import { validateMarketData } from "@/lib/services/market-validation";
 
 export async function GET(
@@ -68,10 +68,10 @@ export async function DELETE(
   const { id } = await params;
 
   try {
-    const result = await deleteMarket(userId, id);
+    const result = await archiveMarket(userId, id);
     return NextResponse.json(result);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Failed to delete market";
+    const message = err instanceof Error ? err.message : "Failed to archive market";
     return NextResponse.json({ error: message }, { status: 400 });
   }
 }
