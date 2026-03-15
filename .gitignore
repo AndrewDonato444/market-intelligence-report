@@ -43,6 +43,15 @@ coverage/
 # Pipeline test output
 scripts/output/
 
+# Remotion video projects (managed in DonatoSkills repo, not here)
+videos/
+scripts/build-ig-*.ts
+scripts/gen-ig-*.ts
+scripts/test-tts*.ts
+scripts/test-voices.ts
+scripts/regen-cta.ts
+scripts/test-nano-banana.ts
+
 # Vercel
 .vercel
 
