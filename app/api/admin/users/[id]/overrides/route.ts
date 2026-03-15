@@ -9,6 +9,7 @@ const VALID_ENTITLEMENT_TYPES = [
   "social_media_kits",
   "email_campaigns",
   "personas_per_report",
+  "deal_analyses_per_month",
 ];
 
 type RouteContext = { params: Promise<{ id: string }> };
@@ -29,7 +30,7 @@ export async function GET(_request: NextRequest, context: RouteContext) {
       .orderBy(desc(schema.entitlementOverrides.createdAt));
 
     // Fetch user's tier info for effective entitlements summary
-    let tierInfo = { tierName: "Starter", entitlements: { reports_per_month: 2, markets_created: 1, social_media_kits: 0, email_campaigns: 0, personas_per_report: 1 } };
+    let tierInfo = { tierName: "Starter", entitlements: { reports_per_month: 2, markets_created: 1, social_media_kits: 0, email_campaigns: 0, personas_per_report: 1, deal_analyses_per_month: 0 } };
     try {
       const [subscription] = await db
         .select({ tierId: schema.subscriptions.tierId })

@@ -14,6 +14,7 @@ export interface TierListResponse {
       markets_created: number;
       social_media_kits: number;
       personas_per_report: number;
+      deal_analyses_per_month: number;
     };
     displayPrice: string;
     monthlyPriceInCents: number | null;

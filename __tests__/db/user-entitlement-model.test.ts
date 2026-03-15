@@ -108,6 +108,7 @@ describe("User Entitlement Model — Value Conventions", () => {
       "email_campaigns",
       "personas_per_report",
       "transaction_limit",
+      "deal_analyses_per_month",
     ];
     validKeys.forEach((key) => {
       const override = { entitlementType: key, value: 10 };
@@ -226,7 +227,8 @@ describe("User Entitlement Model — Existing Schema Preserved", () => {
       email_campaigns: 0,
       personas_per_report: 1,
       transaction_limit: 100,
+      deal_analyses_per_month: 0,
     };
-    expect(Object.keys(entitlements)).toHaveLength(6);
+    expect(Object.keys(entitlements)).toHaveLength(7);
   });
 });

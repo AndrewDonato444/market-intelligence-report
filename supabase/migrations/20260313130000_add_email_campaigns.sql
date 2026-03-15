@@ -1,7 +1,10 @@
 -- Email Campaigns Data Model (#166)
-CREATE TYPE email_campaign_status AS ENUM ('queued', 'generating', 'completed', 'failed');
+DO $$ BEGIN
+  CREATE TYPE email_campaign_status AS ENUM ('queued', 'generating', 'completed', 'failed');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
-CREATE TABLE email_campaigns (
+CREATE TABLE IF NOT EXISTS email_campaigns (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   report_id UUID NOT NULL REFERENCES reports(id) ON DELETE CASCADE,
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -14,6 +17,6 @@ CREATE TABLE email_campaigns (
   UNIQUE (report_id)
 );
 
-CREATE INDEX email_campaigns_report_id_idx ON email_campaigns(report_id);
-CREATE INDEX email_campaigns_user_id_idx ON email_campaigns(user_id);
-CREATE INDEX email_campaigns_status_idx ON email_campaigns(status);
+CREATE INDEX IF NOT EXISTS email_campaigns_report_id_idx ON email_campaigns(report_id);
+CREATE INDEX IF NOT EXISTS email_campaigns_user_id_idx ON email_campaigns(user_id);
+CREATE INDEX IF NOT EXISTS email_campaigns_status_idx ON email_campaigns(status);

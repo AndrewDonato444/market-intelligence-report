@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 116 |
+| ✅ Completed | 117 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 20 |
+| ⬜ Pending | 19 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-15
@@ -382,10 +382,10 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 220 | Deal analysis data model — `deal_analyses` table (analysisId, userId, marketId, address, propertyData JSONB, briefContent JSONB, status, createdAt, updatedAt) + indexes | user-request | S | 2 | ⬜ |
+| 220 | Deal analysis data model — `deal_analyses` table (analysisId, userId, marketId, address, propertyData JSONB, briefContent JSONB, status, createdAt, updatedAt) + indexes | user-request | S | 2 | ✅ |
 | 221 | Property address lookup endpoint — `/api/deal-analyzer/lookup` takes address string, calls REAPI PropertySearch + PropertyDetail in sequence, returns enriched property data with sale history, mortgage history, motivated seller signals, demographics | user-request | M | 22, 220 | ⬜ |
 | 222 | Deal Brief Agent — Claude agent that receives enriched property data + agent's stored market analytics (segment medians, YoY trends, persona specs, forecast outputs already in DB) → generates structured Deal Brief: pricing assessment, buyer persona match, negotiation talking points, market timing signal, one-paragraph summary | user-request | L | 30, 31, 34, 90, 220 | ⬜ |
-| 223 | Deal Analyzer UI — standalone page `/deal-analyzer`, address autocomplete input, property summary card (key facts, sale history, estimated value), Deal Brief display with collapsible sections, copy-to-clipboard on each section | user-request | L | 221, 222 | ⬜ |
+| 223 | Deal Analyzer UI — accessed from within a completed report (not standalone), address input with geographic validation against market, property summary card (key facts, sale history, estimated value), Deal Brief display with collapsible sections, copy-to-clipboard on each section | user-request | L | 221, 222 | ⬜ |
 | 224 | Motivated Seller Scoring — signal-weighted scoring engine across all properties in a market: `inherited`, `ownerOccupied: false`, `adjustableRate`, long hold period, HELOC pattern (multiple mortgages), high equity. Surfaces top 10–15 candidates in a "Watch List" panel on the Deal Analyzer page | user-request | M | 221, 220 | ⬜ |
 | 225 | Deal Brief shareable output — one-click PDF export and shareable web link for a Deal Brief, reusing existing PDF rendering pipeline and share token infrastructure | user-request | M | 222, 57 | ⬜ |
 | 226 | Entitlement gating for Deal Analyzer — check `deal_analyses_per_month` entitlement before allowing analysis, show upgrade prompt for Starter tier, wire into existing entitlement check utility | user-request | S | 173, 223 | ⬜ |

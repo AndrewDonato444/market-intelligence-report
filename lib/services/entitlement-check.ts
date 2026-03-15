@@ -21,6 +21,7 @@ const DEFAULT_ENTITLEMENTS: TierEntitlements = {
   email_campaigns: 0,
   personas_per_report: 1,
   transaction_limit: 100,
+  deal_analyses_per_month: 0,
 };
 
 // --- Fail-open result for DB errors ---
