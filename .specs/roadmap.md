@@ -23,10 +23,10 @@
 |--------|-------|
 | ✅ Completed | 116 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 12 |
+| ⬜ Pending | 20 |
 | ⏸️ Blocked | 0 |
 
-**Last updated**: 2026-03-13
+**Last updated**: 2026-03-15
 
 ---
 
@@ -376,6 +376,25 @@
 
 ---
 
+## Phase 21: Property Deal Analyzer
+
+> Turns market intelligence into a daily-use tool. Agents input any property address and get an instant AI-generated Deal Brief — pricing context, persona fit, negotiation leverage, and market timing — all grounded in the stored market analytics already computed for their market. A "Hidden Inventory Intelligence" layer surfaces motivated seller candidates across the market before they list.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 220 | Deal analysis data model — `deal_analyses` table (analysisId, userId, marketId, address, propertyData JSONB, briefContent JSONB, status, createdAt, updatedAt) + indexes | user-request | S | 2 | ⬜ |
+| 221 | Property address lookup endpoint — `/api/deal-analyzer/lookup` takes address string, calls REAPI PropertySearch + PropertyDetail in sequence, returns enriched property data with sale history, mortgage history, motivated seller signals, demographics | user-request | M | 22, 220 | ⬜ |
+| 222 | Deal Brief Agent — Claude agent that receives enriched property data + agent's stored market analytics (segment medians, YoY trends, persona specs, forecast outputs already in DB) → generates structured Deal Brief: pricing assessment, buyer persona match, negotiation talking points, market timing signal, one-paragraph summary | user-request | L | 30, 31, 34, 90, 220 | ⬜ |
+| 223 | Deal Analyzer UI — standalone page `/deal-analyzer`, address autocomplete input, property summary card (key facts, sale history, estimated value), Deal Brief display with collapsible sections, copy-to-clipboard on each section | user-request | L | 221, 222 | ⬜ |
+| 224 | Motivated Seller Scoring — signal-weighted scoring engine across all properties in a market: `inherited`, `ownerOccupied: false`, `adjustableRate`, long hold period, HELOC pattern (multiple mortgages), high equity. Surfaces top 10–15 candidates in a "Watch List" panel on the Deal Analyzer page | user-request | M | 221, 220 | ⬜ |
+| 225 | Deal Brief shareable output — one-click PDF export and shareable web link for a Deal Brief, reusing existing PDF rendering pipeline and share token infrastructure | user-request | M | 222, 57 | ⬜ |
+| 226 | Entitlement gating for Deal Analyzer — check `deal_analyses_per_month` entitlement before allowing analysis, show upgrade prompt for Starter tier, wire into existing entitlement check utility | user-request | S | 173, 223 | ⬜ |
+| 227 | Admin analytics for Deal Analyzer — analyses count per user in admin user detail, platform-wide deal analysis volume in analytics dashboard, most-analyzed markets | user-request | M | 220, 113, 130 | ⬜ |
+
+**Goal**: An agent sitting with a buyer pulls up any property address and gets instant AI-backed context — where it sits relative to the market, which buyer persona it fits and why, negotiation leverage points, and whether now is the right time to move. A Watch List of motivated sellers surfaces hidden inventory before it lists. Deal Briefs are shareable as PDFs or web links.
+
+---
+
 ## Ad-hoc Requests
 
 > Features added from triage that don't fit a phase. Processed after current phase.
@@ -488,6 +507,18 @@
 - **Phase 20 can start immediately** — all deps are completed except #183 (for #214 only)
 - **Recommended build order**: #209-#210 (removals) → #211 (data fix) → #200-#203 (cover + new sections) → #204-#208 (section redesigns) → #212-#213 (transparency) → #214 (pro feature, after #183)
 
+### Phase Dependencies (Phase 21 — Property Deal Analyzer)
+- #220 (data model) only needs the database (Phase 1)
+- #221 (lookup endpoint) needs the REAPI connector (#22) and data model (#220)
+- #222 (Deal Brief Agent) needs the agent framework (#30), market analytics (#31), forecast (#34), personas (#90), and data model (#220) — all completed
+- #223 (UI) needs lookup (#221) and agent (#222)
+- #224 (Motivated Seller Scoring) needs lookup (#221) and data model (#220) — pure computation, no new APIs
+- #225 (shareable output) needs the agent (#222) and existing PDF export (#57) + share tokens — minimal new surface area
+- #226 (entitlement gating) needs the UI (#223) and entitlement utility (#173) — already completed
+- #227 (admin analytics) needs data model (#220) plus existing admin user detail (#113) and analytics (#130)
+- **Phase 21 can start immediately** — #220 has no dependencies beyond Phase 1
+- **~90% of infrastructure already exists**: REAPI connector, market analytics DB, persona calibration, Claude agent framework, PDF rendering, share tokens, entitlement system
+
 ### Phase Dependencies (Phase 17/18 additions)
 - #166-#167 (bulk email) follow same pattern as #161-#163 (social media agent) — depend on agent framework and report output
 - #181-#182 (pro gating for social/email) depend on entitlement utility (#173) which is already completed
@@ -514,6 +545,7 @@ UX redesign + admin expansion (Phases 12–16):
 - **Workstream M**: #209-#210, #211, #200-#208, #212-#213 (report output V2) — can start immediately, all deps met
 - **Workstream N**: #166-#167 (bulk email campaigns) — can start after social media kit agent pattern is established
 - **Workstream O**: #181-#183 (pro feature gating) → #214 (expanded transactions) — entitlement foundation already complete
+- **Workstream P**: #220 (data model) → #221 (lookup) → #222 (agent) + #224 (scoring) → #223 (UI) → #225 (share) → #226 (gating) → #227 (admin) — can start immediately, independent of all other pending phases
 
 ---
 
