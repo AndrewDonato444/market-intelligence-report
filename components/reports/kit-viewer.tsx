@@ -1064,7 +1064,15 @@ export function KitViewer({
               </div>
             )}
             {filteredPersonaPosts.length > 0 ? (
-              filteredPersonaPosts.map((post, i) => (
+              filteredPersonaPosts.map((post, i) => {
+                // Borrow hashtags from the matching platform caption
+                const borrowedHashtags = content.captions.find(
+                  (c) => normalizePlatform(c.platform) === normalizePlatform(post.platform)
+                )?.hashtags ?? [];
+                const copyText = borrowedHashtags.length > 0
+                  ? `${post.post}\n\n${borrowedHashtags.join(" ")}`
+                  : post.post;
+                return (
                 <motion.div
                   key={i}
                   variants={cardVariant}
@@ -1088,11 +1096,17 @@ export function KitViewer({
                       <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] leading-relaxed">
                         {post.post}
                       </p>
+                      {borrowedHashtags.length > 0 && (
+                        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-accent)]">
+                          {borrowedHashtags.join(" ")}
+                        </p>
+                      )}
                     </div>
-                    <CopyButton text={post.post} />
+                    <CopyButton text={copyText} />
                   </div>
                 </motion.div>
-              ))
+                );
+              })
             ) : (
               <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] italic">
                 {personas.size === 0
