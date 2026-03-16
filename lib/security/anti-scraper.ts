@@ -1,4 +1,52 @@
 /**
+ * In-memory IP blocklist populated by honeypot hits.
+ * IPs are auto-expired after BLOCKLIST_TTL_MS to avoid unbounded growth.
+ */
+const blockedIps = new Map<string, number>(); // ip → expiry timestamp
+const BLOCKLIST_TTL_MS = 60 * 60 * 1000; // 1 hour
+
+/**
+ * Add an IP to the blocklist (called by honeypot route).
+ */
+export function blockIp(ip: string): void {
+  blockedIps.set(ip, Date.now() + BLOCKLIST_TTL_MS);
+}
+
+/**
+ * Check if an IP is on the blocklist (with lazy expiry cleanup).
+ */
+export function isBlockedIp(ip: string): boolean {
+  const expiry = blockedIps.get(ip);
+  if (expiry === undefined) return false;
+
+  if (Date.now() > expiry) {
+    blockedIps.delete(ip);
+    return false;
+  }
+
+  return true;
+}
+
+/**
+ * Get the number of currently blocked IPs. Used for monitoring/tests.
+ */
+export function getBlockedIpCount(): number {
+  // Lazy cleanup while counting
+  const now = Date.now();
+  for (const [ip, expiry] of blockedIps) {
+    if (now > expiry) blockedIps.delete(ip);
+  }
+  return blockedIps.size;
+}
+
+/**
+ * Clear all blocked IPs. Used for testing.
+ */
+export function resetBlockedIps(): void {
+  blockedIps.clear();
+}
+
+/**
  * Known bot/scraper user-agent patterns (case-insensitive).
  * Covers common HTTP libraries, headless browsers, and generic bot strings.
  */

@@ -14,6 +14,22 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // Require ToS acceptance — must be a valid ISO 8601 timestamp
+  if (!tosAcceptedAt || typeof tosAcceptedAt !== "string") {
+    return NextResponse.json(
+      { error: "You must accept the Terms of Service to create an account" },
+      { status: 400 }
+    );
+  }
+
+  const tosDate = new Date(tosAcceptedAt);
+  if (isNaN(tosDate.getTime())) {
+    return NextResponse.json(
+      { error: "Invalid Terms of Service acceptance timestamp" },
+      { status: 400 }
+    );
+  }
+
   // Verify Turnstile token (skipped if no secret key configured)
   if (turnstileToken) {
     const ip = request.headers.get("x-forwarded-for") ?? undefined;

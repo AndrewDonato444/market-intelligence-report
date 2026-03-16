@@ -1,6 +1,10 @@
 export { verifyTurnstileToken } from "./verify-turnstile";
 export {
   isBlockedUserAgent,
+  isBlockedIp,
+  blockIp,
+  getBlockedIpCount,
+  resetBlockedIps,
   computeSuspicionScore,
   isExemptRoute,
   SUSPICION_THRESHOLD,
@@ -8,6 +12,7 @@ export {
 } from "./anti-scraper";
 export {
   checkRateLimit,
+  checkRateLimitSync,
   extractClientIp,
   matchRoutePattern,
   resetRateLimitState,

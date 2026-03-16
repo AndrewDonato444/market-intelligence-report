@@ -13,7 +13,11 @@ describe("Rate Limiting on Exposed API Routes", () => {
     });
 
     it("SVC-RATELIMIT-001: exports checkRateLimit function", () => {
-      expect(moduleContent).toContain("export function checkRateLimit");
+      expect(moduleContent).toContain("export async function checkRateLimit");
+    });
+
+    it("SVC-RATELIMIT-001b: exports checkRateLimitSync function", () => {
+      expect(moduleContent).toContain("export function checkRateLimitSync");
     });
 
     it("SVC-RATELIMIT-002: exports RATE_LIMIT_CONFIGS constant", () => {
@@ -56,6 +60,22 @@ describe("Rate Limiting on Exposed API Routes", () => {
       expect(moduleContent).toContain("maxRequests: 30");
     });
 
+    it("SVC-RATELIMIT-010b: configures /api/deal-analyzer", () => {
+      expect(moduleContent).toContain('"/api/deal-analyzer"');
+    });
+
+    it("SVC-RATELIMIT-010c: configures /api/advisor", () => {
+      expect(moduleContent).toContain('"/api/advisor"');
+    });
+
+    it("SVC-RATELIMIT-010d: configures /api/social-media", () => {
+      expect(moduleContent).toContain('"/api/social-media"');
+    });
+
+    it("SVC-RATELIMIT-010e: configures /api/email-campaigns", () => {
+      expect(moduleContent).toContain('"/api/email-campaigns"');
+    });
+
     it("SVC-RATELIMIT-011: default rate limit is 30 requests per 60s", () => {
       expect(moduleContent).toMatch(
         /DEFAULT_RATE_LIMIT[\s\S]*maxRequests:\s*30/
@@ -82,10 +102,25 @@ describe("Rate Limiting on Exposed API Routes", () => {
     it("SVC-RATELIMIT-016: falls back to 'unknown' for missing IP", () => {
       expect(moduleContent).toContain('"unknown"');
     });
+
+    it("SVC-RATELIMIT-017: supports Upstash Redis for shared rate limiting", () => {
+      expect(moduleContent).toContain("@upstash/ratelimit");
+      expect(moduleContent).toContain("@upstash/redis");
+      expect(moduleContent).toContain("UPSTASH_REDIS_REST_URL");
+      expect(moduleContent).toContain("UPSTASH_REDIS_REST_TOKEN");
+    });
+
+    it("SVC-RATELIMIT-018: falls back to in-memory when Upstash not configured", () => {
+      expect(moduleContent).toContain("checkRateLimitInMemory");
+    });
+
+    it("SVC-RATELIMIT-019: falls back to in-memory on Upstash error", () => {
+      expect(moduleContent).toContain("Upstash error, falling back to in-memory");
+    });
   });
 
-  describe("SVC: Rate limiter logic (unit tests)", () => {
-    let checkRateLimit: (ip: string, pathname: string) => { allowed: boolean; limit: number; remaining: number; resetAt: number; retryAfter: number };
+  describe("SVC: Rate limiter logic (unit tests via checkRateLimitSync)", () => {
+    let checkRateLimitSync: (ip: string, pathname: string) => { allowed: boolean; limit: number; remaining: number; resetAt: number; retryAfter: number };
     let matchRoutePattern: (pathname: string) => string | null;
     let extractClientIp: (headers: Headers) => string;
     let resetRateLimitState: () => void;
@@ -94,7 +129,7 @@ describe("Rate Limiting on Exposed API Routes", () => {
 
     beforeAll(async () => {
       const mod = await import("@/lib/security/rate-limiter");
-      checkRateLimit = mod.checkRateLimit;
+      checkRateLimitSync = mod.checkRateLimitSync;
       matchRoutePattern = mod.matchRoutePattern;
       extractClientIp = mod.extractClientIp;
       resetRateLimitState = mod.resetRateLimitState;
@@ -134,6 +169,14 @@ describe("Rate Limiting on Exposed API Routes", () => {
       expect(matchRoutePattern("/api/admin/users")).toBe("/api/admin");
     });
 
+    it("SVC-RATELIMIT-026b: matches /api/deal-analyzer/lookup to /api/deal-analyzer", () => {
+      expect(matchRoutePattern("/api/deal-analyzer/lookup")).toBe("/api/deal-analyzer");
+    });
+
+    it("SVC-RATELIMIT-026c: matches /api/advisor/chat to /api/advisor", () => {
+      expect(matchRoutePattern("/api/advisor/chat")).toBe("/api/advisor");
+    });
+
     it("SVC-RATELIMIT-030: extracts first IP from x-forwarded-for", () => {
       const headers = new Headers({ "x-forwarded-for": "1.2.3.4, 10.0.0.1, 172.16.0.1" });
       expect(extractClientIp(headers)).toBe("1.2.3.4");
@@ -155,7 +198,7 @@ describe("Rate Limiting on Exposed API Routes", () => {
     });
 
     it("SVC-RATELIMIT-040: allows first request", () => {
-      const result = checkRateLimit("1.2.3.4", "/api/auth/signin");
+      const result = checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       expect(result.allowed).toBe(true);
       expect(result.limit).toBe(5);
       expect(result.remaining).toBe(4);
@@ -163,16 +206,16 @@ describe("Rate Limiting on Exposed API Routes", () => {
 
     it("SVC-RATELIMIT-041: allows requests up to the limit", () => {
       for (let i = 0; i < 5; i++) {
-        const result = checkRateLimit("1.2.3.4", "/api/auth/signin");
+        const result = checkRateLimitSync("1.2.3.4", "/api/auth/signin");
         expect(result.allowed).toBe(true);
       }
     });
 
     it("SVC-RATELIMIT-042: blocks request after limit exceeded", () => {
       for (let i = 0; i < 5; i++) {
-        checkRateLimit("1.2.3.4", "/api/auth/signin");
+        checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       }
-      const result = checkRateLimit("1.2.3.4", "/api/auth/signin");
+      const result = checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       expect(result.allowed).toBe(false);
       expect(result.remaining).toBe(0);
       expect(result.retryAfter).toBeGreaterThan(0);
@@ -180,9 +223,9 @@ describe("Rate Limiting on Exposed API Routes", () => {
 
     it("SVC-RATELIMIT-043: returns proper rate limit headers on 429", () => {
       for (let i = 0; i < 5; i++) {
-        checkRateLimit("1.2.3.4", "/api/auth/signin");
+        checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       }
-      const result = checkRateLimit("1.2.3.4", "/api/auth/signin");
+      const result = checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       expect(result.limit).toBe(5);
       expect(result.remaining).toBe(0);
       expect(result.resetAt).toBeGreaterThan(0);
@@ -191,37 +234,37 @@ describe("Rate Limiting on Exposed API Routes", () => {
 
     it("SVC-RATELIMIT-044: rate limit is per-IP", () => {
       for (let i = 0; i < 5; i++) {
-        checkRateLimit("1.1.1.1", "/api/auth/signin");
+        checkRateLimitSync("1.1.1.1", "/api/auth/signin");
       }
-      expect(checkRateLimit("1.1.1.1", "/api/auth/signin").allowed).toBe(false);
-      expect(checkRateLimit("2.2.2.2", "/api/auth/signin").allowed).toBe(true);
+      expect(checkRateLimitSync("1.1.1.1", "/api/auth/signin").allowed).toBe(false);
+      expect(checkRateLimitSync("2.2.2.2", "/api/auth/signin").allowed).toBe(true);
     });
 
     it("SVC-RATELIMIT-045: different endpoints have independent limits", () => {
       for (let i = 0; i < 5; i++) {
-        checkRateLimit("1.2.3.4", "/api/auth/signin");
+        checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       }
-      expect(checkRateLimit("1.2.3.4", "/api/auth/signin").allowed).toBe(false);
-      expect(checkRateLimit("1.2.3.4", "/api/markets/search").allowed).toBe(true);
+      expect(checkRateLimitSync("1.2.3.4", "/api/auth/signin").allowed).toBe(false);
+      expect(checkRateLimitSync("1.2.3.4", "/api/markets/search").allowed).toBe(true);
     });
 
     it("SVC-RATELIMIT-046: uses default limit for unconfigured routes", () => {
-      const result = checkRateLimit("1.2.3.4", "/api/some/random/endpoint");
+      const result = checkRateLimitSync("1.2.3.4", "/api/some/random/endpoint");
       expect(result.allowed).toBe(true);
       expect(result.limit).toBe(30);
     });
 
     it("SVC-RATELIMIT-047: remaining count decreases with each request", () => {
-      const r1 = checkRateLimit("1.2.3.4", "/api/auth/signin");
+      const r1 = checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       expect(r1.remaining).toBe(4);
-      const r2 = checkRateLimit("1.2.3.4", "/api/auth/signin");
+      const r2 = checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       expect(r2.remaining).toBe(3);
-      const r3 = checkRateLimit("1.2.3.4", "/api/auth/signin");
+      const r3 = checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       expect(r3.remaining).toBe(2);
     });
 
     it("SVC-RATELIMIT-048: retryAfter is 0 for allowed requests", () => {
-      const result = checkRateLimit("1.2.3.4", "/api/auth/signin");
+      const result = checkRateLimitSync("1.2.3.4", "/api/auth/signin");
       expect(result.retryAfter).toBe(0);
     });
 
@@ -237,6 +280,10 @@ describe("Rate Limiting on Exposed API Routes", () => {
       expect(RATE_LIMIT_CONFIGS).toHaveProperty("/api/reports");
       expect(RATE_LIMIT_CONFIGS).toHaveProperty("/api/admin");
       expect(RATE_LIMIT_CONFIGS).toHaveProperty("/api/stripe/webhooks");
+      expect(RATE_LIMIT_CONFIGS).toHaveProperty("/api/deal-analyzer");
+      expect(RATE_LIMIT_CONFIGS).toHaveProperty("/api/advisor");
+      expect(RATE_LIMIT_CONFIGS).toHaveProperty("/api/social-media");
+      expect(RATE_LIMIT_CONFIGS).toHaveProperty("/api/email-campaigns");
     });
   });
 
@@ -306,6 +353,10 @@ describe("Rate Limiting on Exposed API Routes", () => {
       expect(middlewareContent).toContain('supabaseResponse.headers.set("X-RateLimit-Remaining"');
       expect(middlewareContent).toContain('supabaseResponse.headers.set("X-RateLimit-Reset"');
     });
+
+    it("MW-RATELIMIT-012: awaits checkRateLimit (async for Upstash support)", () => {
+      expect(middlewareContent).toContain("await checkRateLimit(");
+    });
   });
 
   describe("Security: barrel export includes rate limiter", () => {
@@ -315,6 +366,7 @@ describe("Rate Limiting on Exposed API Routes", () => {
         "utf8"
       );
       expect(content).toContain("checkRateLimit");
+      expect(content).toContain("checkRateLimitSync");
       expect(content).toContain("extractClientIp");
       expect(content).toContain("RATE_LIMIT_CONFIGS");
       expect(content).toContain("DEFAULT_RATE_LIMIT");

@@ -1,6 +1,12 @@
 /**
- * Per-route rate limiter using token bucket algorithm.
- * In-memory store — serverless cold starts reset state (acceptable for v1).
+ * Per-route rate limiter with dual-mode storage:
+ *   - Upstash Redis (shared across serverless instances) when configured
+ *   - In-memory fallback for development / when Upstash is not set up
+ *
+ * Upstash mode uses @upstash/ratelimit's sliding window algorithm.
+ * In-memory mode uses a token bucket algorithm (resets on cold start).
+ *
+ * Upstash imports are dynamic to avoid ESM/CJS issues in test environments.
  */
 
 export interface RateLimitConfig {
@@ -30,6 +36,10 @@ interface BucketEntry {
 export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
   "/api/auth": { maxRequests: 5, windowMs: 60_000 },
   "/api/reports/generate": { maxRequests: 10, windowMs: 60_000 },
+  "/api/deal-analyzer": { maxRequests: 10, windowMs: 60_000 },
+  "/api/advisor": { maxRequests: 20, windowMs: 60_000 },
+  "/api/social-media": { maxRequests: 15, windowMs: 60_000 },
+  "/api/email-campaigns": { maxRequests: 15, windowMs: 60_000 },
   "/api/markets": { maxRequests: 60, windowMs: 60_000 },
   "/api/reports": { maxRequests: 60, windowMs: 60_000 },
   "/api/admin": { maxRequests: 30, windowMs: 60_000 },
@@ -40,6 +50,54 @@ export const DEFAULT_RATE_LIMIT: RateLimitConfig = {
   maxRequests: 30,
   windowMs: 60_000,
 };
+
+// --- Upstash Redis rate limiters (created lazily via dynamic import) ---
+
+let upstashAvailable: boolean | null = null;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const upstashLimiters = new Map<string, any>();
+
+function isUpstashConfigured(): boolean {
+  if (upstashAvailable !== null) return upstashAvailable;
+  upstashAvailable = !!(
+    process.env.UPSTASH_REDIS_REST_URL &&
+    process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+  return upstashAvailable;
+}
+
+/**
+ * Create or retrieve an Upstash rate limiter for a route pattern.
+ * Uses dynamic imports to avoid ESM/CJS issues in test environments.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function getUpstashLimiter(routeKey: string, config: RateLimitConfig): Promise<any> {
+  let limiter = upstashLimiters.get(routeKey);
+  if (limiter) return limiter;
+
+  const { Ratelimit } = await import("@upstash/ratelimit");
+  const { Redis } = await import("@upstash/redis");
+
+  const redis = new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL!,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  });
+
+  limiter = new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(
+      config.maxRequests,
+      `${config.windowMs} ms`
+    ),
+    prefix: `ratelimit:${routeKey}`,
+  });
+
+  upstashLimiters.set(routeKey, limiter);
+  return limiter;
+}
+
+// --- In-memory fallback (development / no Upstash) ---
 
 // In-memory token bucket store: key = `${ip}:${routePattern}`
 const buckets = new Map<string, BucketEntry>();
@@ -95,10 +153,9 @@ export function extractClientIp(headers: Headers): string {
 }
 
 /**
- * Check rate limit for a given IP and pathname.
- * Uses token bucket algorithm with lazy refill.
+ * In-memory token bucket check (fallback when Upstash not configured).
  */
-export function checkRateLimit(ip: string, pathname: string): RateLimitResult {
+function checkRateLimitInMemory(ip: string, pathname: string): RateLimitResult {
   const now = Date.now();
 
   // Lazy cleanup of expired entries
@@ -165,8 +222,58 @@ export function checkRateLimit(ip: string, pathname: string): RateLimitResult {
 }
 
 /**
+ * Check rate limit for a given IP and pathname.
+ * Uses Upstash Redis when configured (shared across all serverless instances).
+ * Falls back to in-memory token bucket when Upstash is not set up.
+ */
+export async function checkRateLimit(
+  ip: string,
+  pathname: string
+): Promise<RateLimitResult> {
+  // --- Upstash mode: shared state across all serverless instances ---
+  if (isUpstashConfigured()) {
+    const routePattern = matchRoutePattern(pathname);
+    const config = routePattern
+      ? RATE_LIMIT_CONFIGS[routePattern]
+      : DEFAULT_RATE_LIMIT;
+
+    try {
+      const limiter = await getUpstashLimiter(routePattern ?? "default", config);
+      const result = await limiter.limit(ip);
+
+      return {
+        allowed: result.success,
+        limit: result.limit,
+        remaining: result.remaining,
+        resetAt: Math.ceil(result.reset / 1000),
+        retryAfter: result.success
+          ? 0
+          : Math.max(1, Math.ceil((result.reset - Date.now()) / 1000)),
+      };
+    } catch (err) {
+      // Upstash failure — fail open with in-memory fallback
+      console.error("[rate-limiter] Upstash error, falling back to in-memory:", err);
+      return checkRateLimitInMemory(ip, pathname);
+    }
+  }
+
+  // --- In-memory mode: development fallback ---
+  return checkRateLimitInMemory(ip, pathname);
+}
+
+/**
+ * Synchronous in-memory-only rate limit check.
+ * Used by tests and code that can't await. Does NOT use Upstash.
+ */
+export function checkRateLimitSync(ip: string, pathname: string): RateLimitResult {
+  return checkRateLimitInMemory(ip, pathname);
+}
+
+/**
  * Reset all rate limit state. Used for testing.
  */
 export function resetRateLimitState(): void {
   buckets.clear();
+  upstashLimiters.clear();
+  upstashAvailable = null;
 }

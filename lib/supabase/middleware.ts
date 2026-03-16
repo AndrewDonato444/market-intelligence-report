@@ -2,11 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import {
   isBlockedUserAgent,
+  isBlockedIp,
   computeSuspicionScore,
   isExemptRoute,
   SUSPICION_THRESHOLD,
 } from "@/lib/security/anti-scraper";
 import { checkRateLimit, extractClientIp } from "@/lib/security/rate-limiter";
+import type { RateLimitResult } from "@/lib/security/rate-limiter";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -15,9 +17,15 @@ export async function updateSession(request: NextRequest) {
 
   // --- Anti-scraper checks (before any auth overhead) ---
   const pathname = request.nextUrl.pathname;
-  let rateLimitResult: ReturnType<typeof checkRateLimit> | null = null;
+  let rateLimitResult: RateLimitResult | null = null;
 
   if (!isExemptRoute(pathname)) {
+    // Check honeypot-derived IP blocklist first (cheapest check)
+    const clientIp = extractClientIp(request.headers);
+    if (isBlockedIp(clientIp)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
     const ua = request.headers.get("user-agent");
     if (isBlockedUserAgent(ua)) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -28,8 +36,7 @@ export async function updateSession(request: NextRequest) {
     }
 
     // --- Rate limiting (after anti-scraper, before auth) ---
-    const clientIp = extractClientIp(request.headers);
-    rateLimitResult = checkRateLimit(clientIp, pathname);
+    rateLimitResult = await checkRateLimit(clientIp, pathname);
     if (!rateLimitResult.allowed) {
       return NextResponse.json(
         { error: "Too many requests. Please try again later." },

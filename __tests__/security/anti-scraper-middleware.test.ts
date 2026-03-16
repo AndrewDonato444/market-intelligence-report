@@ -36,6 +36,22 @@ describe("Anti-Scraper Middleware", () => {
       expect(moduleContent).toContain("export function isExemptRoute");
     });
 
+    it("SVC-SCRAPER-005b: exports blockIp function", () => {
+      expect(moduleContent).toContain("export function blockIp");
+    });
+
+    it("SVC-SCRAPER-005c: exports isBlockedIp function", () => {
+      expect(moduleContent).toContain("export function isBlockedIp");
+    });
+
+    it("SVC-SCRAPER-005d: exports resetBlockedIps function", () => {
+      expect(moduleContent).toContain("export function resetBlockedIps");
+    });
+
+    it("SVC-SCRAPER-005e: exports getBlockedIpCount function", () => {
+      expect(moduleContent).toContain("export function getBlockedIpCount");
+    });
+
     it("SVC-SCRAPER-006: blocks python-requests user-agent", () => {
       expect(moduleContent).toContain("python-requests");
     });
@@ -97,12 +113,21 @@ describe("Anti-Scraper Middleware", () => {
     it("SVC-SCRAPER-020: SUSPICION_THRESHOLD defaults to 2", () => {
       expect(moduleContent).toContain("SUSPICION_THRESHOLD = 2");
     });
+
+    it("SVC-SCRAPER-021: IP blocklist has a 1-hour TTL", () => {
+      expect(moduleContent).toContain("BLOCKLIST_TTL_MS");
+      expect(moduleContent).toContain("60 * 60 * 1000");
+    });
   });
 
   describe("SVC: Anti-scraper logic (unit tests)", () => {
     let isBlockedUserAgent: (ua: string | null) => boolean;
     let computeSuspicionScore: (headers: Headers) => number;
     let isExemptRoute: (pathname: string) => boolean;
+    let isBlockedIp: (ip: string) => boolean;
+    let blockIp: (ip: string) => void;
+    let resetBlockedIps: () => void;
+    let getBlockedIpCount: () => number;
     let SUSPICION_THRESHOLD: number;
 
     beforeAll(async () => {
@@ -110,7 +135,15 @@ describe("Anti-Scraper Middleware", () => {
       isBlockedUserAgent = mod.isBlockedUserAgent;
       computeSuspicionScore = mod.computeSuspicionScore;
       isExemptRoute = mod.isExemptRoute;
+      isBlockedIp = mod.isBlockedIp;
+      blockIp = mod.blockIp;
+      resetBlockedIps = mod.resetBlockedIps;
+      getBlockedIpCount = mod.getBlockedIpCount;
       SUSPICION_THRESHOLD = mod.SUSPICION_THRESHOLD;
+    });
+
+    beforeEach(() => {
+      resetBlockedIps();
     });
 
     // --- isBlockedUserAgent ---
@@ -266,6 +299,41 @@ describe("Anti-Scraper Middleware", () => {
     it("SVC-SCRAPER-066: does NOT exempt /api/honeypot", () => {
       expect(isExemptRoute("/api/honeypot")).toBe(false);
     });
+
+    // --- IP blocklist (honeypot integration) ---
+
+    it("SVC-SCRAPER-070: blockIp adds IP to blocklist", () => {
+      expect(isBlockedIp("10.0.0.1")).toBe(false);
+      blockIp("10.0.0.1");
+      expect(isBlockedIp("10.0.0.1")).toBe(true);
+    });
+
+    it("SVC-SCRAPER-071: isBlockedIp returns false for unknown IPs", () => {
+      expect(isBlockedIp("192.168.1.1")).toBe(false);
+    });
+
+    it("SVC-SCRAPER-072: resetBlockedIps clears all entries", () => {
+      blockIp("10.0.0.1");
+      blockIp("10.0.0.2");
+      expect(getBlockedIpCount()).toBe(2);
+      resetBlockedIps();
+      expect(getBlockedIpCount()).toBe(0);
+    });
+
+    it("SVC-SCRAPER-073: getBlockedIpCount tracks active blocks", () => {
+      expect(getBlockedIpCount()).toBe(0);
+      blockIp("10.0.0.1");
+      expect(getBlockedIpCount()).toBe(1);
+      blockIp("10.0.0.2");
+      expect(getBlockedIpCount()).toBe(2);
+    });
+
+    it("SVC-SCRAPER-074: multiple blockIp calls for same IP don't duplicate", () => {
+      blockIp("10.0.0.1");
+      blockIp("10.0.0.1");
+      blockIp("10.0.0.1");
+      expect(getBlockedIpCount()).toBe(1);
+    });
   });
 
   describe("Integration: Middleware imports anti-scraper", () => {
@@ -280,6 +348,10 @@ describe("Anti-Scraper Middleware", () => {
 
     it("MW-SCRAPER-001: imports isBlockedUserAgent", () => {
       expect(middlewareContent).toContain("isBlockedUserAgent");
+    });
+
+    it("MW-SCRAPER-001b: imports isBlockedIp", () => {
+      expect(middlewareContent).toContain("isBlockedIp");
     });
 
     it("MW-SCRAPER-002: imports computeSuspicionScore", () => {
@@ -313,6 +385,14 @@ describe("Anti-Scraper Middleware", () => {
       const exemptIndex = middlewareContent.indexOf("isExemptRoute(");
       const blockIndex = middlewareContent.indexOf("isBlockedUserAgent(");
       expect(exemptIndex).toBeLessThan(blockIndex);
+    });
+
+    it("MW-SCRAPER-008: checks IP blocklist before UA check", () => {
+      const ipBlockIndex = middlewareContent.indexOf("isBlockedIp(");
+      const uaBlockIndex = middlewareContent.indexOf("isBlockedUserAgent(");
+      expect(ipBlockIndex).toBeGreaterThan(-1);
+      expect(uaBlockIndex).toBeGreaterThan(-1);
+      expect(ipBlockIndex).toBeLessThan(uaBlockIndex);
     });
   });
 
@@ -350,6 +430,19 @@ describe("Anti-Scraper Middleware", () => {
     it("API-HONEYPOT-006: contains honeypot identification in log", () => {
       expect(routeContent).toContain("[honeypot]");
     });
+
+    it("API-HONEYPOT-007: calls blockIp to add IP to blocklist", () => {
+      expect(routeContent).toContain("blockIp(");
+    });
+
+    it("API-HONEYPOT-008: imports blockIp from anti-scraper", () => {
+      expect(routeContent).toContain("blockIp");
+      expect(routeContent).toContain("@/lib/security/anti-scraper");
+    });
+
+    it("API-HONEYPOT-009: skips blocking for unknown IPs", () => {
+      expect(routeContent).toContain('"unknown"');
+    });
   });
 
   describe("Security: barrel export includes anti-scraper", () => {
@@ -359,6 +452,10 @@ describe("Anti-Scraper Middleware", () => {
         "utf8"
       );
       expect(content).toContain("isBlockedUserAgent");
+      expect(content).toContain("isBlockedIp");
+      expect(content).toContain("blockIp");
+      expect(content).toContain("resetBlockedIps");
+      expect(content).toContain("getBlockedIpCount");
       expect(content).toContain("computeSuspicionScore");
       expect(content).toContain("isExemptRoute");
       expect(content).toContain("SUSPICION_THRESHOLD");

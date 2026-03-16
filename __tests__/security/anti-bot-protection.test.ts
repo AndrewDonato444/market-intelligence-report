@@ -82,6 +82,27 @@ describe("Anti-Bot Protection: Cloudflare Turnstile", () => {
     it("API-SIGNUP-006: creates Supabase server client for auth", () => {
       expect(signupRoute).toContain("createServerClient");
     });
+
+    it("API-SIGNUP-007: rejects signup when tosAcceptedAt is missing", () => {
+      expect(signupRoute).toContain("You must accept the Terms of Service to create an account");
+    });
+
+    it("API-SIGNUP-008: validates tosAcceptedAt is a string", () => {
+      expect(signupRoute).toContain('typeof tosAcceptedAt !== "string"');
+    });
+
+    it("API-SIGNUP-009: validates tosAcceptedAt is a valid ISO timestamp", () => {
+      expect(signupRoute).toContain("isNaN(tosDate.getTime())");
+      expect(signupRoute).toContain("Invalid Terms of Service acceptance timestamp");
+    });
+
+    it("API-SIGNUP-010: ToS validation runs before Turnstile check", () => {
+      const tosIndex = signupRoute.indexOf("You must accept the Terms of Service");
+      const turnstileIndex = signupRoute.indexOf("verifyTurnstileToken(");
+      expect(tosIndex).toBeGreaterThan(-1);
+      expect(turnstileIndex).toBeGreaterThan(-1);
+      expect(tosIndex).toBeLessThan(turnstileIndex);
+    });
   });
 
   describe("API: Signin route with Turnstile verification", () => {
