@@ -4,13 +4,19 @@ domain: admin
 source: components/layout/admin-sidebar.tsx, components/layout/sidebar.tsx
 tests:
   - __tests__/admin/admin-sidebar.test.tsx
+  - __tests__/admin/pipeline-retrigger-api.test.ts
+  - __tests__/admin/pipeline-test-suite.test.tsx
+  - __tests__/admin/snapshot-from-report.test.ts
+  - __tests__/pipeline/generate-api.test.ts
+  - __tests__/pipeline/pipeline-executor.test.ts
+  - __tests__/reports/flow-persistence.test.tsx
 components:
   - AdminSidebar
 personas:
   - internal-developer
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-16
 ---
 
 # Admin Sidebar Update
@@ -42,19 +48,38 @@ Given an admin user is on `/admin/eval`
 Then the "Eval Suite" nav item is highlighted as active
 And the "User Management" nav item is not highlighted
 
+### Scenario: Active state on Report Registry page
+Given an admin user is on `/admin/reports`
+Then the "Report Registry" nav item is highlighted as active
+And the "Error Triage" nav item is not highlighted
+
+### Scenario: Active state on Report Registry detail sub-page
+Given an admin user is on `/admin/reports/abc123`
+Then the "Report Registry" nav item is highlighted as active
+
+### Scenario: Active state on Error Triage page
+Given an admin user is on `/admin/error-triage`
+Then the "Error Triage" nav item is highlighted as active
+And the "Report Registry" nav item is not highlighted
+
 ### Scenario: Back to App is never active in admin context
 Given an admin user is on any `/admin/*` route
 Then the "Back to App" nav item is not highlighted as active
 
 ### Scenario: All nav items present
 Given an admin user is viewing the admin sidebar
-Then the sidebar shows these items in order:
+Then the sidebar shows these 11 items in order:
   | Back to App |
   | User Management |
+  | Report Registry |
+  | Error Triage |
   | Eval Suite |
   | Data Sources |
   | Pipeline |
+  | Test Suite |
+  | Analytics |
   | System Monitor |
+  | Subscription Tiers |
 
 ### Scenario: Footer branding
 Given an admin user is viewing the admin sidebar
@@ -62,7 +87,7 @@ Then the sidebar footer shows "Modern Signal Advisory"
 
 ### Scenario: User sidebar does not show Eval
 Given a non-admin user is viewing the main application sidebar
-Then the sidebar shows only: Dashboard, Reports, Markets, Settings
+Then the sidebar shows only: Dashboard, How To, Reports, Markets, Settings
 And the sidebar does not show an "Eval" or "Eval Suite" link
 And the sidebar does not show an "Admin" link
 
@@ -72,11 +97,16 @@ And the sidebar does not show an "Admin" link
 +----------------------+
 |  <- Back to App      |
 |                      |
-|  User Management     |  <- renamed from "Users"
+|  User Management     |
+|  Report Registry     |
+|  Error Triage        |
 |  Eval Suite          |
 |  Data Sources        |
 |  Pipeline            |
+|  Test Suite          |
+|  Analytics           |
 |  System Monitor      |
+|  Subscription Tiers  |
 |                      |
 | -------------------- |
 |  Modern Signal       |
