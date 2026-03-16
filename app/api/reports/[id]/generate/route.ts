@@ -3,9 +3,12 @@
  *
  * Triggers pipeline execution for a report.
  * Returns 202 with status "generating" on success.
- * Fire-and-forget: the pipeline runs asynchronously.
+ * Uses next/server after() to keep function alive for pipeline execution.
  */
 
+export const maxDuration = 300; // 5 min — pipeline needs time
+
+import { after } from "next/server";
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { NextResponse } from "next/server";
 import { getReport } from "@/lib/services/report";
@@ -43,9 +46,16 @@ export async function POST(
     );
   }
 
-  // Fire and forget — pipeline runs async
-  executePipeline(reportId).catch((err) => {
-    console.error(`Pipeline execution failed for report ${reportId}:`, err);
+  // Use after() to run pipeline after response is sent — keeps function alive
+  after(async () => {
+    try {
+      console.log(`[generate] Starting pipeline for report ${reportId}`);
+      await executePipeline(reportId);
+      console.log(`[generate] Pipeline completed for report ${reportId}`);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      console.error(`[generate] Pipeline FAILED for report ${reportId}:`, error.message, error.stack);
+    }
   });
 
   return NextResponse.json(
