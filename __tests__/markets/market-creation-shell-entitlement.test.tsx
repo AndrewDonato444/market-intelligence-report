@@ -1,7 +1,7 @@
 /**
  * MarketCreationShell Entitlement UI Tests
  *
- * Tests for #175: Client-side entitlement gating in Step 3 (Your Focus) of market creation.
+ * Tests for #175: Client-side entitlement gating in the last step of market creation.
  * Covers:
  * - Usage indicator shown when quota remains
  * - No usage indicator for unlimited users
@@ -95,13 +95,6 @@ jest.mock("@/components/reports/steps/step-your-tier", () => ({
   },
 }));
 
-jest.mock("@/components/reports/steps/step-your-focus", () => ({
-  StepYourFocus: ({ onValidationChange }: any) => {
-    React.useEffect(() => { onValidationChange?.(true); }, [onValidationChange]);
-    return React.createElement("div", { "data-testid": "step-your-focus" }, "Step Your Focus");
-  },
-}));
-
 jest.mock("@/components/reports/creation-step-indicator", () => ({
   CreationStepIndicator: () => React.createElement("div", { "data-testid": "step-indicator" }),
 }));
@@ -146,28 +139,24 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
     MarketCreationShell = mod.MarketCreationShell;
   });
 
-  // Helper: navigate to step 3 (last step)
-  const navigateToStep3 = async () => {
+  // Helper: navigate to last step (step 2 — Your Tier)
+  const navigateToLastStep = async () => {
     const { container } = render(<MarketCreationShell mode="create" />);
-    // Click Next twice to get to step 3
+    // Click Next once to get to last step (Your Tier)
     const nextButtons = screen.getAllByRole("button", { name: /next/i });
     await act(async () => { nextButtons[0].click(); });
-    await act(async () => {
-      const nextBtn = screen.getByRole("button", { name: /next/i });
-      nextBtn.click();
-    });
     return container;
   };
 
   describe("Usage indicator", () => {
-    it("CMP-MG-01: shows usage indicator when quota remains on step 3", async () => {
+    it("CMP-MG-01: shows usage indicator when quota remains on last step", async () => {
       mockFetchResponses["/api/entitlements/check"] = {
         ok: true,
         json: async () => ({ allowed: true, limit: 3, used: 1, remaining: 2 }),
         status: 200,
       };
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       await waitFor(() => {
         expect(screen.getByText(/1 of 3 markets defined/i)).toBeInTheDocument();
@@ -181,7 +170,7 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
         status: 200,
       };
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       await waitFor(() => {
         const saveBtn = screen.getByRole("button", { name: /save market/i });
@@ -198,7 +187,7 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
         status: 200,
       };
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       await waitFor(() => {
         expect(screen.getByText(/2 of 3 markets defined/i)).toBeInTheDocument();
@@ -215,7 +204,7 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
         status: 200,
       };
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       await waitFor(() => {
         expect(screen.getByText(/You've Reached Your Market Limit/i)).toBeInTheDocument();
@@ -231,7 +220,7 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
         status: 200,
       };
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       await waitFor(() => {
         const btn = screen.getByRole("button", { name: /save market/i });
@@ -246,7 +235,7 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
         status: 200,
       };
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       await waitFor(() => {
         expect(screen.getByRole("alert")).toBeInTheDocument();
@@ -262,7 +251,7 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
         status: 200,
       };
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       const loadingEl = screen.getByLabelText(/checking market availability/i);
       expect(loadingEl).toBeInTheDocument();
@@ -273,7 +262,7 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
     it("CMP-MG-08: enables Save Market button when entitlement check fails (fail-open)", async () => {
       mockFetchShouldFail = true;
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       await waitFor(() => {
         const btn = screen.getByRole("button", { name: /save market/i });
@@ -299,18 +288,12 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
               luxuryTier: "luxury" as const,
               priceFloor: 1000000,
               priceCeiling: null,
-              segments: ["waterfront"],
-              propertyTypes: ["single_family"],
             }}
           />
         );
       });
 
-      // Navigate to step 3
-      await act(async () => {
-        const nextBtn = screen.getByRole("button", { name: /next/i });
-        nextBtn.click();
-      });
+      // Navigate to last step
       await act(async () => {
         const nextBtn = screen.getByRole("button", { name: /next/i });
         nextBtn.click();
@@ -341,7 +324,7 @@ describe("MarketCreationShell — Entitlement UI (#175)", () => {
         status: 200,
       };
 
-      await navigateToStep3();
+      await navigateToLastStep();
 
       await waitFor(() => {
         const indicator = screen.getByLabelText(/market usage/i);

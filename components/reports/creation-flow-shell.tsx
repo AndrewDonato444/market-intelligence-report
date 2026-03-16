@@ -6,7 +6,6 @@ import { pageTransition } from "@/lib/animations";
 import { CreationStepIndicator } from "./creation-step-indicator";
 import { StepYourMarket } from "./steps/step-your-market";
 import { StepYourTier } from "./steps/step-your-tier";
-import { StepYourFocus } from "./steps/step-your-focus";
 import { StepYourAudience } from "./steps/step-your-audience";
 import { StepYourReview } from "./steps/step-your-review";
 import { StepGenerating } from "./steps/step-generating";
@@ -17,7 +16,6 @@ import {
 } from "@/lib/hooks/use-flow-persistence";
 import type { StepMarketData } from "./steps/step-your-market";
 import type { StepTierData } from "./steps/step-your-tier";
-import type { StepFocusData } from "./steps/step-your-focus";
 import type { StepAudienceData } from "./steps/step-your-audience";
 import type { StepReviewData } from "./steps/step-your-review";
 import type { PageDirection } from "@/lib/animations";
@@ -30,10 +28,6 @@ const STEPS = [
   {
     name: "Your Tier",
     description: "Choose the luxury tier and price range.",
-  },
-  {
-    name: "Your Focus",
-    description: "Pick market segments and property types.",
   },
   {
     name: "Your Audience",
@@ -71,7 +65,7 @@ interface CreationFlowShellProps {
 
 function getInitialState() {
   const draft = loadDraft();
-  if (draft && draft.currentStep < 5) {
+  if (draft && draft.currentStep < 4) {
     return draft;
   }
   return null;
@@ -91,7 +85,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     draft?.marketData ?? null,
   );
   const tierDataRef = useRef<StepTierData | null>(draft?.tierData ?? null);
-  const focusDataRef = useRef<StepFocusData | null>(draft?.focusData ?? null);
   const audienceDataRef = useRef<StepAudienceData | null>(
     draft?.audienceData ?? null,
   );
@@ -103,12 +96,12 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   // --- Persistence helpers ---
   const persistState = useCallback(
     (step: number) => {
-      if (step >= 5) return;
+      if (step >= 4) return;
       saveDraft({
         currentStep: step,
         marketData: marketDataRef.current,
         tierData: tierDataRef.current,
-        focusData: focusDataRef.current,
+        focusData: null,
         audienceData: audienceDataRef.current,
         savedAt: new Date().toISOString(),
       });
@@ -154,17 +147,15 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
         priceFloor: tierDefaults.priceFloor,
         priceCeiling: tierDefaults.priceCeiling,
       };
-      focusDataRef.current = { segments: [], propertyTypes: [] };
-
       setShowQuickStart(false);
       setDirection("forward");
-      setCurrentStep(3); // Jump to Audience
+      setCurrentStep(2); // Jump to Audience
       setStepValid(false);
       saveDraft({
-        currentStep: 3,
+        currentStep: 2,
         marketData: marketDataRef.current,
         tierData: tierDataRef.current,
-        focusData: focusDataRef.current,
+        focusData: null,
         audienceData: null,
         savedAt: new Date().toISOString(),
       });
@@ -193,14 +184,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     setStepValid(valid);
   }, []);
 
-  const handleFocusStepComplete = useCallback((data: StepFocusData) => {
-    focusDataRef.current = data;
-  }, []);
-
-  const handleFocusValidation = useCallback((valid: boolean) => {
-    setStepValid(valid);
-  }, []);
-
   const handleAudienceStepComplete = useCallback((data: StepAudienceData) => {
     audienceDataRef.current = data;
   }, []);
@@ -212,7 +195,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   const handleReviewStepComplete = useCallback((data: StepReviewData) => {
     setReportData(data);
     setDirection("forward");
-    setCurrentStep(5);
+    setCurrentStep(4);
     setStepValid(false);
     clearDraft();
   }, []);
@@ -253,20 +236,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
 
     if (currentStep === 2) {
       return (
-        <StepYourFocus
-          marketData={
-            marketDataRef.current
-              ? { city: marketDataRef.current.city, state: marketDataRef.current.state }
-              : undefined
-          }
-          onStepComplete={handleFocusStepComplete}
-          onValidationChange={handleFocusValidation}
-        />
-      );
-    }
-
-    if (currentStep === 3) {
-      return (
         <StepYourAudience
           onStepComplete={handleAudienceStepComplete}
           onValidationChange={handleAudienceValidation}
@@ -274,12 +243,12 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    if (currentStep === 4) {
+    if (currentStep === 3) {
       return (
         <StepYourReview
           marketData={marketDataRef.current}
           tierData={tierDataRef.current}
-          focusData={focusDataRef.current}
+          focusData={null}
           audienceData={audienceDataRef.current}
           onStepComplete={handleReviewStepComplete}
           onValidationChange={handleReviewValidation}
@@ -288,8 +257,8 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    // Step 6: Generating (feature #157)
-    if (currentStep === 5 && reportData) {
+    // Step 5: Generating (feature #157)
+    if (currentStep === 4 && reportData) {
       return (
         <StepGenerating
           reportId={reportData.reportId}
@@ -383,8 +352,8 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
           </AnimatePresence>
         </div>
 
-        {/* Navigation — hidden on Step 6 (Generating) */}
-        {currentStep !== 5 && (
+        {/* Navigation — hidden on Generate step */}
+        {currentStep !== 4 && (
           <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-border)]">
             <div>
               {!isFirstStep && (
@@ -398,7 +367,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
               )}
             </div>
             <div>
-              {currentStep === 4 ? null : (
+              {currentStep === 3 ? null : (
                 <button
                   type="button"
                   onClick={handleNext}

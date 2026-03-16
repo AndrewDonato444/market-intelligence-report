@@ -8,14 +8,13 @@ components:
   - MarketCreationShell
   - StepYourMarket
   - StepYourTier
-  - StepYourFocus
   - CreationStepIndicator
 personas:
   - rising-star-agent
   - established-practitioner
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-16
 ---
 
 # Unified Market Creation
@@ -27,11 +26,11 @@ updated: 2026-03-11
 
 ## Problem
 
-The Markets tab uses a legacy `MarketWizard` (basic inputs, checkbox lists, no smart defaults) while the Dashboard report flow uses the redesigned step components (`StepYourMarket` → `StepYourTier` → `StepYourFocus`) with animated transitions, toggle cards, smart state-based defaults, and the full design system. Two different UIs for the same action creates inconsistency and maintenance burden.
+The Markets tab used a legacy `MarketWizard` (basic inputs, checkbox lists, no smart defaults) while the Dashboard report flow uses the redesigned step components (`StepYourMarket` → `StepYourTier`) with animated transitions, toggle cards, smart state-based defaults, and the full design system. Two different UIs for the same action creates inconsistency and maintenance burden.
 
 ## Solution
 
-Replace `MarketWizard` with a new `MarketCreationShell` that composes the same 3 step components from the report creation flow. The shell handles step navigation, validation gating, and API submission. The final action is "Save Market" (not "Generate Report"). The edit page (`/markets/[id]/edit`) also uses this shell in edit mode with pre-populated data.
+Replace `MarketWizard` with a new `MarketCreationShell` that composes the same 2 step components from the report creation flow. The shell handles step navigation, validation gating, and API submission. The final action is "Save Market" (not "Generate Report"). The edit page (`/markets/[id]/edit`) also uses this shell in edit mode with pre-populated data.
 
 ## Feature: Unified Market Creation
 
@@ -39,8 +38,8 @@ Replace `MarketWizard` with a new `MarketCreationShell` that composes the same 3
 Given an agent is on the Markets page
 When they click "Define New Market"
 Then they are taken to `/markets/new`
-And they see a 3-step flow: Your Market → Your Tier → Your Focus
-And the step indicator shows 3 steps (not 6)
+And they see a 2-step flow: Your Market → Your Tier
+And the step indicator shows 2 steps (not 5)
 
 ### Scenario: Step 1 — Your Market (geography)
 Given the agent is on step 1
@@ -48,22 +47,15 @@ When they enter city, state, and optionally county/region
 Then the market name auto-generates from city + state
 And the Next button enables when city and state are filled
 
-### Scenario: Step 2 — Your Tier (pricing)
+### Scenario: Step 2 — Your Tier (pricing + save)
 Given the agent completed step 1
 When they select a luxury tier (Luxury / High Luxury / Ultra Luxury)
 Then the price floor auto-populates from the tier default
 And they can optionally adjust floor and ceiling
-And the Next button enables when a tier is selected
-
-### Scenario: Step 3 — Your Focus (segments + property types)
-Given the agent completed step 2
-When they see the segment and property type cards
-Then smart defaults are pre-selected based on their state
-And they can toggle cards on/off
 And the "Save Market" button is visible
 
 ### Scenario: Agent saves a new market
-Given the agent has completed all 3 steps
+Given the agent has completed both steps
 When they click "Save Market"
 Then a POST to `/api/markets` creates the market
 And they are redirected to `/markets`
@@ -71,7 +63,7 @@ And a success toast appears
 
 ### Scenario: Agent edits an existing market
 Given an agent is on `/markets/[id]/edit`
-Then they see the same 3-step flow pre-populated with existing data
+Then they see the same 2-step flow pre-populated with existing data
 And the step indicator shows the current step
 And the final button says "Save Changes" instead of "Save Market"
 When they modify fields and click "Save Changes"
@@ -89,10 +81,10 @@ Then the Next button is disabled
 And they cannot advance to step 2
 
 ### Scenario: Back navigation preserves data
-Given the agent is on step 3 with selections made
-When they click Back to step 2
-And then click Next to return to step 3
-Then their segment and property type selections are preserved
+Given the agent is on step 2 with tier selected
+When they click Back to step 1
+And then click Next to return to step 2
+Then their tier selection is preserved
 
 ### Scenario: First market is set as default
 Given the agent has no existing markets
@@ -121,12 +113,12 @@ Then it is automatically set as default (is_default = 1)
 │  │  ── accent line (bg: accent, h: 0.5, w: 12) ──                      │   │
 │  │                                                                      │   │
 │  │  ┌─ CreationStepIndicator ──────────────────────────────────────┐   │   │
-│  │  │  ● Your Market  ─── ○ Your Tier  ─── ○ Your Focus            │   │   │
+│  │  │  ● Your Market  ─── ○ Your Tier                              │   │   │
 │  │  └──────────────────────────────────────────────────────────────┘   │   │
 │  │                                                                      │   │
 │  │  ┌─ Step content (animated via framer-motion) ──────────────────┐   │   │
 │  │  │                                                                │   │   │
-│  │  │  [StepYourMarket / StepYourTier / StepYourFocus]               │   │   │
+│  │  │  [StepYourMarket / StepYourTier]                               │   │   │
 │  │  │  (same components as report creation flow)                     │   │   │
 │  │  │                                                                │   │   │
 │  │  └────────────────────────────────────────────────────────────────┘   │   │
@@ -144,9 +136,8 @@ Then it is automatically set as default (is_default = 1)
 ## Implementation Notes
 
 - `MarketCreationShell` is a new component at `components/markets/market-creation-shell.tsx`
-- Reuses `StepYourMarket`, `StepYourTier`, `StepYourFocus` from `components/reports/steps/`
+- Reuses `StepYourMarket`, `StepYourTier` from `components/reports/steps/`
 - Reuses `CreationStepIndicator` from `components/reports/`
-- `StepYourFocus` receives `marketData` prop for smart defaults (already supported)
 - Navigation: shell manages `currentStep` state, Back/Next buttons, validation gating
 - Edit mode: shell receives `initialData` prop → pre-populates step refs → starts at step 1
 - Delete `components/markets/market-wizard.tsx` after migration
@@ -155,18 +146,19 @@ Then it is automatically set as default (is_default = 1)
 ## Dead Code Removal
 
 After implementation:
-- Delete `components/markets/market-wizard.tsx`
-- Delete `components/markets/step-indicator.tsx` (legacy step indicator)
-- Delete `__tests__/markets/market.test.tsx` (tests the legacy wizard)
+- Delete `components/markets/market-wizard.tsx` ✅
+- Delete `components/markets/step-indicator.tsx` (legacy step indicator) ✅
+- Delete `__tests__/markets/market.test.tsx` (tests the legacy wizard) ✅
 - Archive `.specs/features/user-setup/market-definition.feature.md`
+- Remove `StepYourFocus` from market creation flow (Focus step was dead code — collected segments/propertyTypes data that was never consumed by the pipeline) ✅
 
 ## Component References
 
 - StepYourMarket: `components/reports/steps/step-your-market.tsx`
 - StepYourTier: `components/reports/steps/step-your-tier.tsx`
-- StepYourFocus: `components/reports/steps/step-your-focus.tsx`
 - CreationStepIndicator: `components/reports/creation-step-indicator.tsx`
 
 ## Learnings
 
-(To be filled after implementation)
+### 2026-03-16
+- **Dead code removal**: The Focus step (`StepYourFocus`) was removed from both `MarketCreationShell` (2 steps) and `CreationFlowShell` (5 steps). It collected `segments` and `propertyTypes` data that was never consumed by any agent or computation in the pipeline. The DB columns remain intact (no migration needed) — only the UI step was removed.

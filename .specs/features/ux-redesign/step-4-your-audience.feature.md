@@ -15,7 +15,7 @@ personas:
   - competitive-veteran
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-16
 ---
 
 # Step 4: Your Audience
@@ -33,13 +33,13 @@ Step 4 of the unified report creation flow. The agent selects up to 3 buyer pers
 **Who it's for**: All agent personas — Alex (rising star, wants to target the right buyer types for credibility), Morgan (competitive veteran, knows exactly which client archetypes to address), Taylor (team leader, wants consistent persona selection across the team), Pat (legacy agent, wants to understand what each persona adds to the report).
 
 ### Scenario: Agent sees the Your Audience step
-Given the agent completed Steps 1-3 and advanced to Step 4
+Given the agent completed Steps 1-2 and advanced to Step 3
 Then they see the heading "Who are you advising?"
 And they see helper text "Select up to 3 buyer personas — we'll tailor insights, talking points, and narrative framing to match their priorities"
 And they see a grid of persona cards fetched from the API
 
 ### Scenario: Persona cards display with key traits
-Given the agent is on Step 4
+Given the agent is on Step 3
 And personas have loaded from `/api/buyer-personas`
 Then they see a card for each persona in the system (8 Knox Brothers personas)
 And each card shows the persona name (serif heading)
@@ -49,12 +49,12 @@ And each card shows a "What they care about" summary (the `whatWinsThem` field)
 And each card has a "Preview" link to see full details
 
 ### Scenario: Cards are ordered by display order
-Given the agent is on Step 4
+Given the agent is on Step 3
 Then persona cards appear in `displayOrder` sequence (1 through 8)
 And the order matches: The Business Mogul, The Legacy Builder, The Coastal Escape Seeker, The Tech Founder, The Seasonal & Second-Home Buyer, The International Buyer, The Celebrity / Public Figure, The Corporate Executive
 
 ### Scenario: Agent selects a persona card
-Given the agent is on Step 4
+Given the agent is on Step 3
 And fewer than 3 personas are selected
 When they click a persona card
 Then the card is visually highlighted (accent border + accent-light background)
@@ -92,7 +92,7 @@ And the remaining unselected cards return to full opacity
 And the agent can select a new persona
 
 ### Scenario: Preview panel slides in from the right
-Given the agent is on Step 4
+Given the agent is on Step 3
 When they click the "Preview" link on a persona card
 Then a preview panel slides in from the right side of the card grid
 And the panel shows the persona's full profile overview
@@ -140,7 +140,7 @@ And the IDs are in selection order (first-selected first)
 And the data updates every time a persona is selected or deselected
 
 ### Scenario: Loading state while personas fetch
-Given the agent navigates to Step 4
+Given the agent navigates to Step 3
 And the persona API call is in progress
 Then a loading skeleton appears with 8 placeholder cards
 And the placeholder cards pulse with a subtle animation
@@ -153,7 +153,7 @@ And the step reports valid via onValidationChange(true) (allow skipping)
 And a "Retry" button is available to re-fetch
 
 ### Scenario: Cards animate on entrance
-Given the agent navigates to Step 4
+Given the agent navigates to Step 3
 And personas have loaded
 Then persona cards stagger in using staggerContainer (0.05s delay between cards)
 And each card uses fadeVariant for its entrance
@@ -162,10 +162,9 @@ And each card uses fadeVariant for its entrance
 
 1. Agent selects geography in Step 1 (Your Market)
 2. Agent selects luxury tier in Step 2 (Your Tier)
-3. Agent selects segments and property types in Step 3 (Your Focus)
-4. **Step 4: Your Audience** — selects buyer personas (this feature)
-5. Step 5: Review — confirms all selections
-6. Step 6: Generate — watches the pipeline build the report
+3. **Step 3: Your Audience** — selects buyer personas (this feature)
+4. Step 4: Review — confirms all selections
+5. Step 5: Generate — watches the pipeline build the report
 
 ## UI Mockup
 
@@ -314,7 +313,7 @@ Loading skeleton:
 
 ### Component Architecture
 
-- **StepYourAudience** — Main step component, rendered by CreationFlowShell when step index is 3
+- **StepYourAudience** — Main step component, rendered by CreationFlowShell when step index is 2
   - Fetches personas from `/api/buyer-personas` on mount
   - Manages local state: `{ selectedPersonaIds: string[], previewPersonaSlug: string | null }`
   - Emits step data upward via `onStepComplete` callback
@@ -352,8 +351,8 @@ const handleAudienceValidation = useCallback((valid: boolean) => {
   setStepValid(valid);
 }, []);
 
-// In renderStepContent, add case for currentStep === 3:
-if (currentStep === 3) {
+// In renderStepContent, add case for currentStep === 2:
+if (currentStep === 2) {
   return (
     <StepYourAudience
       onStepComplete={handleAudienceStepComplete}
@@ -405,7 +404,7 @@ CreationFlowShell
 - `lib/services/buyer-personas.ts` — `getAllBuyerPersonas()`, `getBuyerPersonaBySlug()`
 - `lib/animations.ts` — `fadeVariant`, `staggerContainer`, `selectionVariant`, `slideVariant("right")`, `DURATION_SLOW`
 - `components/ui/tooltip.tsx` — Tooltip component from #150
-- CSS variable pattern from `step-your-focus.tsx` (same `var(--color-*)` approach)
+- CSS variable pattern from `step-your-tier.tsx` (same `var(--color-*)` approach)
 
 ### Accessibility
 

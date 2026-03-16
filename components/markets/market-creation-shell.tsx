@@ -7,10 +7,8 @@ import { pageTransition } from "@/lib/animations";
 import { CreationStepIndicator } from "@/components/reports/creation-step-indicator";
 import { StepYourMarket } from "@/components/reports/steps/step-your-market";
 import { StepYourTier } from "@/components/reports/steps/step-your-tier";
-import { StepYourFocus } from "@/components/reports/steps/step-your-focus";
 import type { StepMarketData } from "@/components/reports/steps/step-your-market";
 import type { StepTierData } from "@/components/reports/steps/step-your-tier";
-import type { StepFocusData } from "@/components/reports/steps/step-your-focus";
 import type { PageDirection } from "@/lib/animations";
 
 // "View Plans" target — update when #177 (Account & Billing page) is built
@@ -31,7 +29,6 @@ interface EntitlementState {
 const STEPS = [
   { name: "Your Market", description: "Define the geography for your market." },
   { name: "Your Tier", description: "Choose the luxury tier and price range." },
-  { name: "Your Focus", description: "Pick market segments and property types." },
 ];
 
 const STEP_NAMES = STEPS.map((s) => s.name);
@@ -49,8 +46,6 @@ interface MarketCreationShellProps {
     luxuryTier: "luxury" | "high_luxury" | "ultra_luxury";
     priceFloor: number;
     priceCeiling?: number | null;
-    segments?: string[] | null;
-    propertyTypes?: string[] | null;
   };
 }
 
@@ -99,21 +94,12 @@ export function MarketCreationShell({
         }
       : null,
   );
-  const focusDataRef = useRef<StepFocusData | null>(
-    initialData
-      ? {
-          segments: initialData.segments ?? [],
-          propertyTypes: initialData.propertyTypes ?? [],
-        }
-      : null,
-  );
-
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === STEPS.length - 1;
 
-  // Fetch entitlement check when reaching step 3 (create mode only)
+  // Fetch entitlement check when reaching last step (create mode only)
   useEffect(() => {
-    if (isEdit || currentStep !== 2) return;
+    if (isEdit || !isLastStep) return;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
@@ -179,10 +165,6 @@ export function MarketCreationShell({
     tierDataRef.current = data;
   }, []);
 
-  const handleFocusStepComplete = useCallback((data: StepFocusData) => {
-    focusDataRef.current = data;
-  }, []);
-
   const handleValidation = useCallback((valid: boolean) => {
     setStepValid(valid);
   }, []);
@@ -195,7 +177,6 @@ export function MarketCreationShell({
 
     const market = marketDataRef.current;
     const tier = tierDataRef.current;
-    const focus = focusDataRef.current;
 
     const body = {
       name: market?.marketName || `${market?.city} ${market?.state}`,
@@ -208,8 +189,6 @@ export function MarketCreationShell({
       luxuryTier: tier?.luxuryTier || "luxury",
       priceFloor: tier?.priceFloor || 1000000,
       priceCeiling: tier?.priceCeiling || undefined,
-      segments: focus?.segments || [],
-      propertyTypes: focus?.propertyTypes || [],
     };
 
     try {
@@ -250,20 +229,6 @@ export function MarketCreationShell({
       return (
         <StepYourTier
           onStepComplete={handleTierStepComplete}
-          onValidationChange={handleValidation}
-        />
-      );
-    }
-
-    if (currentStep === 2) {
-      return (
-        <StepYourFocus
-          marketData={
-            marketDataRef.current
-              ? { city: marketDataRef.current.city, state: marketDataRef.current.state }
-              : undefined
-          }
-          onStepComplete={handleFocusStepComplete}
           onValidationChange={handleValidation}
         />
       );
