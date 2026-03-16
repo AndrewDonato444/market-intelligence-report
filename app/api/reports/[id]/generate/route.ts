@@ -6,7 +6,7 @@
  * Uses next/server after() to keep function alive for pipeline execution.
  */
 
-export const maxDuration = 300; // 5 min — pipeline needs time
+export const maxDuration = 600; // 10 min — pipeline needs time
 
 import { after } from "next/server";
 import { getAuthUserId } from "@/lib/supabase/auth";
