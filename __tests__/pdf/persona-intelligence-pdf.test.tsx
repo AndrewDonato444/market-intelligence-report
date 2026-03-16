@@ -216,29 +216,16 @@ describe("Persona Intelligence PDF Renderer", () => {
   });
 
   describe("Blended intelligence", () => {
-    it("renders BLENDED INTELLIGENCE with 2+ personas", async () => {
+    it("renders Blended Intelligence header with 2+ personas", async () => {
       const { PersonaIntelligencePdf } = await import("@/lib/pdf/templates/renderers");
       render(React.createElement(PersonaIntelligencePdf, { section: makePersonaIntelligenceSection(2, true) }));
-      expect(screen.getByText("BLENDED INTELLIGENCE")).toBeInTheDocument();
+      expect(screen.getByText("Blended Intelligence")).toBeInTheDocument();
     });
 
     it("renders blended talking points", async () => {
       const { PersonaIntelligencePdf } = await import("@/lib/pdf/templates/renderers");
       render(React.createElement(PersonaIntelligencePdf, { section: makePersonaIntelligenceSection(2, true) }));
       expect(screen.getByText("Combined: Ultra-luxury across personas")).toBeInTheDocument();
-    });
-
-    it("renders metric union", async () => {
-      const { PersonaIntelligencePdf } = await import("@/lib/pdf/templates/renderers");
-      render(React.createElement(PersonaIntelligencePdf, { section: makePersonaIntelligenceSection(2, true) }));
-      expect(screen.getByText("METRIC UNION")).toBeInTheDocument();
-    });
-
-    it("renders filter overlap", async () => {
-      const { PersonaIntelligencePdf } = await import("@/lib/pdf/templates/renderers");
-      render(React.createElement(PersonaIntelligencePdf, { section: makePersonaIntelligenceSection(2, true) }));
-      expect(screen.getByText("FILTER OVERLAP")).toBeInTheDocument();
-      expect(screen.getByText(/Single Family/)).toBeInTheDocument();
     });
   });
 
@@ -259,7 +246,7 @@ describe("Persona Intelligence PDF Renderer", () => {
       const { PersonaIntelligencePdf } = await import("@/lib/pdf/templates/renderers");
       render(React.createElement(PersonaIntelligencePdf, { section: makePersonaIntelligenceSection(1, false) }));
       expect(screen.getByText("The Business Mogul")).toBeInTheDocument();
-      expect(screen.queryByText("BLENDED INTELLIGENCE")).not.toBeInTheDocument();
+      expect(screen.queryByText("Blended Intelligence")).not.toBeInTheDocument();
     });
   });
 

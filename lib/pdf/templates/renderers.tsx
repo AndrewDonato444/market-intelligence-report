@@ -502,64 +502,91 @@ function humanizeDataSource(key: string): string {
     .join(" ");
 }
 
-function TalkingPointPdf({ tp }: { tp: { headline: string; detail: string; dataSource: string } }) {
+function TalkingPointPdf({ tp, index }: { tp: { headline: string; detail: string; dataSource: string }; index: number }) {
   return (
-    <View style={{ marginBottom: 12 }}>
-      <Text style={styles.talkingPointHeadline}>{tp.headline}</Text>
-      <Text style={styles.talkingPointDetail}>{tp.detail}</Text>
-      <Text style={styles.talkingPointSource}>Source: {humanizeDataSource(tp.dataSource)}</Text>
+    <View style={{
+      backgroundColor: COLORS.background,
+      borderRadius: 4,
+      padding: 16,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: COLORS.border,
+    }} wrap={false}>
+      <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+        <Text style={{ fontFamily: "Inter", fontSize: 10, color: COLORS.accent, marginRight: 8, marginTop: 1 }}>
+          {String(index + 1).padStart(2, "0")}
+        </Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.blendedTalkingPointHeadline}>{tp.headline}</Text>
+          <Text style={styles.blendedTalkingPointDetail}>{tp.detail}</Text>
+          <Text style={styles.blendedTalkingPointSource}>Source: {humanizeDataSource(tp.dataSource)}</Text>
+        </View>
+      </View>
     </View>
   );
 }
 
-function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["personas"][0] }) {
+function PersonaCardPdf({ persona, isFirst }: { persona: PersonaIntelligenceContent["personas"][0]; isFirst: boolean }) {
   const isPrimary = persona.selectionOrder === 1;
   return (
-    <View style={isPrimary ? styles.personaCardPrimary : styles.personaCard}>
-      {/* Persona name — minPresenceAhead keeps header with first content */}
-      <View minPresenceAhead={80}>
-        <Text style={styles.personaName}>{persona.personaName}</Text>
+    <View break={!isFirst}>
+      {/* Persona heading */}
+      <View minPresenceAhead={120}>
+        <Text style={styles.heading}>{persona.personaName}</Text>
+        {isPrimary && <Text style={styles.primaryPersonaLabel}>PRIMARY PERSONA</Text>}
+        <View style={styles.accentLine} />
       </View>
-      {isPrimary && <Text style={styles.primaryPersonaLabel}>PRIMARY PERSONA</Text>}
 
       {/* Talking Points */}
       <Text style={styles.sectionLabel}>TALKING POINTS</Text>
       {persona.talkingPoints.map((tp, i) => (
-        <TalkingPointPdf key={i} tp={tp} />
+        <TalkingPointPdf key={i} tp={tp} index={i} />
       ))}
 
-      <View style={styles.divider} />
-
-      {/* Narrative Lens */}
-      <View minPresenceAhead={80}>
-        <Text style={styles.sectionLabel}>NARRATIVE LENS</Text>
+      {/* Narrative Lens — single card */}
+      <View style={{
+        backgroundColor: COLORS.surface,
+        borderRadius: 4,
+        padding: 16,
+        marginBottom: 12,
+        borderWidth: 1,
+        borderColor: COLORS.border,
+      }} wrap={false}>
+        <Text style={{ ...styles.sectionLabel, marginTop: 0 }}>NARRATIVE LENS</Text>
         <Text style={styles.body}>{persona.narrativeOverlay.perspective}</Text>
-        <Text style={styles.bodySmall}>
-          {"Emphasize: "}
-          {persona.narrativeOverlay.emphasis.map((item, i) => (
-            <Text key={i}>
-              <Text style={{ color: COLORS.success }}>{"\u25CF "}</Text>
-              {item}
-              {i < persona.narrativeOverlay.emphasis.length - 1 ? "  " : ""}
-            </Text>
-          ))}
-        </Text>
-        <Text style={styles.bodySmall}>
-          {"De-emphasize: "}
-          {persona.narrativeOverlay.deEmphasis.map((item, i) => (
-            <Text key={i}>
-              <Text style={{ color: COLORS.textSecondary }}>{"\u25CB "}</Text>
-              {item}
-              {i < persona.narrativeOverlay.deEmphasis.length - 1 ? "  " : ""}
-            </Text>
-          ))}
-        </Text>
-        <Text style={{ ...styles.bodySmall, fontStyle: "italic" }}>
+
+        <View style={{ ...styles.divider, marginVertical: 10 }} />
+
+        {/* Emphasize / De-emphasize as vertical lists */}
+        <View style={{ flexDirection: "row", marginBottom: 10 }}>
+          <View style={{ flex: 1, marginRight: 8 }}>
+            <Text style={{ ...styles.sectionLabel, marginTop: 0, color: COLORS.success }}>EMPHASIZE</Text>
+            {persona.narrativeOverlay.emphasis.map((item, i) => (
+              <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 4 }}>
+                <Text style={{ fontFamily: "Inter", fontSize: 9, color: COLORS.success, marginRight: 6 }}>{"\u25CF"}</Text>
+                <Text style={{ ...styles.bodySmall, flex: 1 }}>{item}</Text>
+              </View>
+            ))}
+          </View>
+          <View style={{ flex: 1, marginLeft: 8 }}>
+            <Text style={{ ...styles.sectionLabel, marginTop: 0, color: COLORS.textTertiary }}>DE-EMPHASIZE</Text>
+            {persona.narrativeOverlay.deEmphasis.map((item, i) => (
+              <View key={i} style={{ flexDirection: "row", alignItems: "flex-start", marginBottom: 4 }}>
+                <Text style={{ fontFamily: "Inter", fontSize: 9, color: COLORS.textTertiary, marginRight: 6 }}>{"\u25CB"}</Text>
+                <Text style={{ ...styles.bodySmall, flex: 1 }}>{item}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        <View style={{ ...styles.divider, marginVertical: 10 }} />
+
+        {/* Tone Guidance */}
+        <Text style={{ ...styles.sectionLabel, marginTop: 0, marginBottom: 4 }}>TONE</Text>
+        <Text style={{ ...styles.bodySmall, fontStyle: "italic", lineHeight: 1.5 }}>
           {persona.narrativeOverlay.toneGuidance}
         </Text>
       </View>
-
-      <View style={styles.divider} />
 
       {/* Key Metrics */}
       <Text style={styles.sectionLabel}>KEY METRICS</Text>
@@ -584,8 +611,6 @@ function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["pers
         </View>
       ))}
 
-      <View style={styles.divider} />
-
       {/* Vocabulary Guide */}
       <View wrap={false}>
         <Text style={styles.sectionLabel}>VOCABULARY GUIDE</Text>
@@ -606,49 +631,44 @@ function PersonaCardPdf({ persona }: { persona: PersonaIntelligenceContent["pers
   );
 }
 
-function BlendedInsightsPdf({ blended }: { blended: NonNullable<PersonaIntelligenceContent["blended"]> }) {
-  const { filterIntersection: fi } = blended;
-  const priceLabel = fi.priceRange.max
-    ? `$${(fi.priceRange.min / 1_000_000).toFixed(0)}M–$${(fi.priceRange.max / 1_000_000).toFixed(0)}M`
-    : `$${(fi.priceRange.min / 1_000_000).toFixed(0)}M+`;
-
+function BlendedTalkingPointCard({ tp, index }: { tp: { headline: string; detail: string; dataSource: string }; index: number }) {
   return (
-    <View style={styles.blendedSection}>
-      <Text style={{ ...styles.personaName, marginBottom: 12 }}>BLENDED INTELLIGENCE</Text>
+    <View style={styles.blendedTalkingPointCard} wrap={false}>
+      <View style={{ flexDirection: "row", alignItems: "flex-start" }}>
+        <Text style={{ fontFamily: "Inter", fontSize: 10, color: COLORS.accent, marginRight: 8, marginTop: 1 }}>
+          {String(index + 1).padStart(2, "0")}
+        </Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.blendedTalkingPointHeadline}>{tp.headline}</Text>
+          <Text style={styles.blendedTalkingPointDetail}>{tp.detail}</Text>
+          <Text style={styles.blendedTalkingPointSource}>Source: {humanizeDataSource(tp.dataSource)}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
 
-      {/* Combined Talking Points */}
+function BlendedInsightsPdf({ blended }: { blended: NonNullable<PersonaIntelligenceContent["blended"]> }) {
+  return (
+    <View style={styles.blendedSection} break>
+      {/* Section header with accent line */}
+      <Text style={styles.blendedHeader}>Blended Intelligence</Text>
+      <View style={styles.blendedHeaderAccent} />
+
+      {/* Combined Talking Points — card-based */}
       <Text style={styles.sectionLabel}>COMBINED TALKING POINTS</Text>
       {blended.blendedTalkingPoints.map((tp, i) => (
-        <TalkingPointPdf key={i} tp={tp} />
+        <BlendedTalkingPointCard key={i} tp={tp} index={i} />
       ))}
-
-      <View style={styles.divider} />
-
-      {/* Metric Union */}
-      <Text style={styles.sectionLabel}>METRIC UNION</Text>
-      <Text style={styles.body}>
-        {blended.metricUnion
-          .map((m) => (typeof m === "string" ? m : typeof m === "object" && m !== null ? ((m as Record<string, unknown>).metricName ?? (m as Record<string, unknown>).name ?? JSON.stringify(m)) : String(m)))
-          .join(" \u2022 ")}
-      </Text>
-
-      {/* Filter Overlap */}
-      <Text style={styles.sectionLabel}>FILTER OVERLAP</Text>
-      <Text style={styles.body}>
-        Price: {priceLabel}  |  Types: {fi.propertyTypes.join(", ")}
-      </Text>
-      <Text style={styles.body}>
-        Communities: {fi.communityTypes.join(", ")}
-      </Text>
 
       {/* Conflicts */}
       {blended.conflicts.length > 0 && (
-        <View style={{ marginTop: 8 }}>
+        <View style={{ marginTop: 4 }}>
           <Text style={styles.sectionLabel}>CONFLICTS</Text>
           {blended.conflicts.map((conflict, i) => (
-            <View key={i} style={styles.conflictBox}>
+            <View key={i} style={styles.conflictBox} wrap={false}>
               <Text style={styles.body}>
-                &ldquo;{conflict.metric}&rdquo;{conflict.emphasizedBy ? ` — emphasized by ${conflict.emphasizedBy}` : ""}{conflict.deEmphasizedBy ? `, de-emphasized by ${conflict.deEmphasizedBy}` : ""}.
+                &ldquo;{conflict.metric}&rdquo;{conflict.emphasizedBy ? ` \u2014 emphasized by ${conflict.emphasizedBy}` : ""}{conflict.deEmphasizedBy ? `, de-emphasized by ${conflict.deEmphasizedBy}` : ""}.
               </Text>
               <Text style={{ ...styles.bodySmall, fontStyle: "italic" }}>
                 {conflict.resolution}
@@ -670,7 +690,7 @@ export const PersonaIntelligencePdf: SectionRenderer = ({ section }) => {
   return (
     <View>
       {sortedPersonas.map((persona, i) => (
-        <PersonaCardPdf key={i} persona={persona} />
+        <PersonaCardPdf key={i} persona={persona} isFirst={i === 0} />
       ))}
       {content.blended && <BlendedInsightsPdf blended={content.blended} />}
     </View>
@@ -811,16 +831,6 @@ export const ExecutiveBriefingPdf: SectionRenderer = ({ section }) => {
         <View>
           <Text style={styles.subsectionHeader}>Market Overview</Text>
           <Text style={styles.body}>{c.narrative}</Text>
-        </View>
-      )}
-
-      {/* Data Confidence section */}
-      {c.confidence?.level && (
-        <View>
-          <Text style={styles.subsectionHeader}>Data Confidence</Text>
-          <Text style={styles.bodySmall}>
-            {c.confidence.level.charAt(0).toUpperCase() + c.confidence.level.slice(1)} confidence (n={c.confidence.sampleSize} transactions)
-          </Text>
         </View>
       )}
 
@@ -1330,17 +1340,6 @@ export const DisclaimerMethodologyPdf: SectionRenderer = ({ section }) => {
           ))}
         </View>
       )}
-      <View minPresenceAhead={80}>
-        <Text style={styles.subheading}>Confidence</Text>
-        <Text style={styles.body}>
-          Level: {c.confidence.level}  |  Sample size: {c.confidence.sampleSize}  |  Detail coverage: {(c.confidence.detailCoverage * 100).toFixed(0)}%
-        </Text>
-        {c.confidence.staleDataSources.length > 0 && (
-          <Text style={styles.bodySmall}>
-            Stale sources: {c.confidence.staleDataSources.join(", ")}
-          </Text>
-        )}
-      </View>
     </View>
   );
 };

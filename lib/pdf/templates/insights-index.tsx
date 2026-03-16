@@ -26,18 +26,6 @@ interface InsightsIndexProps {
   sections: SectionEntry[];
 }
 
-function getConfidenceColor(level: string): string {
-  switch (level.toLowerCase()) {
-    case "high":
-      return COLORS.success;
-    case "medium":
-      return COLORS.warning;
-    case "low":
-      return COLORS.error;
-    default:
-      return COLORS.textSecondary;
-  }
-}
 
 function formatVolume(value: number): string {
   if (value >= 1e9) return `$${(value / 1e9).toFixed(2)}B`;
@@ -232,49 +220,14 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
           </View>
         )}
 
-        {/* Stale Data Warning */}
-        {metadata.confidence.staleDataSources.length > 0 && (
-          <View
-            style={{
-              borderWidth: 1,
-              borderColor: COLORS.warning,
-              borderRadius: 4,
-              padding: 8,
-              marginBottom: 8,
-            }}
-          >
-            <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.warning }}>
-              Data Freshness Notice: {metadata.confidence.staleDataSources.join(", ")}
-            </Text>
-          </View>
-        )}
-
-        {/* Confidence Footer Strip */}
+        {/* Generated date footer */}
         <View
           style={{
-            flexDirection: "row",
-            alignItems: "center",
             borderTopWidth: 1,
             borderTopColor: COLORS.border,
             paddingTop: 6,
           }}
         >
-          <Text
-            style={{
-              fontFamily: "Inter",
-              fontSize: 8,
-              fontWeight: 600,
-              color: getConfidenceColor(metadata.confidence.level),
-            }}
-          >
-            {metadata.confidence.level.charAt(0).toUpperCase() +
-              metadata.confidence.level.slice(1)}
-          </Text>
-          <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary, marginHorizontal: 6 }}>|</Text>
-          <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary }}>
-            {metadata.confidence.sampleSize.toLocaleString()} transactions
-          </Text>
-          <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary, marginHorizontal: 6 }}>|</Text>
           <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary }}>
             {generatedDate}
           </Text>

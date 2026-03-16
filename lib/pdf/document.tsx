@@ -9,7 +9,6 @@ import type { CoverKeyTheme } from "./templates/cover-page";
 import { TableOfContents } from "./templates/table-of-contents";
 import { InsightsIndex } from "./templates/insights-index";
 import { SectionPage } from "./templates/section-page";
-import { MetadataPage } from "./templates/metadata-page";
 import { filterSections } from "./section-filter";
 import type { ReportData } from "@/lib/agents/schema";
 
@@ -99,12 +98,6 @@ export function ReportDocument({
           companyName={branding.company}
         />
       ))}
-      <MetadataPage
-        metadata={reportData.metadata}
-        pullQuotes={reportData.pullQuotes}
-        reportTitle={title}
-        disclaimer={branding.disclaimer}
-      />
     </Document>
   );
 }

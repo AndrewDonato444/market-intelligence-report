@@ -256,69 +256,11 @@ describe("Market Intelligence Summary", () => {
     });
   });
 
-  describe("Confidence footer strip", () => {
-    it("shows confidence level", async () => {
-      const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
-      render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections() }));
-      expect(screen.getByText("High")).toBeInTheDocument();
-    });
-
-    it("shows sample size with transaction label", async () => {
-      const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
-      render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections() }));
-      expect(screen.getByText(/2,234\s*transactions/)).toBeInTheDocument();
-    });
-
+  describe("Footer strip", () => {
     it("shows formatted report date", async () => {
       const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
       render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections() }));
       expect(screen.getByText(expectedDate)).toBeInTheDocument();
-    });
-
-    it("shows pipe separators in footer", async () => {
-      const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
-      render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections() }));
-      const pipes = screen.getAllByText("|");
-      expect(pipes.length).toBe(2);
-    });
-
-    it("renders confidence for all levels", async () => {
-      const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
-
-      const { unmount } = render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections() }));
-      expect(screen.getByText("High")).toBeInTheDocument();
-      unmount();
-
-      const { unmount: u2 } = render(React.createElement(InsightsIndex, {
-        metadata: makeMetadata({ confidence: { level: "medium", sampleSize: 500, staleDataSources: [] } }),
-        sections: makeSections(),
-      }));
-      expect(screen.getByText("Medium")).toBeInTheDocument();
-      u2();
-
-      render(React.createElement(InsightsIndex, {
-        metadata: makeMetadata({ confidence: { level: "low", sampleSize: 50, staleDataSources: [] } }),
-        sections: makeSections(),
-      }));
-      expect(screen.getByText("Low")).toBeInTheDocument();
-    });
-  });
-
-  describe("Stale data warning", () => {
-    it("shows warning when stale data sources exist", async () => {
-      const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
-      render(React.createElement(InsightsIndex, {
-        metadata: makeMetadata({ confidence: { level: "high", sampleSize: 2234, staleDataSources: ["MLS Feed", "Tax Records"] } }),
-        sections: makeSections(),
-      }));
-      expect(screen.getByText(/MLS Feed/)).toBeInTheDocument();
-      expect(screen.getByText(/Tax Records/)).toBeInTheDocument();
-    });
-
-    it("hides warning when no stale sources", async () => {
-      const { InsightsIndex } = await import("@/lib/pdf/templates/insights-index");
-      render(React.createElement(InsightsIndex, { metadata: makeMetadata(), sections: makeSections() }));
-      expect(screen.queryByText("Data Freshness Notice")).not.toBeInTheDocument();
     });
   });
 

@@ -112,7 +112,7 @@ export function SegmentMatrix({ segments }: SegmentMatrixProps) {
           flexDirection: "row",
           borderBottomWidth: 2,
           borderBottomColor: COLORS.border,
-          paddingBottom: 6,
+          paddingBottom: 8,
           marginBottom: 4,
         }}
       >
@@ -171,7 +171,7 @@ export function SegmentMatrix({ segments }: SegmentMatrixProps) {
           key={i}
           style={{
             flexDirection: "row",
-            paddingVertical: 6,
+            paddingVertical: 8,
             borderBottomWidth: 1,
             borderBottomColor: COLORS.border,
             backgroundColor: i % 2 === 0 ? "transparent" : "#F8FAFC",
@@ -193,6 +193,7 @@ export function SegmentMatrix({ segments }: SegmentMatrixProps) {
               fontFamily: "Inter",
               fontSize: 10,
               color: COLORS.textPrimary,
+              textAlign: "right",
             }}
           >
             {seg.count.toLocaleString()}
@@ -203,6 +204,7 @@ export function SegmentMatrix({ segments }: SegmentMatrixProps) {
               fontFamily: "Inter",
               fontSize: 10,
               color: COLORS.textPrimary,
+              textAlign: "right",
             }}
           >
             ${(seg.medianPrice / 1000000).toFixed(1)}M
@@ -214,6 +216,7 @@ export function SegmentMatrix({ segments }: SegmentMatrixProps) {
               fontSize: 10,
               fontWeight: 700,
               color: getRatingBgColor(seg.rating),
+              textAlign: "right",
             }}
           >
             {seg.rating}
@@ -484,6 +487,13 @@ export function TrendIndicator({ label, value }: TrendIndicatorProps) {
       ? COLORS.success
       : COLORS.error;
 
+  // Tinted background for directional trends
+  const bgColor = isFlat
+    ? "transparent"
+    : isPositive
+      ? "#F0FDF4" // faint green
+      : "#FEF2F2"; // faint red
+
   const formatted = `${pct > 0 ? "+" : ""}${pct.toFixed(1)}%`;
 
   return (
@@ -492,6 +502,10 @@ export function TrendIndicator({ label, value }: TrendIndicatorProps) {
         flexDirection: "row",
         alignItems: "center",
         marginBottom: 4,
+        backgroundColor: bgColor,
+        borderRadius: 3,
+        paddingVertical: 3,
+        paddingHorizontal: 6,
       }}
     >
       <Text
