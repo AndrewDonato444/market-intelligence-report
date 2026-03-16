@@ -19,7 +19,7 @@ interface TableOfContentsProps {
 export function TableOfContents({ sections }: TableOfContentsProps) {
   return (
     <Page size="LETTER" style={styles.page}>
-      <View>
+      <View style={{ flex: 1 }}>
         <Text style={styles.heading}>Table of Contents</Text>
         <View style={styles.accentLine} />
         <View style={{ marginTop: 16 }}>
@@ -70,6 +70,9 @@ export function TableOfContents({ sections }: TableOfContentsProps) {
             </View>
           ))}
         </View>
+        {/* Spacer pushes accent line to bottom on sparse TOCs */}
+        <View style={{ flexGrow: 1 }} />
+        <View style={{ ...styles.accentLine, width: 48, height: 1, marginBottom: 0, marginTop: 16 }} />
       </View>
       <View style={styles.pageFooter} fixed>
         <Text style={styles.pageNumber}>Table of Contents</Text>

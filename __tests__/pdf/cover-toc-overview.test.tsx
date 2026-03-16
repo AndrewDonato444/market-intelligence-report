@@ -155,31 +155,31 @@ describe("Report Cover, TOC, and Insights Index", () => {
         generatedAt: "2026-03-09T00:00:00Z",
         totalDurationMs: 45000,
         agentDurations: {},
-        confidence: {
-          level: "high",
-          sampleSize: 1250,
-          staleDataSources: [],
-        },
       };
 
       const sections = [
         {
-          sectionType: "market_overview",
-          title: "Market Overview",
+          sectionType: "executive_briefing",
+          title: "Executive Briefing",
           content: {
-            narrative: "Naples luxury market remains strong.",
+            headline: {
+              medianPrice: 2500000,
+              totalProperties: 120,
+              totalVolume: 300000000,
+              rating: "A",
+              yoyPriceChange: 0.08,
+            },
             highlights: ["8% YoY growth", "A-rated market"],
-            recommendations: [],
+            narrative: "Naples luxury market remains strong.",
           },
         },
       ];
 
       render(React.createElement(InsightsIndex, { metadata, sections }));
 
-      const headings = screen.getAllByText("Market Intelligence Summary");
+      const headings = screen.getAllByText("At a Glance");
       expect(headings.length).toBeGreaterThanOrEqual(1);
-      expect(screen.getByText("High")).toBeInTheDocument();
-      expect(screen.getByText(/1,?250/)).toBeInTheDocument();
+      expect(screen.getByText("120")).toBeInTheDocument();
     });
 
     it("handles missing market overview gracefully", async () => {
@@ -248,7 +248,7 @@ describe("Report Cover, TOC, and Insights Index", () => {
         "utf8"
       );
       const insightsIdx = documentContent.indexOf("InsightsIndex");
-      const sectionMapIdx = documentContent.indexOf("sections.map");
+      const sectionMapIdx = documentContent.indexOf("filteredSections.map");
       expect(sectionMapIdx).toBeGreaterThan(insightsIdx);
     });
   });

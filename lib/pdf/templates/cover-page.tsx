@@ -4,7 +4,7 @@
  */
 
 import React from "react";
-import { Page, View, Text, Image } from "@react-pdf/renderer";
+import { Page, View, Text, Image, Link } from "@react-pdf/renderer";
 import { styles, COLORS } from "../styles";
 
 export interface CoverKeyTheme {
@@ -114,9 +114,21 @@ export function CoverPage({
           <Text style={styles.coverBranding}>{company}</Text>
         )}
         {(phone || email) && (
-          <Text style={{ ...styles.coverBranding, marginTop: 4 }}>
-            {[phone, email].filter(Boolean).join(" | ")}
-          </Text>
+          <View style={{ flexDirection: "row", marginTop: 4 }}>
+            {phone && (
+              <Link src={`tel:${phone}`} style={{ textDecoration: "none" }}>
+                <Text style={{ ...styles.coverBranding, marginTop: 0 }}>{phone}</Text>
+              </Link>
+            )}
+            {phone && email && (
+              <Text style={{ ...styles.coverBranding, marginTop: 0 }}> | </Text>
+            )}
+            {email && (
+              <Link src={`mailto:${email}`} style={{ textDecoration: "none" }}>
+                <Text style={{ ...styles.coverBranding, marginTop: 0 }}>{email}</Text>
+              </Link>
+            )}
+          </View>
         )}
         <Text style={styles.coverDate}>{formattedDate}</Text>
 
