@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/supabase/admin-auth";
 import { db, schema } from "@/lib/db";
-import { eq, asc, sum } from "drizzle-orm";
+import { eq, and, asc, sum } from "drizzle-orm";
 import { reapStaleReports } from "@/lib/services/report";
 
 export interface ReportDetailSection {
@@ -291,4 +291,52 @@ export async function GET(
       { status: 500 }
     );
   }
+}
+
+/**
+ * PATCH /api/admin/reports/[id]
+ *
+ * Admin action to reset a stuck social media kit from "generating" to "failed"
+ * so the user can retry. Body: { action: "reset-stuck-kit" }
+ */
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const adminId = await requireAdmin();
+  if (!adminId) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id: reportId } = await params;
+  const body = await request.json();
+
+  if (body.action === "reset-stuck-kit") {
+    const [kit] = await db
+      .select({ id: schema.socialMediaKits.id, status: schema.socialMediaKits.status })
+      .from(schema.socialMediaKits)
+      .where(eq(schema.socialMediaKits.reportId, reportId))
+      .limit(1);
+
+    if (!kit) {
+      return NextResponse.json({ error: "No kit found for this report" }, { status: 404 });
+    }
+
+    if (kit.status !== "generating" && kit.status !== "queued") {
+      return NextResponse.json({ error: `Kit is not stuck (status: ${kit.status})` }, { status: 409 });
+    }
+
+    await db
+      .update(schema.socialMediaKits)
+      .set({
+        status: "failed",
+        errorMessage: "Manually reset by admin — generation timed out",
+        updatedAt: new Date(),
+      })
+      .where(eq(schema.socialMediaKits.id, kit.id));
+
+    return NextResponse.json({ kitId: kit.id, previousStatus: kit.status, newStatus: "failed" });
+  }
+
+  return NextResponse.json({ error: "Unknown action" }, { status: 400 });
 }
