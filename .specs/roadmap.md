@@ -46,6 +46,23 @@
 
 ---
 
+## Phase 23: Security Hardening for Public Release
+
+> Protect the platform before opening to the public. Covers legal compliance (ToS), bot/scraper defense, API abuse prevention, and intellectual property protection on all outputs.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 240 | ToS acceptance checkbox on signup — checkbox + `tos_accepted_at` timestamp in users table, block account creation without acceptance | user-request | S | 3 | ⬜ |
+| 241 | Anti-bot protection — Cloudflare Turnstile (or reCAPTCHA) on signup, login, and public-facing forms with server-side token verification | user-request | M | 3 | ⬜ |
+| 242 | Anti-scraper middleware — user-agent filtering, request fingerprinting, honeypot routes, automatic IP blocking for suspicious patterns | user-request | M | 1 | ⬜ |
+| 243 | Rate limiting on exposed API routes — per-route rate limiter middleware (token bucket), configurable limits per endpoint, abuse response (429 + backoff headers) | user-request | M | 1, 5 | ⬜ |
+| 244 | Copyright notices on all app pages — footer component with © Modern Signal Advisory + year, visible on every page | user-request | S | 4 | ⬜ |
+| 245 | Copyright notices on generated PDF reports — copyright line + confidentiality watermark/disclaimer on all exported PDFs | user-request | S | 57 | ⬜ |
+
+**Goal**: The platform is legally compliant (ToS), resilient against automated abuse (bots, scrapers, API hammering), and all outputs carry proper copyright attribution — ready for public-facing traffic.
+
+---
+
 ## Phase 2: User & Market Setup
 
 > Agent identity and market definition. This is the input that drives everything downstream.
@@ -407,23 +424,6 @@
 | 233 | Post-deploy health gate — GitHub Actions workflow that curls `/api/health` after Vercel deploy, red X on commit if unhealthy | incident-2026-03-15 | S | 2 | ⬜ |
 
 **Goal**: Outages are detected within 5 minutes (not 24 hours), connections self-heal from credential changes, bad deploys are flagged immediately, and recovery is a 10-minute checklist instead of a 2-hour investigation.
-
----
-
-## Phase 23: Security Hardening for Public Release
-
-> Protect the platform before opening to the public. Covers legal compliance (ToS), bot/scraper defense, API abuse prevention, and intellectual property protection on all outputs.
-
-| # | Feature | Source | Complexity | Deps | Status |
-|---|---------|--------|------------|------|--------|
-| 240 | ToS acceptance checkbox on signup — checkbox + `tos_accepted_at` timestamp in users table, block account creation without acceptance | user-request | S | 3 | ⬜ |
-| 241 | Anti-bot protection — Cloudflare Turnstile (or reCAPTCHA) on signup, login, and public-facing forms with server-side token verification | user-request | M | 3 | ⬜ |
-| 242 | Anti-scraper middleware — user-agent filtering, request fingerprinting, honeypot routes, automatic IP blocking for suspicious patterns | user-request | M | 1 | ⬜ |
-| 243 | Rate limiting on exposed API routes — per-route rate limiter middleware (token bucket), configurable limits per endpoint, abuse response (429 + backoff headers) | user-request | M | 1, 5 | ⬜ |
-| 244 | Copyright notices on all app pages — footer component with © Modern Signal Advisory + year, visible on every page | user-request | S | 4 | ⬜ |
-| 245 | Copyright notices on generated PDF reports — copyright line + confidentiality watermark/disclaimer on all exported PDFs | user-request | S | 57 | ⬜ |
-
-**Goal**: The platform is legally compliant (ToS), resilient against automated abuse (bots, scrapers, API hammering), and all outputs carry proper copyright attribution — ready for public-facing traffic.
 
 ---
 
