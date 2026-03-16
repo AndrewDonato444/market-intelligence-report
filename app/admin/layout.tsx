@@ -1,4 +1,4 @@
-import { TopNav, PageShell } from "@/components/layout";
+import { TopNav, PageShell, Footer } from "@/components/layout";
 import { AdminSidebar } from "@/components/layout/admin-sidebar";
 
 export default function AdminLayout({
@@ -13,6 +13,7 @@ export default function AdminLayout({
         <AdminSidebar />
         <PageShell>{children}</PageShell>
       </div>
+      <Footer />
     </div>
   );
 }

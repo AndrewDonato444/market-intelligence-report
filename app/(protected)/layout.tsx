@@ -1,4 +1,4 @@
-import { TopNav, Sidebar, PageShell } from "@/components/layout";
+import { TopNav, Sidebar, PageShell, Footer } from "@/components/layout";
 import { getAuthUser } from "@/lib/supabase/auth";
 import { ensureUserProfile } from "@/lib/services/profile";
 
@@ -25,6 +25,7 @@ export default async function ProtectedLayout({
         <Sidebar isAdmin={isAdmin} />
         <PageShell>{children}</PageShell>
       </div>
+      <Footer />
     </div>
   );
 }

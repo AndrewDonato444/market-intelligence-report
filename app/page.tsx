@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { LandingNav } from "@/components/marketing/landing-nav";
+import { Footer } from "@/components/layout/footer";
 
 const CREDIBILITY_STATS = [
   { value: "31", label: "Market indicators tracked per report" },
@@ -533,17 +534,7 @@ export default function Home() {
       </section>
 
       {/* ── Footer ── */}
-      <footer className="bg-[var(--color-primary)] py-[var(--spacing-8)]">
-        <div className="text-center">
-          <div className="font-[family-name:var(--font-playfair)] text-sm text-[var(--color-text-tertiary)]">
-            Modern Signal Advisory
-          </div>
-          <div className="w-10 h-0.5 bg-[var(--color-accent)] mx-auto mt-[var(--spacing-3)]" />
-          <div className="font-[family-name:var(--font-inter)] text-xs text-[var(--color-text-tertiary)] mt-[var(--spacing-3)]">
-            2026 Modern Signal Advisory
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </main>
   );
 }
