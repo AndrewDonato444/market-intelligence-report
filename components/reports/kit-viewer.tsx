@@ -284,17 +284,30 @@ function InstagramPreview({
         <span className="text-xs font-semibold" style={{ color: "#0095f6" }}>Follow</span>
       </div>
 
-      {/* Image placeholder */}
+      {/* Image placeholder — branded graphic */}
       <div
-        className="w-full flex items-center justify-center"
+        className="w-full relative flex flex-col items-center justify-center"
         style={{
           aspectRatio: "1 / 1",
-          background: "linear-gradient(135deg, #0F172A 0%, #1E293B 50%, #0F172A 100%)",
+          background: "linear-gradient(135deg, #0F172A 0%, #1E293B 60%, #0F172A 100%)",
         }}
       >
-        <span className="text-slate-400 text-sm text-center px-4 select-none">
-          📸 Image Preview
-        </span>
+        {/* Gold accent line */}
+        <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: "linear-gradient(90deg, transparent, #CA8A04, transparent)" }} />
+        {/* Market label */}
+        <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500 mb-3 select-none">
+          Market Intelligence
+        </p>
+        {/* Stat callout extracted from first sentence */}
+        <p className="text-slate-100 text-center text-lg font-bold px-8 leading-tight select-none" style={{ fontFamily: "Georgia, serif" }}>
+          {hashtags[0]?.replace("#", "") ?? "Luxury Market"}
+        </p>
+        <div className="w-8 h-0.5 mt-3 mb-3" style={{ backgroundColor: "#CA8A04" }} />
+        <p className="text-slate-400 text-[10px] uppercase tracking-widest select-none">
+          Quarterly Report
+        </p>
+        {/* Bottom accent */}
+        <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: "linear-gradient(90deg, transparent, #CA8A04, transparent)" }} />
       </div>
 
       {/* Action bar */}
