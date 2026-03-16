@@ -37,9 +37,14 @@ function getMarketName(content: SocialMediaKitContent): string {
 // ---------------------------------------------------------------------------
 
 const NAVY = "#0F172A";
+const NAVY2 = "#1E293B";
+const NAVY3 = "#0D1525";
 const GOLD = "#CA8A04";
+const GOLD_LIGHT = "#EAB308";
 const WHITE = "#F8FAFC";
 const SLATE = "#94A3B8";
+const RED = "#B91C1C";
+const GREEN = "#15803D";
 const SERIF = "Georgia, 'Times New Roman', serif";
 const SANS = "system-ui, -apple-system, sans-serif";
 
@@ -247,75 +252,98 @@ function StatHeroPreview({ stat }: { stat: StatCallout }) {
   const direction = detectDirection(stat.stat);
   const arrow = direction === "up" ? " ↑" : direction === "down" ? " ↓" : "";
   return (
+    // Stat Hero: single dramatic number centered on a radial gold glow — maximum impact
     <div
-      className="w-full flex flex-col items-center justify-center py-6 px-4 text-center relative"
+      className="w-full flex flex-col items-center justify-center py-6 px-4 text-center relative overflow-hidden"
       style={{ aspectRatio: "1/1", background: NAVY }}
     >
-      <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
-      <p className="font-[family-name:var(--font-sans)] text-[10px] tracking-[0.2em] mb-2 select-none" style={{ color: SLATE }}>
+      {/* Radial glow behind the number */}
+      <div className="absolute inset-0 pointer-events-none" style={{
+        background: `radial-gradient(ellipse 60% 50% at 50% 50%, ${GOLD}22 0%, transparent 70%)`
+      }} />
+      <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ backgroundColor: GOLD }} />
+      <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-[0.25em] mb-3 select-none" style={{ color: SLATE }}>
         MARKET INTELLIGENCE
       </p>
-      <p className="font-[family-name:var(--font-serif)] font-bold leading-none mb-1 select-none" style={{ color: GOLD, fontSize: "clamp(24px, 6vw, 40px)" }}>
+      <p className="font-[family-name:var(--font-serif)] font-bold leading-none select-none" style={{ color: GOLD_LIGHT, fontSize: "clamp(32px, 8vw, 52px)" }}>
         {stat.stat.split(" ")[0]}{arrow}
       </p>
-      <p className="font-[family-name:var(--font-serif)] text-xs mb-2 select-none" style={{ color: WHITE }}>
+      <p className="font-[family-name:var(--font-serif)] text-[11px] mt-1 select-none" style={{ color: WHITE }}>
         {stat.stat.split(" ").slice(1).join(" ")}
       </p>
-      <div className="w-8 h-px my-1" style={{ backgroundColor: GOLD }} />
-      <p className="font-[family-name:var(--font-sans)] text-[9px] italic select-none mt-1" style={{ color: SLATE }}>
-        "{stat.suggestedCaption.slice(0, 45)}…"
+      <div className="w-10 h-px my-3" style={{ backgroundColor: GOLD }} />
+      <p className="font-[family-name:var(--font-sans)] text-[9px] italic select-none px-4 leading-relaxed" style={{ color: SLATE }}>
+        "{stat.suggestedCaption.slice(0, 50)}{stat.suggestedCaption.length > 50 ? "…" : ""}"
       </p>
-      <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
+      <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ backgroundColor: GOLD }} />
     </div>
   );
 }
 
 function MarketSnapshotPreview({ stats, marketName }: { stats: StatCallout[]; marketName: string }) {
   return (
+    // Market Snapshot: left-aligned dashboard grid on medium slate — editorial digest feel
     <div
-      className="w-full flex flex-col items-center justify-center py-4 px-4 text-center"
-      style={{ aspectRatio: "1/1", background: "#1E293B" }}
+      className="w-full flex flex-col justify-between py-4 px-4 relative"
+      style={{ aspectRatio: "1/1", background: NAVY2 }}
     >
-      <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-[0.2em] mb-1 select-none" style={{ color: SLATE }}>
-        MARKET INTELLIGENCE
+      {/* Left accent bar */}
+      <div className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ backgroundColor: GOLD }} />
+      <div>
+        <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-[0.25em] mb-0.5 select-none" style={{ color: SLATE }}>
+          MARKET INTELLIGENCE
+        </p>
+        <p className="font-[family-name:var(--font-serif)] text-[11px] select-none" style={{ color: WHITE }}>
+          {marketName}
+        </p>
+      </div>
+      <div className="flex flex-col gap-2 my-2">
+        {stats.slice(0, 3).map((s, i) => {
+          const dir = detectDirection(s.stat);
+          const arr = dir === "up" ? " ↑" : dir === "down" ? " ↓" : "";
+          const col = dir === "up" ? GREEN : dir === "down" ? RED : GOLD;
+          return (
+            <div key={i} className="flex items-baseline gap-2">
+              <p className="font-[family-name:var(--font-serif)] font-bold leading-none select-none" style={{ color: col, fontSize: "clamp(16px, 4vw, 22px)" }}>
+                {s.stat.split(" ")[0]}{arr}
+              </p>
+              <p className="font-[family-name:var(--font-sans)] text-[9px] select-none" style={{ color: SLATE }}>
+                {s.stat.split(" ").slice(1).join(" ")}
+              </p>
+            </div>
+          );
+        })}
+      </div>
+      <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-widest select-none" style={{ color: GOLD }}>
+        Q1 2026
       </p>
-      <p className="font-[family-name:var(--font-serif)] text-xs mb-3 select-none" style={{ color: WHITE }}>
-        {marketName}
-      </p>
-      {stats.slice(0, 3).map((s, i) => {
-        const dir = detectDirection(s.stat);
-        const arr = dir === "up" ? " ↑" : dir === "down" ? " ↓" : "";
-        return (
-          <div key={i} className="mb-1.5">
-            <p className="font-[family-name:var(--font-serif)] font-bold text-lg leading-none select-none" style={{ color: GOLD }}>
-              {s.stat.split(" ")[0]}{arr}
-            </p>
-            <p className="font-[family-name:var(--font-sans)] text-[9px] select-none" style={{ color: SLATE }}>
-              {s.stat.split(" ").slice(1).join(" ")}
-            </p>
-          </div>
-        );
-      })}
     </div>
   );
 }
 
 function PullQuotePreview({ template, context }: { template: string; context: string }) {
   return (
+    // Pull Quote: oversized quote mark dominates left side, text bottom-right — editorial magazine feel
     <div
-      className="w-full flex flex-col items-center justify-center py-6 px-5 text-center relative"
-      style={{ aspectRatio: "1/1", background: NAVY }}
+      className="w-full flex flex-col justify-end py-5 px-4 relative overflow-hidden"
+      style={{ aspectRatio: "1/1", background: NAVY3 }}
     >
-      <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
-      <p className="font-[family-name:var(--font-serif)] text-3xl font-bold mb-2 leading-none select-none" style={{ color: GOLD, opacity: 0.3 }}>"</p>
-      <p className="font-[family-name:var(--font-serif)] text-xs italic leading-relaxed select-none" style={{ color: WHITE }}>
-        {template.slice(0, 80)}{template.length > 80 ? "…" : ""}
+      {/* Giant decorative quote mark — takes up most of the card */}
+      <div className="absolute top-0 left-1 select-none pointer-events-none leading-none" style={{
+        fontFamily: SERIF,
+        fontSize: "clamp(80px, 22vw, 130px)",
+        color: GOLD,
+        opacity: 0.18,
+        lineHeight: 1,
+      }}>"</div>
+      {/* Content pinned to bottom */}
+      <p className="font-[family-name:var(--font-serif)] text-[11px] italic leading-relaxed select-none mb-2 relative z-10" style={{ color: WHITE }}>
+        "{template.slice(0, 70)}{template.length > 70 ? "…" : ""}"
       </p>
-      <div className="w-6 h-px my-2" style={{ backgroundColor: GOLD }} />
-      <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-widest select-none" style={{ color: GOLD }}>
+      <div className="w-6 h-px mb-1.5 relative z-10" style={{ backgroundColor: GOLD }} />
+      <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-widest select-none relative z-10" style={{ color: GOLD }}>
         {context.toUpperCase()}
       </p>
-      <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
     </div>
   );
 }
@@ -325,31 +353,38 @@ function YoYPreview({ statA, statB }: { statA: StatCallout; statB: StatCallout }
   const dirB = detectDirection(statB.stat);
   const arrA = dirA === "up" ? "↑" : dirA === "down" ? "↓" : "→";
   const arrB = dirB === "up" ? "↑" : dirB === "down" ? "↓" : "→";
-  const colA = dirA === "up" ? "#15803D" : dirA === "down" ? "#B91C1C" : GOLD;
-  const colB = dirB === "up" ? "#15803D" : dirB === "down" ? "#B91C1C" : GOLD;
+  const colA = dirA === "up" ? GREEN : dirA === "down" ? RED : GOLD;
+  const colB = dirB === "up" ? GREEN : dirB === "down" ? RED : GOLD;
   return (
-    <div
-      className="w-full flex items-center justify-center gap-0 px-3 py-4"
-      style={{ aspectRatio: "16/9", background: NAVY }}
-    >
-      <div className="flex-1 flex flex-col items-center text-center">
-        <p className="font-[family-name:var(--font-serif)] font-bold text-xl leading-none select-none" style={{ color: GOLD }}>
+    // YoY: split layout — each half has its own background tint + large colored arrow indicator
+    <div className="w-full flex" style={{ aspectRatio: "16/9" }}>
+      {/* Left panel */}
+      <div className="flex-1 flex flex-col items-center justify-center text-center px-3 py-3 relative" style={{ background: NAVY }}>
+        <p className="font-[family-name:var(--font-sans)] text-[8px] tracking-widest select-none mb-1" style={{ color: SLATE }}>
+          METRIC A
+        </p>
+        <p className="font-[family-name:var(--font-serif)] font-bold leading-none select-none" style={{ color: GOLD, fontSize: "clamp(16px, 4vw, 24px)" }}>
           {statA.stat.split(" ")[0]}
         </p>
-        <p className="font-[family-name:var(--font-sans)] text-[9px] select-none mt-0.5" style={{ color: SLATE }}>
+        <p className="font-[family-name:var(--font-sans)] text-[8px] select-none my-0.5" style={{ color: SLATE }}>
           {statA.stat.split(" ").slice(1).join(" ")}
         </p>
-        <p className="text-lg font-bold select-none mt-1" style={{ color: colA }}>{arrA}</p>
+        <p className="font-bold select-none leading-none" style={{ color: colA, fontSize: "clamp(18px, 5vw, 28px)" }}>{arrA}</p>
       </div>
-      <div className="w-px self-stretch mx-2" style={{ backgroundColor: GOLD, opacity: 0.4 }} />
-      <div className="flex-1 flex flex-col items-center text-center">
-        <p className="font-[family-name:var(--font-serif)] font-bold text-xl leading-none select-none" style={{ color: GOLD }}>
+      {/* Gold divider */}
+      <div className="w-px self-stretch" style={{ backgroundColor: GOLD, opacity: 0.6 }} />
+      {/* Right panel — slightly different bg */}
+      <div className="flex-1 flex flex-col items-center justify-center text-center px-3 py-3" style={{ background: NAVY2 }}>
+        <p className="font-[family-name:var(--font-sans)] text-[8px] tracking-widest select-none mb-1" style={{ color: SLATE }}>
+          METRIC B
+        </p>
+        <p className="font-[family-name:var(--font-serif)] font-bold leading-none select-none" style={{ color: GOLD, fontSize: "clamp(16px, 4vw, 24px)" }}>
           {statB.stat.split(" ")[0]}
         </p>
-        <p className="font-[family-name:var(--font-sans)] text-[9px] select-none mt-0.5" style={{ color: SLATE }}>
+        <p className="font-[family-name:var(--font-sans)] text-[8px] select-none my-0.5" style={{ color: SLATE }}>
           {statB.stat.split(" ").slice(1).join(" ")}
         </p>
-        <p className="text-lg font-bold select-none mt-1" style={{ color: colB }}>{arrB}</p>
+        <p className="font-bold select-none leading-none" style={{ color: colB, fontSize: "clamp(18px, 5vw, 28px)" }}>{arrB}</p>
       </div>
     </div>
   );
@@ -358,53 +393,75 @@ function YoYPreview({ statA, statB }: { statA: StatCallout; statB: StatCallout }
 function StoryPreview({ stat, marketName }: { stat: StatCallout; marketName: string }) {
   const dir = detectDirection(stat.stat);
   const arr = dir === "up" ? " ↑" : dir === "down" ? " ↓" : "";
+  const arrowColor = dir === "up" ? GREEN : dir === "down" ? RED : GOLD;
   return (
+    // Story: vertical 4:5 with a diagonal gradient, market name at top, giant number center, caption bottom
     <div
-      className="w-full flex flex-col items-center justify-between py-4 px-3 text-center relative"
-      style={{ aspectRatio: "4/5", background: NAVY }}
+      className="w-full flex flex-col justify-between py-4 px-3 text-center relative overflow-hidden"
+      style={{ aspectRatio: "4/5", background: `linear-gradient(160deg, ${NAVY} 0%, #162035 60%, ${NAVY2} 100%)` }}
     >
-      <div className="absolute top-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
-      <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-[0.2em] select-none" style={{ color: SLATE }}>
-        MARKET INTELLIGENCE
-      </p>
-      <div className="flex flex-col items-center">
-        <p className="font-[family-name:var(--font-serif)] font-bold leading-none select-none" style={{ color: GOLD, fontSize: "clamp(28px, 8vw, 48px)" }}>
-          {stat.stat.split(" ")[0]}{arr}
+      {/* Top gold accent line */}
+      <div className="absolute top-0 left-0 right-0 h-[3px]" style={{ backgroundColor: GOLD }} />
+      {/* Market name top */}
+      <div>
+        <p className="font-[family-name:var(--font-sans)] text-[8px] tracking-[0.2em] select-none" style={{ color: SLATE }}>
+          MARKET INTELLIGENCE
         </p>
-        <p className="font-[family-name:var(--font-serif)] text-xs select-none mt-1" style={{ color: WHITE }}>
+        <p className="font-[family-name:var(--font-serif)] text-[10px] select-none mt-0.5" style={{ color: WHITE }}>
+          {marketName}
+        </p>
+      </div>
+      {/* Giant stat center */}
+      <div className="flex flex-col items-center">
+        <p className="font-[family-name:var(--font-serif)] font-bold leading-none select-none" style={{ color: GOLD_LIGHT, fontSize: "clamp(30px, 9vw, 52px)" }}>
+          {stat.stat.split(" ")[0]}
+        </p>
+        <p className="font-bold select-none leading-none mt-0.5" style={{ color: arrowColor, fontSize: "clamp(14px, 4vw, 20px)" }}>{arr}</p>
+        <div className="w-8 h-px my-1.5" style={{ backgroundColor: GOLD }} />
+        <p className="font-[family-name:var(--font-serif)] text-[10px] select-none" style={{ color: WHITE }}>
           {stat.stat.split(" ").slice(1).join(" ")}
         </p>
-        <div className="w-6 h-px my-2" style={{ backgroundColor: GOLD }} />
-        <p className="font-[family-name:var(--font-sans)] text-xs select-none" style={{ color: SLATE }}>{marketName}</p>
       </div>
-      <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-widest select-none" style={{ color: GOLD }}>
-        QUARTERLY REPORT · 2026
+      {/* Caption bottom */}
+      <p className="font-[family-name:var(--font-sans)] text-[8px] italic select-none leading-relaxed" style={{ color: SLATE }}>
+        "{stat.suggestedCaption.slice(0, 40)}{stat.suggestedCaption.length > 40 ? "…" : ""}"
       </p>
-      <div className="absolute bottom-0 left-0 right-0 h-0.5" style={{ background: `linear-gradient(90deg, transparent, ${GOLD}, transparent)` }} />
+      {/* Bottom gold accent line */}
+      <div className="absolute bottom-0 left-0 right-0 h-[3px]" style={{ backgroundColor: GOLD }} />
     </div>
   );
 }
 
 function LinkedInBannerPreview({ stat, marketName }: { stat: StatCallout; marketName: string }) {
   return (
+    // LinkedIn Banner: horizontal gradient, market name dominates left, stat card on right
     <div
-      className="w-full flex items-center px-4 py-3 gap-3"
-      style={{ aspectRatio: "4/1", background: NAVY }}
+      className="w-full flex items-stretch relative overflow-hidden"
+      style={{ aspectRatio: "4/1", background: `linear-gradient(90deg, ${NAVY} 0%, #0E1E35 60%, ${NAVY2} 100%)` }}
     >
-      <div className="flex-1 min-w-0">
-        <p className="font-[family-name:var(--font-serif)] font-bold text-sm leading-tight select-none truncate" style={{ color: WHITE }}>
+      {/* Top + bottom gold rules */}
+      <div className="absolute top-0 left-0 right-0 h-[2px]" style={{ backgroundColor: GOLD }} />
+      <div className="absolute bottom-0 left-0 right-0 h-[2px]" style={{ backgroundColor: GOLD }} />
+      {/* Left: market name */}
+      <div className="flex-1 flex flex-col justify-center px-4 py-2 min-w-0">
+        <p className="font-[family-name:var(--font-serif)] font-bold leading-tight select-none truncate" style={{ color: WHITE, fontSize: "clamp(11px, 3vw, 18px)" }}>
           {marketName}
         </p>
-        <p className="font-[family-name:var(--font-sans)] text-[9px] tracking-wider mt-0.5 select-none" style={{ color: SLATE }}>
+        <p className="font-[family-name:var(--font-sans)] text-[8px] tracking-[0.15em] mt-0.5 select-none" style={{ color: SLATE }}>
           LUXURY REAL ESTATE
         </p>
+        <p className="font-[family-name:var(--font-sans)] text-[7px] tracking-widest mt-1 select-none" style={{ color: GOLD }}>
+          QUARTERLY MARKET INTELLIGENCE
+        </p>
       </div>
-      <div className="w-px self-stretch" style={{ backgroundColor: GOLD, opacity: 0.4 }} />
-      <div className="shrink-0 text-right">
-        <p className="font-[family-name:var(--font-serif)] font-bold text-lg leading-none select-none" style={{ color: GOLD }}>
+      {/* Gold vertical divider */}
+      <div className="w-px self-stretch my-2" style={{ backgroundColor: GOLD, opacity: 0.5 }} />
+      {/* Right: top stat */}
+      <div className="shrink-0 flex flex-col justify-center text-right px-4 py-2">
+        <p className="font-[family-name:var(--font-serif)] font-bold leading-none select-none" style={{ color: GOLD_LIGHT, fontSize: "clamp(14px, 4vw, 22px)" }}>
           {stat.stat.split(" ")[0]}
         </p>
-        <p className="font-[family-name:var(--font-sans)] text-[9px] select-none mt-0.5" style={{ color: WHITE }}>
+        <p className="font-[family-name:var(--font-sans)] text-[8px] select-none mt-0.5" style={{ color: WHITE }}>
           {stat.stat.split(" ").slice(1).join(" ")}
         </p>
       </div>
