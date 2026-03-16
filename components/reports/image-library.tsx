@@ -483,16 +483,20 @@ export function ImageLibrary({ content }: ImageLibraryProps) {
   const marketName = getMarketName(content);
   const stats = content.statCallouts;
   const starter = content.conversationStarters[0];
-  const [statA, statB] = stats.length >= 2 ? [stats[0], stats[1]] : [stats[0], stats[0]];
+  // Rotate stats across templates so each card shows different data
+  const stat0 = stats[0];
+  const stat1 = stats[1] ?? stats[0];
+  const stat2 = stats[2] ?? stat1;
+  const stat3 = stats[3] ?? stat2;
   const slug = slugify(marketName);
 
   const graphics = [
     {
       label: "Stat Hero",
       platform: "All platforms · Square",
-      svgString: svgStatHero(stats[0], marketName),
+      svgString: svgStatHero(stat0, marketName),
       filename: buildFilename("Stat Hero", marketName),
-      preview: <StatHeroPreview stat={stats[0]} />,
+      preview: <StatHeroPreview stat={stat0} />,
     },
     {
       label: "Market Snapshot",
@@ -511,23 +515,23 @@ export function ImageLibrary({ content }: ImageLibraryProps) {
     {
       label: "YoY Comparison",
       platform: "LinkedIn · Wide (16:9)",
-      svgString: svgYoYComparison(statA, statB, marketName),
+      svgString: svgYoYComparison(stat0, stat1, marketName),
       filename: buildFilename("YoY Comparison", marketName),
-      preview: <YoYPreview statA={statA} statB={statB} />,
+      preview: <YoYPreview statA={stat0} statB={stat1} />,
     },
     {
       label: "Story",
       platform: "Instagram / Facebook · 4:5",
-      svgString: svgStory(stats[0], marketName),
+      svgString: svgStory(stat2, marketName),
       filename: buildFilename("Story", marketName),
-      preview: <StoryPreview stat={stats[0]} marketName={marketName} />,
+      preview: <StoryPreview stat={stat2} marketName={marketName} />,
     },
     {
       label: "LinkedIn Banner",
       platform: "LinkedIn · Wide (1.91:1)",
-      svgString: svgLinkedInBanner(stats[0], marketName),
+      svgString: svgLinkedInBanner(stat3, marketName),
       filename: buildFilename("LinkedIn Banner", marketName),
-      preview: <LinkedInBannerPreview stat={stats[0]} marketName={marketName} />,
+      preview: <LinkedInBannerPreview stat={stat3} marketName={marketName} />,
     },
   ];
 
