@@ -62,6 +62,17 @@ const PLATFORM_CONFIG: Record<
 
 const PLATFORMS = ["All", "LinkedIn", "Instagram", "X", "Facebook"] as const;
 
+// Normalize DB platform values (lowercase) to PLATFORM_CONFIG keys (Title Case)
+function normalizePlatform(platform: string): string {
+  const map: Record<string, string> = {
+    linkedin: "LinkedIn",
+    instagram: "Instagram",
+    x: "X",
+    facebook: "Facebook",
+  };
+  return map[platform.toLowerCase()] ?? platform;
+}
+
 // ---------------------------------------------------------------------------
 // Section icons (inline SVGs)
 // ---------------------------------------------------------------------------
@@ -445,7 +456,7 @@ function PostPreview({
   caption: string;
   hashtags: string[];
 }) {
-  switch (platform) {
+  switch (normalizePlatform(platform)) {
     case "LinkedIn":
       return <LinkedInPreview caption={caption} hashtags={hashtags} />;
     case "Instagram":
@@ -478,7 +489,7 @@ function PlatformIcon({
   platform: string;
   size?: number;
 }) {
-  const config = PLATFORM_CONFIG[platform];
+  const config = PLATFORM_CONFIG[normalizePlatform(platform)];
   if (!config) return null;
   return (
     <span style={{ color: `var(${config.colorVar})` }} className="inline-flex shrink-0">
@@ -488,7 +499,7 @@ function PlatformIcon({
 }
 
 function PlatformBadge({ platform }: { platform: string }) {
-  const config = PLATFORM_CONFIG[platform];
+  const config = PLATFORM_CONFIG[normalizePlatform(platform)];
   if (!config) {
     return (
       <span className="font-[family-name:var(--font-sans)] text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-[var(--color-primary-light)] text-[var(--color-text-secondary)] inline-flex items-center gap-1">
@@ -725,11 +736,12 @@ export function KitViewer({
     [reportId]
   );
 
-  // Filter helpers
+  // Filter helpers — normalize both sides since DB stores lowercase platform names
   const matchesPlatform = (platforms: string | string[]) => {
     if (platformFilter === "All") return true;
-    if (Array.isArray(platforms)) return platforms.includes(platformFilter);
-    return platforms === platformFilter;
+    if (Array.isArray(platforms))
+      return platforms.map(normalizePlatform).includes(platformFilter);
+    return normalizePlatform(platforms) === platformFilter;
   };
 
   // Filtered content
@@ -917,7 +929,7 @@ export function KitViewer({
                 justUpdated={justUpdated.captions}
               />
               {filteredCaptions.map((caption, i) => {
-                const platformKey = caption.platform;
+                const platformKey = normalizePlatform(caption.platform);
                 const config = PLATFORM_CONFIG[platformKey];
                 const previewId = `caption-${i}`;
                 const isPreviewOpen = openPreviewId === previewId;
