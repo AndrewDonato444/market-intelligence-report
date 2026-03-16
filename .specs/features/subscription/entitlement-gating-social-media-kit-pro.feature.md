@@ -12,7 +12,7 @@ personas:
   - established-practitioner
 status: implemented
 created: 2026-03-12
-updated: 2026-03-12
+updated: 2026-03-16
 ---
 
 # Entitlement Gating for Social Media Kit as Pro Feature
@@ -68,10 +68,11 @@ When the GenerateKitButton mounts
 Then it calls GET /api/entitlements/check?type=social_media_kits
 And uses the response to determine which UI to show
 
-### Scenario: Compact mode shows condensed upgrade prompt
-Given an agent on the Starter plan viewing the reports dashboard (compact mode)
-Then a compact "Pro Feature" badge is shown instead of the generate button
-And the badge links to the account/billing page
+### Scenario: Compact mode shows "Get Kit" link (superseded by kit-button-ux)
+Given an agent on any plan viewing the reports dashboard (compact mode)
+Then a "Get Kit" link is shown linking to /reports/{id}#social-media-kit
+And the report detail page handles entitlement gating
+> **Note**: This scenario was updated by the kit-button-ux feature spec. See `.specs/features/social-media-kit/kit-button-ux.feature.md`.
 
 ---
 
@@ -83,7 +84,7 @@ And the badge links to the account/billing page
 2. If limit === 0 -> render KitUpgradePrompt (Starter gate)
 3. If !allowed && limit > 0 -> render at-cap message with usage info
 4. If allowed -> render existing generate button
-5. Compact mode: render "Pro Feature" badge linking to /account
+5. Compact mode: render "Get Kit" link to /reports/{id}#social-media-kit (see kit-button-ux spec)
 
 ### KitUpgradePrompt component
 
