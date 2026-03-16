@@ -1,10 +1,29 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  isBlockedUserAgent,
+  computeSuspicionScore,
+  isExemptRoute,
+  SUSPICION_THRESHOLD,
+} from "@/lib/security/anti-scraper";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
+
+  // --- Anti-scraper checks (before any auth overhead) ---
+  const pathname = request.nextUrl.pathname;
+  if (!isExemptRoute(pathname)) {
+    const ua = request.headers.get("user-agent");
+    if (isBlockedUserAgent(ua)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    const suspicionScore = computeSuspicionScore(request.headers);
+    if (suspicionScore >= SUSPICION_THRESHOLD) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+  }
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     // Supabase not configured — skip auth checks in development
