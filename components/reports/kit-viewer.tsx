@@ -4,6 +4,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SocialMediaKitContent } from "@/lib/db/schema";
+import { ImageLibrary } from "@/components/reports/image-library";
 
 // ---------------------------------------------------------------------------
 // Platform brand config
@@ -1330,6 +1331,25 @@ export function KitViewer({
           )}
         </motion.div>
       </AnimatePresence>
+
+      {/* ─── Image Library (outside platform filter — always visible) ─── */}
+      {content.statCallouts.length > 0 && (
+        <section className="space-y-3">
+          <SectionHeading
+            title="Image Library"
+            count={6}
+            icon={
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <circle cx="8.5" cy="8.5" r="1.5" />
+                <polyline points="21 15 16 10 5 21" />
+              </svg>
+            }
+            accentColor="var(--color-accent)"
+          />
+          <ImageLibrary content={content} />
+        </section>
+      )}
     </div>
   );
 }
