@@ -284,3 +284,147 @@ describe("Kit Viewer: Copy Text Generation", () => {
     expect(copyText).toContain("#LuxuryRealEstate");
   });
 });
+
+// --- Unit Tests: UX Redesign — Platform Config & Branding ---
+
+const PLATFORM_BRANDS: Record<string, { color: string; light: string }> = {
+  LinkedIn: { color: "#0A66C2", light: "#E8F1FA" },
+  Instagram: { color: "#E4405F", light: "#FDE8EC" },
+  X: { color: "#0F1419", light: "#E8E8E9" },
+  Facebook: { color: "#1877F2", light: "#E7F0FE" },
+};
+
+describe("Kit Viewer UX: Platform Branding", () => {
+  it("CMP-KIT-016: every platform used in content has a brand color defined", () => {
+    const platformsInContent = new Set<string>();
+    mockCaptions.forEach((c) => platformsInContent.add(c.platform));
+    mockPersonaPosts.forEach((p) => platformsInContent.add(p.platform));
+    mockPolls.forEach((p) => platformsInContent.add(p.platform));
+    mockPostIdeas.forEach((p) => p.platforms.forEach((pl) => platformsInContent.add(pl)));
+
+    for (const platform of platformsInContent) {
+      expect(PLATFORM_BRANDS[platform]).toBeDefined();
+      expect(PLATFORM_BRANDS[platform].color).toMatch(/^#[0-9A-Fa-f]{6}$/);
+      expect(PLATFORM_BRANDS[platform].light).toMatch(/^#[0-9A-Fa-f]{6}$/);
+    }
+  });
+
+  it("CMP-KIT-017: platform brand colors are distinct from each other", () => {
+    const colors = Object.values(PLATFORM_BRANDS).map((b) => b.color);
+    const unique = new Set(colors);
+    expect(unique.size).toBe(colors.length);
+  });
+
+  it("CMP-KIT-018: all four major platforms are covered", () => {
+    expect(Object.keys(PLATFORM_BRANDS)).toEqual(
+      expect.arrayContaining(["LinkedIn", "Instagram", "X", "Facebook"])
+    );
+  });
+});
+
+// --- Unit Tests: UX Redesign — Dashboard Summary Stats ---
+
+describe("Kit Viewer UX: Dashboard Summary", () => {
+  it("CMP-KIT-019: computes total content pieces across all 7 types", () => {
+    const totalCount =
+      mockKitContent.postIdeas.length +
+      mockKitContent.captions.length +
+      mockKitContent.personaPosts.length +
+      mockKitContent.polls.length +
+      mockKitContent.conversationStarters.length +
+      mockKitContent.calendarSuggestions.length +
+      mockKitContent.statCallouts.length;
+
+    // postIdeas: 2, captions: 3, personaPosts: 3, polls: 1, starters: 2, calendar: 2, stats: 2 = 15
+    expect(totalCount).toBe(15);
+  });
+
+  it("CMP-KIT-020: computes unique platforms covered", () => {
+    const platforms = new Set<string>();
+    mockKitContent.postIdeas.forEach((p) => p.platforms.forEach((pl) => platforms.add(pl)));
+    mockKitContent.captions.forEach((c) => platforms.add(c.platform));
+    mockKitContent.personaPosts.forEach((p) => platforms.add(p.platform));
+    mockKitContent.polls.forEach((p) => platforms.add(p.platform));
+    mockKitContent.calendarSuggestions.forEach((w) => w.platforms.forEach((pl) => platforms.add(pl)));
+
+    expect(platforms.size).toBe(4); // LinkedIn, Instagram, X, Facebook
+  });
+
+  it("CMP-KIT-021: counts active sections (sections with >0 items)", () => {
+    const sections = [
+      mockKitContent.postIdeas,
+      mockKitContent.captions,
+      mockKitContent.personaPosts,
+      mockKitContent.polls,
+      mockKitContent.conversationStarters,
+      mockKitContent.calendarSuggestions,
+      mockKitContent.statCallouts,
+    ];
+    const activeSections = sections.filter((s) => s.length > 0).length;
+    expect(activeSections).toBe(7);
+  });
+
+  it("CMP-KIT-022: counts unique personas from persona posts", () => {
+    const personas = new Map<string, string>();
+    mockKitContent.personaPosts.forEach((p) => personas.set(p.personaSlug, p.personaName));
+    expect(personas.size).toBe(2);
+  });
+});
+
+// --- Unit Tests: UX Redesign — Section-Specific Card Structure ---
+
+describe("Kit Viewer UX: Section Card Designs", () => {
+  it("CMP-KIT-023: stat callouts have all fields for pullquote display", () => {
+    for (const stat of mockStatCallouts) {
+      // Pullquote card needs: large stat, context, source, suggested caption
+      expect(stat.stat).toBeTruthy();
+      expect(stat.context).toBeTruthy();
+      expect(stat.source).toBeTruthy();
+      expect(stat.suggestedCaption).toBeTruthy();
+    }
+  });
+
+  it("CMP-KIT-024: polls have lettered options for styled option bars", () => {
+    for (const poll of mockPolls) {
+      expect(poll.options.length).toBeGreaterThanOrEqual(2);
+      expect(poll.options.length).toBeLessThanOrEqual(4);
+      // Each option should map to A, B, C, D
+      poll.options.forEach((opt, i) => {
+        const letter = String.fromCharCode(65 + i);
+        expect(letter).toMatch(/^[A-D]$/);
+        expect(opt).toBeTruthy();
+      });
+    }
+  });
+
+  it("CMP-KIT-025: persona posts have first letter for avatar circle", () => {
+    for (const post of mockPersonaPosts) {
+      const initial = post.personaName.charAt(0);
+      expect(initial).toBeTruthy();
+      expect(initial).toMatch(/^[A-Z]/);
+    }
+  });
+
+  it("CMP-KIT-026: captions have platform for left-border color lookup", () => {
+    for (const caption of mockCaptions) {
+      expect(PLATFORM_BRANDS[caption.platform]).toBeDefined();
+    }
+  });
+
+  it("CMP-KIT-027: calendar weeks have numeric week for circle badge", () => {
+    for (const week of mockCalendarSuggestions) {
+      expect(typeof week.week).toBe("number");
+      expect(week.week).toBeGreaterThan(0);
+      expect(week.theme).toBeTruthy();
+    }
+  });
+
+  it("CMP-KIT-028: conversation starters have context label and template for quote display", () => {
+    for (const starter of mockConversationStarters) {
+      expect(starter.context).toBeTruthy();
+      expect(starter.template).toBeTruthy();
+      // Template should be quotable
+      expect(starter.template.length).toBeGreaterThan(10);
+    }
+  });
+});

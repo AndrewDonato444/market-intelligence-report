@@ -41,6 +41,16 @@
   --color-confidence-empty: #E2E8F0;
   --color-confidence-half: #94A3B8;
 
+  /* Colors - Social Platform Brand */
+  --color-platform-linkedin: #0A66C2;
+  --color-platform-linkedin-light: #E8F1FA;
+  --color-platform-instagram: #E4405F;
+  --color-platform-instagram-light: #FDE8EC;
+  --color-platform-x: #0F1419;
+  --color-platform-x-light: #E8E8E9;
+  --color-platform-facebook: #1877F2;
+  --color-platform-facebook-light: #E7F0FE;
+
   /* Colors - Chart */
   --color-chart-primary: #0F172A;
   --color-chart-secondary: #334155;
