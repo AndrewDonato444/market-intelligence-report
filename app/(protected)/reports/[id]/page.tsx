@@ -60,11 +60,13 @@ export default async function ReportDetailPage({
             shareToken={report.shareToken}
             shareTokenExpiresAt={report.shareTokenExpiresAt?.toISOString()}
           />
-          <GenerateKitButton
-            reportId={id}
-            initialKitStatus={kit ? (kit.status as "queued" | "generating" | "completed" | "failed") : "none"}
-            initialErrorMessage={kit?.errorMessage ?? null}
-          />
+          <div id="social-media-kit">
+            <GenerateKitButton
+              reportId={id}
+              initialKitStatus={kit ? (kit.status as "queued" | "generating" | "completed" | "failed") : "none"}
+              initialErrorMessage={kit?.errorMessage ?? null}
+            />
+          </div>
           <GenerateEmailButton
             reportId={id}
             initialCampaignStatus={emailCampaign ? (emailCampaign.status as "queued" | "generating" | "completed" | "failed") : "none"}
