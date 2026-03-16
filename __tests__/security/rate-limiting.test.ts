@@ -58,7 +58,7 @@ describe("Rate Limiting on Exposed API Routes", () => {
 
     it("SVC-RATELIMIT-011: default rate limit is 30 requests per 60s", () => {
       expect(moduleContent).toMatch(
-        /DEFAULT_RATE_LIMIT.*maxRequests:\s*30/s
+        /DEFAULT_RATE_LIMIT[\s\S]*maxRequests:\s*30/
       );
     });
 
