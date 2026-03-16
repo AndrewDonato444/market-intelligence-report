@@ -1,10 +1,10 @@
 "use client";
 
 import { PasswordInput } from "@/components/ui/password-input";
-import { createClient } from "@/lib/supabase/client";
+import { TurnstileWidget } from "@/components/ui/turnstile-widget";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 /* ── Sizzle content — pulled from landing page for consistency ── */
 
@@ -186,6 +186,18 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileError, setTurnstileError] = useState(false);
+
+  const handleTurnstileSuccess = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError(false);
+  }, []);
+
+  const handleTurnstileError = useCallback(() => {
+    setTurnstileToken(null);
+    setTurnstileError(true);
+  }, []);
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
@@ -199,34 +211,37 @@ export default function SignUpPage() {
     setLoading(true);
     setError("");
 
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-        data: { tos_accepted_at: new Date().toISOString() },
-      },
-    });
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          turnstileToken,
+          tosAcceptedAt: new Date().toISOString(),
+        }),
+      });
 
-    if (error) {
-      setError(error.message);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Signup failed");
+        setLoading(false);
+        return;
+      }
+
+      if (data.needsConfirmation) {
+        setConfirmationSent(true);
+        setLoading(false);
+        return;
+      }
+
+      router.push("/dashboard");
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
-      return;
     }
-
-    const needsConfirmation =
-      data.user &&
-      data.user.identities &&
-      data.user.identities.length === 0;
-
-    if (needsConfirmation || (data.user && !data.session)) {
-      setConfirmationSent(true);
-      setLoading(false);
-      return;
-    }
-
-    router.push("/dashboard");
   }
 
   if (confirmationSent) {
@@ -344,10 +359,16 @@ export default function SignUpPage() {
               </div>
             )}
 
+            {/* Turnstile anti-bot widget (invisible in most cases) */}
+            <TurnstileWidget
+              onSuccess={handleTurnstileSuccess}
+              onError={handleTurnstileError}
+            />
+
             {/* Gold CTA — visually distinct from sign-in's navy button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || turnstileError}
               className="w-full py-[var(--spacing-3)] bg-[var(--color-accent)] text-[var(--color-primary)] rounded-[var(--radius-sm)] font-[family-name:var(--font-inter)] text-sm font-semibold hover:bg-[var(--color-accent-hover)] disabled:opacity-50 transition-colors duration-[var(--duration-default)]"
             >
               {loading ? "Creating account\u2026" : "Create Account"}

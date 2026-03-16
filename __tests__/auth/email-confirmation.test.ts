@@ -37,8 +37,9 @@ describe("Email Confirmation Flow", () => {
     });
   });
 
-  describe("Sign-up page handles email confirmation", () => {
+  describe("Sign-up flow handles email confirmation", () => {
     let signUpContent: string;
+    let signUpRouteContent: string;
 
     beforeAll(() => {
       signUpContent = fs.readFileSync(
@@ -48,10 +49,14 @@ describe("Email Confirmation Flow", () => {
         ),
         "utf8"
       );
+      signUpRouteContent = fs.readFileSync(
+        path.join(process.cwd(), "app/api/auth/signup/route.ts"),
+        "utf8"
+      );
     });
 
-    it("passes emailRedirectTo option to signUp", () => {
-      expect(signUpContent).toContain("emailRedirectTo");
+    it("server route passes emailRedirectTo option to signUp", () => {
+      expect(signUpRouteContent).toContain("emailRedirectTo");
     });
 
     it("shows confirmation message after signup", () => {
@@ -60,15 +65,13 @@ describe("Email Confirmation Flow", () => {
     });
 
     it("checks for confirmation-needed before redirecting to dashboard", () => {
-      // The signUp handler should check whether email confirmation is required
-      // before redirecting. It should set confirmationSent=true when no session
-      // is returned (i.e. email confirmation is pending).
+      // The client checks needsConfirmation from the API response
       expect(signUpContent).toContain("setConfirmationSent(true)");
-      expect(signUpContent).toContain("data.session");
+      expect(signUpContent).toContain("needsConfirmation");
     });
 
-    it("includes auth/callback in the redirect URL", () => {
-      expect(signUpContent).toContain("/auth/callback");
+    it("server route includes auth/callback in the redirect URL", () => {
+      expect(signUpRouteContent).toContain("/auth/callback");
     });
   });
 

@@ -21,7 +21,7 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 117 |
+| ✅ Completed | 118 |
 | 🔄 In Progress | 0 |
 | ⬜ Pending | 30 |
 | ⏸️ Blocked | 0 |
@@ -53,7 +53,7 @@
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
 | 240 | ToS acceptance checkbox on signup — checkbox + `tos_accepted_at` timestamp in users table, block account creation without acceptance | user-request | S | 3 | ✅ |
-| 241 | Anti-bot protection — Cloudflare Turnstile (or reCAPTCHA) on signup, login, and public-facing forms with server-side token verification | user-request | M | 3 | ⬜ |
+| 241 | Anti-bot protection — Cloudflare Turnstile (or reCAPTCHA) on signup, login, and public-facing forms with server-side token verification | user-request | M | 3 | ✅ |
 | 242 | Anti-scraper middleware — user-agent filtering, request fingerprinting, honeypot routes, automatic IP blocking for suspicious patterns | user-request | M | 1 | ⬜ |
 | 243 | Rate limiting on exposed API routes — per-route rate limiter middleware (token bucket), configurable limits per endpoint, abuse response (429 + backoff headers) | user-request | M | 1, 5 | ⬜ |
 | 244 | Copyright notices on all app pages — footer component with © Modern Signal Advisory + year, visible on every page | user-request | S | 4 | ⬜ |

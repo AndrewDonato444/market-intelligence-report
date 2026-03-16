@@ -110,6 +110,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-template | [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | reports | [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
+| security | [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md) | `app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/terms/page.tsx` | see spec | see spec | specced |
 | security | [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md) | `app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md) | `app/api/reports/[id]/kit/generate/route.ts` | see spec | see spec | implemented |
@@ -155,10 +156,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 5 |
+| specced | 6 |
 | tested | 0 |
 | implemented | 122 |
-| **Total** | **129** |
+| **Total** | **130** |
 
 ---
 
@@ -173,6 +174,7 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
+- [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md)
 - [Image Library](.specs/features/social-media-kit/image-library.feature.md)
 - [Social Media Kit Button UX](.specs/features/social-media-kit/kit-button-ux.feature.md)
 
@@ -336,6 +338,7 @@ See `.specs/design-system/tokens.md` for token reference.
 | toggle-card | stub | [doc](.specs/design-system/components/toggle-card.md) |
 | tooltip | documented | [doc](.specs/design-system/components/tooltip.md) |
 | trend-indicator | stub | [doc](.specs/design-system/components/trend-indicator.md) |
+| turnstile-widget | stub | [doc](.specs/design-system/components/turnstile-widget.md) |
 
 ---
 

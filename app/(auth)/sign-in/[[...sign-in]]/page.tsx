@@ -1,10 +1,10 @@
 "use client";
 
 import { PasswordInput } from "@/components/ui/password-input";
-import { createClient } from "@/lib/supabase/client";
+import { TurnstileWidget } from "@/components/ui/turnstile-widget";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useCallback, useState } from "react";
 
 /* ── Brand Panel (left side on desktop, compact header on mobile) ── */
 function BrandPanel() {
@@ -47,6 +47,18 @@ function SignInForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileError, setTurnstileError] = useState(false);
+
+  const handleTurnstileSuccess = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError(false);
+  }, []);
+
+  const handleTurnstileError = useCallback(() => {
+    setTurnstileToken(null);
+    setTurnstileError(true);
+  }, []);
 
   const confirmationError =
     searchParams.get("error") === "confirmation_failed";
@@ -56,19 +68,30 @@ function SignInForm() {
     setLoading(true);
     setError("");
 
-    const supabase = createClient();
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const res = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          turnstileToken,
+        }),
+      });
 
-    if (error) {
-      setError(error.message);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Sign in failed");
+        setLoading(false);
+        return;
+      }
+
+      router.push("/dashboard");
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
-      return;
     }
-
-    router.push("/dashboard");
   }
 
   return (
@@ -138,9 +161,15 @@ function SignInForm() {
               />
             </div>
 
+            {/* Turnstile anti-bot widget (invisible in most cases) */}
+            <TurnstileWidget
+              onSuccess={handleTurnstileSuccess}
+              onError={handleTurnstileError}
+            />
+
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || turnstileError}
               className="w-full py-[var(--spacing-3)] bg-[var(--color-primary)] text-[var(--color-text-inverse)] rounded-[var(--radius-sm)] font-[family-name:var(--font-inter)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] disabled:opacity-50 transition-colors duration-[var(--duration-default)]"
             >
               {loading ? "Signing in\u2026" : "Sign In"}

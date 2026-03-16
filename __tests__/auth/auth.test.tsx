@@ -114,7 +114,7 @@ describe("Authentication with Supabase", () => {
     });
   });
 
-  describe("Sign-in page uses Supabase", () => {
+  describe("Sign-in page uses server API route with Turnstile", () => {
     let signInContent: string;
 
     beforeAll(() => {
@@ -127,16 +127,20 @@ describe("Authentication with Supabase", () => {
       );
     });
 
-    it("imports Supabase client", () => {
-      expect(signInContent).toContain("@/lib/supabase/client");
+    it("calls the server-side signin API route", () => {
+      expect(signInContent).toContain("/api/auth/signin");
     });
 
-    it("uses signInWithPassword", () => {
-      expect(signInContent).toContain("signInWithPassword");
+    it("includes TurnstileWidget", () => {
+      expect(signInContent).toContain("TurnstileWidget");
+    });
+
+    it("sends turnstileToken in the request", () => {
+      expect(signInContent).toContain("turnstileToken");
     });
   });
 
-  describe("Sign-up page uses Supabase", () => {
+  describe("Sign-up page uses server API route with Turnstile", () => {
     let signUpContent: string;
 
     beforeAll(() => {
@@ -149,12 +153,16 @@ describe("Authentication with Supabase", () => {
       );
     });
 
-    it("imports Supabase client", () => {
-      expect(signUpContent).toContain("@/lib/supabase/client");
+    it("calls the server-side signup API route", () => {
+      expect(signUpContent).toContain("/api/auth/signup");
     });
 
-    it("uses signUp", () => {
-      expect(signUpContent).toContain("auth.signUp");
+    it("includes TurnstileWidget", () => {
+      expect(signUpContent).toContain("TurnstileWidget");
+    });
+
+    it("sends turnstileToken in the request", () => {
+      expect(signUpContent).toContain("turnstileToken");
     });
   });
 

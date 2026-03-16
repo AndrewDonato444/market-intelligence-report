@@ -17,15 +17,14 @@ jest.mock("next/navigation", () => ({
   useRouter: () => ({ push: jest.fn() }),
 }));
 
-// Mock supabase client
-const mockSignUp = jest.fn();
-jest.mock("@/lib/supabase/client", () => ({
-  createClient: () => ({
-    auth: {
-      signUp: mockSignUp,
-    },
-  }),
+// Mock @marsidev/react-turnstile to avoid loading external scripts
+jest.mock("@marsidev/react-turnstile", () => ({
+  Turnstile: () => null,
 }));
+
+// Mock fetch for API route calls
+const mockFetch = jest.fn();
+global.fetch = mockFetch;
 
 describe("ToS Acceptance on Signup", () => {
   let SignUpPage: React.ComponentType;
@@ -44,9 +43,9 @@ describe("ToS Acceptance on Signup", () => {
   // --- Scenario 1: Successful signup with ToS accepted ---
   describe("CMP-tos-01: Successful signup with ToS accepted", () => {
     it("passes tos_accepted_at in user metadata when checkbox is checked", async () => {
-      mockSignUp.mockResolvedValue({
-        data: { user: { id: "u1", identities: [], email_confirmed_at: null }, session: null },
-        error: null,
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ needsConfirmation: true, hasSession: false }),
       });
 
       render(<SignUpPage />);
@@ -64,21 +63,20 @@ describe("ToS Acceptance on Signup", () => {
       fireEvent.click(screen.getByRole("button", { name: /create account/i }));
 
       await waitFor(() => {
-        expect(mockSignUp).toHaveBeenCalledTimes(1);
+        expect(mockFetch).toHaveBeenCalledTimes(1);
       });
 
-      const callArgs = mockSignUp.mock.calls[0][0];
-      expect(callArgs.options.data).toBeDefined();
-      expect(callArgs.options.data.tos_accepted_at).toBeDefined();
-      expect(new Date(callArgs.options.data.tos_accepted_at).toISOString()).toBe(
-        callArgs.options.data.tos_accepted_at
+      const callArgs = JSON.parse(mockFetch.mock.calls[0][1].body);
+      expect(callArgs.tosAcceptedAt).toBeDefined();
+      expect(new Date(callArgs.tosAcceptedAt).toISOString()).toBe(
+        callArgs.tosAcceptedAt
       );
     });
 
     it("shows Check Your Email confirmation after successful signup", async () => {
-      mockSignUp.mockResolvedValue({
-        data: { user: { id: "u1", identities: [], email_confirmed_at: null }, session: null },
-        error: null,
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: async () => ({ needsConfirmation: true, hasSession: false }),
       });
 
       render(<SignUpPage />);
@@ -115,7 +113,7 @@ describe("ToS Acceptance on Signup", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /create account/i }));
 
-      expect(mockSignUp).not.toHaveBeenCalled();
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it("shows error message when submitting without ToS", async () => {
