@@ -137,8 +137,8 @@ LOCATION: ${market.geography.city}, ${market.geography.state}
 TIER: ${market.luxuryTier}
 PRICE FLOOR: ${formatCurrency(market.priceFloor)}`;
 
-  // Key metrics table
-  if (analytics) {
+  // Key metrics table — only include if analytics has the expected shape
+  if (analytics?.market) {
     prompt += `
 
 ## Key Metrics Table (ONLY quote these numbers)
@@ -152,16 +152,16 @@ OVERALL:
 - Rating: ${analytics.market.rating}
 
 SEGMENTS:
-${analytics.segments.map((s: any) =>
+${(analytics.segments ?? []).map((s: any) =>
   `- ${s.name}: ${s.count} properties, median ${formatCurrency(s.medianPrice)}, ${s.medianPricePerSqft ? `$${s.medianPricePerSqft}/sqft` : "N/A psf"}, rating: ${s.rating}`
 ).join("\n")}
 
 YEAR-OVER-YEAR:
-- Median Price Change: ${formatPercent(analytics.yoy.medianPriceChange)}
-- Volume Change: ${formatPercent(analytics.yoy.volumeChange)}
-- Price/SqFt Change: ${formatPercent(analytics.yoy.pricePerSqftChange)}
+- Median Price Change: ${formatPercent(analytics.yoy?.medianPriceChange)}
+- Volume Change: ${formatPercent(analytics.yoy?.volumeChange)}
+- Price/SqFt Change: ${formatPercent(analytics.yoy?.pricePerSqftChange)}
 
-DATA CONFIDENCE: ${analytics.confidence.level} (sample: ${analytics.confidence.sampleSize})`;
+DATA CONFIDENCE: ${analytics.confidence?.level ?? "unknown"} (sample: ${analytics.confidence?.sampleSize ?? "N/A"})`;
   }
 
   // Report sections

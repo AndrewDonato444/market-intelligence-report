@@ -231,12 +231,14 @@ export async function executePipeline(reportId: string): Promise<void> {
       }
     }
 
-    // 8. Update report to completed
+    // 8. Update report to completed, persisting computedAnalytics for downstream consumers (e.g. social media kit)
+    const existingConfig = report.config ?? {};
     await db
       .update(schema.reports)
       .set({
         status: "completed",
         generationCompletedAt: new Date(),
+        config: { ...existingConfig, computedAnalytics: computedAnalytics as unknown as Record<string, unknown> },
       })
       .where(eq(schema.reports.id, reportId));
 
