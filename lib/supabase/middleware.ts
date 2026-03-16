@@ -6,6 +6,7 @@ import {
   isExemptRoute,
   SUSPICION_THRESHOLD,
 } from "@/lib/security/anti-scraper";
+import { checkRateLimit, extractClientIp } from "@/lib/security/rate-limiter";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -14,6 +15,8 @@ export async function updateSession(request: NextRequest) {
 
   // --- Anti-scraper checks (before any auth overhead) ---
   const pathname = request.nextUrl.pathname;
+  let rateLimitResult: ReturnType<typeof checkRateLimit> | null = null;
+
   if (!isExemptRoute(pathname)) {
     const ua = request.headers.get("user-agent");
     if (isBlockedUserAgent(ua)) {
@@ -22,6 +25,24 @@ export async function updateSession(request: NextRequest) {
     const suspicionScore = computeSuspicionScore(request.headers);
     if (suspicionScore >= SUSPICION_THRESHOLD) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // --- Rate limiting (after anti-scraper, before auth) ---
+    const clientIp = extractClientIp(request.headers);
+    rateLimitResult = checkRateLimit(clientIp, pathname);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimitResult.retryAfter),
+            "X-RateLimit-Limit": String(rateLimitResult.limit),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(rateLimitResult.resetAt),
+          },
+        }
+      );
     }
   }
 
@@ -101,6 +122,13 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/account-inactive";
       return NextResponse.redirect(url);
     }
+  }
+
+  // Attach rate limit headers to successful responses (reuse result from earlier check)
+  if (rateLimitResult) {
+    supabaseResponse.headers.set("X-RateLimit-Limit", String(rateLimitResult.limit));
+    supabaseResponse.headers.set("X-RateLimit-Remaining", String(rateLimitResult.remaining));
+    supabaseResponse.headers.set("X-RateLimit-Reset", String(rateLimitResult.resetAt));
   }
 
   return supabaseResponse;

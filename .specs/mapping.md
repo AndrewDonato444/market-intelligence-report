@@ -96,6 +96,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-output-v2 | [Luxury Market Dashboard Restructuring](.specs/features/report-output-v2/luxury-market-dashboard.feature.md) | `lib/services/market-analytics.ts, lib/pdf/templates/renderers.tsx, lib/agents/insight-generator.ts, lib/agents/report-assembler.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Market Insights Index Redesign](.specs/features/report-output-v2/market-insights-index-redesign.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-output-v2 | [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md) | `lib/pdf/templates/insights-index.tsx` | see spec | see spec | implemented |
+| report-output-v2 | [Market Segments Rating Transparency](.specs/features/report-output-v2/market-segments-rating-transparency.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-output-v2 | [Neighborhood Intelligence Trim](.specs/features/report-output-v2/neighborhood-intelligence-trim.feature.md) | `lib/agents/insight-generator.ts, lib/pdf/templates/renderers.tsx, lib/agents/report-assembler.ts` | see spec | see spec | implemented |
 | report-output-v2 | [PDF Render Polish](.specs/features/report-output-v2/pdf-render-polish.feature.md) | `lib/pdf/styles.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Remove Market Scorecard Section](.specs/features/report-output-v2/remove-market-scorecard.feature.md) | `lib/agents/report-assembler.ts, lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
@@ -110,7 +111,9 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-template | [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | reports | [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
-| security | [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md) | `app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/terms/page.tsx` | see spec | see spec | specced |
+| security | [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md) | `components/ui/turnstile-widget.tsx, lib/security/verify-turnstile.ts, lib/security/index.ts, app/api/auth/signup/route.ts, app/api/auth/signin/route.ts, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/sign-in/[[...sign-in]]/page.tsx` | see spec | see spec | implemented |
+| security | [Anti-Scraper Middleware](.specs/features/security/anti-scraper-middleware.feature.md) | `lib/security/anti-scraper.ts, lib/supabase/middleware.ts, lib/security/index.ts, app/api/honeypot/route.ts` | see spec | see spec | implemented |
+| security | [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md) | `lib/security/rate-limiter.ts, lib/security/index.ts, lib/supabase/middleware.ts` | `__tests__/security/rate-limiting.test.ts` | see spec | implemented |
 | security | [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md) | `app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md) | `app/api/reports/[id]/kit/generate/route.ts` | see spec | see spec | implemented |
@@ -158,8 +161,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 6 |
 | tested | 0 |
-| implemented | 122 |
-| **Total** | **130** |
+| implemented | 125 |
+| **Total** | **133** |
 
 ---
 
@@ -174,7 +177,7 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
-- [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md)
+- [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md)
 - [Image Library](.specs/features/social-media-kit/image-library.feature.md)
 - [Social Media Kit Button UX](.specs/features/social-media-kit/kit-button-ux.feature.md)
 
@@ -257,6 +260,7 @@ _None_
 - [Luxury Market Dashboard Restructuring](.specs/features/report-output-v2/luxury-market-dashboard.feature.md)
 - [Market Insights Index Redesign](.specs/features/report-output-v2/market-insights-index-redesign.feature.md)
 - [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md)
+- [Market Segments Rating Transparency](.specs/features/report-output-v2/market-segments-rating-transparency.feature.md)
 - [Neighborhood Intelligence Trim](.specs/features/report-output-v2/neighborhood-intelligence-trim.feature.md)
 - [PDF Render Polish](.specs/features/report-output-v2/pdf-render-polish.feature.md)
 - [Remove Market Scorecard Section](.specs/features/report-output-v2/remove-market-scorecard.feature.md)
@@ -271,6 +275,8 @@ _None_
 - [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md)
 - [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md)
 - [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md)
+- [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md)
+- [Anti-Scraper Middleware](.specs/features/security/anti-scraper-middleware.feature.md)
 - [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md)
 - [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md)
 - [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md)
@@ -338,7 +344,7 @@ See `.specs/design-system/tokens.md` for token reference.
 | toggle-card | stub | [doc](.specs/design-system/components/toggle-card.md) |
 | tooltip | documented | [doc](.specs/design-system/components/tooltip.md) |
 | trend-indicator | stub | [doc](.specs/design-system/components/trend-indicator.md) |
-| turnstile-widget | stub | [doc](.specs/design-system/components/turnstile-widget.md) |
+| turnstile-widget | documented | [doc](.specs/design-system/components/turnstile-widget.md) |
 
 ---
 
