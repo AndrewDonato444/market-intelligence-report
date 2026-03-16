@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { db, schema } from "@/lib/db";
-import { eq, and, isNull } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { lookupProperty } from "@/lib/services/deal-analyzer/property-lookup";
 
 export async function POST(request: Request) {
@@ -42,9 +42,7 @@ export async function POST(request: Request) {
   const markets = await db
     .select()
     .from(schema.markets)
-    .where(
-      and(eq(schema.markets.id, marketId), isNull(schema.markets.deletedAt))
-    )
+    .where(eq(schema.markets.id, marketId))
     .limit(1);
 
   if (markets.length === 0) {

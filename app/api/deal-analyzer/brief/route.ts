@@ -119,7 +119,7 @@ export async function POST(request: Request) {
     personas: reportPersonas.map((rp) => ({
       slug: rp.persona.slug,
       name: rp.persona.name,
-      description: rp.persona.description ?? undefined,
+      description: rp.persona.profileOverview ?? undefined,
       decisionDrivers: rp.persona.decisionDrivers as DealBriefInput["personas"][0]["decisionDrivers"],
       narrativeFraming: rp.persona.narrativeFraming as DealBriefInput["personas"][0]["narrativeFraming"],
       propertyFilters: rp.persona.propertyFilters as Record<string, unknown> | undefined,
