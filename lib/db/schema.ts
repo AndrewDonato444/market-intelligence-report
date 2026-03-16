@@ -231,6 +231,7 @@ export const reports = pgTable(
       sections?: string[];
       dateRange?: { start: string; end: string };
       customPrompts?: Record<string, string>;
+      computedAnalytics?: Record<string, unknown>;
     }>(),
     outputUrl: text("output_url"),
     pdfUrl: text("pdf_url"),

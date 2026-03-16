@@ -11,7 +11,7 @@ personas:
   - team-leader
 status: implemented
 created: 2026-03-11
-updated: 2026-03-11
+updated: 2026-03-16
 ---
 
 # Social Media Agent
@@ -93,6 +93,14 @@ Then each callout contains a `stat` (the number), `context` (why it matters), an
 And each `suggestedCaption` is a ready-to-post snippet that frames the stat compellingly
 And stats are real values from computed analytics (total volume, median price, YoY changes, segment counts)
 And no stats are fabricated or hallucinated
+
+### Scenario: Agent handles missing or malformed computedAnalytics gracefully
+Given a finalized report where `report.config.computedAnalytics` is missing
+And the fallback `analyticsSection.content` has a different shape (e.g., `{dashboard, detailMetrics, narrative}`)
+When the Social Media Agent is executed
+Then the agent does NOT crash with "Cannot read properties of undefined"
+And the agent generates the kit using report section narratives only (without key metrics table)
+And all 7 content types are still populated
 
 ### Scenario: Agent handles report with minimal data gracefully
 Given a finalized report where some sections have thin data (e.g., only 3 transactions, no YoY comparison available)
@@ -248,3 +256,4 @@ To ensure the kit is substantive enough to be valuable:
 - The agent uses `temperature: 0.7` (slightly higher than pipeline agents at 0.6) for more creative social media content.
 - `SocialMediaKitContent` type was already defined in schema.ts as part of feature #160 — agent just needs to produce JSON matching that type.
 - Error handling follows the same `retriable` boolean pattern as pipeline agents for consistency.
+- **Bug fix (2026-03-16):** `computedAnalytics` was never persisted to `report.config` by the pipeline executor. The social-media-kit service fell back to `analyticsSection.content` (a section content blob with `{dashboard, detailMetrics, narrative}`), which doesn't have `.market.totalProperties`. Fix: (1) pipeline now stores `computedAnalytics` in `report.config` at completion, (2) defensive shape validation in both service layers and agent prompt builders checks for `analytics?.market` before accessing properties. Same bug existed in email-campaign service/agent — fixed there too.

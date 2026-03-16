@@ -91,9 +91,11 @@ export async function generateEmailCampaign(
   const analyticsSection = sections.find(
     (s) => s.sectionType === "luxury_market_dashboard" || s.sectionType === "market_overview"
   );
-  const computedAnalytics = (report.config as any)?.computedAnalytics
+  const rawAnalytics = (report.config as any)?.computedAnalytics
     ?? analyticsSection?.content
     ?? null;
+  // Guard: only use analytics if it has the expected ComputedAnalytics shape (.market.totalProperties)
+  const computedAnalytics = rawAnalytics?.market?.totalProperties != null ? rawAnalytics : null;
 
   // 6. Create campaign row (queued)
   const [campaign] = await db
@@ -229,9 +231,11 @@ export async function regenerateCampaignSection(
   const analyticsSection = sections.find(
     (s) => s.sectionType === "luxury_market_dashboard" || s.sectionType === "market_overview"
   );
-  const computedAnalytics = (report.config as any)?.computedAnalytics
+  const rawAnalytics = (report.config as any)?.computedAnalytics
     ?? analyticsSection?.content
     ?? null;
+  // Guard: only use analytics if it has the expected ComputedAnalytics shape (.market.totalProperties)
+  const computedAnalytics = rawAnalytics?.market?.totalProperties != null ? rawAnalytics : null;
 
   // 3. Call the Email Campaign Agent with sectionOnly
   const agentInput: EmailCampaignAgentInput = {
