@@ -1,7 +1,7 @@
 ---
 feature: Anti-Bot Protection
 domain: security
-source: app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/terms/page.tsx
+source: components/ui/turnstile-widget.tsx, lib/security/verify-turnstile.ts, lib/security/index.ts, app/api/auth/signup/route.ts, app/api/auth/signin/route.ts, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/sign-in/[[...sign-in]]/page.tsx
 tests:
   - __tests__/security/anti-bot-protection.test.ts
 components:
@@ -16,7 +16,7 @@ updated: 2026-03-16
 
 # Anti-Bot Protection
 
-**Source Files**: `app/(auth)/sign-up/[[...sign-up]]/page.tsx`, `app/(auth)/sign-in/[[...sign-in]]/page.tsx`, `lib/supabase/auth.ts`
+**Source Files**: `app/(auth)/sign-up/[[...sign-up]]/page.tsx`, `app/(auth)/sign-in/[[...sign-in]]/page.tsx`, `app/api/auth/signup/route.ts`, `app/api/auth/signin/route.ts`, `lib/security/verify-turnstile.ts`
 **Design System**: `.specs/design-system/tokens.md`
 **Personas**: `.specs/personas/rising-star-agent.md` (medium patience — verification must be invisible or near-instant)
 
@@ -89,13 +89,14 @@ When the visitor completes the challenge (checkbox or simple interaction)
 Then the form becomes submittable with the verified token
 And the experience remains inline — no popup, no redirect
 
-### Scenario: Server-side verification timeout
+### Scenario: Server-side verification timeout or network error
 Given an agent submits the signup form with a valid Turnstile token
 And the Cloudflare siteverify endpoint is unreachable or times out (>5 seconds)
 When the server cannot verify the token
-Then the server logs the verification failure
-And the server rejects the request with a 503 status
-And the response body contains { "error": "Verification service temporarily unavailable. Please try again." }
+Then verifyTurnstileToken returns { success: false, errorCodes: ["timeout"] } or { success: false, errorCodes: ["network-error"] }
+And the API route treats this as a verification failure
+And the server rejects the request with a 403 status
+And the response body contains { "error": "Verification failed" }
 And no account is created
 
 ### Scenario: Turnstile does not block authenticated API routes
