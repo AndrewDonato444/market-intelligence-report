@@ -43,6 +43,7 @@ jest.mock("next/server", () => ({
         headers: { "content-type": "application/json", ...(init?.headers ?? {}) },
       }),
   },
+  after: (fn: () => void) => { fn(); },
 }));
 
 const mockGetAuthUserId = jest.fn();
