@@ -77,23 +77,28 @@ export async function createMarket(
 }
 
 export async function getMarket(authId: string, marketId: string) {
-  const [user] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  if (!user) return null;
+    if (!user) return null;
 
-  const [market] = await db
-    .select()
-    .from(schema.markets)
-    .where(
-      and(eq(schema.markets.id, marketId), eq(schema.markets.userId, user.id))
-    )
-    .limit(1);
+    const [market] = await db
+      .select()
+      .from(schema.markets)
+      .where(
+        and(eq(schema.markets.id, marketId), eq(schema.markets.userId, user.id))
+      )
+      .limit(1);
 
-  return market || null;
+    return market || null;
+  } catch (error) {
+    console.error("[getMarket] Database query failed:", error);
+    return null;
+  }
 }
 
 export async function updateMarket(
@@ -189,20 +194,25 @@ export async function archiveMarket(authId: string, marketId: string) {
 }
 
 export async function getMarketReportCount(authId: string, marketId: string) {
-  const [user] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  if (!user) return 0;
+    if (!user) return 0;
 
-  const [{ reportCount }] = await db
-    .select({ reportCount: count() })
-    .from(schema.reports)
-    .where(eq(schema.reports.marketId, marketId));
+    const [{ reportCount }] = await db
+      .select({ reportCount: count() })
+      .from(schema.reports)
+      .where(eq(schema.reports.marketId, marketId));
 
-  return reportCount;
+    return reportCount;
+  } catch (error) {
+    console.error("[getMarketReportCount] Database query failed:", error);
+    return 0;
+  }
 }
 
 export async function updateMarketPeers(

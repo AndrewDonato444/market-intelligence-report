@@ -14,29 +14,34 @@ export { validateProfileData } from "./profile-validation";
  * Uses INSERT ... ON CONFLICT DO NOTHING for idempotency.
  */
 export async function ensureUserProfile(authId: string, email: string) {
-  const existing = await getProfile(authId);
-  if (existing) return existing;
+  try {
+    const existing = await getProfile(authId);
+    if (existing) return existing;
 
-  const [created] = await db
-    .insert(schema.users)
-    .values({
-      authId,
-      email,
-      name: email.split("@")[0], // default name from email prefix
-      lastLoginAt: new Date(),
-    })
-    .onConflictDoNothing({ target: schema.users.authId })
-    .returning();
+    const [created] = await db
+      .insert(schema.users)
+      .values({
+        authId,
+        email,
+        name: email.split("@")[0], // default name from email prefix
+        lastLoginAt: new Date(),
+      })
+      .onConflictDoNothing({ target: schema.users.authId })
+      .returning();
 
-  // If another request raced us, fetch the existing row
-  const user = created ?? await getProfile(authId);
+    // If another request raced us, fetch the existing row
+    const user = created ?? await getProfile(authId);
 
-  // Assign Starter tier subscription for new users
-  if (user) {
-    await assignStarterTier(user.id);
+    // Assign Starter tier subscription for new users
+    if (user) {
+      await assignStarterTier(user.id);
+    }
+
+    return user;
+  } catch (error) {
+    console.error("[ensureUserProfile] Database query failed:", error);
+    return null;
   }
-
-  return user;
 }
 
 /**
@@ -87,13 +92,18 @@ async function assignStarterTier(userId: string) {
 }
 
 export async function getProfile(authId: string) {
-  const [user] = await db
-    .select()
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select()
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  return user || null;
+    return user || null;
+  } catch (error) {
+    console.error("[getProfile] Database query failed:", error);
+    return null;
+  }
 }
 
 export async function upsertProfile(

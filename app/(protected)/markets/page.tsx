@@ -21,12 +21,19 @@ export default async function MarketsPage() {
   const userId = await getAuthUserId();
   if (!userId) redirect("/sign-in");
 
-  const markets = await getMarkets(userId);
+  let markets: Awaited<ReturnType<typeof getMarkets>> = [];
+  let reportCounts: number[] = [];
 
-  // Fetch report counts for each market (for delete confirmation)
-  const reportCounts = await Promise.all(
-    markets.map((m) => getMarketReportCount(userId, m.id))
-  );
+  try {
+    markets = await getMarkets(userId);
+
+    // Fetch report counts for each market (for delete confirmation)
+    reportCounts = await Promise.all(
+      markets.map((m) => getMarketReportCount(userId, m.id))
+    );
+  } catch (error) {
+    console.error("[MarketsPage] Failed to load data:", error);
+  }
 
   return (
     <div>

@@ -269,13 +269,18 @@ export async function regenerateCampaignSection(
  * Get the email campaign for a report.
  */
 export async function getEmailCampaign(reportId: string) {
-  const [campaign] = await db
-    .select()
-    .from(schema.emailCampaigns)
-    .where(eq(schema.emailCampaigns.reportId, reportId))
-    .limit(1);
+  try {
+    const [campaign] = await db
+      .select()
+      .from(schema.emailCampaigns)
+      .where(eq(schema.emailCampaigns.reportId, reportId))
+      .limit(1);
 
-  return campaign ?? null;
+    return campaign ?? null;
+  } catch (error) {
+    console.error("[getEmailCampaign] Database query failed:", error);
+    return null;
+  }
 }
 
 /**

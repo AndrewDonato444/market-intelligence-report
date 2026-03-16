@@ -10,11 +10,21 @@ if (!process.env.DATABASE_URL) {
 
 const connectionString = process.env.DATABASE_URL;
 
+// Detect Supabase pooler (transaction mode needs prepare: false)
+const isPooler = connectionString.includes("pooler.supabase.com");
+const isTransactionMode = connectionString.includes(":6543/");
+const isSupabase = connectionString.includes("supabase.com") || connectionString.includes("supabase.co");
+
 // Connection for queries — pooled, reusable
 const client = postgres(connectionString, {
-  max: 10,
+  max: isPooler ? 5 : 10,         // Fewer connections when going through pooler
   idle_timeout: 20,
-  connect_timeout: 10,
+  connect_timeout: isSupabase ? 30 : 10, // Longer timeout for remote connections
+  ssl: isSupabase ? "require" : undefined, // SSL required for Supabase, optional for local
+  prepare: isTransactionMode ? false : true, // Transaction pooler doesn't support prepared statements
+  connection: {
+    application_name: "market-intelligence-report",
+  },
 });
 
 export const db = drizzle(client, { schema });

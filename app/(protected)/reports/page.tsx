@@ -17,14 +17,21 @@ export default async function ReportsPage() {
   const authId = await getAuthUserId();
   if (!authId) redirect("/sign-in");
 
-  await reapStaleReports();
-  const reports = await getReports(authId);
+  let reports: Awaited<ReturnType<typeof getReports>> = [];
+  let kitStatuses = new Map<string, { status: string; errorMessage: string | null }>();
 
-  // Batch-load kit statuses for completed reports
-  const completedReportIds = reports
-    .filter((r) => r.status === "completed")
-    .map((r) => r.id);
-  const kitStatuses = await getKitStatusesForReports(completedReportIds);
+  try {
+    await reapStaleReports();
+    reports = await getReports(authId);
+
+    // Batch-load kit statuses for completed reports
+    const completedReportIds = reports
+      .filter((r) => r.status === "completed")
+      .map((r) => r.id);
+    kitStatuses = await getKitStatusesForReports(completedReportIds);
+  } catch (error) {
+    console.error("[ReportsPage] Failed to load data:", error);
+  }
 
   return (
     <div>
