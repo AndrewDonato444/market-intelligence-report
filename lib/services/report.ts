@@ -21,48 +21,57 @@ const STALE_THRESHOLD_MINUTES = 15;
  * so users always see accurate status.
  */
 export async function reapStaleReports() {
-  const cutoff = new Date(Date.now() - STALE_THRESHOLD_MINUTES * 60 * 1000);
+  try {
+    const cutoff = new Date(Date.now() - STALE_THRESHOLD_MINUTES * 60 * 1000);
 
-  await db
-    .update(schema.reports)
-    .set({
-      status: "failed",
-      errorMessage: "Generation timed out. Please retry.",
-    })
-    .where(
-      and(
-        or(
-          eq(schema.reports.status, "queued"),
-          eq(schema.reports.status, "generating")
-        ),
-        lt(schema.reports.generationStartedAt, cutoff)
-      )
-    );
+    await db
+      .update(schema.reports)
+      .set({
+        status: "failed",
+        errorMessage: "Generation timed out. Please retry.",
+      })
+      .where(
+        and(
+          or(
+            eq(schema.reports.status, "queued"),
+            eq(schema.reports.status, "generating")
+          ),
+          lt(schema.reports.generationStartedAt, cutoff)
+        )
+      );
+  } catch (error) {
+    console.error("[reapStaleReports] Database query failed:", error);
+  }
 }
 
 export async function getReports(authId: string) {
-  const [user] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  if (!user) return [];
+    if (!user) return [];
 
-  return db
-    .select({
-      id: schema.reports.id,
-      title: schema.reports.title,
-      status: schema.reports.status,
-      marketId: schema.reports.marketId,
-      marketName: schema.markets.name,
-      createdAt: schema.reports.createdAt,
-      updatedAt: schema.reports.updatedAt,
-    })
-    .from(schema.reports)
-    .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
-    .where(eq(schema.reports.userId, user.id))
-    .orderBy(desc(schema.reports.createdAt));
+    return await db
+      .select({
+        id: schema.reports.id,
+        title: schema.reports.title,
+        status: schema.reports.status,
+        marketId: schema.reports.marketId,
+        marketName: schema.markets.name,
+        createdAt: schema.reports.createdAt,
+        updatedAt: schema.reports.updatedAt,
+      })
+      .from(schema.reports)
+      .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
+      .where(eq(schema.reports.userId, user.id))
+      .orderBy(desc(schema.reports.createdAt));
+  } catch (error) {
+    console.error("[getReports] Database query failed:", error);
+    return [];
+  }
 }
 
 export async function getReport(authId: string, reportId: string) {

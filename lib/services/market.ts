@@ -5,20 +5,25 @@ export type { MarketData, MarketValidationResult } from "./market-validation";
 export { validateMarketData, AVAILABLE_SEGMENTS, AVAILABLE_PROPERTY_TYPES } from "./market-validation";
 
 export async function getMarkets(authId: string) {
-  // First get the user's internal ID
-  const [user] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    // First get the user's internal ID
+    const [user] = await db
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  if (!user) return [];
+    if (!user) return [];
 
-  return db
-    .select()
-    .from(schema.markets)
-    .where(and(eq(schema.markets.userId, user.id), isNull(schema.markets.archivedAt)))
-    .orderBy(schema.markets.createdAt);
+    return await db
+      .select()
+      .from(schema.markets)
+      .where(and(eq(schema.markets.userId, user.id), isNull(schema.markets.archivedAt)))
+      .orderBy(schema.markets.createdAt);
+  } catch (error) {
+    console.error("[getMarkets] Database query failed:", error);
+    return [];
+  }
 }
 
 export async function createMarket(

@@ -12,10 +12,17 @@ export default async function DashboardPage() {
     redirect("/sign-in");
   }
 
-  const [markets, reports] = await Promise.all([
-    getMarkets(user.id),
-    getReports(user.id),
-  ]);
+  let markets: Awaited<ReturnType<typeof getMarkets>> = [];
+  let reports: Awaited<ReturnType<typeof getReports>> = [];
+
+  try {
+    [markets, reports] = await Promise.all([
+      getMarkets(user.id),
+      getReports(user.id),
+    ]);
+  } catch (error) {
+    console.error("[DashboardPage] Failed to load data:", error);
+  }
 
   return (
     <div>
