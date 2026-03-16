@@ -23,7 +23,7 @@
 |--------|-------|
 | ✅ Completed | 116 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 20 |
+| ⬜ Pending | 24 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-15
@@ -392,6 +392,21 @@
 | 227 | Admin analytics for Deal Analyzer — analyses count per user in admin user detail, platform-wide deal analysis volume in analytics dashboard, most-analyzed markets | user-request | M | 220, 113, 130 | ⬜ |
 
 **Goal**: An agent sitting with a buyer pulls up any property address and gets instant AI-backed context — where it sits relative to the market, which buyer persona it fits and why, negotiation leverage points, and whether now is the right time to move. A Watch List of motivated sellers surfaces hidden inventory before it lists. Deal Briefs are shareable as PDFs or web links.
+
+---
+
+## Phase 22: Production Reliability & Monitoring
+
+> Safeguards to prevent extended outages like the 24-hour Supabase circuit breaker incident (2026-03-15). Automated monitoring, connection resilience, deployment health gates, and operational runbooks.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 230 | Connection recycling — add `max_lifetime` to postgres client so stale credentials auto-heal without redeploy | incident-2026-03-15 | S | 2 | ⬜ |
+| 231 | Cron health monitor + alerting — Vercel cron hitting `/api/health` every 5 min, fires Slack/email webhook on failure | incident-2026-03-15 | M | 2, 5 | ⬜ |
+| 232 | Production runbook — `docs/runbook-supabase.md` documenting failure modes (stale pooler creds, paused project, IPv4, circuit breaker) with exact fix steps | incident-2026-03-15 | S | - | ⬜ |
+| 233 | Post-deploy health gate — GitHub Actions workflow that curls `/api/health` after Vercel deploy, red X on commit if unhealthy | incident-2026-03-15 | S | 2 | ⬜ |
+
+**Goal**: Outages are detected within 5 minutes (not 24 hours), connections self-heal from credential changes, bad deploys are flagged immediately, and recovery is a 10-minute checklist instead of a 2-hour investigation.
 
 ---
 

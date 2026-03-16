@@ -1,5 +1,6 @@
 import { db, schema } from "@/lib/db";
 import { eq, and, isNull, sql } from "drizzle-orm";
+import { resolveUserId } from "./resolve-user-id";
 
 // --- Entitlement Classification ---
 
@@ -59,13 +60,20 @@ export async function incrementUsage(
   entitlementType: string
 ): Promise<void> {
   try {
+    // Resolve auth ID → internal users.id (handles both auth and internal IDs)
+    const internalId = await resolveUserId(userId);
+    if (!internalId) {
+      console.warn("[usage-tracking] No user found for id:", userId);
+      return;
+    }
+
     const { periodStart, periodEnd } =
       getEntitlementPeriod(entitlementType);
 
     await db
       .insert(schema.usageRecords)
       .values({
-        userId,
+        userId: internalId,
         entitlementType,
         periodStart,
         periodEnd,
@@ -97,6 +105,13 @@ export async function getCurrentUsage(
   entitlementType: string
 ): Promise<number> {
   try {
+    // Resolve auth ID → internal users.id (handles both auth and internal IDs)
+    const internalId = await resolveUserId(userId);
+    if (!internalId) {
+      console.warn("[usage-tracking] No user found for id:", userId);
+      return 0;
+    }
+
     const { periodStart } = getEntitlementPeriod(entitlementType);
 
     if (isCumulativeEntitlement(entitlementType)) {
@@ -105,7 +120,7 @@ export async function getCurrentUsage(
         .from(schema.usageRecords)
         .where(
           and(
-            eq(schema.usageRecords.userId, userId),
+            eq(schema.usageRecords.userId, internalId),
             eq(schema.usageRecords.entitlementType, entitlementType),
             isNull(schema.usageRecords.periodEnd)
           )
@@ -120,7 +135,7 @@ export async function getCurrentUsage(
       .from(schema.usageRecords)
       .where(
         and(
-          eq(schema.usageRecords.userId, userId),
+          eq(schema.usageRecords.userId, internalId),
           eq(schema.usageRecords.entitlementType, entitlementType),
           eq(schema.usageRecords.periodStart, periodStart)
         )
@@ -143,12 +158,19 @@ export async function getUsageForPeriod(
   periodStart: Date
 ): Promise<number> {
   try {
+    // Resolve auth ID → internal users.id (handles both auth and internal IDs)
+    const internalId = await resolveUserId(userId);
+    if (!internalId) {
+      console.warn("[usage-tracking] No user found for id:", userId);
+      return 0;
+    }
+
     const [row] = await db
       .select({ count: schema.usageRecords.count })
       .from(schema.usageRecords)
       .where(
         and(
-          eq(schema.usageRecords.userId, userId),
+          eq(schema.usageRecords.userId, internalId),
           eq(schema.usageRecords.entitlementType, entitlementType),
           eq(schema.usageRecords.periodStart, periodStart)
         )

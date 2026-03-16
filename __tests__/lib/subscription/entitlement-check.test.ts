@@ -32,6 +32,11 @@ let mockSubscriptionRows: Array<{ tierId: string | null }> = [];
 let mockTierRows: Array<{ entitlements: Record<string, number> }> = [];
 let mockOverrideRows: Array<{ value: number; expiresAt: Date | null }> = [];
 
+// Mock resolveUserId to passthrough (tests use internal IDs directly)
+jest.mock("@/lib/services/resolve-user-id", () => ({
+  resolveUserId: jest.fn(async (id: string) => id),
+}));
+
 // Mock getCurrentUsage from usage-tracking
 jest.mock("@/lib/services/usage-tracking", () => ({
   getCurrentUsage: jest.fn(async () => mockCurrentUsage),

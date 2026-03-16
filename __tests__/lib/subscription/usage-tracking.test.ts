@@ -19,6 +19,11 @@ import {
   getUsageForPeriod,
 } from "@/lib/services/usage-tracking";
 
+// Mock resolveUserId to passthrough (tests use internal IDs directly)
+jest.mock("@/lib/services/resolve-user-id", () => ({
+  resolveUserId: jest.fn(async (id: string) => id),
+}));
+
 // Mock the database module
 jest.mock("@/lib/db", () => {
   const mockInsert = jest.fn();
