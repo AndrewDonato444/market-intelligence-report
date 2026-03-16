@@ -269,7 +269,7 @@ function InstagramPreview({
   const hashtagSet = new Set(hashtags);
 
   return (
-    <div className="rounded-[var(--radius-lg)] overflow-hidden bg-white" style={{ border: "1px solid #dbdbdb" }}>
+    <div className="rounded-[var(--radius-lg)] overflow-hidden bg-white mx-auto" style={{ border: "1px solid #dbdbdb", maxWidth: "320px" }}>
       {/* Header */}
       <div className="px-3 py-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
