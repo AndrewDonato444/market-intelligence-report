@@ -23,10 +23,10 @@
 |--------|-------|
 | ✅ Completed | 116 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 24 |
+| ⬜ Pending | 30 |
 | ⏸️ Blocked | 0 |
 
-**Last updated**: 2026-03-15
+**Last updated**: 2026-03-16
 
 ---
 
@@ -410,6 +410,23 @@
 
 ---
 
+## Phase 23: Security Hardening for Public Release
+
+> Protect the platform before opening to the public. Covers legal compliance (ToS), bot/scraper defense, API abuse prevention, and intellectual property protection on all outputs.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 240 | ToS acceptance checkbox on signup — checkbox + `tos_accepted_at` timestamp in users table, block account creation without acceptance | user-request | S | 3 | ⬜ |
+| 241 | Anti-bot protection — Cloudflare Turnstile (or reCAPTCHA) on signup, login, and public-facing forms with server-side token verification | user-request | M | 3 | ⬜ |
+| 242 | Anti-scraper middleware — user-agent filtering, request fingerprinting, honeypot routes, automatic IP blocking for suspicious patterns | user-request | M | 1 | ⬜ |
+| 243 | Rate limiting on exposed API routes — per-route rate limiter middleware (token bucket), configurable limits per endpoint, abuse response (429 + backoff headers) | user-request | M | 1, 5 | ⬜ |
+| 244 | Copyright notices on all app pages — footer component with © Modern Signal Advisory + year, visible on every page | user-request | S | 4 | ⬜ |
+| 245 | Copyright notices on generated PDF reports — copyright line + confidentiality watermark/disclaimer on all exported PDFs | user-request | S | 57 | ⬜ |
+
+**Goal**: The platform is legally compliant (ToS), resilient against automated abuse (bots, scrapers, API hammering), and all outputs carry proper copyright attribution — ready for public-facing traffic.
+
+---
+
 ## Ad-hoc Requests
 
 > Features added from triage that don't fit a phase. Processed after current phase.
@@ -539,6 +556,16 @@
 - #181-#182 (pro gating for social/email) depend on entitlement utility (#173) which is already completed
 - #183 (expanded transaction gating) depends on #173 — already completed. #214 depends on #183
 
+### Phase Dependencies (Phase 23 — Security Hardening)
+- #240 (ToS checkbox) only needs Clerk auth (#3) — add field to signup flow + DB column
+- #241 (anti-bot) only needs auth (#3) — wraps existing auth forms with challenge widget
+- #242 (anti-scraper) only needs the app scaffold (#1) — middleware layer, no feature deps
+- #243 (rate limiting) only needs scaffold (#1) + env config (#5) — middleware + config
+- #244 (copyright on pages) only needs base layout (#4) — footer component update
+- #245 (copyright on PDFs) needs PDF export (#57) — template update
+- **All 6 features are independent of each other** — can be fully parallelized
+- **Phase 23 can start immediately** — all dependencies are completed (Phases 1 + 6)
+
 ### Parallelization Opportunities
 After Phase 1, multiple workstreams can run in parallel:
 - **Workstream A**: #10, #11, #12, #13 (user & market setup)
@@ -561,6 +588,7 @@ UX redesign + admin expansion (Phases 12–16):
 - **Workstream N**: #166-#167 (bulk email campaigns) — can start after social media kit agent pattern is established
 - **Workstream O**: #181-#183 (pro feature gating) → #214 (expanded transactions) — entitlement foundation already complete
 - **Workstream P**: #220 (data model) → #221 (lookup) → #222 (agent) + #224 (scoring) → #223 (UI) → #225 (share) → #226 (gating) → #227 (admin) — can start immediately, independent of all other pending phases
+- **Workstream Q**: #240-#245 (security hardening) — all 6 features can run in parallel, all deps met, should be prioritized before public launch
 
 ---
 
