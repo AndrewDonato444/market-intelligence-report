@@ -13,10 +13,19 @@ export { validateProfileData } from "./profile-validation";
  * Called from the protected layout on every authenticated request.
  * Uses INSERT ... ON CONFLICT DO NOTHING for idempotency.
  */
-export async function ensureUserProfile(authId: string, email: string) {
+export async function ensureUserProfile(
+  authId: string,
+  email: string,
+  metadata?: Record<string, unknown>
+) {
   try {
     const existing = await getProfile(authId);
     if (existing) return existing;
+
+    // Read tos_accepted_at from auth user metadata (set during signup)
+    const tosAcceptedAt = metadata?.tos_accepted_at
+      ? new Date(metadata.tos_accepted_at as string)
+      : undefined;
 
     const [created] = await db
       .insert(schema.users)
@@ -25,6 +34,7 @@ export async function ensureUserProfile(authId: string, email: string) {
         email,
         name: email.split("@")[0], // default name from email prefix
         lastLoginAt: new Date(),
+        ...(tosAcceptedAt ? { tosAcceptedAt } : {}),
       })
       .onConflictDoNothing({ target: schema.users.authId })
       .returning();

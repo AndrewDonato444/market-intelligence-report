@@ -11,7 +11,7 @@ export default async function ProtectedLayout({
   try {
     const authUser = await getAuthUser();
     if (authUser) {
-      const profile = await ensureUserProfile(authUser.id, authUser.email);
+      const profile = await ensureUserProfile(authUser.id, authUser.email, authUser.user_metadata);
       isAdmin = profile?.role === "admin";
     }
   } catch {

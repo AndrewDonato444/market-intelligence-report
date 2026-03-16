@@ -16,6 +16,7 @@ export interface UserDetailResponse {
     logoUrl: string | null;
     status: string;
     role: string;
+    tosAcceptedAt: string | null;
     lastLoginAt: string | null;
     suspendedAt: string | null;
     deletedAt: string | null;
@@ -74,6 +75,7 @@ export async function GET(
         logoUrl: schema.users.logoUrl,
         status: schema.users.status,
         role: schema.users.role,
+        tosAcceptedAt: schema.users.tosAcceptedAt,
         lastLoginAt: schema.users.lastLoginAt,
         suspendedAt: schema.users.suspendedAt,
         deletedAt: schema.users.deletedAt,
@@ -142,6 +144,7 @@ export async function GET(
         logoUrl: user.logoUrl,
         status: user.status,
         role: user.role,
+        tosAcceptedAt: user.tosAcceptedAt?.toISOString() ?? null,
         lastLoginAt: user.lastLoginAt?.toISOString() ?? null,
         suspendedAt: user.suspendedAt?.toISOString() ?? null,
         deletedAt: user.deletedAt?.toISOString() ?? null,

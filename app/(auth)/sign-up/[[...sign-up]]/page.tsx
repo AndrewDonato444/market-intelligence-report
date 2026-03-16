@@ -181,12 +181,21 @@ export default function SignUpPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [tosAccepted, setTosAccepted] = useState(false);
+  const [tosError, setTosError] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
+    setTosError("");
+
+    if (!tosAccepted) {
+      setTosError("Please accept the Terms of Service to continue");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -196,6 +205,7 @@ export default function SignUpPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/auth/callback`,
+        data: { tos_accepted_at: new Date().toISOString() },
       },
     });
 
@@ -295,6 +305,44 @@ export default function SignUpPage() {
                 Minimum 6 characters
               </p>
             </div>
+
+            {/* ToS Checkbox */}
+            <div className="flex items-start gap-[var(--spacing-2)]">
+              <input
+                id="tos"
+                type="checkbox"
+                checked={tosAccepted}
+                onChange={(e) => {
+                  setTosAccepted(e.target.checked);
+                  if (e.target.checked) setTosError("");
+                }}
+                aria-label="I agree to the Terms of Service"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded-[var(--radius-sm)] border border-[var(--color-border)] accent-[var(--color-accent)] cursor-pointer"
+              />
+              <label
+                htmlFor="tos"
+                className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-secondary)] cursor-pointer"
+              >
+                I agree to the{" "}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-medium transition-colors duration-[var(--duration-default)]"
+                >
+                  Terms of Service
+                </a>
+              </label>
+            </div>
+
+            {tosError && (
+              <div className="bg-red-50 border border-red-200 rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)]">
+                <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-error)]">
+                  {tosError}
+                </p>
+              </div>
+            )}
 
             {/* Gold CTA — visually distinct from sign-in's navy button */}
             <button
