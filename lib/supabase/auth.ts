@@ -30,11 +30,12 @@ export async function getAuthUserEmail(): Promise<string | null> {
 export async function getAuthUser(): Promise<{
   id: string;
   email: string;
+  user_metadata: Record<string, unknown>;
 } | null> {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return null;
-  return { id: user.id, email: user.email ?? "" };
+  return { id: user.id, email: user.email ?? "", user_metadata: user.user_metadata ?? {} };
 }

@@ -38,6 +38,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [Geographic Analytics](.specs/features/admin/geographic-analytics.feature.md) | `app/api/admin/analytics/geographic/route.ts, components/admin/geographic-analytics-dashboard.tsx, app/admin/analytics/geographic/page.tsx, components/admin/analytics-nav.tsx, app/admin/analytics/layout.tsx` | see spec | see spec | implemented |
 | admin | [Pipeline Performance Metrics](.specs/features/admin/pipeline-performance.feature.md) | `app/admin/analytics/performance/page.tsx, components/admin/pipeline-performance-dashboard.tsx, app/api/admin/analytics/performance/route.ts` | see spec | see spec | implemented |
 | admin | [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md) | `app/api/admin/reports/[id]/retry/route.ts` | see spec | see spec | implemented |
+| admin | [Pipeline Test Suite](.specs/features/admin/pipeline-test-suite.feature.md) | `app/admin/test-suite/page.tsx` | see spec | see spec | implemented |
 | admin | [Report Error Tracking Schema](.specs/features/admin/report-error-tracking-schema.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | admin | [Report Eval Dashboard](.specs/features/admin/report-eval-dashboard.feature.md) | `app/admin/eval/report/page.tsx, components/eval/report-eval-dashboard.tsx` | see spec | see spec | implemented |
 | admin | [Report Eval Runner](.specs/features/admin/report-eval-runner.feature.md) | `lib/eval/report-eval/runner.ts, lib/eval/report-eval/judge.ts` | see spec | see spec | implemented |
@@ -80,6 +81,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | marketing | [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md) | `app/page.tsx` | see spec | see spec | implemented |
 | pipeline | [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md) | `lib/services/data-source-registry.ts` | see spec | see spec | implemented |
 | pipeline | [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md) | `lib/services/pipeline-executor.ts` | see spec | see spec | implemented |
+| pipeline | [Snapshot from Report](.specs/features/pipeline/snapshot-from-report.feature.md) | `app/api/admin/test-suite/snapshots/from-report/route.ts` | see spec | see spec | implemented |
 | report-advisor | [Advisor Data Model](.specs/features/report-advisor/advisor-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | report-builder | [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
 | report-builder | [Report Builder Wizard](.specs/features/report-builder/report-builder-wizard.feature.md) | `(deleted — replaced by unified-report-entry)` | see spec | see spec | archived |
@@ -94,7 +96,9 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-output-v2 | [Luxury Market Dashboard Restructuring](.specs/features/report-output-v2/luxury-market-dashboard.feature.md) | `lib/services/market-analytics.ts, lib/pdf/templates/renderers.tsx, lib/agents/insight-generator.ts, lib/agents/report-assembler.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Market Insights Index Redesign](.specs/features/report-output-v2/market-insights-index-redesign.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-output-v2 | [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md) | `lib/pdf/templates/insights-index.tsx` | see spec | see spec | implemented |
+| report-output-v2 | [Market Segments Rating Transparency](.specs/features/report-output-v2/market-segments-rating-transparency.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-output-v2 | [Neighborhood Intelligence Trim](.specs/features/report-output-v2/neighborhood-intelligence-trim.feature.md) | `lib/agents/insight-generator.ts, lib/pdf/templates/renderers.tsx, lib/agents/report-assembler.ts` | see spec | see spec | implemented |
+| report-output-v2 | [PDF Render Polish](.specs/features/report-output-v2/pdf-render-polish.feature.md) | `lib/pdf/styles.ts` | see spec | see spec | implemented |
 | report-output-v2 | [Remove Market Scorecard Section](.specs/features/report-output-v2/remove-market-scorecard.feature.md) | `lib/agents/report-assembler.ts, lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-output-v2 | [Remove Methodology Section](.specs/features/report-output-v2/remove-methodology.feature.md) | `lib/agents/report-assembler.ts, lib/agents/schema.ts, lib/services/report-validation.ts, components/reports/report-disclaimer.tsx, components/reports/report-preview.tsx` | see spec | see spec | implemented |
 | report-template | [Agent Branding Injection](.specs/features/report-template/agent-branding.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
@@ -103,13 +107,21 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-template | [Trending Insights + Forecasts + Methodology + Strategic Summary](.specs/features/report-template/forecasts-methodology-strategic.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-template | [Key Drivers + Second Homes + Competitive Analysis Sections](.specs/features/report-template/key-drivers-competitive.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | report-template | [PDF Export + Digital Sharing Links](.specs/features/report-template/pdf-export-sharing.feature.md) | `lib/services/report-sharing.ts` | see spec | see spec | implemented |
+| report-template | [PDF Report Formatting & Flow Rules](.specs/features/report-template/pdf-formatting-flow.feature.md) | `lib/pdf/templates/section-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | reports | [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
+| security | [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md) | `components/ui/turnstile-widget.tsx, lib/security/verify-turnstile.ts, lib/security/index.ts, app/api/auth/signup/route.ts, app/api/auth/signin/route.ts, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/sign-in/[[...sign-in]]/page.tsx` | see spec | see spec | implemented |
+| security | [Anti-Scraper Middleware](.specs/features/security/anti-scraper-middleware.feature.md) | `lib/security/anti-scraper.ts, lib/supabase/middleware.ts, lib/security/index.ts, app/api/honeypot/route.ts` | see spec | see spec | implemented |
+| security | [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md) | `lib/security/rate-limiter.ts, lib/security/index.ts, lib/supabase/middleware.ts` | `__tests__/security/rate-limiting.test.ts` | see spec | implemented |
+| security | [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md) | `app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md) | `app/api/reports/[id]/kit/generate/route.ts` | see spec | see spec | implemented |
+| social-media-kit | [Image Library](.specs/features/social-media-kit/image-library.feature.md) | `components/reports/image-library.tsx` | see spec | see spec | specced |
+| social-media-kit | [Social Media Kit Button UX](.specs/features/social-media-kit/kit-button-ux.feature.md) | `components/reports/generate-kit-button.tsx` | see spec | see spec | specced |
 | social-media-kit | [Social Media Kit Regeneration](.specs/features/social-media-kit/kit-regeneration.feature.md) | `app/api/reports/[id]/kit/regenerate/route.ts, lib/services/social-media-kit.ts, lib/agents/social-media.ts, components/reports/kit-viewer.tsx` | see spec | see spec | implemented |
-| social-media-kit | [Social Media Kit Viewer](.specs/features/social-media-kit/kit-viewer.feature.md) | `app/(protected)/reports/[id]/kit/page.tsx` | see spec | see spec | implemented |
+| social-media-kit | [Social Media Kit Viewer](.specs/features/social-media-kit/kit-viewer.feature.md) | `components/reports/kit-viewer.tsx` | see spec | see spec | implemented |
+| social-media-kit | [Platform Post Preview Mockup](.specs/features/social-media-kit/post-preview-mockup.feature.md) | `components/reports/kit-viewer.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Agent](.specs/features/social-media-kit/social-media-agent.feature.md) | `lib/agents/social-media.ts` | see spec | see spec | implemented |
 | subscription | [Account & Billing Page](.specs/features/subscription/account-billing-page.feature.md) | `app/(protected)/settings/account/page.tsx` | see spec | see spec | implemented |
 | subscription | [Admin Entitlement Overrides](.specs/features/subscription/admin-entitlement-overrides.feature.md) | `app/admin/users/[id]/overrides/page.tsx` | see spec | see spec | implemented |
@@ -147,10 +159,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 3 |
+| specced | 6 |
 | tested | 0 |
-| implemented | 116 |
-| **Total** | **121** |
+| implemented | 125 |
+| **Total** | **133** |
 
 ---
 
@@ -165,6 +177,9 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
+- [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md)
+- [Image Library](.specs/features/social-media-kit/image-library.feature.md)
+- [Social Media Kit Button UX](.specs/features/social-media-kit/kit-button-ux.feature.md)
 
 ### Tested
 
@@ -189,6 +204,7 @@ _None_
 - [Geographic Analytics](.specs/features/admin/geographic-analytics.feature.md)
 - [Pipeline Performance Metrics](.specs/features/admin/pipeline-performance.feature.md)
 - [Pipeline Re-trigger](.specs/features/admin/pipeline-re-trigger.feature.md)
+- [Pipeline Test Suite](.specs/features/admin/pipeline-test-suite.feature.md)
 - [Report Error Tracking Schema](.specs/features/admin/report-error-tracking-schema.feature.md)
 - [Report Eval Dashboard](.specs/features/admin/report-eval-dashboard.feature.md)
 - [Report Eval Runner](.specs/features/admin/report-eval-runner.feature.md)
@@ -230,6 +246,7 @@ _None_
 - [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md)
 - [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md)
 - [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md)
+- [Snapshot from Report](.specs/features/pipeline/snapshot-from-report.feature.md)
 - [Advisor Data Model](.specs/features/report-advisor/advisor-data-model.feature.md)
 - [Pipeline Status Dashboard](.specs/features/report-builder/pipeline-status-dashboard.feature.md)
 - [Report Preview](.specs/features/report-builder/report-preview.feature.md)
@@ -243,7 +260,9 @@ _None_
 - [Luxury Market Dashboard Restructuring](.specs/features/report-output-v2/luxury-market-dashboard.feature.md)
 - [Market Insights Index Redesign](.specs/features/report-output-v2/market-insights-index-redesign.feature.md)
 - [Market Intelligence Summary](.specs/features/report-output-v2/market-intelligence-summary.feature.md)
+- [Market Segments Rating Transparency](.specs/features/report-output-v2/market-segments-rating-transparency.feature.md)
 - [Neighborhood Intelligence Trim](.specs/features/report-output-v2/neighborhood-intelligence-trim.feature.md)
+- [PDF Render Polish](.specs/features/report-output-v2/pdf-render-polish.feature.md)
 - [Remove Market Scorecard Section](.specs/features/report-output-v2/remove-market-scorecard.feature.md)
 - [Remove Methodology Section](.specs/features/report-output-v2/remove-methodology.feature.md)
 - [Agent Branding Injection](.specs/features/report-template/agent-branding.feature.md)
@@ -252,13 +271,18 @@ _None_
 - [Trending Insights + Forecasts + Methodology + Strategic Summary](.specs/features/report-template/forecasts-methodology-strategic.feature.md)
 - [Key Drivers + Second Homes + Competitive Analysis Sections](.specs/features/report-template/key-drivers-competitive.feature.md)
 - [PDF Export + Digital Sharing Links](.specs/features/report-template/pdf-export-sharing.feature.md)
+- [PDF Report Formatting & Flow Rules](.specs/features/report-template/pdf-formatting-flow.feature.md)
 - [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md)
 - [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md)
 - [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md)
+- [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md)
+- [Anti-Scraper Middleware](.specs/features/security/anti-scraper-middleware.feature.md)
+- [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md)
 - [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md)
 - [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md)
 - [Social Media Kit Regeneration](.specs/features/social-media-kit/kit-regeneration.feature.md)
 - [Social Media Kit Viewer](.specs/features/social-media-kit/kit-viewer.feature.md)
+- [Platform Post Preview Mockup](.specs/features/social-media-kit/post-preview-mockup.feature.md)
 - [Social Media Agent](.specs/features/social-media-kit/social-media-agent.feature.md)
 - [Account & Billing Page](.specs/features/subscription/account-billing-page.feature.md)
 - [Admin Entitlement Overrides](.specs/features/subscription/admin-entitlement-overrides.feature.md)
@@ -320,6 +344,7 @@ See `.specs/design-system/tokens.md` for token reference.
 | toggle-card | stub | [doc](.specs/design-system/components/toggle-card.md) |
 | tooltip | documented | [doc](.specs/design-system/components/tooltip.md) |
 | trend-indicator | stub | [doc](.specs/design-system/components/trend-indicator.md) |
+| turnstile-widget | documented | [doc](.specs/design-system/components/turnstile-widget.md) |
 
 ---
 

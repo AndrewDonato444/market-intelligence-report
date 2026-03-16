@@ -1,10 +1,10 @@
 "use client";
 
 import { PasswordInput } from "@/components/ui/password-input";
-import { createClient } from "@/lib/supabase/client";
+import { TurnstileWidget } from "@/components/ui/turnstile-widget";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 /* ── Sizzle content — pulled from landing page for consistency ── */
 
@@ -181,42 +181,67 @@ export default function SignUpPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [tosAccepted, setTosAccepted] = useState(false);
+  const [tosError, setTosError] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [confirmationSent, setConfirmationSent] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileError, setTurnstileError] = useState(false);
+
+  const handleTurnstileSuccess = useCallback((token: string) => {
+    setTurnstileToken(token);
+    setTurnstileError(false);
+  }, []);
+
+  const handleTurnstileError = useCallback(() => {
+    setTurnstileToken(null);
+    setTurnstileError(true);
+  }, []);
 
   async function handleSignUp(e: React.FormEvent) {
     e.preventDefault();
+    setTosError("");
+
+    if (!tosAccepted) {
+      setTosError("Please accept the Terms of Service to continue");
+      return;
+    }
+
     setLoading(true);
     setError("");
 
-    const supabase = createClient();
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
-      },
-    });
+    try {
+      const res = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          password,
+          turnstileToken,
+          tosAcceptedAt: new Date().toISOString(),
+        }),
+      });
 
-    if (error) {
-      setError(error.message);
+      const data = await res.json();
+
+      if (!res.ok) {
+        setError(data.error || "Signup failed");
+        setLoading(false);
+        return;
+      }
+
+      if (data.needsConfirmation) {
+        setConfirmationSent(true);
+        setLoading(false);
+        return;
+      }
+
+      router.push("/dashboard");
+    } catch {
+      setError("An unexpected error occurred. Please try again.");
       setLoading(false);
-      return;
     }
-
-    const needsConfirmation =
-      data.user &&
-      data.user.identities &&
-      data.user.identities.length === 0;
-
-    if (needsConfirmation || (data.user && !data.session)) {
-      setConfirmationSent(true);
-      setLoading(false);
-      return;
-    }
-
-    router.push("/dashboard");
   }
 
   if (confirmationSent) {
@@ -296,10 +321,54 @@ export default function SignUpPage() {
               </p>
             </div>
 
+            {/* ToS Checkbox */}
+            <div className="flex items-start gap-[var(--spacing-2)]">
+              <input
+                id="tos"
+                type="checkbox"
+                checked={tosAccepted}
+                onChange={(e) => {
+                  setTosAccepted(e.target.checked);
+                  if (e.target.checked) setTosError("");
+                }}
+                aria-label="I agree to the Terms of Service"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded-[var(--radius-sm)] border border-[var(--color-border)] accent-[var(--color-accent)] cursor-pointer"
+              />
+              <label
+                htmlFor="tos"
+                className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-secondary)] cursor-pointer"
+              >
+                I agree to the{" "}
+                <a
+                  href="/terms"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-medium transition-colors duration-[var(--duration-default)]"
+                >
+                  Terms of Service
+                </a>
+              </label>
+            </div>
+
+            {tosError && (
+              <div className="bg-red-50 border border-red-200 rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)]">
+                <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-error)]">
+                  {tosError}
+                </p>
+              </div>
+            )}
+
+            {/* Turnstile anti-bot widget (invisible in most cases) */}
+            <TurnstileWidget
+              onSuccess={handleTurnstileSuccess}
+              onError={handleTurnstileError}
+            />
+
             {/* Gold CTA — visually distinct from sign-in's navy button */}
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || turnstileError}
               className="w-full py-[var(--spacing-3)] bg-[var(--color-accent)] text-[var(--color-primary)] rounded-[var(--radius-sm)] font-[family-name:var(--font-inter)] text-sm font-semibold hover:bg-[var(--color-accent-hover)] disabled:opacity-50 transition-colors duration-[var(--duration-default)]"
             >
               {loading ? "Creating account\u2026" : "Create Account"}

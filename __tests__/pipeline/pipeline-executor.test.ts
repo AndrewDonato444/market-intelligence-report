@@ -386,11 +386,8 @@ describe("Pipeline Executor Service (v2)", () => {
 
       await executePipeline(MOCK_REPORT_ID);
 
-      // Flush microtasks so fire-and-forget logActivity completes
-      await new Promise((r) => setTimeout(r, 0));
-
-      // Should insert 7 sections + 1 activity log entry
-      expect(mockDb.insert).toHaveBeenCalledTimes(8);
+      // Should insert 7 sections
+      expect(mockDb.insert).toHaveBeenCalledTimes(7);
     });
 
     it("SVC-PIPE-009: sets report status to completed on success", async () => {

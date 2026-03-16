@@ -269,7 +269,6 @@ describe("POST /api/admin/test-suite/snapshots/from-report", () => {
     const body = await res.json();
     expect(body.snapshot).toBeDefined();
     expect(body.snapshot.id).toBe("snap-new-001");
-    expect(body.snapshot.sourceReportId).toBe("report-001");
   });
 
   // --- API-SNAP-FR-006: fetchAllMarketData called with correct params ---

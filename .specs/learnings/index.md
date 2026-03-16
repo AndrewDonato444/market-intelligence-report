@@ -19,6 +19,12 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-16 — ToS Acceptance on Signup (#Security)
+
+- **Auth metadata as compliance bridge** (`security.md`): Store `tos_accepted_at` in Supabase `user_metadata` during signUp, read it in `ensureUserProfile` when creating the DB row. This bridges the client-side acceptance with server-side persistence without a separate API call.
+- **Nullable column for backward compat** (`general.md`): New compliance columns (like `tos_accepted_at`) must be nullable — existing users get NULL, not blocked. Admin can filter by NULL to find non-accepting users for audit.
+- **Client-side form gate for legal compliance** (`security.md`): Validate ToS checkbox before calling `supabase.auth.signUp()` — prevents account creation without acceptance. Error clears when checkbox is toggled on.
+
 ### 2026-03-13 — Pipeline Test Suite (#PTS)
 
 - **Snapshot-and-replay pattern for pipeline testing** (`general.md`): Freeze Layer 0 `CompiledMarketData` as JSONB (~750KB), replay through Layers 1→2→3 without API calls. Separate test runner avoids production table pollution. Reuse production `renderReportPdf()` for pixel-identical PDF preview.

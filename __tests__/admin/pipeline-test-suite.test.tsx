@@ -111,11 +111,11 @@ jest.mock("@/lib/services/market-analytics", () => ({
 }));
 
 const mockPipelineRun = jest.fn();
-const mockCreatePipelineRunner = jest.fn(() => ({
+const mockCreatePipelineRunner = jest.fn((_agents?: unknown) => ({
   run: mockPipelineRun,
 }));
 jest.mock("@/lib/agents/orchestrator", () => ({
-  createPipelineRunner: (...args: unknown[]) => mockCreatePipelineRunner(...args),
+  createPipelineRunner: (agents: unknown[]) => mockCreatePipelineRunner(agents),
 }));
 
 const mockAssembleReport = jest.fn();
@@ -138,12 +138,18 @@ function buildMinimalCompiledData() {
       properties: [
         {
           id: "prop-1",
-          address: { address: "123 Palm Beach Rd" },
+          address: "123 Palm Beach Rd",
+          city: "Palm Beach",
+          state: "FL",
+          zip: "33480",
           price: 5_000_000,
-          squareFeet: 4000,
+          sqft: 4000,
+          bedrooms: 5,
+          bathrooms: 4,
           propertyType: "single_family",
+          yearBuilt: 2010,
           lastSaleDate: "2025-06-15",
-          lastSaleAmount: "4800000",
+          lastSalePrice: 4_800_000,
         },
       ],
       stale: false,
@@ -481,8 +487,7 @@ describe("Snapshot API", () => {
     mockDbSelectResult = snapshots;
 
     const { GET } = await import("@/app/api/admin/test-suite/snapshots/route");
-    const req = new Request("http://localhost/api/admin/test-suite/snapshots");
-    const res = await GET(req as any);
+    const res = await GET();
     const body = await res.json();
 
     expect(res.status).toBe(200);
@@ -495,8 +500,7 @@ describe("Snapshot API", () => {
     mockRequireAdmin.mockResolvedValue(null);
 
     const { GET } = await import("@/app/api/admin/test-suite/snapshots/route");
-    const req = new Request("http://localhost/api/admin/test-suite/snapshots");
-    const res = await GET(req as any);
+    const res = await GET();
 
     expect(res.status).toBe(401);
   });
@@ -648,8 +652,7 @@ describe("Test Run API", () => {
     mockDbSelectResult = runs;
 
     const { GET } = await import("@/app/api/admin/test-suite/runs/route");
-    const req = new Request("http://localhost/api/admin/test-suite/runs");
-    const res = await GET(req as any);
+    const res = await GET();
     const body = await res.json();
 
     expect(res.status).toBe(200);

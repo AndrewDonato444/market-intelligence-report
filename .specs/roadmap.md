@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 116 |
+| ✅ Completed | 122 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 30 |
+| ⬜ Pending | 29 |
 | ⏸️ Blocked | 0 |
 
 **Last updated**: 2026-03-16
@@ -52,11 +52,11 @@
 
 | # | Feature | Source | Complexity | Deps | Status |
 |---|---------|--------|------------|------|--------|
-| 240 | ToS acceptance checkbox on signup — checkbox + `tos_accepted_at` timestamp in users table, block account creation without acceptance | user-request | S | 3 | ⬜ |
-| 241 | Anti-bot protection — Cloudflare Turnstile (or reCAPTCHA) on signup, login, and public-facing forms with server-side token verification | user-request | M | 3 | ⬜ |
-| 242 | Anti-scraper middleware — user-agent filtering, request fingerprinting, honeypot routes, automatic IP blocking for suspicious patterns | user-request | M | 1 | ⬜ |
-| 243 | Rate limiting on exposed API routes — per-route rate limiter middleware (token bucket), configurable limits per endpoint, abuse response (429 + backoff headers) | user-request | M | 1, 5 | ⬜ |
-| 244 | Copyright notices on all app pages — footer component with © Modern Signal Advisory + year, visible on every page | user-request | S | 4 | ⬜ |
+| 240 | ToS acceptance checkbox on signup — checkbox + `tos_accepted_at` timestamp in users table, block account creation without acceptance | user-request | S | 3 | ✅ |
+| 241 | Anti-bot protection — Cloudflare Turnstile (or reCAPTCHA) on signup, login, and public-facing forms with server-side token verification | user-request | M | 3 | ✅ |
+| 242 | Anti-scraper middleware — user-agent filtering, request fingerprinting, honeypot routes, automatic IP blocking for suspicious patterns | user-request | M | 1 | ✅ |
+| 243 | Rate limiting on exposed API routes — per-route rate limiter middleware (token bucket), configurable limits per endpoint, abuse response (429 + backoff headers) | user-request | M | 1, 5 | ✅ |
+| 244 | Copyright notices on all app pages — footer component with © Modern Signal Advisory + year, visible on every page | user-request | S | 4 | ✅ |
 | 245 | Copyright notices on generated PDF reports — copyright line + confidentiality watermark/disclaimer on all exported PDFs | user-request | S | 57 | ⬜ |
 
 **Goal**: The platform is legally compliant (ToS), resilient against automated abuse (bots, scrapers, API hammering), and all outputs carry proper copyright attribution — ready for public-facing traffic.
@@ -363,7 +363,7 @@
 | 203 | Market Insights Index redesign — add usage context ("how to read this index"), ensure every index returns a rating (no blanks), redesign layout from rectangles to square tile structure | user-feedback | M | 50, 31 | ✅ |
 | 204 | Luxury Market Dashboard restructuring — Power Five: remove Transaction Volume. Tier Two: remove Cash Buyer, TSV, Flood Zone Exposure. Combine Tier Two + Three. Keep Investor Activity Rate with definition. Add 3-sentence narrative headline about last 100 sales | user-feedback | L | 50, 31, 32 | ✅ |
 | 205 | Neighborhood Intelligence trim — add source attribution (where narrative comes from), significantly reduce text volume, tighten narrative output from agent | user-feedback | M | 32 | ✅ |
-| 206 | Market Segments rating transparency — explain how segment ratings are calculated, show methodology inline in the section | user-feedback | S | 31 | ⬜ |
+| 206 | Market Segments rating transparency — explain how segment ratings are calculated, show methodology inline in the section | user-feedback | S | 31 | ✅ |
 | 207 | Comparative Position data definitions — define all data points clearly with inline explanations so reader understands each metric | user-feedback | S | 50 | ⬜ |
 | 208 | Strategic Benchmark reframing — adjust framing from scorecard-like to more strategic positioning language, less grading more advising | user-feedback | M | 35 | ⬜ |
 | 209 | Remove Market Scorecard section — cut entirely from report assembly and PDF rendering | user-feedback | S | 50 | ✅ |

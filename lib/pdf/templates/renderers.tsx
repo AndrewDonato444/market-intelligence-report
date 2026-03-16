@@ -6,6 +6,14 @@ import React from "react";
 import { View, Text } from "@react-pdf/renderer";
 import { styles, COLORS } from "../styles";
 
+// --- Rating Methodology ---
+
+export const RATING_METHODOLOGY_TEXT =
+  "Segment ratings reflect year-over-year median price momentum. " +
+  "A+ = greater than 10% growth · A = 5–10% growth · B+ = 0–5% growth · " +
+  "B = flat or slight decline · C+ = both price and volume declining · " +
+  "C = insufficient data (fewer than 3 transactions).";
+
 // --- Types ---
 
 interface SectionContent {
@@ -300,6 +308,10 @@ export const ExecutiveSummaryPdf: SectionRenderer = ({ section }) => {
               </Text>
             </View>
           ))}
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ ...styles.metadataLabel, marginBottom: 2 }}>How Ratings Are Calculated</Text>
+            <Text style={styles.bodySmall}>{RATING_METHODOLOGY_TEXT}</Text>
+          </View>
         </View>
       )}
       {content.timing && Object.keys(content.timing).length > 0 && (
@@ -1198,6 +1210,10 @@ export const TheNarrativePdf: SectionRenderer = ({ section }) => {
               </Text>
             </View>
           ))}
+          <View style={{ marginTop: 8 }}>
+            <Text style={{ ...styles.metadataLabel, marginBottom: 2 }}>How Ratings Are Calculated</Text>
+            <Text style={styles.bodySmall}>{RATING_METHODOLOGY_TEXT}</Text>
+          </View>
         </View>
       )}
     </View>

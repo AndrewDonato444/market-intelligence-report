@@ -136,6 +136,7 @@ export const users = pgTable("users", {
   status: userAccountStatusEnum("status").notNull().default("active"),
   suspendedAt: timestamp("suspended_at", { withTimezone: true }),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  tosAcceptedAt: timestamp("tos_accepted_at", { withTimezone: true }),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
