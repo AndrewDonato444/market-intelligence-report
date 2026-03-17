@@ -16,6 +16,7 @@ personas:
 status: specced
 created: 2026-03-17
 updated: 2026-03-17
+drift_reconciled: 2026-03-17
 ---
 
 # Email Campaign Viewer UX Polish
@@ -168,6 +169,27 @@ function humaniseLabel(raw: string): string {
 - **Taylor (Team Leader)**: Cards with breathing room are easier to scan when distributing sections to 10 agents. Humanised labels map directly to vocabulary Taylor uses in briefings.
 
 ---
+
+## Additional Implemented Behaviors (not originally specced)
+
+The following behaviors exist in the code but were not part of this UX polish spec. They are documented here for completeness and future spec coverage.
+
+### Persona Filter Pills
+The Persona-Targeted Emails section renders filter pills ("All" + one per unique persona slug) that narrow the visible email cards. This is client-side filtering with no server request.
+
+### Vocabulary Keywords Display
+Each persona email card optionally renders a "Persona Keywords" section showing the `vocabularyUsed` array as pill tags below the CTA Idea block. Only shown when `email.vocabularyUsed.length > 0`.
+
+### Section Refresh Flash State
+After a section regenerates successfully, a brief "Updated!" text appears next to the section heading for 3 seconds before disappearing. Uses `justUpdated` state keyed by `ContentType`.
+
+### Section Heading Labels (actual code values)
+- Drip sequence: "Proposed Email Sequence"
+- Newsletter: "Market Intelligence Newsletter"
+- Persona emails: "Persona-Targeted Emails"
+- Subject lines: "Subject Line Variants"
+- CTA blocks: "CTA Blocks"
+- Re-engagement: "Re-Engagement Templates"
 
 ## Learnings
 

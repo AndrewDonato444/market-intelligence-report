@@ -14,6 +14,7 @@ personas:
 status: specced
 created: 2026-03-17
 updated: 2026-03-17
+drift_reconciled: 2026-03-17
 ---
 
 # Email Campaign CSV Export
@@ -43,14 +44,15 @@ And the download triggers immediately with no server request
 Given the campaign has a drip sequence
 When the CSV is generated
 Then each drip email appears as one row:
-  | Column             | Value                              |
-  | Section            | "Drip Sequence"                    |
-  | Context            | "Day {dayOffset} · {reportSection}"|
-  | Subject / Headline | email subject line                 |
-  | Preview Text       | email preview text                 |
-  | Body               | full email body                    |
-  | CTA Idea           | email cta text                     |
+  | Column             | Value                               |
+  | Section            | "Drip Sequence"                     |
+  | Context            | "Day {dayOffset} - {reportSection}" |
+  | Subject / Headline | email subject line                  |
+  | Preview Text       | email preview text                  |
+  | Body               | full email body                     |
+  | CTA Idea           | email cta text                      |
 And rows are ordered by sequenceOrder ascending
+And the reportSection value in the Context column is the raw snake_case string (not humanised)
 
 ### Scenario: Newsletter rows in CSV
 Given the campaign has a newsletter
@@ -88,13 +90,13 @@ Then each persona email appears as one row:
 Given the campaign has subject line sets
 When the CSV is generated
 Then each variant across all sets appears as one row:
-  | Column             | Value                            |
-  | Section            | "Subject Line"                   |
-  | Context            | "{emailContext} · {style label}" |
-  | Subject / Headline | variant subject                  |
-  | Preview Text       | variant preview text             |
-  | Body               | (empty)                          |
-  | CTA Idea           | (empty)                          |
+  | Column             | Value                             |
+  | Section            | "Subject Line"                    |
+  | Context            | "{emailContext} - {style label}"  |
+  | Subject / Headline | variant subject                   |
+  | Preview Text       | variant preview text              |
+  | Body               | (empty)                           |
+  | CTA Idea           | (empty)                           |
 And style labels are human-readable: "Data-Forward", "Curiosity", "Urgency"
 
 ### Scenario: CTA block rows in CSV
@@ -131,7 +133,7 @@ And the file opens correctly in Excel and Google Sheets without broken columns
 
 ### Scenario: Export button placement and styling
 Given the user is viewing the email campaign viewer header
-Then an "Export CSV" button appears next to the "Regenerate Campaign" button
+Then an "Export CSV" button appears right-aligned in the viewer header area
 And it uses border/muted styling (secondary action, not primary)
 And clicking it does not navigate away or reload the page
 
@@ -153,16 +155,16 @@ And clicking it does not navigate away or reload the page
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ ← Back to Report                                            │
-│                                          [Export CSV]        │
-│                                          [Regenerate Campaign]│
+│                                          [Export CSV]        │  ← right-aligned, secondary style
 ├──────────────────────────────────────────────────────────────┤
-│  Email Campaign                                              │
-│  Generated Mar 17, 2026                                      │
-├──────────────────────────────────────────────────────────────┤
-│  POST-MEETING DRIP SEQUENCE (5)                    [↻ refresh]│
+│  PROPOSED EMAIL SEQUENCE (5)                       [↻]       │  ← per-section refresh
 │  ...cards...                                                 │
+│                                                              │
+│  MARKET INTELLIGENCE NEWSLETTER (1)                [↻]       │
+│  ...                                                         │
 └──────────────────────────────────────────────────────────────┘
+Note: Navigation context ("← Back to Report") is provided by the
+Content Studio page header, not the viewer itself.
 
 CSV Output (email-campaign-{reportId}.csv):
 ┌──────────────────┬──────────────────┬──────────────────┬─────────────────┬───────────────────────────┬──────────────────────────────┐
