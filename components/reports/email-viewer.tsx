@@ -235,10 +235,15 @@ function CtaIdea({ text }: { text: string }) {
   );
 }
 
-function Badge({ children, variant = "default" }: { children: React.ReactNode; variant?: "default" | "accent" }) {
-  const classes = variant === "accent"
-    ? "bg-[var(--color-accent-light)] text-[var(--color-text-secondary)]"
-    : "bg-[var(--color-muted)] text-[var(--color-text-secondary)]";
+function Badge({ children, variant = "default" }: { children: React.ReactNode; variant?: "default" | "accent" | "style" | "lavender" }) {
+  const classes =
+    variant === "accent"
+      ? "bg-[var(--color-accent-light)] text-[var(--color-text-secondary)]"
+      : variant === "style"
+      ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+      : variant === "lavender"
+      ? "bg-violet-50 text-violet-700 border border-violet-200"
+      : "bg-[var(--color-muted)] text-[var(--color-text-secondary)]";
   return (
     <span className={`font-[family-name:var(--font-sans)] text-[10px] font-medium px-2.5 py-1 rounded-full ${classes}`}>
       {children}
@@ -341,7 +346,7 @@ export function EmailCampaignViewer({
       {sortedDrip.length > 0 && (
         <section className="space-y-4">
           <SectionHeading
-            title="Post-Meeting Drip Sequence"
+            title="Proposed Email Sequence"
             count={sortedDrip.length}
             onRefresh={() => handleRefreshSection("dripSequence")}
             refreshing={refreshing.dripSequence}
@@ -354,16 +359,16 @@ export function EmailCampaignViewer({
             >
               <div className="flex items-center gap-2">
                 <Badge>Day {email.dayOffset}</Badge>
-                <span className="font-[family-name:var(--font-sans)] text-[10px] text-[var(--color-text-secondary)]">
-                  {humaniseLabel(email.reportSection)}
-                </span>
+                <Badge variant="lavender">{humaniseLabel(email.reportSection)}</Badge>
               </div>
-              <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
-                {email.subject}
-              </p>
-              <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-                {email.previewText}
-              </p>
+              <div className="space-y-1">
+                <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
+                  {email.subject}
+                </p>
+                <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+                  {email.previewText}
+                </p>
+              </div>
               <CollapsibleBody body={email.body} />
               <CtaIdea text={email.cta} />
             </Card>
@@ -462,12 +467,14 @@ export function EmailCampaignViewer({
               copyText={`Subject: ${email.subject}\n\n${email.body}\n\nCTA: ${email.cta}`}
             >
               <div><Badge variant="accent">{email.personaName}</Badge></div>
-              <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
-                {email.subject}
-              </p>
-              <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-                {email.previewText}
-              </p>
+              <div className="space-y-1">
+                <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
+                  {email.subject}
+                </p>
+                <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+                  {email.previewText}
+                </p>
+              </div>
               <CollapsibleBody body={email.body} />
               <CtaIdea text={email.cta} />
               {email.vocabularyUsed.length > 0 && (
@@ -519,8 +526,8 @@ export function EmailCampaignViewer({
               <div className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] divide-y divide-[var(--color-border)]">
                 {set.variants.map((variant, j) => (
                   <div key={j} className="flex items-start justify-between gap-3 p-3">
-                    <div className="flex-1 min-w-0 space-y-1">
-                      <Badge>{STYLE_LABELS[variant.style] ?? variant.style}</Badge>
+                    <div className="flex-1 min-w-0 space-y-2">
+                      <Badge variant="style">{STYLE_LABELS[variant.style] ?? variant.style}</Badge>
                       <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)]">
                         {variant.subject}
                       </p>
@@ -574,7 +581,7 @@ export function EmailCampaignViewer({
           />
           {content.reEngagementEmails.map((email, i) => (
             <Card key={i} copyText={`${email.hook}\n\n${email.body}\n\nCTA: ${email.cta}`}>
-              <Badge>{email.tone}</Badge>
+              <Badge variant="lavender">{email.tone}</Badge>
               <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
                 {email.hook}
               </p>
