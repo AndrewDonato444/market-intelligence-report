@@ -19,7 +19,9 @@ export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   let rateLimitResult: RateLimitResult | null = null;
 
-  if (!isExemptRoute(pathname)) {
+  const isApiRoute = pathname.startsWith("/api");
+
+  if (!isExemptRoute(pathname) && isApiRoute) {
     // Check honeypot-derived IP blocklist first (cheapest check)
     const clientIp = extractClientIp(request.headers);
     if (isBlockedIp(clientIp)) {
