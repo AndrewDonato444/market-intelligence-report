@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import type { SocialMediaKitContent, EmailCampaignContent } from "@/lib/db/schema";
@@ -203,13 +204,27 @@ function EmailTabContent({
   generatedAt: string | null;
   entitlement: { allowed: boolean; limit: number };
 }) {
-  // Completed — show viewer
-  if (status === "completed" && content) {
+  const [liveContent, setLiveContent] = useState<Record<string, unknown> | null>(content);
+  const [liveGeneratedAt, setLiveGeneratedAt] = useState<string | null>(generatedAt);
+
+  const handleCompleted = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/reports/${reportId}/email-campaign/status`);
+      if (!res.ok) return;
+      const data = await res.json();
+      setLiveContent(data.campaign?.content ?? null);
+      setLiveGeneratedAt(data.campaign?.generatedAt ?? null);
+    } catch {
+      // Non-critical — user can refresh manually
+    }
+  }, [reportId]);
+
+  // Completed — show viewer (either from server props or after live generation)
+  if ((status === "completed" || liveContent) && liveContent) {
     return (
       <EmailCampaignViewer
         reportId={reportId}
-        content={content as unknown as EmailCampaignContent}
-        generatedAt={generatedAt}
+        content={liveContent as unknown as EmailCampaignContent}
       />
     );
   }
@@ -230,6 +245,7 @@ function EmailTabContent({
         initialCampaignStatus={
           (status as "queued" | "generating" | "completed" | "failed") ?? "none"
         }
+        onCompleted={handleCompleted}
       />
     </div>
   );

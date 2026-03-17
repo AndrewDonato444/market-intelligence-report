@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import Link from "next/link";
 import type { EmailCampaignContent } from "@/lib/db/schema";
 
 type ContentType = keyof EmailCampaignContent;
@@ -12,10 +11,89 @@ const STYLE_LABELS: Record<string, string> = {
   urgency: "Urgency",
 };
 
+function humaniseLabel(raw: string): string {
+  return raw.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+// ---------------------------------------------------------------------------
+// CSV export
+// ---------------------------------------------------------------------------
+
+function csvCell(value: string): string {
+  const needsQuoting = value.includes(",") || value.includes('"') || value.includes("\n") || value.includes("\r");
+  if (needsQuoting) {
+    return '"' + value.replace(/"/g, '""') + '"';
+  }
+  return value;
+}
+
+function csvRow(cells: string[]): string {
+  return cells.map(csvCell).join(",");
+}
+
+function buildCsv(content: EmailCampaignContent): string {
+  const header = csvRow(["Section", "Context", "Subject / Headline", "Preview Text", "Body", "CTA Idea"]);
+  const rows: string[] = [header];
+
+  // Drip sequence — ordered by sequenceOrder
+  const sorted = [...content.dripSequence].sort((a, b) => a.sequenceOrder - b.sequenceOrder);
+  for (const e of sorted) {
+    rows.push(csvRow(["Drip Sequence", `Day ${e.dayOffset} - ${e.reportSection}`, e.subject, e.previewText, e.body, e.cta]));
+  }
+
+  // Newsletter header row + one row per content block
+  if (content.newsletter) {
+    const nl = content.newsletter;
+    rows.push(csvRow(["Newsletter", "Header", nl.headline, nl.subheadline, "", nl.footerCta]));
+    for (const block of nl.contentBlocks) {
+      rows.push(csvRow(["Newsletter Block", block.heading, block.heading, block.keyMetric, block.body, ""]));
+    }
+  }
+
+  // Persona emails
+  for (const e of content.personaEmails) {
+    rows.push(csvRow(["Persona Email", e.personaName, e.subject, e.previewText, e.body, e.cta]));
+  }
+
+  // Subject line variants
+  for (const set of content.subjectLines) {
+    for (const v of set.variants) {
+      const label = STYLE_LABELS[v.style] ?? v.style;
+      rows.push(csvRow(["Subject Line", `${set.emailContext} - ${label}`, v.subject, v.previewText, "", ""]));
+    }
+  }
+
+  // CTA blocks
+  for (const cta of content.ctaBlocks) {
+    rows.push(csvRow(["CTA Block", cta.placement, cta.buttonText, cta.supportingCopy, cta.context, ""]));
+  }
+
+  // Re-engagement emails
+  for (const e of content.reEngagementEmails) {
+    rows.push(csvRow(["Re-Engagement", e.tone, e.hook, "", e.body, e.cta]));
+  }
+
+  // UTF-8 BOM so Excel opens correctly
+  return "\uFEFF" + rows.join("\r\n");
+}
+
+function downloadCsv(csv: string, filename: string) {
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
+
 interface EmailCampaignViewerProps {
   reportId: string;
   content: EmailCampaignContent;
-  generatedAt: string | null;
 }
 
 function CopyButton({ text }: { text: string }) {
@@ -114,8 +192,8 @@ function Card({
   copyText: string;
 }) {
   return (
-    <div className="flex items-start justify-between gap-3 p-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
-      <div className="flex-1 min-w-0 space-y-1.5">{children}</div>
+    <div className="flex items-start justify-between gap-3 p-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div className="flex-1 min-w-0 space-y-2">{children}</div>
       <CopyButton text={copyText} />
     </div>
   );
@@ -125,18 +203,34 @@ function CollapsibleBody({ body }: { body: string }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <div>
+    <div className="border-t border-[var(--color-border)] pt-2 mt-1">
       <button
         onClick={() => setExpanded(!expanded)}
-        className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+        className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors"
       >
-        {expanded ? "▼ Hide Full Email" : "▶ View Full Email"}
+        {expanded ? "Hide email body ↑" : "Show email body ↓"}
       </button>
       {expanded && (
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mt-1.5 whitespace-pre-line">
+        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mt-2 whitespace-pre-line">
           {body}
         </p>
       )}
+    </div>
+  );
+}
+
+function CtaIdea({ text }: { text: string }) {
+  return (
+    <div className="p-2 rounded-[var(--radius-sm)] bg-[var(--color-muted)] border border-[var(--color-border)] space-y-1">
+      <div className="flex items-center justify-between">
+        <span className="font-[family-name:var(--font-sans)] text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+          CTA Idea
+        </span>
+        <CopyButton text={text} />
+      </div>
+      <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)]">
+        {text}
+      </p>
     </div>
   );
 }
@@ -146,7 +240,7 @@ function Badge({ children, variant = "default" }: { children: React.ReactNode; v
     ? "bg-[var(--color-accent-light)] text-[var(--color-text-secondary)]"
     : "bg-[var(--color-muted)] text-[var(--color-text-secondary)]";
   return (
-    <span className={`font-[family-name:var(--font-sans)] text-[10px] font-medium px-1.5 py-0.5 rounded-full ${classes}`}>
+    <span className={`font-[family-name:var(--font-sans)] text-[10px] font-medium px-2.5 py-1 rounded-full ${classes}`}>
       {children}
     </span>
   );
@@ -155,14 +249,11 @@ function Badge({ children, variant = "default" }: { children: React.ReactNode; v
 export function EmailCampaignViewer({
   reportId,
   content: initialContent,
-  generatedAt,
 }: EmailCampaignViewerProps) {
   const [personaFilter, setPersonaFilter] = useState<string>("All");
-  const [regenerating, setRegenerating] = useState(false);
   const [content, setContent] = useState<EmailCampaignContent>(initialContent);
   const [refreshing, setRefreshing] = useState<Record<string, boolean>>({});
   const [justUpdated, setJustUpdated] = useState<Record<string, boolean>>({});
-  const [showConfirm, setShowConfirm] = useState(false);
 
   // Extract unique personas
   const personas = new Map<string, string>();
@@ -221,31 +312,10 @@ export function EmailCampaignViewer({
     [reportId]
   );
 
-  async function handleRegenerate() {
-    setRegenerating(true);
-    setShowConfirm(false);
-    try {
-      const res = await fetch(
-        `/api/reports/${reportId}/email-campaign/generate`,
-        { method: "POST" }
-      );
-      if (res.ok) {
-        window.location.href = `/reports/${reportId}`;
-      }
-    } catch {
-      // Ignore — user can retry
-    } finally {
-      setRegenerating(false);
-    }
+  function handleExportCsv() {
+    const filename = "email-campaign-" + reportId + ".csv";
+    downloadCsv(buildCsv(content), filename);
   }
-
-  const formattedDate = generatedAt
-    ? new Date(generatedAt).toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      })
-    : null;
 
   function getNewsletterCopyText() {
     const nl = content.newsletter;
@@ -258,60 +328,18 @@ export function EmailCampaignViewer({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <Link
-          href={`/reports/${reportId}`}
-          className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+      <div className="flex items-center justify-end">
+        <button
+          onClick={handleExportCsv}
+          className="font-[family-name:var(--font-sans)] text-xs px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] hover:bg-[var(--color-muted)] transition-colors"
         >
-          &larr; Back to Report
-        </Link>
-        <div className="relative">
-          <button
-            onClick={() => setShowConfirm(true)}
-            disabled={regenerating}
-            className="font-[family-name:var(--font-sans)] text-xs px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] hover:bg-[var(--color-muted)] disabled:opacity-50 transition-colors"
-          >
-            {regenerating ? "Regenerating..." : "Regenerate Campaign"}
-          </button>
-          {showConfirm && (
-            <div className="absolute right-0 top-full mt-1 p-3 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-lg z-10 w-72">
-              <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mb-2">
-                This will replace your current email campaign. Continue?
-              </p>
-              <div className="flex gap-2 justify-end">
-                <button
-                  onClick={() => setShowConfirm(false)}
-                  className="font-[family-name:var(--font-sans)] text-xs px-2 py-1 rounded-[var(--radius-sm)] border border-[var(--color-border)] hover:bg-[var(--color-muted)] transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleRegenerate}
-                  className="font-[family-name:var(--font-sans)] text-xs px-2 py-1 rounded-[var(--radius-sm)] bg-[var(--color-accent)] text-[var(--color-primary)] hover:bg-[var(--color-accent-hover)] transition-colors"
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Title */}
-      <div>
-        <h1 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-text)]">
-          Email Campaign
-        </h1>
-        {formattedDate && (
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-0.5">
-            Generated {formattedDate}
-          </p>
-        )}
+          Export CSV
+        </button>
       </div>
 
       {/* Drip Sequence */}
       {sortedDrip.length > 0 && (
-        <section className="space-y-3">
+        <section className="space-y-4">
           <SectionHeading
             title="Post-Meeting Drip Sequence"
             count={sortedDrip.length}
@@ -327,7 +355,7 @@ export function EmailCampaignViewer({
               <div className="flex items-center gap-2">
                 <Badge>Day {email.dayOffset}</Badge>
                 <span className="font-[family-name:var(--font-sans)] text-[10px] text-[var(--color-text-secondary)]">
-                  {email.reportSection}
+                  {humaniseLabel(email.reportSection)}
                 </span>
               </div>
               <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
@@ -337,9 +365,7 @@ export function EmailCampaignViewer({
                 {email.previewText}
               </p>
               <CollapsibleBody body={email.body} />
-              <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-accent)]">
-                {email.cta} &rarr;
-              </p>
+              <CtaIdea text={email.cta} />
             </Card>
           ))}
         </section>
@@ -375,7 +401,7 @@ export function EmailCampaignViewer({
                     <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
                       {block.heading}
                     </p>
-                    <p className="font-[family-name:var(--font-sans)] text-2xl font-light text-[var(--color-accent)]">
+                    <p className="font-[family-name:var(--font-sans)] text-sm font-bold text-[var(--color-text)]">
                       {block.keyMetric}
                     </p>
                   </div>
@@ -387,9 +413,7 @@ export function EmailCampaignViewer({
               </div>
             ))}
             <div className="pt-2 border-t border-[var(--color-border)]">
-              <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-accent)]">
-                {content.newsletter.footerCta}
-              </p>
+              <CtaIdea text={content.newsletter.footerCta} />
             </div>
           </div>
         </section>
@@ -437,7 +461,7 @@ export function EmailCampaignViewer({
               key={i}
               copyText={`Subject: ${email.subject}\n\n${email.body}\n\nCTA: ${email.cta}`}
             >
-              <Badge variant="accent">{email.personaName}</Badge>
+              <div><Badge variant="accent">{email.personaName}</Badge></div>
               <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
                 {email.subject}
               </p>
@@ -445,19 +469,24 @@ export function EmailCampaignViewer({
                 {email.previewText}
               </p>
               <CollapsibleBody body={email.body} />
-              <p className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-accent)]">
-                {email.cta} &rarr;
-              </p>
-              <div className="flex gap-1 flex-wrap">
-                {email.vocabularyUsed.map((word) => (
-                  <span
-                    key={word}
-                    className="font-[family-name:var(--font-sans)] text-[10px] px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--color-muted)] text-[var(--color-text-secondary)]"
-                  >
-                    {word}
+              <CtaIdea text={email.cta} />
+              {email.vocabularyUsed.length > 0 && (
+                <div className="border-t border-[var(--color-border)] pt-2 space-y-1.5">
+                  <span className="font-[family-name:var(--font-sans)] text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                    Persona Keywords
                   </span>
-                ))}
-              </div>
+                  <div className="flex gap-1 flex-wrap">
+                    {email.vocabularyUsed.map((word) => (
+                      <span
+                        key={word}
+                        className="font-[family-name:var(--font-sans)] text-[10px] px-2 py-0.5 rounded-full bg-[var(--color-muted)] text-[var(--color-text-secondary)]"
+                      >
+                        {word}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </Card>
           ))
         ) : (
@@ -521,9 +550,7 @@ export function EmailCampaignViewer({
           {content.ctaBlocks.map((cta, i) => (
             <Card key={i} copyText={`${cta.buttonText}\n\n${cta.supportingCopy}`}>
               <Badge variant="accent">{cta.placement}</Badge>
-              <div className="inline-block px-4 py-2 rounded-[var(--radius-sm)] bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] text-sm font-semibold">
-                {cta.buttonText}
-              </div>
+              <CtaIdea text={cta.buttonText} />
               <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
                 {cta.supportingCopy}
               </p>
@@ -552,9 +579,7 @@ export function EmailCampaignViewer({
                 {email.hook}
               </p>
               <CollapsibleBody body={email.body} />
-              <p className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-accent)]">
-                {email.cta}
-              </p>
+              <CtaIdea text={email.cta} />
             </Card>
           ))}
         </section>
