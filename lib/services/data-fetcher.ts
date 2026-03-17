@@ -85,6 +85,11 @@ export interface CompiledMarketData {
     staleDataSources: string[];
     errors: FetchError[];
   };
+  /** Rolling 12-month period bounds used for current/prior searches */
+  analysisPeriod: {
+    current: { min: string; max: string };
+    prior: { min: string; max: string };
+  };
 }
 
 export interface PeerMarketData {
@@ -312,6 +317,7 @@ export async function fetchAllMarketData(
       staleDataSources: [...new Set(staleDataSources)],
       errors,
     },
+    analysisPeriod: periods,
   };
 }
 
@@ -639,10 +645,19 @@ export function computePeriodBounds(now = new Date()): {
   const fmt = (d: Date) => d.toISOString().split("T")[0];
 
   const currentMax = fmt(now);
-  const currentMin = fmt(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() + 1));
 
-  const priorMax = fmt(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()));
-  const priorMin = fmt(new Date(now.getFullYear() - 2, now.getMonth(), now.getDate() + 1));
+  // Current period starts 1 year ago + 1 day. Use ms arithmetic to avoid month-overflow bugs.
+  const oneYearAgo = new Date(now.getTime());
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  const currentMinDate = new Date(oneYearAgo.getTime() + 86_400_000); // +1 day
+  const currentMin = fmt(currentMinDate);
+
+  const priorMax = fmt(oneYearAgo);
+
+  const twoYearsAgo = new Date(now.getTime());
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+  const priorMinDate = new Date(twoYearsAgo.getTime() + 86_400_000); // +1 day
+  const priorMin = fmt(priorMinDate);
 
   return {
     current: { min: currentMin, max: currentMax },

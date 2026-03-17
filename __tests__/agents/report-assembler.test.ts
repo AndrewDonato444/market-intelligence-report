@@ -86,6 +86,10 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       freeClearPercentage: 0.3,
     },
     dataAsOfDate: null,
+    analysisPeriod: {
+      current: { min: "2025-03-18", max: "2026-03-17", count: 0 },
+      prior: { min: "2024-03-18", max: "2025-03-17", count: 0 },
+    },
     ...overrides,
   };
 }

@@ -103,7 +103,8 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/auth/callback") ||
     request.nextUrl.pathname.startsWith("/auth/verified") ||
     request.nextUrl.pathname.startsWith("/api/webhooks") ||
-    request.nextUrl.pathname.startsWith("/api/health");
+    request.nextUrl.pathname.startsWith("/api/health") ||
+    request.nextUrl.pathname.startsWith("/api/auth");
 
   // Status pages are accessible without status check (to show the message)
   const isStatusPage =

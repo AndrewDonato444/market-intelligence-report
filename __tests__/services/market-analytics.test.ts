@@ -121,8 +121,13 @@ function makeCompiledData(
       staleDataSources: [],
       errors: [],
     },
+    // All 4 test properties fall within the current period (2024-03-18 to 2026-03-17)
+    analysisPeriod: {
+      current: { min: "2025-03-18", max: "2026-03-17" },
+      prior: { min: "2024-03-18", max: "2025-03-17" },
+    },
     ...overrides,
-  };
+  } as CompiledMarketData;
 }
 
 const testMarket: MarketData = {
