@@ -12,31 +12,40 @@ personas:
   - rising-star-agent
   - legacy-agent
   - team-leader
-status: implemented
+status: specced
 created: 2026-03-10
-updated: 2026-03-11
+updated: 2026-03-17
 ---
 
-# Step 1: Your Market
+# Step 1: Your Market (Redesign)
 
 **Source File**: `components/reports/steps/step-your-market.tsx`
 **Design System**: `.specs/design-system/tokens.md`
 **Personas**: `.specs/personas/rising-star-agent.md`, `.specs/personas/legacy-agent.md`, `.specs/personas/team-leader.md`
-**Parent Feature**: Unified Creation Flow Shell (#151)
+**Parent Feature**: Unified Creation Flow Shell
 
-## Feature: Your Market — Geography Selection
+## Feature: Your Market — Geography Selection (Redesigned)
 
-Step 1 of the unified report creation flow. The agent selects the geographic market for their intelligence report. This replaces the old market wizard's geography step with a premium experience: smart autocomplete, contextual guidance, and an animated market preview that gives immediate feedback as the agent types.
+Redesign of Step 1 in the unified report creation flow. This revision removes dead fields (county, region) that were never sent to any API, and promotes "Report Name" — the most user-facing field — out of a hidden collapsible into a prominent, always-visible position.
 
-**Who it's for**: All agent personas — from Alex (rising star, wants quick setup with confidence) to Pat (legacy agent, wants clarity and guidance) to Taylor (team leader, wants efficient templated setup).
+**What changed from v1:**
+- **Removed**: County field, Region field, "Refine your area" collapsible toggle, `showRefine` state
+- **Promoted**: Report Name moved from below the collapsible to directly after city/state, with a new label and helper text that emphasizes its importance
+- **Simplified**: MarketPreviewCard no longer accepts county/region props
+- **Simplified**: StepMarketData no longer includes county/region fields
+
+**Why**: County and region were stored in the database but never passed to RealEstateAPI, ScrapingDog, or any external service. They added visual clutter and decision friction with zero value. Report Name, conversely, is used by every Claude agent as the report title and appears prominently in the final output — yet it was buried under a toggle most users never opened.
+
+**Who it's for**: All agent personas — Alex (rising star, wants quick setup) benefits from fewer fields. Pat (legacy, wants clarity) benefits from removing confusing optional fields. Taylor (team leader, wants efficiency) benefits from a streamlined form.
 
 ### Scenario: Agent sees the Your Market step
 Given the agent is on step 1 of the creation flow
 Then they see the heading "Where do you operate?"
-And they see helper text "We'll use this to find luxury transactions in your area"
+And they see helper text "We'll use this to find luxury transactions in your area."
 And they see a city input with placeholder "e.g., Naples"
-And they see a state selector
-And they see optional county and region fields collapsed under "Refine your area"
+And they see a state selector with placeholder "Select a state"
+And they see a report name input directly below city/state
+And they do NOT see county, region, or "Refine your area" fields
 
 ### Scenario: Agent enters a city with smart autocomplete
 Given the agent is on step 1
@@ -52,46 +61,42 @@ When the agent selects "Naples, FL"
 Then the city field is set to "Naples"
 And the state field is set to "Florida"
 And the autocomplete dropdown closes
+And the report name auto-generates as "Naples Luxury" (if not manually set)
 And the market preview card animates in
 
+### Scenario: Report name is prominent and auto-generated
+Given the agent has entered a city
+Then the report name field shows below state, labeled "Report Name"
+And the report name is auto-populated as "{City} Luxury" (e.g., "Naples Luxury")
+And helper text reads "This is the title of your intelligence report."
+And the agent can override the auto-generated name by typing
+And once manually edited, city changes no longer overwrite the name
+
 ### Scenario: Agent sees animated market preview after selecting geography
-Given the agent has selected a city and state
-Then a market preview card fades in below the inputs
-And the preview shows the market name (e.g., "Naples, Florida")
-And the preview shows a subtle map or location icon
+Given the agent has entered a city and state
+Then a market preview card fades in below the report name
+And the preview shows "{City}, {State}" (e.g., "Naples, Florida")
 And the preview animates with a slide-up + fade entrance (duration-slow)
-
-### Scenario: Agent expands optional fields to refine their area
-Given the agent has entered city and state
-When they click "Refine your area"
-Then county and region fields appear below the toggle
-Note: Tooltip for county/region guidance is not implemented in v1; fields are self-explanatory via placeholder text
-
-### Scenario: Agent provides a market name
-Given the agent has selected geography
-Then a market name field appears pre-filled with "{City} Luxury" (e.g., "Naples Luxury")
-And the agent can edit the name
-And the name is used as the display label for this market throughout the flow
+And the preview does NOT show county or region (removed)
 
 ### Scenario: Validation prevents proceeding without required fields
 Given the agent has not entered a city or state
-Then the step reports invalid via the onValidationChange(false) callback
-And the parent shell (CreationFlowShell) disables "Next" navigation
-Note: Inline error messages ("We need a city to find your market data") and warning-color field highlighting are delegated to the shell, not rendered by StepYourMarket directly
+Then the step reports invalid via onValidationChange(false)
+And the parent shell disables "Next" navigation
 
 ### Scenario: Agent can select an existing market instead
 Given the agent has previously created markets
 Then a section appears above the form: "Use an existing market"
 And each existing market is shown as a selectable card with name, city/state, and tier
-And selecting an existing market pre-fills all fields and shows the preview
+And selecting an existing market pre-fills city, state, and report name
+And the market preview card appears
 And the agent can proceed to step 2 immediately
 
-### Scenario: Existing market selection skips market creation
+### Scenario: Existing market selection highlights the card
 Given the agent selects an existing market card
-Then all geography fields are populated from that market
-And the selected card is visually highlighted (accent border + accent-light background)
-And the agent can still edit any field (which clears selectedExistingId, switching to "creating new market" mode)
-Note: A text "Using your saved market" indicator is not rendered in v1; selection state is communicated via button styling only
+Then the selected card gets accent border + accent-light background
+And all geography fields are populated from that market
+And editing any field clears the selection (switches to new market mode)
 
 ### Scenario: Agent with no existing markets sees only the creation form
 Given the agent has no previously created markets
@@ -108,12 +113,11 @@ And validation still applies (city + state required)
 ## User Journey
 
 1. Agent navigates to `/reports/create` (from dashboard or nav)
-2. **Step 1: Your Market** — selects geography (this feature)
+2. **Step 1: Your Market** — selects geography and names their report (this feature)
 3. Step 2: Your Tier — selects luxury tier and price range
-4. Step 3: Your Focus — selects segments and property types
-5. Step 4: Your Audience — selects buyer personas
-6. Step 5: Review — confirms all selections
-7. Step 6: Generate — watches the pipeline build the report
+4. Step 3: Your Audience — selects buyer personas
+5. Step 4: Review — confirms all selections, edits title if needed
+6. Step 5: Generate — watches the pipeline build the report
 
 ## UI Mockup
 
@@ -122,9 +126,9 @@ And validation still applies (city + state required)
 |   Create Your Intelligence Report                         |
 |   ------- (accent underline)                              |
 |                                                           |
-|   * --- o --- o --- o --- o --- o                          |
-|   Your   Your  Your  Your  Review Generate                |
-|   Market Tier  Focus Audience                             |
+|   * --- o --- o --- o --- o                                |
+|   Your   Your  Your  Review Generate                      |
+|   Market Tier  Audience                                   |
 |                                                           |
 | +---------------------------------------------------------+
 | |                                                         |
@@ -135,18 +139,21 @@ And validation still applies (city + state required)
 | |  your area.                                             |
 | |  (font: sans, text: sm, color: text-secondary)          |
 | |                                                         |
-| |  -- (accent line) ------------------------------------  |
+| |  -- (accent line, 32px wide) ------                     |
 | |                                                         |
 | |  +- Use an existing market -------------------------+   |
 | |  |  +- Card ------+  +- Card ------+               |   |
 | |  |  | Naples       |  | Miami Beach |               |   |
-| |  |  | FL . High Lux|  | FL . Ultra  |               |   |
+| |  |  | FL · High Lux|  | FL · Ultra  |               |   |
 | |  |  +--------------+  +-------------+               |   |
 | |  +--------------------------------------------------+   |
 | |                                                         |
 | |  -- or define a new market --                           |
+| |  (font: sans, text: xs, color: text-tertiary)           |
 | |                                                         |
 | |  City *                                                 |
+| |  (font: sans, text: xs, weight: medium, color:          |
+| |   text-secondary)                                       |
 | |  +--------------------------------------------------+   |
 | |  | Nap|                                              |   |
 | |  |--------------------------------------------------|   |
@@ -160,20 +167,17 @@ And validation still applies (city + state required)
 | |  | Florida                                     v    |   |
 | |  +--------------------------------------------------+   |
 | |                                                         |
-| |  > Refine your area (county, region)                    |
-| |    (font: sans, text: sm, color: accent, cursor: ptr)   |
-| |                                                         |
-| |  Market Name                                            |
+| |  Report Name                                            |
 | |  +--------------------------------------------------+   |
 | |  | Naples Luxury                                    |   |
 | |  +--------------------------------------------------+   |
+| |  This is the title of your intelligence report.         |
 | |  (font: sans, text: xs, color: text-tertiary)           |
-| |  This appears as the title in your report               |
 | |                                                         |
 | |  +- Market Preview (animated fade-in) --------------+   |
-| |  |  Naples, Florida                                  |   |
-| |  |  Collier County . Southwest Florida               |   |
-| |  |  (bg: primary-light, radius: md, shadow: sm)      |   |
+| |  |  (pin icon) Naples, Florida                      |   |
+| |  |  (bg: accent-light, border: accent/20,           |   |
+| |  |   radius: md, shadow: sm)                         |   |
 | |  +--------------------------------------------------+   |
 | |                                                         |
 | +---------------------------------------------------------+
@@ -181,27 +185,6 @@ And validation still applies (city + state required)
 |                                              [Next ->]    |
 |                                   (bg: accent, radius: sm) |
 +-----------------------------------------------------------+
-
-Expanded "Refine your area":
-| |  v Refine your area                                     |
-| |                                                         |
-| |  County                              [?] tooltip        |
-| |  +--------------------------------------------------+   |
-| |  | Collier County                                   |   |
-| |  +--------------------------------------------------+   |
-| |                                                         |
-| |  Region                              [?] tooltip        |
-| |  +--------------------------------------------------+   |
-| |  | Southwest Florida                                |   |
-| |  +--------------------------------------------------+   |
-
-Validation state:
-| |  City *                                                 |
-| |  +--------------------------------------------------+   |
-| |  |                                                  |   |
-| |  +--------------------------------------------------+   |
-| |  We need a city to find your market data                |
-| |  (font: sans, text: xs, color: warning)                 |
 ```
 
 ## Technical Notes
@@ -210,81 +193,85 @@ Validation state:
 
 - **StepYourMarket** — Main step component, rendered by CreationFlowShell when step index is 0
   - Receives `markets` prop (existing user markets) from shell
-  - Manages local form state: `{ city, state, county, region, marketName }`
-  - Emits step data upward via callback (or context) for flow-wide state
-  - Validates on "Next" click — blocks navigation if invalid
+  - Manages local form state: `{ city, state, marketName }` (no county/region)
+  - Emits step data upward via `onStepComplete` callback
+  - Reports validity via `onValidationChange`
 
-- **MarketAutocomplete** — Autocomplete input for city selection
+- **MarketAutocomplete** — Autocomplete input for city selection (unchanged)
   - Debounced input (300ms) triggers filtering after 2+ characters
-  - Static list of US cities for v1 (no API call needed — use a curated list of ~200 luxury-relevant cities)
-  - Falls back to free text if no match
-  - Keyboard navigation: ArrowUp/Down to select, Enter to confirm, Escape to dismiss
+  - Static list of US cities
+  - Keyboard navigation: ArrowUp/Down, Enter, Escape
   - Accessibility: `role="combobox"`, `aria-expanded`, `aria-activedescendant`
 
-- **MarketPreviewCard** — Animated preview of selected geography
-  - Framer Motion: `initial={{ opacity: 0, y: 10 }}` -> `animate={{ opacity: 1, y: 0 }}`
-  - Shows city, state, county (if provided), region (if provided)
-  - Uses `color-primary-light` background, `radius-md`, `shadow-sm`
+- **MarketPreviewCard** — Animated preview of selected geography (simplified)
+  - Framer Motion: `initial={{ opacity: 0, y: 10 }}` → `animate={{ opacity: 1, y: 0 }}`
+  - Shows city and state only (county/region removed)
+  - Uses `color-accent-light` background, `radius-md`, `shadow-sm`
 
-### State Flow
-
-```
-CreationFlowShell
-  +-- StepYourMarket
-        |-- existingMarkets (from props)
-        |-- formState { city, state, county, region, marketName, selectedExistingMarketId }
-        |-- MarketAutocomplete -> updates city + state
-        |-- MarketPreviewCard -> reads city + state + county + region
-        +-- onStepComplete(stepData) -> passed to shell for flow-wide state
-```
-
-### Data Contract
+### Data Contract (Updated)
 
 Step 1 produces this data for the flow:
 
 ```typescript
-interface StepMarketData {
-  // If using existing market
+export interface StepMarketData {
   existingMarketId?: string;
-  // Geography (from existing market or new input)
   city: string;
   state: string;
-  county?: string;
-  region?: string;
+  // county and region REMOVED — never used by any API
   marketName: string;
-  // Flag
   isNewMarket: boolean;
 }
 ```
+
+### What Gets Removed
+
+| Item | File | Action |
+|------|------|--------|
+| `county` state | `step-your-market.tsx` | Delete useState, remove from StepMarketData |
+| `region` state | `step-your-market.tsx` | Delete useState, remove from StepMarketData |
+| `showRefine` state | `step-your-market.tsx` | Delete useState |
+| "Refine your area" button + section | `step-your-market.tsx` | Delete JSX block (lines ~217-259) |
+| `county` prop | `market-preview-card.tsx` | Remove from interface and rendering |
+| `region` prop | `market-preview-card.tsx` | Remove from interface and rendering |
+| `hasDetail` / `detailParts` logic | `market-preview-card.tsx` | Delete (no detail parts without county/region) |
+
+### What Gets Moved
+
+| Item | From | To |
+|------|------|----|
+| Report Name field | Below "Refine your area" collapsible | Directly after State selector |
+| Report Name label | "Market Name" | "Report Name" |
+| Report Name helper text | "This appears as the title in your report." | "This is the title of your intelligence report." |
 
 ### Existing Code to Reuse
 
 - `lib/services/market-validation.ts` — validation rules (city/state required)
 - `lib/animations.ts` — `pageTransition()`, `DURATION_SLOW`, `EASING_DEFAULT`
-- `components/ui/tooltip.tsx` — Tooltip component from #150
 - Market data types from `lib/services/market.ts`
 
 ### Accessibility
 
-- City autocomplete uses WAI-ARIA combobox pattern
-- State selector is a native `<select>` or custom accessible dropdown
-- Error messages linked to inputs via `aria-describedby`
+- City autocomplete uses WAI-ARIA combobox pattern (unchanged)
+- State selector is a native `<select>` (unchanged)
 - All interactive elements keyboard-navigable
 - Focus management: autocomplete selection returns focus to input
 
 ## Component References
 
 - AnimatedContainer: `.specs/design-system/components/animated-container.md`
-- Tooltip: `.specs/design-system/components/tooltip.md`
-- MarketAutocomplete: `.specs/design-system/components/market-autocomplete.md` (stub — new)
-- MarketPreviewCard: `.specs/design-system/components/market-preview-card.md` (stub — new)
+- MarketAutocomplete: `.specs/design-system/components/market-autocomplete.md`
+- MarketPreviewCard: `.specs/design-system/components/market-preview-card.md`
 
 ## Persona Revision Notes
 
-**Rising Star (Alex)**: Medium patience — wants guidance but not hand-holding. The autocomplete and auto-filled market name reduce friction. Contextual helper text ("We'll use this to find luxury transactions") frames the step in terms of outcome, not input.
+**Rising Star (Alex)**: Medium patience — fewer fields means faster setup. Report Name is now visible without hunting, which matters because Alex uses it in client-facing materials. The streamlined form feels professional, not bureaucratic.
 
-**Legacy Agent (Pat)**: High patience, less comfortable with complex UI. The autocomplete is optional — Pat can type freely and select state manually. No forced interaction patterns. "Refine your area" is collapsed by default to reduce visual complexity.
+**Legacy Agent (Pat)**: High patience, less comfortable with complex UI. Removing the collapsible toggle eliminates a confusing interaction pattern. Pat no longer has to wonder "should I fill in county?" when it doesn't matter. Report Name being visible means Pat can customize the title for their "intelligence brief" without discovering a hidden field.
 
-**Team Leader (Taylor)**: Low-medium patience, wants efficiency. "Use an existing market" at the top lets Taylor skip the form entirely for repeat reports. Pre-filled market name saves a decision.
+**Team Leader (Taylor)**: Low-medium patience, wants efficiency. Three fewer form elements means faster market definition. "Use an existing market" still lets Taylor skip the form entirely.
 
-**Vocabulary alignment**: "Where do you operate?" uses natural language (not "Select geography"). "Market" and "area" are agent vocabulary. "Luxury transactions" connects the input to the output. Validation messages are conversational ("We need a city to find your market data"), not form-error-speak ("City is required").
+**Vocabulary alignment**: "Report Name" is clearer than "Market Name" — agents think of the output as a report, not a market definition. "This is the title of your intelligence report" connects the field directly to the artifact they're creating.
+
+## Learnings
+
+(To be filled after implementation)
