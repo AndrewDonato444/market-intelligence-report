@@ -292,21 +292,33 @@ export function EmailCampaignViewer({
         );
 
         if (res.ok) {
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-          const statusRes = await fetch(
-            `/api/reports/${reportId}/email-campaign/status`
-          );
-          if (statusRes.ok) {
+          // Poll until status is completed or failed (max 60s)
+          const deadline = Date.now() + 60_000;
+          let settled = false;
+          while (Date.now() < deadline) {
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+            const statusRes = await fetch(
+              `/api/reports/${reportId}/email-campaign/status`
+            );
+            if (!statusRes.ok) break;
             const data = await statusRes.json();
-            if (data.campaign?.content) {
-              setContent(data.campaign.content);
+            const status = data.campaign?.status;
+            if (status === "completed") {
+              if (data.campaign?.content) {
+                setContent(data.campaign.content);
+              }
+              settled = true;
+              break;
             }
+            if (status === "failed") break;
           }
 
-          setJustUpdated((prev) => ({ ...prev, [contentType]: true }));
-          setTimeout(() => {
-            setJustUpdated((prev) => ({ ...prev, [contentType]: false }));
-          }, 3000);
+          if (settled) {
+            setJustUpdated((prev) => ({ ...prev, [contentType]: true }));
+            setTimeout(() => {
+              setJustUpdated((prev) => ({ ...prev, [contentType]: false }));
+            }, 3000);
+          }
         }
       } catch {
         // Ignore — user can retry
@@ -324,6 +336,7 @@ export function EmailCampaignViewer({
 
   function getNewsletterCopyText() {
     const nl = content.newsletter;
+    if (!nl) return "";
     const blocks = nl.contentBlocks
       .map((b) => `${b.heading}\n${b.keyMetric}\n${b.body}`)
       .join("\n\n");
