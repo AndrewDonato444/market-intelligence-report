@@ -161,6 +161,10 @@ function buildMinimalCompiledData() {
     peerMarkets: [],
     neighborhood: { amenities: {} },
     news: { targetMarket: [], peerMarkets: {}, stale: false },
+    analysisPeriod: {
+      current: { min: "2025-03-18", max: "2026-03-17" },
+      prior: { min: "2024-03-18", max: "2025-03-17" },
+    },
     xSentiment: null,
     fetchMetadata: {
       totalApiCalls: 0,
@@ -192,6 +196,10 @@ function buildMinimalComputedAnalytics() {
     news: { targetMarket: [], peerMarkets: {} },
     xSentiment: null,
     confidence: { level: "low", sampleSize: 1, detailCoverage: 0 },
+    analysisPeriod: {
+      current: { min: "2025-03-18", max: "2026-03-17", count: 0 },
+      prior: { min: "2024-03-18", max: "2025-03-17", count: 0 },
+    },
   };
 }
 

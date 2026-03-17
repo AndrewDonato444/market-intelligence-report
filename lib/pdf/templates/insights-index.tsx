@@ -67,6 +67,10 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
     };
     highlights?: string[];
     narrative?: string;
+    analysisPeriod?: {
+      current: { min: string; max: string; count: number };
+      prior: { min: string; max: string; count: number };
+    };
   } | undefined;
 
   const insightsIndexSection = sections.find(
@@ -93,6 +97,20 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
   const medianPrice = headline?.medianPrice ?? 0;
   const yoyPriceChange = headline?.yoyPriceChange ?? 0;
   const hasTransactionData = totalTransactions > 0;
+
+  // Analysis period labels
+  const analysisPeriod = execContent?.analysisPeriod;
+  const formatPeriodDate = (dateStr: string) => {
+    const d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+  };
+  const periodLabel = analysisPeriod
+    ? `${formatPeriodDate(analysisPeriod.current.min)} \u2013 ${formatPeriodDate(analysisPeriod.current.max)}`
+    : null;
+  const comparisonLabel = analysisPeriod
+    ? `${formatPeriodDate(analysisPeriod.current.min)} \u2013 ${formatPeriodDate(analysisPeriod.current.max)} vs. ${formatPeriodDate(analysisPeriod.prior.min)} \u2013 ${formatPeriodDate(analysisPeriod.prior.max)}`
+    : null;
+  const priorCount = analysisPeriod?.prior.count ?? 0;
 
   // Insights index dimensions
   const dimensions: Array<{ label: string; score: number }> = [];
@@ -135,11 +153,11 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
         >
           <View style={{ flex: 1, backgroundColor: COLORS.surface, borderRadius: 4, padding: 8, borderWidth: 1, borderColor: COLORS.border, alignItems: "center" }}>
             <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{hasTransactionData ? totalTransactions.toLocaleString() : "\u2014"}</Text>
-            <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, marginTop: 2 }}>Transactions</Text>
+            <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, marginTop: 2 }}>Transactions (12 mo)</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: COLORS.surface, borderRadius: 4, padding: 8, borderWidth: 1, borderColor: COLORS.border, alignItems: "center" }}>
             <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{hasTransactionData ? formatVolume(totalVolume) : "\u2014"}</Text>
-            <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, marginTop: 2 }}>Volume</Text>
+            <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textSecondary, marginTop: 2 }}>Volume (12 mo)</Text>
           </View>
           <View style={{ flex: 1, backgroundColor: COLORS.surface, borderRadius: 4, padding: 8, borderWidth: 1, borderColor: COLORS.border, alignItems: "center" }}>
             <Text style={{ fontFamily: "Playfair Display", fontSize: 16, color: COLORS.primary }}>{hasTransactionData ? formatPrice(medianPrice) : "\u2014"}</Text>
@@ -174,10 +192,13 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
 
           {/* YoY Trend Indicators */}
           <View style={{ flex: 1, ...styles.card, padding: 10 }}>
-            <Text style={{ fontFamily: "Inter", fontSize: 9, fontWeight: 700, color: COLORS.textSecondary, textTransform: "uppercase", marginBottom: 6 }}>Year-over-Year</Text>
+            <Text style={{ fontFamily: "Inter", fontSize: 9, fontWeight: 700, color: COLORS.textSecondary, textTransform: "uppercase", marginBottom: 2 }}>Year-over-Year</Text>
+            {comparisonLabel && (
+              <Text style={{ fontFamily: "Inter", fontSize: 7, color: COLORS.textTertiary, marginBottom: 6 }}>{comparisonLabel}</Text>
+            )}
             <TrendIndicator label="Median Price" value={yoyPriceChange} />
             <TrendIndicator label="Volume" value={yoyVolumeChange} />
-            <TrendIndicator label="Transactions" value={yoyTransactionCountChange} />
+            <TrendIndicator label={`Transactions${priorCount > 0 ? ` (${totalTransactions} vs. ${priorCount})` : ""}`} value={yoyTransactionCountChange} />
           </View>
         </View>
 
@@ -220,7 +241,7 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
           </View>
         )}
 
-        {/* Generated date footer */}
+        {/* Generated date + analysis window footer */}
         <View
           style={{
             borderTopWidth: 1,
@@ -229,7 +250,9 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
           }}
         >
           <Text style={{ fontFamily: "Inter", fontSize: 8, color: COLORS.textTertiary }}>
-            {generatedDate}
+            {periodLabel
+              ? `${periodLabel}  \u00B7  ${totalTransactions} transactions analyzed  \u00B7  ${generatedDate}`
+              : generatedDate}
           </Text>
         </View>
       </View>

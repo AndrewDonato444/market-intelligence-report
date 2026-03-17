@@ -94,6 +94,12 @@ export interface ComputedAnalytics {
 
   /** Most recent transaction sale date in the dataset (ISO string) — for data freshness display */
   dataAsOfDate: string | null;
+
+  /** Rolling period bounds and per-period sample sizes for YoY transparency */
+  analysisPeriod: {
+    current: { min: string; max: string; count: number };
+    prior: { min: string; max: string; count: number };
+  };
 }
 
 export interface DimensionScore {
@@ -167,15 +173,28 @@ export function computeMarketAnalytics(
   const { properties, details } = data.targetMarket;
   const currentYear = new Date().getFullYear();
 
-  // --- Core metrics (same logic as current data-analyst) ---
-  const grouped = groupByPropertyType(properties);
+  // --- Split by rolling period bounds (not calendar year) ---
+  const periods = data.analysisPeriod;
+  const { currentPeriodProps, priorPeriodProps } = periods
+    ? splitByPeriodBounds(properties, periods)
+    : splitByYearFallback(properties, currentYear);
+
+  const currentPeriodCount = currentPeriodProps.length;
+  const priorPeriodCount = priorPeriodProps.length;
+
+  // --- Core metrics computed on current-period properties only ---
+  const grouped = groupByPropertyType(currentPeriodProps);
   const segments = computeAllSegments(grouped);
-  const { currentYearProps, priorYearProps } = splitByYear(properties, currentYear);
-  const yoy = computeYoY(currentYearProps, priorYearProps);
+
+  // Enforce minimum sample size for YoY — both periods need >= 3 transactions
+  const MIN_YOY_SAMPLE = 3;
+  const yoy = (currentPeriodCount >= MIN_YOY_SAMPLE && priorPeriodCount >= MIN_YOY_SAMPLE)
+    ? computeYoY(currentPeriodProps, priorPeriodProps)
+    : computeYoY([], []); // Returns all-null metrics
 
   // Compute per-segment YoY and assign segment-specific ratings
-  const priorGrouped = groupByPropertyType(priorYearProps);
-  const currentGrouped = groupByPropertyType(currentYearProps);
+  const priorGrouped = groupByPropertyType(priorPeriodProps);
+  const currentGrouped = groupByPropertyType(currentPeriodProps);
   for (const segment of segments) {
     const segCurrentProps = currentGrouped.get(segment.propertyType) ?? [];
     const segPriorProps = priorGrouped.get(segment.propertyType) ?? [];
@@ -184,7 +203,7 @@ export function computeMarketAnalytics(
     segment.rating = assignRating(segYoY.medianPriceChange, segYoY.volumeChange, segment.count);
   }
 
-  const marketMetrics = computeOverallMetrics(properties, yoy);
+  const marketMetrics = computeOverallMetrics(currentPeriodProps, yoy);
 
   // --- Detail-derived metrics ---
   const detailMetrics = computeDetailMetrics(details);
@@ -224,6 +243,13 @@ export function computeMarketAnalytics(
   // --- Data freshness (most recent sale date) ---
   const dataAsOfDate = computeDataAsOfDate(properties);
 
+  // --- Analysis period metadata ---
+  const defaultPeriodBounds = { min: "N/A", max: "N/A" };
+  const analysisPeriod = {
+    current: { ...(periods?.current ?? defaultPeriodBounds), count: currentPeriodCount },
+    prior: { ...(periods?.prior ?? defaultPeriodBounds), count: priorPeriodCount },
+  };
+
   return {
     market: marketMetrics,
     segments,
@@ -242,6 +268,7 @@ export function computeMarketAnalytics(
     confidence,
     detailMetrics,
     dataAsOfDate,
+    analysisPeriod,
   };
 }
 
@@ -279,14 +306,35 @@ function computeAllSegments(grouped: Map<string, PropertySummary[]>): SegmentMet
   return segments;
 }
 
-function splitByYear(properties: PropertySummary[], currentYear: number) {
+/**
+ * Split properties using the actual rolling period bounds from computePeriodBounds().
+ * This ensures YoY compares the same windows used to fetch the data.
+ */
+function splitByPeriodBounds(
+  properties: PropertySummary[],
+  periods: { current: { min: string; max: string }; prior: { min: string; max: string } }
+) {
+  const currentPeriodProps = properties.filter((p) => {
+    if (!p.lastSaleDate) return false;
+    return p.lastSaleDate >= periods.current.min && p.lastSaleDate <= periods.current.max;
+  });
+  const priorPeriodProps = properties.filter((p) => {
+    if (!p.lastSaleDate) return false;
+    return p.lastSaleDate >= periods.prior.min && p.lastSaleDate <= periods.prior.max;
+  });
+  return { currentPeriodProps, priorPeriodProps };
+}
+
+/**
+ * Legacy fallback: split by calendar year when no period bounds are available.
+ * Used only when CompiledMarketData lacks analysisPeriod (e.g. fixtures, legacy data).
+ */
+function splitByYearFallback(properties: PropertySummary[], currentYear: number) {
   const MIN_SAMPLE = 3;
 
   let recentYear = currentYear;
   let priorYear = currentYear - 1;
 
-  // If current calendar year has too few sales (e.g. early in the year),
-  // fall back to comparing the two most recent full years instead.
   const currentYearCount = properties.filter(
     (p) => p.lastSaleDate && new Date(p.lastSaleDate).getFullYear() === currentYear
   ).length;
@@ -296,15 +344,15 @@ function splitByYear(properties: PropertySummary[], currentYear: number) {
     priorYear = currentYear - 2;
   }
 
-  const currentYearProps = properties.filter((p) => {
+  const currentPeriodProps = properties.filter((p) => {
     if (!p.lastSaleDate) return false;
     return new Date(p.lastSaleDate).getFullYear() === recentYear;
   });
-  const priorYearProps = properties.filter((p) => {
+  const priorPeriodProps = properties.filter((p) => {
     if (!p.lastSaleDate) return false;
     return new Date(p.lastSaleDate).getFullYear() === priorYear;
   });
-  return { currentYearProps, priorYearProps };
+  return { currentPeriodProps, priorPeriodProps };
 }
 
 function computeOverallMetrics(
@@ -823,9 +871,9 @@ export function computeNeighborhoods(
       .map((p) => p.price! / p.sqft!);
     const psfValues = removeOutliers(rawPsf, 2.0);
 
-    // YoY for this neighborhood (uses splitByYear for same fallback logic)
-    const { currentYearProps: currentProps, priorYearProps: priorProps } =
-      splitByYear(props, currentYear);
+    // YoY for this neighborhood (uses calendar-year fallback — neighborhoods don't have period bounds)
+    const { currentPeriodProps: currentProps, priorPeriodProps: priorProps } =
+      splitByYearFallback(props, currentYear);
 
     // Bug 5 fix: enforce per-segment MIN_SAMPLE before computing YoY.
     // Without this, neighborhoods with 1 transaction in one year and 0 in the
@@ -880,7 +928,7 @@ export function computePeerComparisons(
       .filter((p) => p.price != null && p.sqft != null)
       .map((p) => p.price! / p.sqft!);
 
-    const { currentYearProps, priorYearProps } = splitByYear(peer.properties, currentYear);
+    const { currentPeriodProps: currentYearProps, priorPeriodProps: priorYearProps } = splitByYearFallback(peer.properties, currentYear);
     const peerYoY = computeYoY(currentYearProps, priorYearProps);
     const rating = assignRating(peerYoY.medianPriceChange, peerYoY.volumeChange, peer.properties.length);
 
