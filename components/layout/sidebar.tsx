@@ -5,10 +5,10 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "grid" },
-  { label: "How To", href: "/how-to", icon: "book-open" },
   { label: "Reports", href: "/reports", icon: "file-text" },
   { label: "Markets", href: "/markets", icon: "map-pin" },
   { label: "Settings", href: "/settings", icon: "settings" },
+  { label: "How To", href: "/how-to", icon: "book-open" },
 ];
 
 interface SidebarProps {
@@ -59,7 +59,7 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
 
   return (
     <aside className="w-60 bg-[var(--color-surface)] border-r border-[var(--color-border)] shrink-0 flex flex-col">
-      <nav className="flex-1 p-[var(--spacing-3)]">
+      <nav className="flex-1 flex flex-col p-[var(--spacing-3)]">
         <ul className="space-y-[var(--spacing-1)]">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -82,6 +82,27 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
             );
           })}
         </ul>
+        <div
+          className="mt-auto pt-[var(--spacing-3)]"
+        >
+          <div
+            className="rounded-[var(--radius-md)] p-[var(--spacing-3)] space-y-[var(--spacing-1)]"
+            style={{
+              backgroundColor: "var(--color-primary-light)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <span
+              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide"
+              style={{ backgroundColor: "var(--color-accent)", color: "#fff" }}
+            >
+              BETA
+            </span>
+            <p className="font-[family-name:var(--font-sans)] text-xs leading-snug" style={{ color: "var(--color-text-secondary)" }}>
+              Some things may break. We&apos;re improving fast.
+            </p>
+          </div>
+        </div>
       </nav>
       {isAdmin && (
         <div className="px-[var(--spacing-3)] pb-[var(--spacing-2)]">
