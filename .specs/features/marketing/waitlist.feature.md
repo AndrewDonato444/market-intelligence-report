@@ -10,7 +10,7 @@ components:
 personas:
   - rising-star-agent
   - established-solo
-status: stub
+status: implemented
 created: 2026-03-18
 updated: 2026-03-18
 ---

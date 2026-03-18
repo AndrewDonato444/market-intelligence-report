@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { UserListResponse } from "@/app/api/admin/users/route";
 
 type StatusFilter = "all" | "active" | "suspended" | "deleted";
@@ -34,6 +35,7 @@ function formatDate(iso: string | null): string {
 const PAGE_SIZE = 20;
 
 export function UserListDashboard() {
+  const router = useRouter();
   const [data, setData] = useState<UserListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -143,6 +145,24 @@ export function UserListDashboard() {
             Manage platform accounts
           </p>
         </div>
+        <div style={{ display: "flex", gap: "var(--spacing-3)", alignItems: "center" }}>
+        <button
+          onClick={() => router.push("/admin/users/create")}
+          style={{
+            padding: "var(--spacing-2) var(--spacing-4)",
+            background: "var(--color-primary)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "var(--radius-md)",
+            fontSize: "var(--text-sm)",
+            fontWeight: 500,
+            cursor: "pointer",
+            fontFamily: "var(--font-sans)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          + Add User
+        </button>
         <input
           type="text"
           placeholder="Search by name or email..."
@@ -159,6 +179,7 @@ export function UserListDashboard() {
             color: "var(--color-text)",
           }}
         />
+        </div>
       </div>
 
       {/* Status filter tabs */}

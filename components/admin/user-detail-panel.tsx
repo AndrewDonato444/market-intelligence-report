@@ -58,6 +58,8 @@ export function UserDetailPanel({ userId }: { userId: string }) {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [activeTab, setActiveTab] = useState<"details" | "overrides">("details");
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
+  const [showResetPasswordConfirm, setShowResetPasswordConfirm] = useState(false);
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -125,6 +127,27 @@ export function UserDetailPanel({ userId }: { userId: string }) {
       setActionLoading(false);
     }
   }, [userId, fetchDetail]);
+
+  const handlePasswordReset = useCallback(async () => {
+    setResetPasswordLoading(true);
+    setActionMessage(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/reset-password`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to send reset email");
+      }
+      const result = await res.json();
+      setActionMessage({ type: "success", text: result.message });
+      setShowResetPasswordConfirm(false);
+    } catch (err) {
+      setActionMessage({ type: "error", text: (err as Error).message });
+    } finally {
+      setResetPasswordLoading(false);
+    }
+  }, [userId]);
 
   useEffect(() => {
     fetchDetail();
@@ -320,6 +343,79 @@ export function UserDetailPanel({ userId }: { userId: string }) {
             }}
           >
             {actionMessage.text}
+          </div>
+        )}
+
+        {/* Send Password Reset */}
+        {!data.isOwnAccount && user.status !== "deleted" && (
+          <div style={{ marginTop: "var(--spacing-4)" }}>
+            {!showResetPasswordConfirm ? (
+              <button
+                onClick={() => setShowResetPasswordConfirm(true)}
+                style={{
+                  padding: "var(--spacing-2) var(--spacing-4)",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--color-primary)",
+                  background: "transparent",
+                  color: "var(--color-primary)",
+                  fontSize: "var(--text-sm)",
+                  fontWeight: "var(--font-medium)",
+                  cursor: "pointer",
+                }}
+              >
+                Send Password Reset
+              </button>
+            ) : (
+              <div
+                style={{
+                  padding: "var(--spacing-4)",
+                  background: "var(--color-surface-hover, rgba(0,0,0,0.02))",
+                  border: "1px solid var(--color-border)",
+                  borderRadius: "var(--radius-md)",
+                }}
+              >
+                <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-text)" }}>
+                  Send Password Reset
+                </p>
+                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+                  Send a password reset email to {user.email}?
+                </p>
+                <div style={{ display: "flex", gap: "var(--spacing-2)", marginTop: "var(--spacing-3)" }}>
+                  <button
+                    onClick={() => setShowResetPasswordConfirm(false)}
+                    disabled={resetPasswordLoading}
+                    style={{
+                      padding: "var(--spacing-1) var(--spacing-3)",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--color-border)",
+                      background: "var(--color-surface)",
+                      color: "var(--color-text-secondary)",
+                      fontSize: "var(--text-sm)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePasswordReset}
+                    disabled={resetPasswordLoading}
+                    style={{
+                      padding: "var(--spacing-1) var(--spacing-3)",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--color-primary)",
+                      background: "var(--color-primary)",
+                      color: "#fff",
+                      fontSize: "var(--text-sm)",
+                      fontWeight: "var(--font-medium)",
+                      cursor: resetPasswordLoading ? "not-allowed" : "pointer",
+                      opacity: resetPasswordLoading ? 0.6 : 1,
+                    }}
+                  >
+                    {resetPasswordLoading ? "Sending..." : "Send Reset Email"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
