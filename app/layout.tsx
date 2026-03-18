@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Inter, Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
@@ -44,7 +45,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${playfairDisplay.variable} ${inter.variable} ${cormorantGaramond.variable} ${dmSans.variable}`}>
-      <body>{children}</body>
+      <body>{children}<Analytics /></body>
     </html>
   );
 }
