@@ -61,6 +61,7 @@ export async function getReports(authId: string) {
         status: schema.reports.status,
         marketId: schema.reports.marketId,
         marketName: schema.markets.name,
+        marketGeography: schema.markets.geography,
         createdAt: schema.reports.createdAt,
         updatedAt: schema.reports.updatedAt,
       })

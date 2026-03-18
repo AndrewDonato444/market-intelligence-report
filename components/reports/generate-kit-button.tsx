@@ -135,9 +135,9 @@ export function GenerateKitButton({
         <Link
           href={`/reports/${reportId}/kit`}
           className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-success)] text-white whitespace-nowrap hover:opacity-90 transition-opacity"
-          title="View Social Media Kit"
+          title="Open Content Studio"
         >
-          View Kit
+          Content Studio
         </Link>
       );
     }

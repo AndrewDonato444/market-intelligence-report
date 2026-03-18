@@ -71,9 +71,11 @@ export function RecentReportsList({ reports }: RecentReportsListProps) {
                 </p>
               </div>
               <div className="flex items-center gap-[var(--spacing-3)] ml-[var(--spacing-3)]">
-                <span className={`font-[family-name:var(--font-sans)] text-xs font-medium ${statusConfig.className}`}>
-                  {statusConfig.label}
-                </span>
+                {report.status !== "completed" && (
+                  <span className={`font-[family-name:var(--font-sans)] text-xs font-medium ${statusConfig.className}`}>
+                    {statusConfig.label}
+                  </span>
+                )}
                 {report.status === "completed" && (
                   <DownloadPdfButton reportId={report.id} reportTitle={report.title} />
                 )}

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ReportEntitlementBadge } from "@/components/reports/report-entitlement-badge";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "grid" },
@@ -60,6 +61,29 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
   return (
     <aside className="w-60 bg-[var(--color-surface)] border-r border-[var(--color-border)] shrink-0 flex flex-col">
       <nav className="flex-1 flex flex-col p-[var(--spacing-3)]">
+        <div
+            className="rounded-[var(--radius-md)] p-[var(--spacing-3)] space-y-[var(--spacing-1)] mb-[var(--spacing-3)]"
+            style={{
+              backgroundColor: "var(--color-primary-light)",
+              border: "1px solid var(--color-border)",
+            }}
+          >
+            <span
+              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide"
+              style={{ backgroundColor: "var(--color-accent)", color: "#fff" }}
+            >
+              BETA
+            </span>
+            <p className="font-[family-name:var(--font-sans)] text-xs leading-snug" style={{ color: "var(--color-text-secondary)" }}>
+              Some things may break. We&apos;re improving fast.
+            </p>
+            <a
+              href="mailto:support@modernsignaladvisory.com"
+              className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-accent)] hover:underline"
+            >
+              Report an issue
+            </a>
+          </div>
         <ul className="space-y-[var(--spacing-1)]">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -83,24 +107,13 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
           })}
         </ul>
         <div
-          className="mt-auto pt-[var(--spacing-3)]"
+          className="mt-auto pt-[var(--spacing-3)] space-y-[var(--spacing-3)]"
         >
-          <div
-            className="rounded-[var(--radius-md)] p-[var(--spacing-3)] space-y-[var(--spacing-1)]"
-            style={{
-              backgroundColor: "var(--color-primary-light)",
-              border: "1px solid var(--color-border)",
-            }}
-          >
-            <span
-              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide"
-              style={{ backgroundColor: "var(--color-accent)", color: "#fff" }}
-            >
-              BETA
-            </span>
-            <p className="font-[family-name:var(--font-sans)] text-xs leading-snug" style={{ color: "var(--color-text-secondary)" }}>
-              Some things may break. We&apos;re improving fast.
+          <div className="px-[var(--spacing-1)]">
+            <p className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text-secondary)] mb-[var(--spacing-1)]">
+              Report Credits
             </p>
+            <ReportEntitlementBadge />
           </div>
         </div>
       </nav>
