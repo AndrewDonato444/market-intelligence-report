@@ -212,6 +212,105 @@ Subtle, cool-toned shadows matching the navy palette.
 | `screen-lg` | `1024px` | Desktop → wide |
 | `screen-xl` | `1280px` | Wide → ultrawide |
 
+### Marketing-Specific
+
+These tokens are used on the public marketing/landing page (`app/page.tsx`), which uses a warm luxury hospitality aesthetic distinct from the app's navy-based UI. Locked by Brian's homepage decisions doc (March 2026, v1.0).
+
+**Rationale**: The app serves signed-in power users (Bloomberg Terminal aesthetic). The marketing page serves prospects (luxury hospitality aesthetic). Same brand, different warmth — like a hotel's website vs its concierge dashboard.
+
+#### Marketing Colors
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `color-mkt-bg` | `#F7F4EF` | Page background (ivory) |
+| `color-mkt-surface` | `#FDFCFA` | Card backgrounds, input backgrounds (warm white) |
+| `color-mkt-border` | `#E8E0D4` | Borders, dividers (sand) |
+| `color-mkt-border-muted` | `#C4B9A8` | Muted borders, placeholders (stone) |
+| `color-mkt-text` | `#2C2825` | Headlines, primary text (charcoal) |
+| `color-mkt-text-secondary` | `#8A8077` | Body text, descriptions (warm gray) |
+| `color-mkt-text-muted` | `#C4B9A8` | Fine print, notes (stone) |
+| `color-mkt-text-inverse` | `#FDFCFA` | Text on dark backgrounds (warm white) |
+| `color-mkt-dark` | `#1A1714` | Dark section backgrounds (deep) |
+| `color-mkt-dark-mid` | `#2C2825` | Promise section background (charcoal) |
+| `color-mkt-darkest` | `#0F0E0C` | Footer background (ink) |
+| `color-mkt-accent` | `#B8975A` | Gold accent — CTAs, labels, stat numbers |
+| `color-mkt-accent-light` | `#D4B87A` | Gold on dark backgrounds |
+| `color-mkt-accent-muted` | `rgba(184, 151, 90, 0.15)` | Subtle gold tints |
+| `color-mkt-success` | `#4A7C59` | Waitlist confirmation state (signal green) |
+
+**Gold difference**: App uses `#CA8A04` (yellow-gold, high contrast on navy). Marketing uses `#B8975A` (antique gold, warm undertone for ivory backgrounds). Same semantic role, tuned for their respective palettes.
+
+#### Marketing Typography
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `font-display` | `'Cormorant Garamond', Georgia, serif` | Headlines, brand statement, blockquotes |
+| `font-body` | `'DM Sans', -apple-system, sans-serif` | Body text, nav links, form inputs, labels |
+
+**Why different fonts**: Cormorant Garamond has the editorial warmth of luxury hospitality (Four Seasons, Aman). DM Sans is the geometric companion — clean without Inter's tech-product connotations. The app's Playfair + Inter are better suited for data-dense interfaces.
+
+```css
+/* Google Fonts — marketing page */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap');
+```
+
+#### Marketing Animation
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `ease-mkt-out-expo` | `cubic-bezier(0.16, 1, 0.3, 1)` | Fade-in entrance animations |
+| `ease-mkt-out-quart` | `cubic-bezier(0.25, 1, 0.5, 1)` | Nav transitions, card hovers |
+| `duration-mkt-entrance` | `900ms` | Scroll-triggered fade-in |
+| `duration-mkt-hover` | `400ms` | Card hover transitions |
+
+#### Marketing Shadows
+
+| Token | Value | Usage |
+|-------|-------|-------|
+| `shadow-mkt-card-hover` | `0 8px 40px rgba(184, 151, 90, 0.08)` | Stat card hover (gold-tinted) |
+| `shadow-mkt-product-hover` | `0 16px 48px rgba(0, 0, 0, 0.06)` | Product card hover |
+
+#### Shared with App
+
+These tokens are reused from the app system without modification:
+- **Spacing**: `spacing-1` through `spacing-16` (same 4px base)
+- **Border Radius**: `radius-sm`, `radius-md`, `radius-lg`, `radius-full`
+- **Font Sizes**: `text-xs` through `text-4xl` (same scale)
+- **Font Weights**: `font-light` through `font-bold`
+- **Breakpoints**: `screen-sm` through `screen-xl`
+
+#### Marketing CSS Variables
+
+```css
+/* Marketing page scope — add to app/page.tsx or a marketing layout */
+:root {
+  /* Marketing Colors */
+  --color-mkt-bg: #F7F4EF;
+  --color-mkt-surface: #FDFCFA;
+  --color-mkt-border: #E8E0D4;
+  --color-mkt-border-muted: #C4B9A8;
+  --color-mkt-text: #2C2825;
+  --color-mkt-text-secondary: #8A8077;
+  --color-mkt-text-muted: #C4B9A8;
+  --color-mkt-text-inverse: #FDFCFA;
+  --color-mkt-dark: #1A1714;
+  --color-mkt-dark-mid: #2C2825;
+  --color-mkt-darkest: #0F0E0C;
+  --color-mkt-accent: #B8975A;
+  --color-mkt-accent-light: #D4B87A;
+  --color-mkt-accent-muted: rgba(184, 151, 90, 0.15);
+  --color-mkt-success: #4A7C59;
+
+  /* Marketing Typography */
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'DM Sans', -apple-system, sans-serif;
+
+  /* Marketing Animation */
+  --ease-mkt-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-mkt-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+```
+
 ---
 
 ## Chart & Data Visualization
@@ -240,6 +339,9 @@ Colors for market data visualizations in both the app and the report.
 | Secondary accent color | Gold is sufficient — adding more dilutes the luxury signal | If a feature requires categorical differentiation beyond charts |
 | Illustration style tokens | No illustrations in v1; photography and data viz only | If onboarding illustrations are added |
 | Motion tokens for report | PDFs are static; animations only matter in app UI | If interactive web-based report viewer is built |
+| ~~Marketing-specific tokens~~ | ~~Marketing page uses app tokens~~ | ~~When marketing page design diverges~~ |
+
+> **Note**: Marketing-specific tokens (`color-mkt-*`, `font-display`, `font-body`) were added March 2026 per Brian's locked homepage decisions. The marketing page uses a warm luxury hospitality palette while the app retains the navy-based professional palette.
 
 ---
 
