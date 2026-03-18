@@ -71,6 +71,7 @@ const testAnalytics: ComputedAnalytics = {
     floodZonePercentage: null,
     investorBuyerPercentage: null,
     freeClearPercentage: null,
+    dataSources: { dom: "none", listToSale: "none" },
   },
   dataAsOfDate: null,
   analysisPeriod: {

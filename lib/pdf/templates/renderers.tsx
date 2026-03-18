@@ -975,6 +975,7 @@ interface DashboardMetric {
   trend: string | null;
   trendValue: number | null;
   category: string;
+  footnote?: string;
 }
 
 interface LuxuryMarketDashboardContent {
@@ -994,6 +995,7 @@ const PERCENTAGE_METRICS = new Set([
 // Metrics displayed as plain counts (no $ or %)
 const COUNT_METRICS = new Set([
   "Median Days on Market",
+  "Est. Days on Market",
 ]);
 
 // Metrics displayed as $/sqft (dollar with 0 decimals + /sqft suffix)
@@ -1001,12 +1003,19 @@ const PSF_METRICS = new Set([
   "Median Price/SqFt",
 ]);
 
+// List-to-sale ratio and its fallback variant names
+const RATIO_METRICS = new Set([
+  "List-to-Sale Ratio",
+  "Sale-to-Assessed Ratio",
+  "Sale-to-Estimated Value",
+]);
+
 export function formatMetricValue(val: number | string | null, metricName?: string): string {
   if (val == null) return "N/A";
   if (typeof val === "string") return val;
 
-  // List-to-Sale Ratio: raw decimal ~1.0 means 100%
-  if (metricName === "List-to-Sale Ratio") {
+  // List-to-Sale Ratio (and fallback variants): raw decimal ~1.0 means 100%
+  if (metricName && RATIO_METRICS.has(metricName)) {
     if (val > 0.5 && val < 2) return `${(val * 100).toFixed(1)}%`;
     // Legacy pre-scaled: values 50-200 are already percentages
     if (val >= 50 && val <= 200) return `${val.toFixed(1)}%`;
@@ -1067,6 +1076,13 @@ function MetricTier({ label, metrics }: { label: string; metrics: DashboardMetri
 
 export const LuxuryMarketDashboardPdf: SectionRenderer = ({ section }) => {
   const c = section.content as LuxuryMarketDashboardContent;
+
+  // Collect footnotes from all metrics for rendering below the tables
+  const allMetrics = [...(c.dashboard.powerFour ?? []), ...(c.dashboard.supportingMetrics ?? [])];
+  const footnotes = allMetrics
+    .filter((m) => m.footnote)
+    .map((m) => `${m.name}: ${m.footnote}`);
+
   return (
     <View>
       {c.narrative && (
@@ -1080,6 +1096,11 @@ export const LuxuryMarketDashboardPdf: SectionRenderer = ({ section }) => {
         <Text style={{ fontFamily: "Inter", fontSize: 7, color: COLORS.textSecondary }}>
           * Investor Activity Rate: Percentage of transactions where the buyer is classified as an investor (non-owner-occupied purchase)
         </Text>
+        {footnotes.map((fn) => (
+          <Text key={fn} style={{ fontFamily: "Inter", fontSize: 7, color: COLORS.textSecondary, marginTop: 2 }}>
+            * {fn}
+          </Text>
+        ))}
       </View>
     </View>
   );

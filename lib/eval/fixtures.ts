@@ -37,6 +37,7 @@ const defaultDetailMetrics: DetailDerivedMetrics = {
   floodZonePercentage: 0.02,
   investorBuyerPercentage: 0.08,
   freeClearPercentage: 0.15,
+  dataSources: { dom: "mls", listToSale: "mls" },
 };
 
 function segment(
@@ -253,6 +254,7 @@ const lowDataAnalytics: ComputedAnalytics = {
     floodZonePercentage: null,
     investorBuyerPercentage: null,
     freeClearPercentage: null,
+    dataSources: { dom: "none", listToSale: "none" },
   },
   dataAsOfDate: null,
   analysisPeriod: {
@@ -476,6 +478,7 @@ const emptyAnalytics: ComputedAnalytics = {
     floodZonePercentage: null,
     investorBuyerPercentage: null,
     freeClearPercentage: null,
+    dataSources: { dom: "none", listToSale: "none" },
   },
   dataAsOfDate: null,
   analysisPeriod: {
