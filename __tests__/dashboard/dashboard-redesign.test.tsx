@@ -128,8 +128,8 @@ describe("Dashboard Redesign (#159)", () => {
     it("has DashboardEmptyState component", () => {
       expect(fs.existsSync(path.join(process.cwd(), "components/dashboard/dashboard-empty-state.tsx"))).toBe(true);
     });
-    it("has DashboardStats component", () => {
-      expect(fs.existsSync(path.join(process.cwd(), "components/dashboard/dashboard-stats.tsx"))).toBe(true);
+    it("has DashboardWelcomeHero component", () => {
+      expect(fs.existsSync(path.join(process.cwd(), "components/dashboard/dashboard-welcome-hero.tsx"))).toBe(true);
     });
     it("has MarketCard component", () => {
       expect(fs.existsSync(path.join(process.cwd(), "components/dashboard/market-card.tsx"))).toBe(true);
@@ -200,9 +200,10 @@ describe("Dashboard Redesign (#159)", () => {
     });
     it("shows market cards with market name and tier badge", () => {
       render(<DashboardContent markets={markets} reports={reports} />);
-      expect(screen.getByText("Naples, FL")).toBeInTheDocument();
+      // Cards now show geography.city, not market.name
+      expect(screen.getByText("Naples")).toBeInTheDocument();
       expect(screen.getByText("ULTRA LUXURY")).toBeInTheDocument();
-      expect(screen.getByText("Aspen, CO")).toBeInTheDocument();
+      expect(screen.getByText("Aspen")).toBeInTheDocument();
       expect(screen.getByText("HIGH LUXURY")).toBeInTheDocument();
     });
     it("shows recent reports with titles", () => {
@@ -217,21 +218,20 @@ describe("Dashboard Redesign (#159)", () => {
     });
   });
 
-  describe("CMP-159.05: MarketCard - New Report action", () => {
-    it("has a New Report link that navigates to creation flow with marketId", () => {
+  describe("CMP-159.05: MarketCard - clickable tile", () => {
+    it("entire tile links to creation flow with marketId", () => {
       render(<MarketCard market={makeMarket()} />);
-      const link = screen.getByRole("link", { name: /New Report/i });
+      const link = screen.getByRole("link");
       expect(link).toHaveAttribute("href", "/reports/create?marketId=market-1");
     });
-    it("shows market name", () => {
+    it("shows city name from geography", () => {
       render(<MarketCard market={makeMarket()} />);
-      expect(screen.getByText("Naples, FL")).toBeInTheDocument();
+      expect(screen.getByText("Naples")).toBeInTheDocument();
     });
     it("shows luxury tier badge", () => {
       render(<MarketCard market={makeMarket()} />);
       expect(screen.getByText("ULTRA LUXURY")).toBeInTheDocument();
     });
-    // Segments were removed from card display in dashboard-cleanup branch
     it("shows price floor info", () => {
       render(<MarketCard market={makeMarket({ priceFloor: 10000000 })} />);
       expect(screen.getByText(/\$10M\+/)).toBeInTheDocument();
@@ -311,7 +311,6 @@ describe("Dashboard Redesign (#159)", () => {
     });
   });
 
-  // DashboardStats tests removed — stats row no longer shown in dashboard
 
   describe("CMP-159.11: Define New Market link", () => {
     it("shows a link to define new market when markets exist", () => {

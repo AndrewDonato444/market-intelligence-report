@@ -1,9 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { AnimatedContainer, StaggerItem } from "@/components/ui/animated-container";
 import { DashboardEmptyState } from "./dashboard-empty-state";
-import { DashboardStats } from "./dashboard-stats";
+import { DashboardWelcomeHero } from "./dashboard-welcome-hero";
 import { MarketCard } from "./market-card";
 import { RecentReportsList } from "./recent-reports-list";
 
@@ -34,9 +35,10 @@ interface Report {
 interface DashboardContentProps {
   markets: Market[];
   reports: Report[];
+  firstName?: string;
 }
 
-export function DashboardContent({ markets, reports }: DashboardContentProps) {
+export function DashboardContent({ markets, reports, firstName }: DashboardContentProps) {
   const hasMarkets = markets.length > 0;
   const hasReports = reports.length > 0;
 
@@ -45,21 +47,27 @@ export function DashboardContent({ markets, reports }: DashboardContentProps) {
     return <DashboardEmptyState />;
   }
 
-  // Compute stats
-  const lastReportDate = hasReports ? reports[0].createdAt : null;
+  // Build a map of marketId → most recent report date
+  const lastReportByMarket = useMemo(() => {
+    const map = new Map<string, Date>();
+    for (const r of reports) {
+      const existing = map.get(r.marketId);
+      if (!existing || r.createdAt > existing) {
+        map.set(r.marketId, r.createdAt);
+      }
+    }
+    return map;
+  }, [reports]);
 
   return (
     <div className="space-y-[var(--spacing-8)]">
-      {/* Stats Row — only shown when reports exist */}
-      {hasReports && (
-        <AnimatedContainer variant="fade">
-          <DashboardStats
-            totalReports={reports.length}
-            lastReportDate={lastReportDate}
-            activeMarkets={markets.length}
-          />
-        </AnimatedContainer>
-      )}
+      {/* Welcome Hero — personalized greeting + CTA */}
+      <AnimatedContainer variant="fade">
+        <DashboardWelcomeHero
+          firstName={firstName}
+          hasReports={hasReports}
+        />
+      </AnimatedContainer>
 
       {/* Market Cards Section */}
       <div>
@@ -70,7 +78,7 @@ export function DashboardContent({ markets, reports }: DashboardContentProps) {
           <div data-testid="market-cards-section" className="grid gap-[var(--spacing-4)] md:grid-cols-2">
             {markets.map((market) => (
               <StaggerItem key={market.id} variant="slide" direction="up">
-                <MarketCard market={market} />
+                <MarketCard market={market} lastReportDate={lastReportByMarket.get(market.id)} />
               </StaggerItem>
             ))}
           </div>
