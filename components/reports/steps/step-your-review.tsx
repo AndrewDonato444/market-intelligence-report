@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { fadeVariant, staggerContainer } from "@/lib/animations";
 import type { StepMarketData } from "./step-your-market";
 import type { StepTierData } from "./step-your-tier";
-import type { StepFocusData } from "./step-your-focus";
 import type { StepAudienceData } from "./step-your-audience";
 
 // ---------------------------------------------------------------------------
@@ -20,7 +19,6 @@ export interface StepReviewData {
 interface StepYourReviewProps {
   marketData: StepMarketData | null;
   tierData: StepTierData | null;
-  focusData: StepFocusData | null;
   audienceData: StepAudienceData | null;
   onStepComplete: (data: StepReviewData) => void;
   onValidationChange?: (valid: boolean) => void;
@@ -35,42 +33,6 @@ const TIER_LABELS: Record<string, string> = {
   luxury: "Luxury",
   high_luxury: "High Luxury",
   ultra_luxury: "Ultra Luxury",
-};
-
-const SEGMENT_LABELS: Record<string, string> = {
-  "high-rise": "High-Rise",
-  penthouse: "Penthouse",
-  townhouse: "Townhouse",
-  "arts district": "Arts & Culture District",
-  "trophy home": "Trophy Home",
-  waterfront: "Waterfront",
-  beachfront: "Beachfront",
-  lakefront: "Lakefront",
-  marina: "Private Dock / Marina",
-  island: "Island",
-  "golf course": "Golf Course",
-  "gated community": "Gated Community",
-  "ski-in/ski-out": "Ski-In/Ski-Out",
-  "mountain view": "Mountain View",
-  equestrian: "Equestrian",
-  "country estate": "Country Estate",
-  "historic district": "Historic District",
-  "new development": "New Development",
-  vineyard: "Vineyard",
-  desert: "Desert",
-};
-
-const PROPERTY_TYPE_LABELS: Record<string, string> = {
-  single_family: "Single Family",
-  estate: "Estate",
-  condo: "Condo",
-  townhouse: "Townhouse",
-  "co-op": "Co-op",
-  penthouse: "Penthouse",
-  chalet: "Chalet",
-  villa: "Villa",
-  ranch: "Ranch",
-  land: "Land",
 };
 
 // All report sections (matches report-validation.ts)
@@ -172,6 +134,7 @@ function Tag({
 const VIEW_PLANS_HREF = "/account";
 
 // Entitlement check result shape
+
 interface EntitlementState {
   allowed: boolean;
   limit: number;
@@ -182,7 +145,6 @@ interface EntitlementState {
 export function StepYourReview({
   marketData,
   tierData,
-  focusData,
   audienceData,
   onStepComplete,
   onValidationChange,
@@ -206,8 +168,6 @@ export function StepYourReview({
   const [entitlementLoading, setEntitlementLoading] = useState(true);
   const [gateDismissed, setGateDismissed] = useState(false);
 
-  // Transaction scope entitlement
-  const [txScope, setTxScope] = useState<EntitlementState | null>(null);
 
   // Report step 5 as always valid
   useEffect(() => {
@@ -240,24 +200,6 @@ export function StepYourReview({
     };
   }, []);
 
-  // Fetch transaction scope entitlement on mount
-  useEffect(() => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-
-    fetch("/api/entitlements/check?type=transaction_limit", {
-      signal: controller.signal,
-    })
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data: EntitlementState) => setTxScope(data))
-      .catch(() => setTxScope(null))
-      .finally(() => clearTimeout(timeout));
-
-    return () => {
-      controller.abort();
-      clearTimeout(timeout);
-    };
-  }, []);
 
   // Fetch persona names for display
   useEffect(() => {
@@ -316,14 +258,12 @@ export function StepYourReview({
               geography: {
                 city: marketData.city,
                 state: marketData.state,
-                county: marketData.county || undefined,
-                region: marketData.region || undefined,
               },
               luxuryTier: tierData?.luxuryTier || "luxury",
               priceFloor: tierData?.priceFloor || 1000000,
               priceCeiling: tierData?.priceCeiling || undefined,
-              segments: focusData?.segments || [],
-              propertyTypes: focusData?.propertyTypes || [],
+              segments: [],
+              propertyTypes: [],
             }),
           });
 
@@ -367,7 +307,7 @@ export function StepYourReview({
       setIsSubmitting(false);
       setError("Something went wrong. Please try again.");
     }
-  }, [isTitleValid, isSubmitting, marketData, tierData, focusData, audienceData, title, onStepComplete]);
+  }, [isTitleValid, isSubmitting, marketData, tierData, audienceData, title, onStepComplete]);
 
   // Price range display
   const priceDisplay = useMemo(() => {
@@ -411,26 +351,8 @@ export function StepYourReview({
           </p>
         </ReviewSectionCard>
 
-        {/* Your Focus */}
-        <ReviewSectionCard label="Your Focus" onEdit={() => onNavigateToStep(2)}>
-          <div className="mb-1">
-            {(focusData?.segments || []).map((s: string) => (
-              <Tag key={s} variant="primary">
-                {SEGMENT_LABELS[s] || s}
-              </Tag>
-            ))}
-          </div>
-          <div>
-            {(focusData?.propertyTypes || []).map((pt: string) => (
-              <Tag key={pt} variant="accent">
-                {PROPERTY_TYPE_LABELS[pt] || pt}
-              </Tag>
-            ))}
-          </div>
-        </ReviewSectionCard>
-
         {/* Your Audience */}
-        <ReviewSectionCard label="Your Audience" onEdit={() => onNavigateToStep(3)}>
+        <ReviewSectionCard label="Your Audience" onEdit={() => onNavigateToStep(2)}>
           {(audienceData?.personaIds || []).length > 0 ? (
             <div>
               {audienceData!.personaIds.map((id) => (
@@ -446,34 +368,6 @@ export function StepYourReview({
           )}
         </ReviewSectionCard>
 
-        {/* Transaction Scope Indicator */}
-        {txScope && (
-          <motion.div
-            variants={fadeVariant}
-            className="rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="uppercase text-xs font-semibold text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)]">
-                  Transaction Scope
-                </span>
-                <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mt-0.5">
-                  {txScope.limit === -1
-                    ? "Unlimited transaction scope"
-                    : `Analyzing up to ${txScope.limit} transactions per period`}
-                </p>
-              </div>
-              {txScope.limit !== -1 && txScope.limit <= 100 && (
-                <a
-                  href={VIEW_PLANS_HREF}
-                  className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)] whitespace-nowrap"
-                >
-                  Upgrade for deeper analysis
-                </a>
-              )}
-            </div>
-          </motion.div>
-        )}
 
         {/* Report Title */}
         <motion.div variants={fadeVariant} className="pt-2">
@@ -509,10 +403,38 @@ export function StepYourReview({
           </div>
         </motion.div>
 
-        {/* Estimated time */}
-        <motion.div variants={fadeVariant}>
-          <p className="text-center font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] py-2">
-            Estimated generation time: 2-4 minutes
+        {/* What's being built — hype section */}
+        <motion.div
+          variants={fadeVariant}
+          className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 mt-2"
+        >
+          <p className="font-[family-name:var(--font-serif)] text-base font-bold text-[var(--color-primary)] mb-1">
+            What we&rsquo;re building for you
+          </p>
+          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mb-4">
+            Your report pulls live transaction data, runs it through our analysis engine, and frames every insight around your market, your tier, and your buyers. Here&rsquo;s what&rsquo;s inside:
+          </p>
+          <ul className="space-y-2">
+            {[
+              { title: "Executive Briefing", desc: "The state of your market in one sharp read" },
+              { title: "Luxury Market Dashboard", desc: "Price trends, velocity, and absorption — by the numbers" },
+              { title: "Neighborhood Intelligence", desc: "Micro-market breakdown of where buyers are actually closing" },
+              { title: "The Narrative", desc: "A market storyline your clients will remember" },
+              { title: "Forward Look", desc: "90-day outlook based on current supply and demand signals" },
+              { title: "Comparative Positioning", desc: "How your market stacks up against peer markets" },
+              { title: "Persona Intelligence", desc: "Every insight reframed through the lens of your selected buyers" },
+            ].map(({ title, desc }) => (
+              <li key={title} className="flex items-start gap-2.5">
+                <span className="text-[var(--color-accent)] text-xs mt-0.5 flex-shrink-0">◆</span>
+                <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text)]">
+                  <span className="font-semibold">{title}</span>
+                  <span className="text-[var(--color-text-secondary)]"> — {desc}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-4 pt-3 border-t border-[var(--color-border)]">
+            Reports can take up to 10 minutes to generate. Upon completion, your report will be available in the Reports tab.
           </p>
         </motion.div>
 

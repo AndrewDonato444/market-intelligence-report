@@ -42,7 +42,7 @@ interface MarketCreationShellProps {
   marketId?: string;
   initialData?: {
     name: string;
-    geography: { city: string; state: string; county?: string; region?: string };
+    geography: { city: string; state: string };
     luxuryTier: "luxury" | "high_luxury" | "ultra_luxury";
     priceFloor: number;
     priceCeiling?: number | null;
@@ -78,8 +78,6 @@ export function MarketCreationShell({
       ? {
           city: initialData.geography.city,
           state: initialData.geography.state,
-          county: initialData.geography.county,
-          region: initialData.geography.region,
           marketName: initialData.name,
           isNewMarket: !isEdit,
         }
@@ -183,8 +181,6 @@ export function MarketCreationShell({
       geography: {
         city: market?.city,
         state: market?.state,
-        county: market?.county || undefined,
-        region: market?.region || undefined,
       },
       luxuryTier: tier?.luxuryTier || "luxury",
       priceFloor: tier?.priceFloor || 1000000,

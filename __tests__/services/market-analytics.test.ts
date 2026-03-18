@@ -312,6 +312,7 @@ describe("Market Analytics Engine", () => {
       floodZonePercentage: 0.1,
       investorBuyerPercentage: 0.2,
       freeClearPercentage: 0.3,
+      dataSources: { dom: "mls", listToSale: "mls" },
     };
 
     const baseSegments = [
@@ -363,6 +364,7 @@ describe("Market Analytics Engine", () => {
         floodZonePercentage: null,
         investorBuyerPercentage: null,
         freeClearPercentage: null,
+        dataSources: { dom: "none", listToSale: "none" },
       };
       const result = computeInsightsIndex(baseMarket, baseYoY, nullMetrics, baseSegments);
       // Should still produce valid scores using defaults
@@ -400,6 +402,7 @@ describe("Market Analytics Engine", () => {
       floodZonePercentage: 0.1,
       investorBuyerPercentage: 0.2,
       freeClearPercentage: 0.3,
+      dataSources: { dom: "mls", listToSale: "mls" },
     };
 
     const segments = [
@@ -482,6 +485,7 @@ describe("Market Analytics Engine", () => {
         floodZonePercentage: null,
         investorBuyerPercentage: null,
         freeClearPercentage: null,
+        dataSources: { dom: "none", listToSale: "none" },
       };
       const result = computeDashboard(market, yoy, nullMetrics, segments);
       const dom = result.powerFour.find((i) => i.name === "Median Days on Market");
@@ -1007,6 +1011,227 @@ describe("Market Analytics Engine", () => {
       expect(naples?.yoyPriceChange).not.toBeNull();
       // Median current = 11M, median prior = 9M → ~22% increase
       expect(naples!.yoyPriceChange!).toBeGreaterThan(0);
+    });
+  });
+
+  // --- Regression tests for Miami report bugs (2026-03-17) ---
+
+  describe("SVC-MA: Regression — DOM fallback from MLS statusDates (Bug 6)", () => {
+    it("SVC-MA-08 | computes DOM from statusDate range when daysOnMarket is null", () => {
+      const details = [
+        makeDetail({
+          mlsHistory: [
+            { price: "2000000", status: "Active", statusDate: "2025-10-01", daysOnMarket: null, agentName: null, agentOffice: null, beds: null, baths: null },
+            { price: "1950000", status: "Sold", statusDate: "2025-11-15", daysOnMarket: null, agentName: null, agentOffice: null, beds: null, baths: null },
+          ],
+        }),
+      ];
+      const result = computeDetailMetrics(details);
+      // Oct 1 to Nov 15 = 45 days
+      expect(result.medianDaysOnMarket).toBe(45);
+    });
+
+    it("SVC-MA-09 | returns null DOM when mlsHistory is completely empty", () => {
+      const details = [
+        makeDetail({ mlsHistory: [] }),
+        makeDetail({ id: "p2", mlsHistory: [] }),
+      ];
+      const result = computeDetailMetrics(details);
+      expect(result.medianDaysOnMarket).toBeNull();
+    });
+  });
+
+  describe("SVC-MA: Regression — list-to-sale fallback from taxInfo (Bug 7)", () => {
+    it("SVC-MA-10 | uses taxInfo.marketValue as list price proxy when mlsHistory has no price", () => {
+      const details = [
+        makeDetail({
+          mlsHistory: [],
+          saleHistory: [{ date: "2026-01-15", price: 1800000, buyerNames: null, sellerNames: null, documentType: null, transactionType: null, purchaseMethod: null }],
+          taxInfo: { assessedValue: null, assessedLandValue: null, assessedImprovementValue: null, marketValue: 2000000, taxAmount: null, assessmentYear: null },
+        }),
+      ];
+      const result = computeDetailMetrics(details);
+      // 1.8M / 2M = 0.90 — plausible ratio
+      expect(result.listToSaleRatio).toBeCloseTo(0.9);
+    });
+
+    it("SVC-MA-11 | uses estimatedValue when both mlsHistory and taxInfo are empty", () => {
+      const details = [
+        makeDetail({
+          mlsHistory: [],
+          saleHistory: [{ date: "2026-01-15", price: 1700000, buyerNames: null, sellerNames: null, documentType: null, transactionType: null, purchaseMethod: null }],
+          estimatedValue: 1750000,
+        }),
+      ];
+      const result = computeDetailMetrics(details);
+      // 1.7M / 1.75M ≈ 0.971
+      expect(result.listToSaleRatio).toBeCloseTo(0.971, 2);
+    });
+  });
+
+  describe("SVC-MA: Regression — Miami zip-to-neighborhood mapping (Bug 8)", () => {
+    it("SVC-MA-12 | maps Miami-Dade zips to readable neighborhood names", () => {
+      const data = makeCompiledData({
+        targetMarket: {
+          properties: [
+            makeProperty({ id: "p1", zip: "33176", price: 1500000, lastSalePrice: 1500000 }),
+            makeProperty({ id: "p2", zip: "33143", price: 1300000, lastSalePrice: 1300000 }),
+            makeProperty({ id: "p3", zip: "33145", price: 1400000, lastSalePrice: 1400000 }),
+          ],
+          stale: false,
+          details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
+          comps: [],
+        },
+      });
+      const result = computeMarketAnalytics(data, testMarket);
+      const kendall = result.neighborhoods.find((n) => n.zipCode === "33176");
+      const southMiami = result.neighborhoods.find((n) => n.zipCode === "33143");
+      const roads = result.neighborhoods.find((n) => n.zipCode === "33145");
+      expect(kendall?.name).toBe("Kendall / The Falls");
+      expect(southMiami?.name).toBe("South Miami / High Pines");
+      expect(roads?.name).toBe("The Roads / Shenandoah");
+    });
+  });
+
+  describe("SVC-MA: Regression — neighborhood YoY with 2-sample minimum (Bug 9)", () => {
+    it("SVC-MA-13 | computes YoY for neighborhoods with 2 transactions per period", () => {
+      const data = makeCompiledData({
+        targetMarket: {
+          properties: [
+            // 2 current year
+            makeProperty({ id: "c1", zip: "33138", price: 1800000, lastSalePrice: 1800000, lastSaleDate: "2026-01-15" }),
+            makeProperty({ id: "c2", zip: "33138", price: 1600000, lastSalePrice: 1600000, lastSaleDate: "2026-02-15" }),
+            // 2 prior year
+            makeProperty({ id: "p1", zip: "33138", price: 1000000, lastSalePrice: 1000000, lastSaleDate: "2025-06-01" }),
+            makeProperty({ id: "p2", zip: "33138", price: 900000, lastSalePrice: 900000, lastSaleDate: "2025-07-01" }),
+          ],
+          stale: false,
+          details: [],
+          currentPeriodDetails: [],
+          priorPeriodDetails: [],
+          comps: [],
+        },
+      });
+      const result = computeMarketAnalytics(data, testMarket);
+      const mimo = result.neighborhoods.find((n) => n.zipCode === "33138");
+      // With 2 per period, YoY should now be computed (not null)
+      expect(mimo?.yoyPriceChange).not.toBeNull();
+      // Median current ~1.7M, median prior ~0.95M → positive YoY
+      expect(mimo!.yoyPriceChange!).toBeGreaterThan(0);
+    });
+  });
+
+  // --- Regression tests for MLS data source detection + relabeling (2026-03-17) ---
+
+  describe("SVC-MA: Regression — dataSources tracking (Bug 10)", () => {
+    it("SVC-MA-14 | reports dom source as 'mls' when daysOnMarket field is populated", () => {
+      const details = [
+        makeDetail({
+          mlsHistory: [
+            { price: "8000000", status: "Sold", statusDate: "2026-01-01", daysOnMarket: "30", agentName: null, agentOffice: null, beds: null, baths: null },
+          ],
+        }),
+      ];
+      const result = computeDetailMetrics(details);
+      expect(result.dataSources.dom).toBe("mls");
+    });
+
+    it("SVC-MA-15 | reports dom source as 'mls_statusdate' when using date range fallback", () => {
+      const details = [
+        makeDetail({
+          mlsHistory: [
+            { price: "2000000", status: "Active", statusDate: "2025-10-01", daysOnMarket: null, agentName: null, agentOffice: null, beds: null, baths: null },
+            { price: "1950000", status: "Sold", statusDate: "2025-11-15", daysOnMarket: null, agentName: null, agentOffice: null, beds: null, baths: null },
+          ],
+        }),
+      ];
+      const result = computeDetailMetrics(details);
+      expect(result.dataSources.dom).toBe("mls_statusdate");
+    });
+
+    it("SVC-MA-16 | reports dom source as 'none' when mlsHistory is empty", () => {
+      const details = [makeDetail({ mlsHistory: [] })];
+      const result = computeDetailMetrics(details);
+      expect(result.dataSources.dom).toBe("none");
+    });
+
+    it("SVC-MA-17 | reports listToSale source as 'mls' when MLS price is available", () => {
+      const details = [
+        makeDetail({
+          mlsHistory: [
+            { price: "10000000", status: "Active", statusDate: "2025-12-01", daysOnMarket: null, agentName: null, agentOffice: null, beds: null, baths: null },
+          ],
+          saleHistory: [{ date: "2026-01-15", price: 9500000, buyerNames: null, sellerNames: null, documentType: null, transactionType: null, purchaseMethod: null }],
+        }),
+      ];
+      const result = computeDetailMetrics(details);
+      expect(result.dataSources.listToSale).toBe("mls");
+    });
+
+    it("SVC-MA-18 | reports listToSale source as 'tax_market_value' when using tax proxy", () => {
+      const details = [
+        makeDetail({
+          mlsHistory: [],
+          saleHistory: [{ date: "2026-01-15", price: 1800000, buyerNames: null, sellerNames: null, documentType: null, transactionType: null, purchaseMethod: null }],
+          taxInfo: { assessedValue: null, assessedLandValue: null, assessedImprovementValue: null, marketValue: 2000000, taxAmount: null, assessmentYear: null },
+        }),
+      ];
+      const result = computeDetailMetrics(details);
+      expect(result.dataSources.listToSale).toBe("tax_market_value");
+    });
+  });
+
+  describe("SVC-MA: Regression — dashboard relabeling for fallback sources (Bug 11)", () => {
+    const market = { medianPrice: 8000000, medianPricePerSqft: 1600, averagePrice: 8500000, totalProperties: 847, totalVolume: 240000000, rating: "A" };
+    const yoy = { medianPriceChange: 0.08, volumeChange: 0.05, pricePerSqftChange: 0.06, averagePriceChange: 0.07, totalVolumeChange: null, domChange: null, listToSaleChange: null };
+    const segments = [{ name: "SFR", propertyType: "SFR", count: 20, medianPrice: 8000000, averagePrice: 8500000, minPrice: 5000000, maxPrice: 15000000, medianPricePerSqft: 1500, rating: "A", lowSample: false, yoy: null }];
+
+    it("SVC-MA-19 | uses standard names when data comes from MLS", () => {
+      const mlsMetrics: DetailDerivedMetrics = {
+        medianDaysOnMarket: 45, cashBuyerPercentage: 0.4, listToSaleRatio: 0.97,
+        floodZonePercentage: 0.1, investorBuyerPercentage: 0.2, freeClearPercentage: 0.3,
+        dataSources: { dom: "mls", listToSale: "mls" },
+      };
+      const result = computeDashboard(market, yoy, mlsMetrics, segments);
+      expect(result.powerFour[2].name).toBe("Median Days on Market");
+      expect(result.powerFour[3].name).toBe("List-to-Sale Ratio");
+      expect(result.powerFour[2].footnote).toBeUndefined();
+      expect(result.powerFour[3].footnote).toBeUndefined();
+    });
+
+    it("SVC-MA-20 | relabels DOM when using statusDate fallback", () => {
+      const fallbackMetrics: DetailDerivedMetrics = {
+        medianDaysOnMarket: 45, cashBuyerPercentage: 0.4, listToSaleRatio: 0.9,
+        floodZonePercentage: 0.1, investorBuyerPercentage: 0.2, freeClearPercentage: 0.3,
+        dataSources: { dom: "mls_statusdate", listToSale: "tax_market_value" },
+      };
+      const result = computeDashboard(market, yoy, fallbackMetrics, segments);
+      expect(result.powerFour[2].name).toBe("Est. Days on Market");
+      expect(result.powerFour[2].footnote).toContain("Estimated from MLS listing date range");
+    });
+
+    it("SVC-MA-21 | relabels list-to-sale when using tax market value", () => {
+      const fallbackMetrics: DetailDerivedMetrics = {
+        medianDaysOnMarket: null, cashBuyerPercentage: 0.4, listToSaleRatio: 0.9,
+        floodZonePercentage: 0.1, investorBuyerPercentage: 0.2, freeClearPercentage: 0.3,
+        dataSources: { dom: "none", listToSale: "tax_market_value" },
+      };
+      const result = computeDashboard(market, yoy, fallbackMetrics, segments);
+      expect(result.powerFour[3].name).toBe("Sale-to-Assessed Ratio");
+      expect(result.powerFour[3].footnote).toContain("tax-assessed market value");
+    });
+
+    it("SVC-MA-22 | relabels list-to-sale when using estimated value", () => {
+      const fallbackMetrics: DetailDerivedMetrics = {
+        medianDaysOnMarket: null, cashBuyerPercentage: 0.4, listToSaleRatio: 0.95,
+        floodZonePercentage: 0.1, investorBuyerPercentage: 0.2, freeClearPercentage: 0.3,
+        dataSources: { dom: "none", listToSale: "estimated_value" },
+      };
+      const result = computeDashboard(market, yoy, fallbackMetrics, segments);
+      expect(result.powerFour[3].name).toBe("Sale-to-Estimated Value");
+      expect(result.powerFour[3].footnote).toContain("automated valuation estimate");
     });
   });
 });

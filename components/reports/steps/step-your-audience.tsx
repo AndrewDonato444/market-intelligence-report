@@ -183,7 +183,7 @@ function AudiencePersonaCard({
       onKeyDown={handleKeyDown}
       whileTap={isMaxed && !isSelected ? undefined : selectionVariant.tap}
       variants={scaleVariant}
-      className={`relative cursor-pointer rounded-[var(--radius-md)] border p-4 text-left transition-all duration-[var(--duration-default)] ${
+      className={`group relative cursor-pointer rounded-[var(--radius-md)] border p-4 pb-10 text-left transition-all duration-[var(--duration-default)] ${
         isSelected
           ? "border-[var(--color-accent)] bg-[var(--color-accent-light)] shadow-[var(--shadow-sm)]"
           : isMaxed
@@ -220,25 +220,55 @@ function AudiencePersonaCard({
         What they care about: {persona.whatWinsThem}
       </p>
 
-      <div className="mt-3">
-        <span
-          role="link"
-          tabIndex={0}
-          onClick={handlePreview}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handlePreview(e as unknown as React.MouseEvent);
-            }
-          }}
-          className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-accent)] underline cursor-pointer hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)]"
-        >
-          Preview
-        </span>
+      {/* Hover-reveal "View Profile" bar */}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label={`View profile for ${persona.name}`}
+        onClick={handlePreview}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            handlePreview(e as unknown as React.MouseEvent);
+          }
+        }}
+        className="absolute bottom-0 left-0 right-0 overflow-hidden rounded-b-[var(--radius-md)]"
+      >
+        <div className="translate-y-full group-hover:translate-y-0 transition-transform duration-200 ease-out bg-[var(--color-primary)] px-4 py-2 flex items-center justify-between">
+          <span className="font-[family-name:var(--font-sans)] text-xs font-medium tracking-wide text-[var(--color-accent)]">
+            View Profile
+          </span>
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg" className="text-[var(--color-accent)]">
+            <path d="M2 6H10M10 6L7 3M10 6L7 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+          </svg>
+        </div>
       </div>
     </motion.button>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Persona portrait images (curated Unsplash)
+// ---------------------------------------------------------------------------
+
+const PERSONA_IMAGES: Record<string, string> = {
+  "business-mogul":
+    "https://images.unsplash.com/photo-1560250097-0b93528c311a?w=480&h=700&fit=crop&crop=top&q=85&auto=format",
+  "legacy-builder":
+    "https://images.pexels.com/photos/8899940/pexels-photo-8899940.jpeg?auto=compress&cs=tinysrgb&w=480&h=700&fit=crop",
+  "coastal-escape-seeker":
+    "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=480&h=700&fit=crop&crop=top&q=85&auto=format",
+  "tech-founder":
+    "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=480&h=700&fit=crop&crop=top&q=85&auto=format",
+  "seasonal-second-home":
+    "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=480&h=700&fit=crop&crop=top&q=85&auto=format",
+  "international-buyer":
+    "https://images.pexels.com/photos/5717583/pexels-photo-5717583.jpeg?auto=compress&cs=tinysrgb&w=480&h=700&fit=crop",
+  "celebrity-public-figure":
+    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=480&h=700&fit=crop&crop=top&q=85&auto=format",
+  "corporate-executive":
+    "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=480&h=700&fit=crop&crop=top&q=85&auto=format",
+};
 
 // ---------------------------------------------------------------------------
 // AudiencePreviewPanel (inline)
@@ -246,101 +276,106 @@ function AudiencePersonaCard({
 
 interface AudiencePreviewPanelProps {
   persona: PersonaDetail;
+  slug: string;
   onClose: () => void;
 }
 
-function AudiencePreviewPanel({ persona, onClose }: AudiencePreviewPanelProps) {
+function AudiencePreviewPanel({ persona, slug, onClose }: AudiencePreviewPanelProps) {
   const keyVocabulary = persona.narrativeFraming?.keyVocabulary ?? [];
   const reportMetrics = (persona.reportMetrics ?? []).slice(0, 3);
   const firstTemplate = persona.talkingPointTemplates?.[0];
+  const imageUrl = PERSONA_IMAGES[slug];
 
   return (
-    <motion.div
+    <div
       data-testid="audience-preview-panel"
       role="complementary"
-      aria-label={`Persona preview: ${persona.name}`}
-      variants={slideVariant("right")}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="bg-[var(--color-background)] rounded-[var(--radius-md)] shadow-[var(--shadow-md)] p-6"
+      aria-label={"Persona preview: " + persona.name}
+      className="h-full flex flex-row bg-[var(--color-background)] rounded-[var(--radius-md)] shadow-[var(--shadow-lg)] overflow-hidden relative"
     >
-      <h3 className="font-[family-name:var(--font-serif)] text-xl font-bold text-[var(--color-primary)] uppercase">
-        {persona.name}
-      </h3>
-      <div className="w-8 h-0.5 bg-[var(--color-accent)] mt-1 mb-3" />
-
-      <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)]">
-        {persona.profileOverview}
-      </p>
-
-      <p className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text)] mt-3">
-        <span className="font-semibold">What Wins Them:</span>{" "}
-        {persona.whatWinsThem}
-      </p>
-
-      <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mt-1">
-        <span className="font-semibold">Biggest Fear:</span>{" "}
-        {persona.biggestFear}
-      </p>
-
-      {keyVocabulary.length > 0 && (
-        <div className="mt-3">
-          <p className="font-[family-name:var(--font-sans)] text-xs uppercase text-[var(--color-text-tertiary)] tracking-wider font-medium mb-1">
-            Key Vocabulary
-          </p>
-          <div className="flex flex-wrap gap-1">
-            {keyVocabulary.map((word) => (
-              <span
-                key={word}
-                className="px-2 py-0.5 border border-[var(--color-border)] rounded-full font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]"
-              >
-                {word}
-              </span>
-            ))}
+      {/* Close button — always visible, top-right corner */}
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label="Close preview"
+        className="absolute top-3 right-3 z-30 w-8 h-8 flex items-center justify-center rounded-full bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-background)] hover:border-[var(--color-text-secondary)] transition-all duration-[var(--duration-default)] shadow-[var(--shadow-sm)] cursor-pointer"
+      >
+        <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 1L9 9M9 1L1 9" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+        </svg>
+      </button>
+      {imageUrl && (
+        <div className="w-[36%] flex-shrink-0 relative overflow-hidden">
+          <img
+            src={imageUrl}
+            alt={persona.name}
+            className="absolute inset-0 w-full h-full object-cover object-top"
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent to-black/10" />
+        </div>
+      )}
+      <div className="flex-1 overflow-y-auto p-5 pr-10">
+        <h3 className="font-[family-name:var(--font-serif)] text-xl font-bold text-[var(--color-primary)] uppercase">
+          {persona.name}
+        </h3>
+        <div className="w-8 h-0.5 bg-[var(--color-accent)] mt-1 mb-3" />
+        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)]">
+          {persona.profileOverview}
+        </p>
+        <p className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text)] mt-3">
+          <span className="font-semibold">What Wins Them:</span>{" "}
+          {persona.whatWinsThem}
+        </p>
+        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mt-1">
+          <span className="font-semibold">Biggest Fear:</span>{" "}
+          {persona.biggestFear}
+        </p>
+        {keyVocabulary.length > 0 && (
+          <div className="mt-3">
+            <p className="font-[family-name:var(--font-sans)] text-xs uppercase text-[var(--color-text-tertiary)] tracking-wider font-medium mb-1">
+              Key Vocabulary
+            </p>
+            <div className="flex flex-wrap gap-1">
+              {keyVocabulary.map((word) => (
+                <span
+                  key={word}
+                  className="px-2 py-0.5 border border-[var(--color-border)] rounded-full font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]"
+                >
+                  {word}
+                </span>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
-
-      {reportMetrics.length > 0 && (
-        <div className="mt-3">
-          <p className="font-[family-name:var(--font-sans)] text-xs uppercase text-[var(--color-text-tertiary)] tracking-wider font-medium mb-1">
-            Top Report Metrics
-          </p>
-          <ul className="list-disc list-inside">
-            {reportMetrics.map((metric) => (
-              <li
-                key={metric}
-                className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text)]"
-              >
-                {metric}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {firstTemplate && (
-        <div className="mt-3">
-          <p className="font-[family-name:var(--font-sans)] text-xs uppercase text-[var(--color-text-tertiary)] tracking-wider font-medium mb-1">
-            Sample Talking Point
-          </p>
-          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] italic bg-[var(--color-surface)] p-2 rounded-[var(--radius-sm)]">
-            &ldquo;{firstTemplate}&rdquo;
-          </p>
-        </div>
-      )}
-
-      <div className="mt-3">
-        <button
-          type="button"
-          onClick={onClose}
-          className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] cursor-pointer hover:text-[var(--color-text-secondary)] transition-colors duration-[var(--duration-default)]"
-        >
-          Close Preview
-        </button>
+        )}
+        {reportMetrics.length > 0 && (
+          <div className="mt-3">
+            <p className="font-[family-name:var(--font-sans)] text-xs uppercase text-[var(--color-text-tertiary)] tracking-wider font-medium mb-1">
+              Top Report Metrics
+            </p>
+            <ul className="list-disc list-inside">
+              {reportMetrics.map((metric) => (
+                <li
+                  key={metric}
+                  className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text)]"
+                >
+                  {metric}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {firstTemplate && (
+          <div className="mt-3">
+            <p className="font-[family-name:var(--font-sans)] text-xs uppercase text-[var(--color-text-tertiary)] tracking-wider font-medium mb-1">
+              Sample Talking Point
+            </p>
+            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] italic bg-[var(--color-surface)] p-2 rounded-[var(--radius-sm)]">
+              &ldquo;{firstTemplate}&rdquo;
+            </p>
+          </div>
+        )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -440,11 +475,9 @@ export function StepYourAudience({
         const data = await res.json();
         setPreviewPersona(data.persona);
       } catch {
-        // Fallback: won't show preview if fetch fails
-        if (fromList) {
-          setPreviewPersona(null);
-          setPreviewSlug(null);
-        }
+        // Fetch failed — clear preview state entirely
+        setPreviewPersona(null);
+        setPreviewSlug(null);
       } finally {
         setPreviewLoading(false);
       }
@@ -630,9 +663,10 @@ export function StepYourAudience({
             </motion.div>
           )}
 
-          <div className={previewSlug && previewPersona ? "flex gap-4" : ""}>
+          <div className="relative">
+            {/* Cards — always 2-col, never reflow */}
             <motion.div
-              className={`grid ${previewSlug && previewPersona ? "grid-cols-1 w-1/2" : "grid-cols-2"} gap-3`}
+              className="grid grid-cols-2 gap-3"
               variants={staggerContainer}
               initial="initial"
               animate="animate"
@@ -656,16 +690,42 @@ export function StepYourAudience({
               })}
             </motion.div>
 
-            {/* Preview panel */}
-            <AnimatePresence mode="wait">
-              {previewSlug && previewPersona && (
-                <div className="w-1/2">
-                  <AudiencePreviewPanel
-                    key={previewSlug}
-                    persona={previewPersona}
-                    onClose={handleClosePreview}
+            {/* Preview panel — slides in over the cards, no layout shift */}
+            <AnimatePresence>
+              {previewSlug && (
+                <>
+                  {/* Backdrop */}
+                  <motion.div
+                    key="backdrop"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onClick={handleClosePreview}
+                    className="absolute inset-0 bg-[var(--color-surface)]/80 backdrop-blur-[2px] rounded-[var(--radius-md)] z-10 cursor-pointer"
                   />
-                </div>
+                  {/* Panel */}
+                  <motion.div
+                    key={previewSlug}
+                    initial={{ x: "100%", opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    exit={{ x: "100%", opacity: 0 }}
+                    transition={{ type: "spring", stiffness: 320, damping: 32 }}
+                    className="absolute inset-0 z-20"
+                  >
+                    {previewLoading ? (
+                      <div className="h-full bg-[var(--color-background)] rounded-[var(--radius-md)] shadow-[var(--shadow-lg)] p-6 flex items-center justify-center">
+                        <div className="w-8 h-8 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
+                      </div>
+                    ) : previewPersona ? (
+                      <AudiencePreviewPanel
+                        persona={previewPersona}
+                        slug={previewSlug}
+                        onClose={handleClosePreview}
+                      />
+                    ) : null}
+                  </motion.div>
+                </>
               )}
             </AnimatePresence>
           </div>

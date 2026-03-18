@@ -7,21 +7,9 @@ import { DURATION_SLOW, EASING_DEFAULT } from "@/lib/animations";
 interface MarketPreviewCardProps {
   city: string;
   state: string;
-  county?: string;
-  region?: string;
 }
 
-export function MarketPreviewCard({
-  city,
-  state,
-  county,
-  region,
-}: MarketPreviewCardProps) {
-  const hasDetail = Boolean(county || region);
-  const detailParts: string[] = [];
-  if (county) detailParts.push(county);
-  if (region) detailParts.push(region);
-
+export function MarketPreviewCard({ city, state }: MarketPreviewCardProps) {
   return (
     <motion.div
       data-testid="market-preview-card"
@@ -55,14 +43,6 @@ export function MarketPreviewCard({
           {city}, {state}
         </span>
       </div>
-      {hasDetail && (
-        <p
-          data-testid="market-preview-detail"
-          className="mt-1 ml-6 font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]"
-        >
-          {detailParts.join(" \u00B7 ")}
-        </p>
-      )}
     </motion.div>
   );
 }

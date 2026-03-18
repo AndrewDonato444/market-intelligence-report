@@ -233,17 +233,9 @@ export async function fetchAllMarketData(
   apiCalls += comps.callCount;
   if (comps.stale) staleDataSources.push("realestateapi:comps");
 
-  // --- Step 4: Fetch peer market data ---
-  checkAbort(abortSignal);
-
-  const peerMarkets = await fetchPeerMarkets(
-    market,
-    connectorOpts,
-    abortSignal,
-    errors
-  );
-  apiCalls += peerMarkets.callCount;
-  if (peerMarkets.stale) staleDataSources.push("realestateapi:peers");
+  // --- Step 4: Peer market data (disabled — feature on roadmap, not yet in report) ---
+  // Backend code preserved in fetchPeerMarkets() for future use.
+  const peerMarkets = { records: [] as PeerMarketData[], callCount: 0, stale: false };
 
   // --- Step 5: Fetch neighborhood amenities ---
   checkAbort(abortSignal);
@@ -598,8 +590,9 @@ async function fetchMarketNews(
     }
   }
 
-  // Fetch news for each peer market (1 query per peer to limit credit usage)
-  const peers = market.peerMarkets ?? [];
+  // Peer market news disabled — feature on roadmap, not yet in report.
+  // Backend code preserved; re-enable when peer markets are active.
+  const peers: typeof market.peerMarkets = []; // was: market.peerMarkets ?? []
   for (const peer of peers) {
     if (abortSignal.aborted) break;
     const query = buildNewsQuery(queries[0] ?? "luxury real estate market", peer.geography);

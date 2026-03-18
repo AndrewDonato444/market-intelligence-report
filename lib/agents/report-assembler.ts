@@ -202,16 +202,17 @@ export function assembleReport(
       },
     },
 
-    // Section 7: Comparative Positioning (pure data)
-    {
-      sectionNumber: 7,
-      sectionType: "comparative_positioning",
-      title: "Comparative Positioning",
-      content: {
-        peerComparisons: analytics.peerComparisons,
-        peerRankings: analytics.peerRankings,
-      },
-    },
+    // Section 7: Comparative Positioning — disabled until peer markets feature is specced.
+    // Assembler code preserved; re-enable when peer data pipeline is active.
+    // {
+    //   sectionNumber: 7,
+    //   sectionType: "comparative_positioning",
+    //   title: "Comparative Positioning",
+    //   content: {
+    //     peerComparisons: analytics.peerComparisons,
+    //     peerRankings: analytics.peerRankings,
+    //   },
+    // },
 
   ];
 

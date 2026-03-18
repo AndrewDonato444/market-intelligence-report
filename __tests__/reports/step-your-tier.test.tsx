@@ -68,7 +68,7 @@ describe("Step 2: Your Tier (#153)", () => {
 
     it("CMP-153-02: renders the heading", () => {
       render(React.createElement(StepYourTier, { onStepComplete: jest.fn() }));
-      expect(screen.getByText("What's your price point?")).toBeInTheDocument();
+      expect(screen.getByText("Which tier defines your clientele?")).toBeInTheDocument();
     });
 
     it("CMP-153-03: renders helper text about transactions", () => {
@@ -138,26 +138,24 @@ describe("Step 2: Your Tier (#153)", () => {
       expect(onValidationChange).toHaveBeenCalledWith(true);
     });
 
-    it("CMP-153-11: selecting a tier sets the default price floor", () => {
-      render(React.createElement(StepYourTier, { onStepComplete: jest.fn() }));
+    it("CMP-153-11: selecting a tier emits the correct default price floor", () => {
+      const onStepComplete = jest.fn();
+      render(React.createElement(StepYourTier, { onStepComplete }));
       const highLuxuryCard = screen.getByText("High Luxury").closest("[role='radio']")!;
       fireEvent.click(highLuxuryCard);
-      const floorInput = screen.getByLabelText(/price floor/i) as HTMLInputElement;
-      expect(floorInput.value).toBe("6000000");
+      expect(onStepComplete).toHaveBeenCalledWith(expect.objectContaining({ priceFloor: 6000000 }));
     });
 
-    it("CMP-153-12: switching tiers updates price floor", () => {
-      render(React.createElement(StepYourTier, { onStepComplete: jest.fn() }));
-      // Select luxury first
+    it("CMP-153-12: switching tiers updates emitted price floor", () => {
+      const onStepComplete = jest.fn();
+      render(React.createElement(StepYourTier, { onStepComplete }));
       const luxuryCard = screen.getByText("Luxury").closest("[role='radio']")!;
       fireEvent.click(luxuryCard);
-      const floorInput = screen.getByLabelText(/price floor/i) as HTMLInputElement;
-      expect(floorInput.value).toBe("1000000");
+      expect(onStepComplete).toHaveBeenCalledWith(expect.objectContaining({ priceFloor: 1000000 }));
 
-      // Switch to ultra luxury
       const ultraCard = screen.getByText("Ultra Luxury").closest("[role='radio']")!;
       fireEvent.click(ultraCard);
-      expect(floorInput.value).toBe("10000000");
+      expect(onStepComplete).toHaveBeenCalledWith(expect.objectContaining({ priceFloor: 10000000 }));
     });
 
     it("CMP-153-13: only one tier can be selected at a time", () => {
@@ -174,11 +172,9 @@ describe("Step 2: Your Tier (#153)", () => {
       expect(highCard).toHaveAttribute("aria-checked", "true");
     });
 
-    it("CMP-153-14: price ceiling input has placeholder", () => {
+    it("CMP-153-14: tier note about tight ranges is shown", () => {
       render(React.createElement(StepYourTier, { onStepComplete: jest.fn() }));
-      const luxuryCard = screen.getByText("Luxury").closest("[role='radio']")!;
-      fireEvent.click(luxuryCard);
-      expect(screen.getByPlaceholderText("No ceiling")).toBeInTheDocument();
+      expect(screen.getByText(/Keeping the ranges tight yields the best data analysis/)).toBeInTheDocument();
     });
 
     it("CMP-153-15: emits step data when tier is selected", () => {
@@ -194,25 +190,17 @@ describe("Step 2: Your Tier (#153)", () => {
       );
     });
 
-    it("CMP-153-16: shows validation error for price floor below $500,000", () => {
+    it("CMP-153-16: no price floor input rendered", () => {
       render(React.createElement(StepYourTier, { onStepComplete: jest.fn() }));
-      const luxuryCard = screen.getByText("Luxury").closest("[role='radio']")!;
-      fireEvent.click(luxuryCard);
-      const floorInput = screen.getByLabelText(/price floor/i);
-      fireEvent.change(floorInput, { target: { value: "400000" } });
-      expect(screen.getByText(/Price floor must be at least \$500,000/)).toBeInTheDocument();
+      expect(screen.queryByLabelText(/price floor/i)).not.toBeInTheDocument();
     });
 
-    it("CMP-153-17: shows validation error when ceiling <= floor", () => {
+    it("CMP-153-17: no price ceiling input rendered", () => {
       render(React.createElement(StepYourTier, { onStepComplete: jest.fn() }));
-      const luxuryCard = screen.getByText("Luxury").closest("[role='radio']")!;
-      fireEvent.click(luxuryCard);
-      const ceilingInput = screen.getByPlaceholderText("No ceiling");
-      fireEvent.change(ceilingInput, { target: { value: "500000" } });
-      expect(screen.getByText(/Ceiling must be higher than the floor/)).toBeInTheDocument();
+      expect(screen.queryByPlaceholderText("No ceiling")).not.toBeInTheDocument();
     });
 
-    it("CMP-153-18: reports invalid when price floor is below minimum", () => {
+    it("CMP-153-18: reports valid once a tier is selected (no price inputs needed)", () => {
       const onValidationChange = jest.fn();
       render(
         React.createElement(StepYourTier, {
@@ -222,9 +210,7 @@ describe("Step 2: Your Tier (#153)", () => {
       );
       const luxuryCard = screen.getByText("Luxury").closest("[role='radio']")!;
       fireEvent.click(luxuryCard);
-      const floorInput = screen.getByLabelText(/price floor/i);
-      fireEvent.change(floorInput, { target: { value: "100000" } });
-      expect(onValidationChange).toHaveBeenCalledWith(false);
+      expect(onValidationChange).toHaveBeenCalledWith(true);
     });
 
     it("CMP-153-19: has radiogroup ARIA attributes", () => {

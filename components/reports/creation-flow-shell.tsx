@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageTransition } from "@/lib/animations";
 import { CreationStepIndicator } from "./creation-step-indicator";
@@ -63,32 +63,27 @@ interface CreationFlowShellProps {
   markets: MarketOption[];
 }
 
-function getInitialState() {
-  const draft = loadDraft();
-  if (draft && draft.currentStep < 4) {
-    return draft;
-  }
-  return null;
-}
-
 export function CreationFlowShell({ markets }: CreationFlowShellProps) {
-  const initialDraft = useRef(getInitialState());
-  const draft = initialDraft.current;
-
-  const [currentStep, setCurrentStep] = useState(draft?.currentStep ?? 0);
+  // Always start at step 0 for SSR — draft is restored client-side in useEffect
+  // to avoid server/client HTML mismatch (localStorage is unavailable during SSR).
+  const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<PageDirection>("forward");
   const [stepValid, setStepValid] = useState(false);
-  const [showQuickStart, setShowQuickStart] = useState(
-    markets.length > 0 && !draft,
-  );
-  const marketDataRef = useRef<StepMarketData | null>(
-    draft?.marketData ?? null,
-  );
-  const tierDataRef = useRef<StepTierData | null>(draft?.tierData ?? null);
-  const audienceDataRef = useRef<StepAudienceData | null>(
-    draft?.audienceData ?? null,
-  );
+  const marketDataRef = useRef<StepMarketData | null>(null);
+  const tierDataRef = useRef<StepTierData | null>(null);
+  const audienceDataRef = useRef<StepAudienceData | null>(null);
   const [reportData, setReportData] = useState<StepReviewData | null>(null);
+
+  // Restore draft after hydration (client-only)
+  useEffect(() => {
+    const draft = loadDraft();
+    if (draft && draft.currentStep < 4) {
+      marketDataRef.current = draft.marketData ?? null;
+      tierDataRef.current = draft.tierData ?? null;
+      audienceDataRef.current = draft.audienceData ?? null;
+      setCurrentStep(draft.currentStep);
+    }
+  }, []);
 
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
@@ -147,7 +142,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
         priceFloor: tierDefaults.priceFloor,
         priceCeiling: tierDefaults.priceCeiling,
       };
-      setShowQuickStart(false);
       setDirection("forward");
       setCurrentStep(2); // Jump to Audience
       setStepValid(false);
@@ -162,10 +156,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     },
     [],
   );
-
-  const handleStartFresh = useCallback(() => {
-    setShowQuickStart(false);
-  }, []);
 
   // --- Step callbacks ---
   const handleMarketStepComplete = useCallback((data: StepMarketData) => {
@@ -221,6 +211,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
           markets={markets}
           onStepComplete={handleMarketStepComplete}
           onValidationChange={handleMarketValidation}
+          onQuickStart={handleQuickStart}
         />
       );
     }
@@ -248,7 +239,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
         <StepYourReview
           marketData={marketDataRef.current}
           tierData={tierDataRef.current}
-          focusData={null}
           audienceData={audienceDataRef.current}
           onStepComplete={handleReviewStepComplete}
           onValidationChange={handleReviewValidation}
@@ -290,51 +280,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
         <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-8" />
 
         <CreationStepIndicator steps={STEP_NAMES} currentStep={currentStep} />
-
-        {/* Quick Start for returning users */}
-        {showQuickStart && currentStep === 0 && (
-          <div
-            className="mb-6 p-5 border border-[var(--color-accent)] rounded-[var(--radius-md)] bg-[var(--color-background)]"
-            data-testid="quick-start"
-          >
-            <h3 className="font-[family-name:var(--font-serif)] text-base font-semibold text-[var(--color-primary)] mb-1">
-              Quick Start
-            </h3>
-            <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mb-4">
-              Use one of your saved markets to jump straight to audience
-              selection.
-            </p>
-            <div className="flex flex-wrap gap-3 mb-4">
-              {markets.map((m) => (
-                <div
-                  key={m.id}
-                  className="flex flex-col items-start gap-1 p-3 border border-[var(--color-border)] rounded-[var(--radius-sm)] bg-[var(--color-surface)]"
-                >
-                  <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
-                    {m.name}
-                  </span>
-                  <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
-                    {m.geography.city}, {m.geography.state}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickStart(m)}
-                    className="mt-1 px-3 py-1 text-xs font-semibold bg-[var(--color-accent)] text-[var(--color-primary)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors"
-                  >
-                    Use This
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={handleStartFresh}
-              className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] underline transition-colors"
-            >
-              Start Fresh
-            </button>
-          </div>
-        )}
 
         {/* Step content with slide animation */}
         <div className="min-h-[200px] relative overflow-hidden">

@@ -84,6 +84,7 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       floodZonePercentage: 0.1,
       investorBuyerPercentage: 0.2,
       freeClearPercentage: 0.3,
+      dataSources: { dom: "mls", listToSale: "mls" },
     },
     dataAsOfDate: null,
     analysisPeriod: {
