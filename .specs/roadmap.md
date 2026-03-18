@@ -23,10 +23,10 @@
 |--------|-------|
 | ✅ Completed | 122 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 29 |
-| ⏸️ Blocked | 0 |
+| ⬜ Pending | 33 |
+| ⏸️ Blocked | 1 |
 
-**Last updated**: 2026-03-16
+**Last updated**: 2026-03-17
 
 ---
 
@@ -364,7 +364,7 @@
 | 204 | Luxury Market Dashboard restructuring — Power Five: remove Transaction Volume. Tier Two: remove Cash Buyer, TSV, Flood Zone Exposure. Combine Tier Two + Three. Keep Investor Activity Rate with definition. Add 3-sentence narrative headline about last 100 sales | user-feedback | L | 50, 31, 32 | ✅ |
 | 205 | Neighborhood Intelligence trim — add source attribution (where narrative comes from), significantly reduce text volume, tighten narrative output from agent | user-feedback | M | 32 | ✅ |
 | 206 | Market Segments rating transparency — explain how segment ratings are calculated, show methodology inline in the section | user-feedback | S | 31 | ✅ |
-| 207 | Comparative Position data definitions — define all data points clearly with inline explanations so reader understands each metric | user-feedback | S | 50 | ⬜ |
+| 207 | Comparative Position data definitions — define all data points clearly with inline explanations so reader understands each metric (DEFERRED: peer markets disabled in pipeline and UI as of 2026-03-17; backend code preserved; re-enable when peer markets feature is specced as add-on) | user-feedback | S | 50 | ⏸️ |
 | 208 | Strategic Benchmark reframing — adjust framing from scorecard-like to more strategic positioning language, less grading more advising | user-feedback | M | 35 | ⬜ |
 | 209 | Remove Market Scorecard section — cut entirely from report assembly and PDF rendering | user-feedback | S | 50 | ✅ |
 | 210 | Remove Methodology section from report — cut from PDF, move disclaimer/advisory language to front-end UI | user-feedback | S | 50 | ✅ |
@@ -424,6 +424,22 @@
 | 233 | Post-deploy health gate — GitHub Actions workflow that curls `/api/health` after Vercel deploy, red X on commit if unhealthy | incident-2026-03-15 | S | 2 | ⬜ |
 
 **Goal**: Outages are detected within 5 minutes (not 24 hours), connections self-heal from credential changes, bad deploys are flagged immediately, and recovery is a 10-minute checklist instead of a 2-hour investigation.
+
+---
+
+## Phase 23: Peer Market Comparative Analysis (Add-on)
+
+> Peer market comparison as a premium report add-on. Backend pipeline code exists (data-fetcher, market-analytics, report-assembler) but is disabled as of 2026-03-17 to reduce API cost. Needs full spec, dedicated report section design, and entitlement gating before re-enabling.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 240 | Spec out peer market report section — define what comparative data is valuable to agents, design the section layout, determine how many peers and what metrics to show | user-decision | M | 50 | ⬜ |
+| 241 | Re-enable peer market pipeline — remove skip in data-fetcher.ts, add configurable peer count limit and property-per-peer cap to control API cost | user-decision | S | 240 | ⬜ |
+| 242 | Comparative Positioning report section — build dedicated renderer for peer comparison table, rankings, and narrative (currently falls through to generic JSON) | user-decision | M | 241, 207 | ⬜ |
+| 243 | Peer market UI — re-enable Peers button on markets page, improve peer selection UX (search, suggestions, validation) | user-decision | M | 241 | ⬜ |
+| 244 | Entitlement gating for peer markets — peer comparison as a paid add-on or higher-tier feature, gate at pipeline level to avoid unnecessary API calls | user-decision | S | 241, 173 | ⬜ |
+
+**Goal**: Peer market comparison is a differentiated premium feature. Agents can see how their market ranks against comparable luxury markets on price, volume, and growth — but only when it's specced, designed, and cost-controlled.
 
 ---
 

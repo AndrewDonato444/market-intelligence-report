@@ -117,12 +117,7 @@ export default async function MarketsPage() {
                   >
                     Edit
                   </Link>
-                  <Link
-                    href={`/markets/${market.id}/peers`}
-                    className="px-3 py-1.5 text-xs font-[family-name:var(--font-sans)] font-medium text-[var(--color-accent)] border border-[var(--color-accent)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-light)] transition-colors duration-[var(--duration-default)]"
-                  >
-                    Peers
-                  </Link>
+                  {/* Peers button disabled — peer markets feature on roadmap for future release */}
                   <DeleteMarketButton
                     marketId={market.id}
                     marketName={market.name}
