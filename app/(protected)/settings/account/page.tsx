@@ -2,6 +2,7 @@ import { getAuthUser } from "@/lib/supabase/auth";
 import { redirect } from "next/navigation";
 import { getProfile } from "@/lib/services/profile";
 import { AccountSettings } from "@/components/account/account-settings";
+import { ChangePasswordSection } from "@/components/account/change-password-section";
 import type { SubscriptionData } from "@/components/account/account-settings";
 import { db, schema } from "@/lib/db";
 import { eq, count, gt, asc } from "drizzle-orm";
@@ -175,6 +176,7 @@ export default async function AccountPage() {
         stats={{ reportCount, marketCount }}
         subscriptionData={subscriptionData}
       />
+      <ChangePasswordSection />
     </div>
   );
 }

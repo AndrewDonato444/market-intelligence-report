@@ -37,13 +37,15 @@ export async function GET(request: Request) {
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (!error) {
-      // For email confirmations, send to the verified page so the user
-      // sees a clear success message. For other auth flows (e.g. OAuth),
-      // respect the `next` param.
-      const isEmailConfirmation = searchParams.get("type") === "signup" ||
-        searchParams.get("type") === "email" ||
-        !searchParams.get("type");
-      const destination = isEmailConfirmation ? "/auth/verified" : next;
+      // Route based on auth flow type
+      const type = searchParams.get("type");
+      const isRecovery = type === "recovery";
+      const isEmailConfirmation = type === "signup" || type === "email" || !type;
+      const destination = isRecovery
+        ? "/reset-password"
+        : isEmailConfirmation
+          ? "/auth/verified"
+          : next;
       return NextResponse.redirect(`${origin}${destination}`);
     }
   }
