@@ -40,7 +40,13 @@ interface DashboardContentProps {
 
 export function DashboardContent({ markets, reports, firstName }: DashboardContentProps) {
   const hasMarkets = markets.length > 0;
-  const hasReports = reports.length > 0;
+
+  // Only show successful/in-progress reports on the dashboard — hide failed ones
+  const visibleReports = useMemo(
+    () => reports.filter((r) => r.status !== "failed"),
+    [reports]
+  );
+  const hasReports = visibleReports.length > 0;
 
   // Empty state: no markets at all
   if (!hasMarkets) {
@@ -50,14 +56,14 @@ export function DashboardContent({ markets, reports, firstName }: DashboardConte
   // Build a map of marketId → most recent report date
   const lastReportByMarket = useMemo(() => {
     const map = new Map<string, Date>();
-    for (const r of reports) {
+    for (const r of visibleReports) {
       const existing = map.get(r.marketId);
       if (!existing || r.createdAt > existing) {
         map.set(r.marketId, r.createdAt);
       }
     }
     return map;
-  }, [reports]);
+  }, [visibleReports]);
 
   return (
     <div className="space-y-[var(--spacing-8)]">
@@ -103,7 +109,7 @@ export function DashboardContent({ markets, reports, firstName }: DashboardConte
         {hasReports ? (
           <AnimatedContainer variant="fade">
             <div data-testid="recent-reports-section">
-              <RecentReportsList reports={reports} />
+              <RecentReportsList reports={visibleReports} />
               <Link
                 href="/reports"
                 className="inline-block mt-[var(--spacing-4)] font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-accent)] hover:underline"
