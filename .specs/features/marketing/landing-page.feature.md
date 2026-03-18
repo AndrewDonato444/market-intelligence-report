@@ -6,14 +6,13 @@ tests:
   - __tests__/app/landing-page.test.tsx
 components:
   - HeroSection
-  - MockReportCard
-  - CredibilityStrip
-  - TheGap
-  - HowItWorks
-  - TheReport
-  - Testimonials
-  - Pricing
-  - FinalCta
+  - BrandStatement
+  - OpportunitySection
+  - PlatformSection
+  - FlywheelSection
+  - PromiseSection
+  - ProofSection
+  - BottomCta
   - LandingNav
 personas:
   - rising-star-agent
@@ -21,32 +20,48 @@ personas:
   - team-leader
   - competitive-veteran
   - legacy-agent
-status: implemented
+status: specced
 created: 2026-03-10
-updated: 2026-03-11
+updated: 2026-03-18
+# drift reconciled 2026-03-18: hero/bottom CTA changed from email forms to /waitlist links, nav gained Log In link + /waitlist CTA, "7 spots remaining" added
 ---
 
-# Marketing Landing Page (v2)
+# Marketing Landing Page (v3 — Waitlist/Brand)
 
 **Source File**: `app/page.tsx`
 **Nav Component**: `components/marketing/landing-nav.tsx`
 **Design System**: `.specs/design-system/tokens.md`
-**Creative Brief**: Knox Brothers Intelligence Report Creative Design Brief (March 2026)
+**Locked Decisions**: `MSA_Homepage_Decisions.docx` (March 2026, v1.0)
+**HTML Reference**: `msa-homepage.html` (Brian's approved design)
 **Personas**: All five agent personas
 
 ## Overview
 
-The public-facing marketing page for Modern Signal Advisory's Luxury Market Intelligence Report platform. v2 shifts from editorial-mood page to a clearer conversion funnel with pricing, testimonials, a mock report card in the hero, and "Commission" as the primary action verb.
+v3 pivots from product-led conversion (Commission a Report, $500 pricing) to brand/waitlist acquisition for the founding cohort. The page now positions Modern Signal Advisory as a platform with two products (Signal Report + Signal Voice), uses email waitlist capture as the primary CTA, and establishes credibility through the Knox Brothers precedent rather than testimonials.
 
-### Design Philosophy (from Creative Brief — unchanged)
+### Strategic Shift (v2 → v3)
 
-1. **Editorial, Not Corporate** — magazine spread, not SaaS landing page
+| Dimension | v2 (current) | v3 (Brian's locked decisions) |
+|-----------|-------------|-------------------------------|
+| Goal | Individual report sales | Founding cohort waitlist acquisition |
+| CTA | "Commission Your First Report" → /sign-up | "Join the Waitlist" → /waitlist page |
+| Products shown | Signal Report only | Signal Report + Signal Voice |
+| Pricing | $500/report visible | No pricing (on hold until beta) |
+| Social proof | 3 testimonial quotes | Knox Brothers precedent + $117M/$Top 1% stats |
+| Hero format | Split layout with mock report card | Centered with CTA link to /waitlist |
+| Design feel | Bloomberg Terminal × Architectural Digest | Luxury hospitality (warm, editorial) |
+| Color palette | Navy/gold (cool) | Ivory/charcoal/gold (warm) |
+| Typography | Playfair Display + Inter | Cormorant Garamond + DM Sans |
+
+### Design Philosophy (updated for v3)
+
+1. **Warm + Premium** — luxury hospitality feel, not SaaS or financial terminal
 2. **Breathe With White Space** — generous margins = premium confidence
-3. **Data as Art** — oversized hero numbers as design elements
-4. **Photography as Architecture** — images as structural elements
-5. **Quiet Authority** — confidence from restraint
+3. **Quiet Authority** — confidence from restraint, not assertion
+4. **No "smartest person in the room"** — preparation and differentiation, not intellectual superiority
+5. **No internal jargon** — IDA, Intelligence-Driven Advisor framework removed from public copy
 
-### Hard Guardrails (unchanged)
+### Hard Guardrails (unchanged + additions from locked decisions)
 
 - No exclamation points
 - No urgency language ("Act now," "Limited time")
@@ -55,148 +70,188 @@ The public-facing marketing page for Modern Signal Advisory's Luxury Market Inte
 - No discount language ("free," "complimentary")
 - No stock photography or generic beach imagery
 - No cluttered layouts
+- No "smartest person in the room" framing
+- No internal jargon (IDA, Intelligence-Driven Advisor)
+
+### Design Direction — Marketing Tokens
+
+The marketing page uses the `color-mkt-*` token set defined in `.specs/design-system/tokens.md` (Marketing-Specific section). These extend — not replace — the app's navy-based tokens.
+
+| Design System Token | Brian's HTML Variable | Value | Usage |
+|--------------------|----------------------|-------|-------|
+| `color-mkt-bg` | `--ivory` | `#F7F4EF` | Page background |
+| `color-mkt-surface` | `--warm-white` | `#FDFCFA` | Card backgrounds, inverse text |
+| `color-mkt-border` | `--sand` | `#E8E0D4` | Borders |
+| `color-mkt-text` | `--charcoal` | `#2C2825` | Headlines |
+| `color-mkt-text-secondary` | `--warm-gray` | `#8A8077` | Body text |
+| `color-mkt-text-muted` | `--stone` | `#C4B9A8` | Fine print |
+| `color-mkt-dark` | `--deep` | `#1A1714` | Dark sections |
+| `color-mkt-darkest` | `--ink` | `#0F0E0C` | Footer |
+| `color-mkt-accent` | `--gold` | `#B8975A` | Primary accent |
+| `color-mkt-accent-light` | `--gold-light` | `#D4B87A` | Accent on dark bg |
+| `color-mkt-success` | `--signal-green` | `#4A7C59` | Waitlist confirmation |
+| `font-display` | `--font-display` | Cormorant Garamond | Headlines |
+| `font-body` | `--font-body` | DM Sans | Body/UI text |
+
+**Shared from app tokens**: Spacing scale, border radius, font sizes, font weights, breakpoints.
+
+> **Implementation note**: Use `--color-mkt-*` CSS variable names in code, not Brian's original variable names. This keeps everything traceable to the design system.
 
 ---
 
-## Feature: Marketing Landing Page v2
+## Feature: Marketing Landing Page v3
 
-### Scenario: Navigation with anchor links
+### Scenario: Navigation
 Given a visitor is on the page
 When they view the fixed navigation bar
-Then they see the Modern Signal Advisory logo/wordmark on the left
-And centered navigation links: "How It Works", "The Report", "Pricing"
-And a gold "Commission a Report" CTA button on the right
-And "How It Works" scrolls to #how-it-works
-And "The Report" scrolls to #the-report
-And "Pricing" scrolls to #pricing
-And "Commission a Report" links to the report creation flow
-And the nav transitions from transparent to warm bg on scroll (>50px)
+Then they see "Modern Signal Advisory" wordmark on the left (Cormorant Garamond)
+And "Signal" is gold-colored
+And navigation links on the right: "Platform", "How It Works", "Proof"
+And a "Log In" text link pointing to /sign-in
+And a "Join the Waitlist" CTA button (charcoal bg, warm-white text) linking to /waitlist
+And the nav transitions from transparent to frosted ivory on scroll (>60px)
+And the nav padding reduces from 24px to 16px when scrolled
 
-### Scenario: Hero with mock report card
+### Scenario: Hero section with waitlist CTA
 Given a visitor lands on the root URL "/"
 When the page loads
-Then they see a split-layout hero section
-And a gold eyebrow label "Luxury Market Intelligence" above the headline
-And the H1 reads "Walk into the room as the advisor who brought the research."
-And a subheadline reads "AI-powered intelligence reports — branded to you, grounded in real transaction data, ready to hand to your most important clients."
-And dual CTAs: a primary gold "Commission Your First Report" button and a text link "See how it works →" (scrolls to #how-it-works)
-And the right side displays a mock report card showing:
-  - Agent name: Brian Knox
-  - Brokerage: Knox Brothers
-  - Brand: Compass
-  - Index scores (e.g., Liquidity Index 9.3)
-  - Segment grades (e.g., Ultra-Luxury A+)
-And the mock report card uses the report preview styling (navy header, metric cards, shadow)
+Then they see a centered full-viewport hero on ivory background
+And a gold overline "The Intelligence Era of Real Estate" (12px, tracking 0.25em)
+And the H1 reads "Your market tells a story." with line break then italic gold "Most agents can't tell it."
+And a subheadline in Cormorant Garamond reads "Modern Signal Advisory gives you the intelligence, the voice, and the system to tell it — with authority, in your words, every month without fail."
+And a "Join the Waitlist" button linking to /waitlist
+And below the button: "Founding cohort — limited to 25 agents · 7 spots remaining" (gold accent on "7 spots remaining")
+And a scroll indicator animation at the bottom
+And all elements animate in sequentially with fadeUp (staggered 0.3s–1.3s)
 
-### Scenario: Credibility strip
+### Scenario: Brand statement section
 Given the visitor scrolls past the hero
-When the credibility strip is visible
-Then they see 4 proof-point stats in a horizontal row
-And the stats are: "31" (Indicators), "8" (Personas), "<2 min" (Delivery), "10" (Sections)
-And each stat uses Playfair Display in gold with a supporting context label
+When the brand statement section enters the viewport
+Then they see a dark (#1A1714) full-width section
+And centered text in Cormorant Garamond reads: "Real estate has an old playbook. **The intelligence era is here.** Modern Signal Advisory builds the brand system to prove *you belong at the front of it.*"
+And "The intelligence era is here" is bold white
+And "you belong at the front of it" is italic gold
 
-### Scenario: The Gap section
-Given the visitor scrolls past the credibility strip
-When The Gap section enters the viewport
-Then they see the heading "Your clients make $1M decisions. The market update you're sending them doesn't reflect that."
-And a two-column comparison table:
-  - Left column header: "What most agents deliver"
-  - Right column header: "What Modern Signal delivers"
-And the left column lists common agent deliverables (generic MLS summaries, recycled bullet points, forgettable PDFs)
-And the right column lists Modern Signal equivalents (conviction-grade intelligence, persona-specific analysis, branded publications)
-And the contrast uses visual differentiation (muted left, emphasized right)
+### Scenario: The Opportunity section
+Given the visitor scrolls to The Opportunity section
+When the section enters the viewport
+Then they see a two-column layout
+And the left column has:
+  - Gold section label "THE OPPORTUNITY"
+  - Headline: "The listing goes to the agent who can say what no one else can."
+  - Two body paragraphs about the intelligence gap
+And the right column has 3 stat cards:
+  - "85%" — luxury agents who lost listings to more sophisticated-appearing agents
+  - "60%" — do almost nothing for market intelligence
+  - "#1" — pain point: attracting vs chasing clients
+And each stat card has source "Compass Luxury Agent Survey, 2026"
+And stat cards have hover state: gold border + subtle shadow
 
-### Scenario: How It Works section
-Given the visitor scrolls to the How It Works section
-When the section is visible (anchor target #how-it-works)
-Then they see a three-step process
-And step 01: "Brief your market and your client"
-And step 02: "AI agents synthesize the market"
-And step 03: "A publication with your name on the cover"
-And each step has an oversized Playfair number, gold accent line, and description
-And the section has id="how-it-works" and scroll-mt for nav clearance
-
-### Scenario: The Report section
-Given the visitor scrolls to The Report section
-When the section is visible (anchor target #the-report)
-Then they see the heading "Ten sections. Zero filler."
-And a numbered list of all 10 report sections with one-line descriptions:
-  01. Strategic Overview & Insights Index
-  02. Executive Summary & Market Matrix
-  03. Key Market Drivers
-  04. Neighborhood Intelligence
-  05. The Narrative
-  06. Competitive Positioning
-  07. Forward Outlook & Forecasts
-  08. Strategic Summary
-  09. Methodology & Data Sources
-  10. About the Advisor
-And the section has id="the-report"
-
-### Scenario: Testimonials section (placeholder)
-Given the visitor scrolls to the testimonials section
+### Scenario: The Platform section
+Given the visitor scrolls to The Platform section (anchor #platform)
 When the section is visible
-Then they see the heading "The room changed."
-And 3 testimonial quotes displayed in cards or a row
-And each quote shows: quote text, advisor name, brokerage, market
-And the quotes are placeholder content marked for replacement with real advisor quotes
+Then they see centered header with gold label "THE PLATFORM"
+And headline "Intelligence. Voice. Proof."
+And subhead about two integrated products
+And two product cards side by side:
+  - **Signal Report** — "The Proof Mechanism" — SVG icon, description of monthly intelligence report
+  - **Signal Voice** — "The Reach Mechanism" — SVG icon, description of content transformation
+And each card has a gold top-border animation on hover (scaleX 0→1)
+And below the cards: italic teaser "The platform is expanding — with an advisor training course and private community *arriving later this year.*"
 
-### Scenario: Pricing section
-Given the visitor scrolls to the Pricing section
-When the section is visible (anchor target #pricing)
-Then they see the heading "One report. One relationship redefined."
-And a price display: "$500" prominently styled
-And the label "per report" and "no subscription required"
-And a "What's included" list itemizing report deliverables
-And a note about "Founding advisor rate" (early adopter pricing)
-And a "Commission Your Report" CTA button
-And the section has id="pricing"
+### Scenario: Growth Flywheel section
+Given the visitor scrolls to the Flywheel section (anchor #flywheel)
+When the section is visible
+Then they see a dark (#1A1714) section with gold label "THE GROWTH FLYWHEEL"
+And headline "Not a subscription. A compounding asset."
+And three stages displayed horizontally (stacked on mobile):
+  - 01 Intelligence (Signal Report)
+  - 02 Performance (Signal Report)
+  - 03 Visibility (Signal Voice)
+And each stage has: large number, name, product tag, description
+And stages are separated by subtle vertical borders
 
-### Scenario: Final CTA
-Given the visitor reaches the bottom of the page
-When the final CTA section is visible
-Then they see the heading "Your market expertise is real. Prove it in the room."
-And a gold CTA button reading "Commission Your Intelligence Report"
-And no urgency language or aggressive conversion design
+### Scenario: Promise section
+Given the visitor scrolls past the flywheel
+When the promise section enters the viewport
+Then they see a charcoal (#2C2825) section
+And a centered blockquote in Cormorant Garamond italic
+And the quote contains two gold bold phrases about lasting reputation
 
-### Scenario: Page is viewed on mobile (< 768px)
+### Scenario: Proof / Knox Brothers section
+Given the visitor scrolls to the Proof section (anchor #proof)
+When the section is visible
+Then they see a two-column layout
+And the left column has:
+  - Gold label "BUILT BY ADVISORS, NOT TECHNOLOGISTS"
+  - Headline: "This platform was proven before it was productized."
+  - Two body paragraphs about the founders' journey
+  - Two stats: "$117M" (Sales volume) and "Top 1%" (Producer at Compass)
+And the right column has a dark visual panel with:
+  - Label "The Knox Brothers Precedent"
+  - Quote about subscribers building what founders already proved
+
+### Scenario: Bottom CTA with waitlist link
+Given the visitor reaches the bottom CTA section (anchor #join)
+When the section is visible
+Then they see a dark (#1A1714) section
+And gold label "FOUNDING COHORT — NOW FORMING"
+And headline "The intelligence era" / "isn't *coming.* It's here."
+And body copy about 25 founding members
+And a "Reserve My Spot" button linking to /waitlist (gold bg on dark section)
+And note "No commitment. We'll reach out personally when the founding cohort opens."
+
+### Scenario: Footer
+Given the visitor reaches the footer
+When the footer is visible
+Then they see a minimal dark (#0F0E0C) footer
+And "Modern Signal Advisory" wordmark on the left (with gold "Signal")
+And "© 2026 Modern Signal Advisory, LLC · Confidential" on the right
+
+### Scenario: Mobile responsive (< 900px)
 Given the visitor is on a mobile device
 When the page renders
-Then the hero stacks vertically (text above, report card below)
-And the nav center links collapse to a hamburger or simplified layout
-And the credibility stats wrap or stack
-And The Gap columns stack vertically
-And all touch targets are at least 44px
-And horizontal scrolling never occurs
+Then the nav links are hidden (no hamburger in v3 HTML — simplified)
+And the hero form stacks vertically (input above button)
+And the opportunity grid stacks to single column
+And the product cards stack to single column
+And the flywheel stages stack vertically with top borders
+And the proof grid stacks to single column
+And the bottom CTA form stacks vertically
+And the footer stacks centered
+And all touch targets are accessible
 
-### Scenario: Visitor clicks "Commission Your First Report"
-Given the visitor clicks "Commission Your First Report" in the hero
-When the click event fires
-Then they are navigated to the report creation flow
-
-### Scenario: Visitor clicks "See how it works →"
-Given the visitor clicks "See how it works →" in the hero
-When the click event fires
-Then the page scrolls smoothly to #how-it-works
+### Scenario: Scroll-triggered fade-in animations
+Given any section with class "fade-in" enters the viewport
+When the IntersectionObserver triggers (threshold 0.15, rootMargin "0px 0px -40px 0px")
+Then the element transitions from opacity:0 + translateY(30px) to opacity:1 + translateY(0)
+And the transition duration is 0.9s with ease-out-expo timing
 
 ---
 
-## Section Order (v2)
+## Section Order (v3)
 
-1. **Nav** — Fixed top: Logo left, anchor links center, "Commission a Report" CTA right
-2. **Hero** — Split layout: headline + CTAs left, mock report card right
-3. **Credibility Strip** — 4 stats: 31 indicators, 8 personas, <2 min delivery, 10 sections
-4. **The Gap** — Two-column contrast: most agents vs Modern Signal
-5. **How It Works** — 3-step process (#how-it-works)
-6. **The Report** — 10 sections listed (#the-report)
-7. **Testimonials** — 3 placeholder quotes
-8. **Pricing** — $500/report, what's included (#pricing)
-9. **Final CTA** — "Prove it in the room"
+1. **Nav** — Fixed top: Wordmark left, anchor links right, "Join the Waitlist" CTA right
+2. **Hero** — Centered: overline, headline, subhead, email form, founding cohort note
+3. **Brand Statement** — Dark section, single centered editorial paragraph
+4. **The Opportunity** — Two-column: copy left, 3 stat cards right
+5. **The Platform** — Two product cards: Signal Report + Signal Voice
+6. **Growth Flywheel** — Dark section, 3 horizontal stages
+7. **Promise** — Blockquote on charcoal background
+8. **Proof / Knox Brothers** — Two-column: copy+stats left, testimonial panel right
+9. **Bottom CTA** — Dark section, email capture
 10. **Footer** — Minimal branding
 
-### Sections Removed from v1
-- ~~Editorial Showcase~~ (merged into hero mock report card)
-- ~~Intelligence Pillars~~ (value prop now communicated through Gap contrast + Report list)
+### Sections Removed from v2
+
+- ~~Mock Report Card in Hero~~ (replaced with centered email capture)
+- ~~Credibility Strip~~ (stat proof moved to Opportunity section)
+- ~~The Gap~~ (contrast now implicit in Opportunity copy)
+- ~~How It Works (3-step process)~~ (replaced with Growth Flywheel)
+- ~~The Report (10 sections)~~ (product detail deferred)
+- ~~Testimonials~~ (replaced with Promise quote + Knox Brothers proof)
+- ~~Pricing ($500)~~ (on hold until beta feedback)
+- ~~Final CTA (Commission)~~ (replaced with waitlist capture)
 
 ---
 
@@ -204,11 +259,14 @@ Then the page scrolls smoothly to #how-it-works
 
 1. Agent hears about Modern Signal Advisory (referral, wealth manager, search)
 2. **Lands on marketing page (this feature)**
-3. Hero copy + report card mock establishes credibility and product shape
-4. Scrolls through Gap → How It Works → Report sections
-5. Sees testimonials (social proof) → Pricing (decision)
-6. Clicks "Commission" CTA → report creation flow
-7. Onboarding → first report
+3. Hero copy establishes the problem and positions MSA as the solution
+4. Brand Statement reinforces positioning
+5. Opportunity section validates with stats (85%, 60%, #1)
+6. Platform section introduces both products
+7. Flywheel shows compounding value
+8. Promise + Proof builds trust through founders' track record
+9. Bottom CTA captures email for founding cohort
+10. Team reaches out personally when cohort opens
 
 ---
 
@@ -216,200 +274,225 @@ Then the page scrolls smoothly to #how-it-works
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│ NAV (fixed, transparent → warm bg on scroll)                        │
-│ ┌────────────┐  ┌──────────────────────────┐  ┌──────────────────┐  │
-│ │ ModernSignal│  │How It Works  The Report  │  │Commission a Report│ │
-│ │ Advisory    │  │         Pricing          │  │  [gold btn]       │ │
-│ └────────────┘  └──────────────────────────┘  └──────────────────┘  │
+│ NAV (fixed, transparent → frosted ivory on scroll)                   │
+│ ┌────────────────────┐           ┌─────────────────────────────────┐│
+│ │Modern Signal Adv.  │           │Platform  How It Works  Proof    ││
+│ │      (gold Signal) │           │              [Join Waitlist]    ││
+│ └────────────────────┘           └─────────────────────────────────┘│
 ├──────────────────────────────────────────────────────────────────────┤
-│ HERO (full viewport, dark navy bg)                                   │
+│ HERO (full viewport, ivory bg, centered)                             │
 │                                                                      │
-│  ┌─────────────────────────┐  ┌────────────────────────────┐        │
-│  │ ·Luxury Market Intel·   │  │ ┌────────────────────────┐ │        │
-│  │                         │  │ │ NAPLES INTELLIGENCE    │ │        │
-│  │ Walk into the room as   │  │ │ REPORT                 │ │        │
-│  │ the advisor who brought │  │ ├────────────────────────┤ │        │
-│  │ the research.           │  │ │ Brian Knox             │ │        │
-│  │ ─── (gold line)         │  │ │ Knox Brothers · Compass│ │        │
-│  │                         │  │ ├────┬────┬────┐        │ │        │
-│  │ AI-powered intelligence │  │ │9.3 │ A+ │+4.2│        │ │        │
-│  │ reports — branded to    │  │ │Liq │ULux│YoY │        │ │        │
-│  │ you, grounded in real   │  │ ├────┴────┴────┘        │ │        │
-│  │ transaction data...     │  │ │ ░░░░░░░░░░░░░         │ │        │
-│  │                         │  │ │ ░░░░░░░░░░            │ │        │
-│  │ [Commission Your First] │  │ └────────────────────────┘ │        │
-│  │  See how it works →     │  └────────────────────────────┘        │
-│  └─────────────────────────┘                                        │
+│              THE INTELLIGENCE ERA OF REAL ESTATE                     │
+│                     (gold, 12px, tracking)                           │
+│                                                                      │
+│          Your market tells a story.                                  │
+│          Most agents can't tell it.                                  │
+│              (italic gold)                                           │
+│                                                                      │
+│       [Cormorant Garamond subheadline about                          │
+│        intelligence, voice, system]                                  │
+│                                                                      │
+│     ┌──────────────────────┬──────────────────┐                     │
+│     │ Enter your email     │ Join the Waitlist │                     │
+│     └──────────────────────┴──────────────────┘                     │
+│         Founding cohort — limited to 25 agents                       │
+│                                                                      │
+│                     │ (scroll indicator)                             │
 ├──────────────────────────────────────────────────────────────────────┤
-│ CREDIBILITY STRIP (white surface, border-b)                          │
+│ BRAND STATEMENT (dark #1A1714, centered Cormorant)                   │
 │                                                                      │
-│     31              8            <2 min           10                 │
-│  ── (gold)      ── (gold)      ── (gold)      ── (gold)            │
-│  Indicators     Personas       Delivery        Sections              │
-│                                                                      │
-├──────────────────────────────────────────────────────────────────────┤
-│ THE GAP (warm bg)                                                    │
-│                                                                      │
-│  Your clients make $1M decisions. The market update                  │
-│  you're sending them doesn't reflect that.                           │
-│  ─── (gold line)                                                     │
-│                                                                      │
-│  ┌────────────────────────┬────────────────────────┐                │
-│  │ What most agents       │ What Modern Signal      │                │
-│  │ deliver                │ delivers                │                │
-│  ├────────────────────────┼────────────────────────┤                │
-│  │ × MLS copy-paste       │ ── Conviction-grade    │                │
-│  │ × Generic bullet pts   │ ── Persona-specific    │                │
-│  │ × Forgettable PDFs     │ ── Branded publication │                │
-│  │ × No market thesis     │ ── Forward outlook     │                │
-│  └────────────────────────┴────────────────────────┘                │
+│   Real estate has an old playbook. THE INTELLIGENCE ERA IS HERE.     │
+│   Modern Signal Advisory builds the brand system to prove            │
+│   you belong at the front of it.                                     │
 │                                                                      │
 ├──────────────────────────────────────────────────────────────────────┤
-│ HOW IT WORKS (#how-it-works, white bg)                               │
+│ THE OPPORTUNITY (ivory bg, 2-col)                                    │
 │                                                                      │
-│   01                   02                   03                       │
-│   ── (gold)            ── (gold)            ── (gold)               │
-│   Brief your market    AI agents            A publication            │
-│   and your client      synthesize           with your name           │
-│                        the market           on the cover             │
-│   [description]        [description]        [description]           │
+│  ┌──────────────────────────┐  ┌──────────────────────────┐         │
+│  │ THE OPPORTUNITY           │  │ ┌──────────────────────┐ │         │
+│  │                           │  │ │ 85%                  │ │         │
+│  │ The listing goes to the   │  │ │ of luxury agents...  │ │         │
+│  │ agent who can say what    │  │ │ Compass Survey, 2026 │ │         │
+│  │ no one else can.          │  │ └──────────────────────┘ │         │
+│  │                           │  │ ┌──────────────────────┐ │         │
+│  │ [body paragraphs]         │  │ │ 60%                  │ │         │
+│  │                           │  │ │ do almost nothing... │ │         │
+│  │                           │  │ └──────────────────────┘ │         │
+│  │                           │  │ ┌──────────────────────┐ │         │
+│  │                           │  │ │ #1                   │ │         │
+│  │                           │  │ │ pain point...        │ │         │
+│  └──────────────────────────┘  │ └──────────────────────┘ │         │
+│                                 └──────────────────────────┘         │
+├──────────────────────────────────────────────────────────────────────┤
+│ THE PLATFORM (warm-white bg, #platform)                              │
+│                                                                      │
+│                    THE PLATFORM                                      │
+│              Intelligence. Voice. Proof.                             │
+│        Two integrated products that work together...                 │
+│                                                                      │
+│  ┌───────────────────────┐  ┌───────────────────────┐               │
+│  │ [SVG icon]            │  │ [SVG icon]            │               │
+│  │ Signal Report         │  │ Signal Voice          │               │
+│  │ THE PROOF MECHANISM   │  │ THE REACH MECHANISM   │               │
+│  │                       │  │                       │               │
+│  │ A done-for-you monthly│  │ Your monthly intel    │               │
+│  │ intelligence report...│  │ transformed into      │               │
+│  │                       │  │ LinkedIn, Instagram...│               │
+│  └───────────────────────┘  └───────────────────────┘               │
+│                                                                      │
+│     The platform is expanding — with an advisor training             │
+│     course and private community arriving later this year.           │
 │                                                                      │
 ├──────────────────────────────────────────────────────────────────────┤
-│ THE REPORT (#the-report, dark navy bg)                               │
+│ GROWTH FLYWHEEL (dark #1A1714, #flywheel)                            │
 │                                                                      │
-│   Ten sections. Zero filler.                                        │
-│   ─── (gold line)                                                    │
+│            THE GROWTH FLYWHEEL                                       │
+│      Not a subscription. A compounding asset.                        │
 │                                                                      │
-│   01 Strategic Overview     06 Competitive Positioning              │
-│   02 Executive Summary      07 Forward Outlook                      │
-│   03 Key Market Drivers     08 Strategic Summary                    │
-│   04 Neighborhood Intel     09 Methodology & Data                   │
-│   05 The Narrative          10 About the Advisor                    │
-│                                                                      │
-├──────────────────────────────────────────────────────────────────────┤
-│ TESTIMONIALS (warm bg)                                               │
-│                                                                      │
-│   The room changed.                                                  │
-│   ─── (gold line)                                                    │
-│                                                                      │
-│   ┌──────────────┐ ┌──────────────┐ ┌──────────────┐               │
-│   │ "Quote..."   │ │ "Quote..."   │ │ "Quote..."   │               │
-│   │              │ │              │ │              │               │
-│   │ — Name       │ │ — Name       │ │ — Name       │               │
-│   │   Brokerage  │ │   Brokerage  │ │   Brokerage  │               │
-│   │   Market     │ │   Market     │ │   Market     │               │
-│   └──────────────┘ └──────────────┘ └──────────────┘               │
-│   [placeholder — replace with real advisor quotes]                   │
+│  ┌─────────────────┬─────────────────┬─────────────────┐            │
+│  │ 01              │ 02              │ 03              │            │
+│  │ Intelligence    │ Performance     │ Visibility      │            │
+│  │ SIGNAL REPORT   │ SIGNAL REPORT   │ SIGNAL VOICE    │            │
+│  │                 │                 │                 │            │
+│  │ Walk into a     │ A listing won.  │ Your intel      │            │
+│  │ listing appt... │ A buyer...      │ published...    │            │
+│  └─────────────────┴─────────────────┴─────────────────┘            │
 │                                                                      │
 ├──────────────────────────────────────────────────────────────────────┤
-│ PRICING (#pricing, white bg)                                         │
+│ PROMISE (charcoal #2C2825, blockquote)                               │
 │                                                                      │
-│   One report. One relationship redefined.                            │
-│   ─── (gold line)                                                    │
-│                                                                      │
-│         $500                                                        │
-│       per report                                                    │
-│    no subscription required                                         │
-│                                                                      │
-│   ✓ 10 sections of intelligence   ✓ Branded to you                 │
-│   ✓ Confidence ratings            ✓ PDF + digital                  │
-│   ✓ Competitive benchmarks        ✓ Buyer persona intel            │
-│                                                                      │
-│   * Founding advisor rate                                           │
-│                                                                      │
-│   [Commission Your Report]                                          │
+│   "Once you learn how to read your market, speak to it with          │
+│   authority, and show clients something no one else can —            │
+│   that doesn't go away. The relationships you build, the             │
+│   reputation you earn, the position you hold —                       │
+│   those belong to you forever."                                      │
 │                                                                      │
 ├──────────────────────────────────────────────────────────────────────┤
-│ FINAL CTA (dark navy bg, min-h 60vh)                                 │
+│ PROOF (ivory bg, 2-col, #proof)                                      │
 │                                                                      │
-│   Your market expertise is real.                                     │
-│   Prove it in the room.                                             │
-│   ─── (gold line)                                                    │
-│                                                                      │
-│   [Commission Your Intelligence Report]                              │
+│  ┌──────────────────────────┐  ┌──────────────────────────┐         │
+│  │ BUILT BY ADVISORS,       │  │ ┌────────────────────┐   │         │
+│  │ NOT TECHNOLOGISTS        │  │ │ (dark panel)       │   │         │
+│  │                          │  │ │                    │   │         │
+│  │ This platform was proven │  │ │ THE KNOX BROTHERS  │   │         │
+│  │ before it was            │  │ │ PRECEDENT          │   │         │
+│  │ productized.             │  │ │                    │   │         │
+│  │                          │  │ │ "Every subscriber  │   │         │
+│  │ [body paragraphs]        │  │ │ is building what   │   │         │
+│  │                          │  │ │ the founders have  │   │         │
+│  │ $117M     Top 1%         │  │ │ already done..."   │   │         │
+│  │ Sales vol  Producer      │  │ └────────────────────┘   │         │
+│  └──────────────────────────┘  └──────────────────────────┘         │
 │                                                                      │
 ├──────────────────────────────────────────────────────────────────────┤
-│ FOOTER (dark navy, minimal)                                          │
-│   Modern Signal Advisory · 2026                                     │
+│ BOTTOM CTA (dark #1A1714, #join)                                     │
+│                                                                      │
+│           FOUNDING COHORT — NOW FORMING                              │
+│                                                                      │
+│        The intelligence era                                          │
+│        isn't coming. It's here.                                      │
+│              (italic gold "coming")                                  │
+│                                                                      │
+│     25 founding members. Founding pricing. Direct access             │
+│     to the team building the platform.                               │
+│                                                                      │
+│     ┌──────────────────────┬──────────────────┐                     │
+│     │ Enter your email     │ Reserve My Spot   │                     │
+│     └──────────────────────┴──────────────────┘                     │
+│     No commitment. We'll reach out personally.                       │
+│                                                                      │
+├──────────────────────────────────────────────────────────────────────┤
+│ FOOTER (dark #0F0E0C, minimal)                                       │
+│  Modern Signal Advisory    © 2026 Modern Signal Advisory, LLC        │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Persona Revision Notes
+## Locked Decisions (from Brian's doc)
 
-### Vocabulary alignment
-- **"Commission"** replaces "Get Started" / "Request Access" — all five personas operate in a world where you commission research, not sign up for software. This is the vocabulary of private wealth advisory, not SaaS onboarding.
-- **"Walk into the room"** — every persona's success metric is about a moment: the listing presentation, the client meeting, the pitch. The hero now speaks to that moment directly.
-- **"The market update you're sending them doesn't reflect that"** — The Gap speaks to a frustration all five personas share: the disconnect between the caliber of their clients and the quality of their collateral.
-- **$500 pricing visible** — previously omitted. Now included because the personas are decision-makers who respect transparency. At $500, the price signals quality (not a $29/mo tool) and removes friction (no sales call required).
+These are non-negotiable and must be implemented exactly:
 
-### Anti-persona filtering
-- "Commission" ≠ "Buy" — avoids transactional feel
-- "No subscription required" — not SaaS-speak, addresses team leader's procurement concern
-- "Founding advisor rate" — scarcity without urgency language
-- Testimonial heading "The room changed" — outcome language, not feature language
-
-### Changes from v1 rationale
-- Editorial Showcase removed → mock report card in hero serves same purpose more efficiently (show the product immediately)
-- Intelligence Pillars removed → the Gap's two-column contrast + Report's 10-section list communicate value more concretely
-- Pricing added → removes a step from the funnel; personas respect directness
+1. **Headline**: "Your market tells a story. Most agents can't tell it."
+2. **Founding cohort**: 25 agents (changed from 50)
+3. **Products shown**: Signal Report + Signal Voice only; IDA Course and Community teased as "arriving later this year"
+4. **Signal Voice scope**: Intelligence Layer only — no personalized voice filtering (Problem 2 paused)
+5. **Flywheel**: Three stages mapped to live products only
+6. **Survey attribution**: "Compass Luxury Agent Survey, 2026" — no sample size shown
+7. **Proof stats**: $117M sales volume + Top 1% Producer at Compass (186% YoY removed)
+8. **Signal Report specs in copy**: Eight client personas, under ten minutes, client's decision framework
+9. **Tone guardrails**: No "smartest person in the room" framing
+10. **No internal jargon**: IDA, Intelligence-Driven Advisor framework removed
+11. **CTA**: Waitlist email capture (top and bottom)
+12. **Signal Report landing page**: On hold until beta feedback
+13. **Design direction**: Warm + premium (luxury hospitality) — Cormorant Garamond + DM Sans, ivory/gold/charcoal
 
 ---
 
-## Design Token Usage
+## Implementation Notes
 
-| Element | Token(s) |
-|---------|----------|
-| Hero/Final CTA overlay | `color-primary` at 85-90% opacity |
-| Headlines | `font-serif` (Playfair), `font-light` (300) |
-| Gold accent lines | `color-accent`, h-0.5 |
-| Primary CTA | `bg: color-accent`, `text: color-primary`, `radius-sm`, uppercase, tracking-widest |
-| "See how it works →" | `color-accent`, no background, text link style |
-| Nav anchor links | `font-sans` (Inter), `text-sm`, `color-text-secondary` (scrolled) / `color-text-tertiary` (transparent) |
-| Credibility stat numbers | `font-serif`, `text-4xl md:text-5xl`, `color-accent` |
-| Gap contrast left | `color-text-tertiary`, muted styling |
-| Gap contrast right | `color-text`, `color-accent` accent marks |
-| Price display | `font-serif`, `text-5xl md:text-6xl`, `color-accent` |
-| Testimonial quotes | `font-serif`, italic, `color-text` |
-| Section spacing | `spacing-16` (64px) vertical padding |
-| Report section bg | `color-primary` (dark navy) |
-| Warm sections | `color-report-bg` |
-| Mock report card | `color-surface`, `shadow-lg`, `color-accent` border-left |
+### Architecture Decision: Marketing Token Layer
+
+The marketing page uses the `color-mkt-*` tokens from the design system (`.specs/design-system/tokens.md`). This extends the token system rather than bypassing it. Rationale:
+- One source of truth for all design decisions
+- Marketing tokens follow the same naming pattern as Report-Specific tokens
+- Shared spacing/radius/weights/breakpoints prevent drift
+- The warm palette is a deliberate design choice, not an accident
+
+### Approach
+
+1. Add `--color-mkt-*` CSS variables to the marketing page (from tokens.md)
+2. Replace current `app/page.tsx` sections entirely, using `color-mkt-*` tokens
+3. Update `LandingNav` to match new nav structure
+4. Waitlist form: client-side placeholder handler (same as Brian's HTML for now)
+5. Google Fonts: Add Cormorant Garamond + DM Sans via `<link>` in page head or layout
+
+### Files to Change
+
+- `app/page.tsx` — full rewrite
+- `components/marketing/landing-nav.tsx` — update to new nav structure
+- `app/layout.tsx` or `app/page.tsx` head — add Cormorant Garamond + DM Sans fonts
+
+### Files to Remove (or deprecate)
+
+- Mock report card markup (was in hero, no longer needed)
+- Testimonials data constant (replaced by Promise + Proof)
+- Pricing section (on hold)
+- Gap comparison table (replaced by Opportunity)
 
 ---
 
 ## Component References
 
-- LandingNav: `components/marketing/landing-nav.tsx` — needs center links + CTA update
-- MockReportCard: new component (or inline) — Brian Knox report preview
-- All page sections: inline in `app/page.tsx`
+- LandingNav: `components/marketing/landing-nav.tsx` — needs full rewrite for new structure
+- All page sections: inline in `app/page.tsx` (matching Brian's single-file HTML approach)
 
 ---
 
 ## Technical Notes
 
 - No authentication required — public page
-- All sections server-rendered for SEO (except nav scroll behavior — client component)
-- Nav anchor links use `href="#section-id"` with `scroll-behavior: smooth`
-- `scroll-mt-16` on anchor targets for nav clearance
-- Mock report card: CSS-rendered illustration (styled divs, not a real report)
-- Testimonials: placeholder data, flagged for real quote replacement
-- Pricing: static $500, no Stripe integration on this page (CTA links to creation flow)
-- 10 report sections (up from 8 in v1 — added Methodology & About the Advisor)
+- Waitlist form: `onsubmit` handler with placeholder success state (no backend integration yet)
+- Scroll behavior: CSS `scroll-behavior: smooth`
+- Nav scroll detection: IntersectionObserver or scroll event (>60px)
+- Fade-in animations: IntersectionObserver with threshold 0.15
+- Google Fonts loaded via `<link>` in head (Cormorant Garamond + DM Sans)
+- Responsive breakpoint: 900px (matching Brian's HTML)
+- Footer uses inline styles (not shared Footer component — different design from app footer)
 
 ---
 
 ## Learnings
 
-- "See How It Works" as primary CTA is lower commitment than "Request a Sample Report" — better for first-touch
-- Before/after pain points ("The Problem" section) evolved into two-column contrast table for clearer comparison
-- Explicit space `{" "}` needed before `<br className="hidden md:block" />` to prevent word collision on mobile
-- "Commission" verb resonates with luxury advisory audience — tested stronger than "Get Started" or "Request"
-- Adding pricing directly on landing page reduces funnel steps without hurting premium positioning at $500 price point
+- "Commission" verb from v2 replaced with "Join the Waitlist" — strategic shift from product sales to cohort building
+- Before/after pain points ("The Gap") evolved into Opportunity section with survey stats
+- Explicit `{" "}` needed before `<br className="hidden md:block" />` to prevent word collision on mobile
+- Mock report card removed from hero — waitlist email capture is simpler and more appropriate for pre-launch
+- Self-contained CSS variables for marketing page avoids polluting app design tokens
 
-### 2026-03-11 — v2 Landing Page Redesign
-- **Gotcha**: Mock report card metrics (e.g., "Ultra-Luxury", "10") reappear in other sections (segment grades, report section numbering), causing `getByText` collisions. Scope queries with `within(screen.getByTestId("section-id"))` or use `getAllByText` with length checks
-- **Pattern**: Split-layout hero (`flex-col md:flex-row`) with copy left + mock report card right works well for product-led pages — the card acts as social proof without needing real screenshots
-- **Decision**: Anchor nav links (How It Works / The Report / Pricing) with `scroll-mt-16` for fixed nav clearance. Only 3 links keeps nav clean; sections like Testimonials and The Gap don't need direct nav access
-- **Pattern**: Mobile hamburger state (`mobileOpen`) with `onClick={() => setMobileOpen(false)}` on every mobile link prevents the menu from staying open after anchor scroll
+### 2026-03-18 — v3 Landing Page (Brian's Locked Decisions)
+- **Decision**: Marketing page gets its own warm color palette separate from app's navy tokens
+- **Decision**: Cormorant Garamond + DM Sans replaces Playfair Display + Inter for marketing page only
+- **Decision**: No pricing shown until beta feedback collected
+- **Decision**: Signal Voice introduced as second product alongside Signal Report
+- **Locked**: All copy from Brian's decisions doc is final — implement exactly as written

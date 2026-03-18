@@ -1,12 +1,11 @@
 /**
- * Landing Page Tests (v2)
+ * Landing Page Tests (v3 — Waitlist/Brand)
  *
  * Test IDs: PG-LAND-001 through PG-LAND-032
  * Spec: .specs/features/marketing/landing-page.feature.md
  *
  * Tests the public marketing landing page at app/page.tsx.
- * Validates all sections render with correct content, design token usage,
- * responsive behavior, navigation, and creative brief guardrails.
+ * v3 shifts from product-led conversion to founding cohort waitlist acquisition.
  */
 
 import { render, screen, within } from "@testing-library/react";
@@ -31,11 +30,19 @@ Object.defineProperty(window, "matchMedia", {
 jest.mock("next/font/google", () => ({
   Playfair_Display: () => ({
     className: "playfair-mock",
-    variable: "--font-serif",
+    variable: "--font-playfair",
   }),
   Inter: () => ({
     className: "inter-mock",
-    variable: "--font-sans",
+    variable: "--font-inter",
+  }),
+  Cormorant_Garamond: () => ({
+    className: "cormorant-mock",
+    variable: "--font-display",
+  }),
+  DM_Sans: () => ({
+    className: "dm-sans-mock",
+    variable: "--font-body",
   }),
 }));
 
@@ -68,7 +75,7 @@ jest.mock("next/link", () => ({
 
 import Home from "@/app/page";
 
-describe("Marketing Landing Page v2", () => {
+describe("Marketing Landing Page v3", () => {
   beforeEach(() => {
     render(<Home />);
   });
@@ -84,33 +91,35 @@ describe("Marketing Landing Page v2", () => {
   describe("Navigation", () => {
     it("PG-LAND-002: renders the Modern Signal Advisory wordmark", () => {
       const nav = screen.getByRole("navigation");
-      expect(
-        within(nav).getByText(/Modern Signal Advisory/i)
-      ).toBeInTheDocument();
+      expect(nav.textContent).toMatch(/Modern/);
+      expect(nav.textContent).toMatch(/Signal/);
+      expect(nav.textContent).toMatch(/Advisory/);
     });
 
-    it("PG-LAND-003: renders center anchor links", () => {
+    it("PG-LAND-003: renders anchor links — Platform, How It Works, Proof", () => {
       const nav = screen.getByRole("navigation");
+      expect(within(nav).getByText("Platform")).toBeInTheDocument();
       expect(within(nav).getByText("How It Works")).toBeInTheDocument();
-      expect(within(nav).getByText("The Report")).toBeInTheDocument();
-      expect(within(nav).getByText("Pricing")).toBeInTheDocument();
+      expect(within(nav).getByText("Proof")).toBeInTheDocument();
     });
 
     it("PG-LAND-004: anchor links point to correct section IDs", () => {
       const nav = screen.getByRole("navigation");
-      const howItWorks = within(nav).getByText("How It Works");
-      const theReport = within(nav).getByText("The Report");
-      const pricing = within(nav).getByText("Pricing");
-      expect(howItWorks.closest("a")).toHaveAttribute("href", "#how-it-works");
-      expect(theReport.closest("a")).toHaveAttribute("href", "#the-report");
-      expect(pricing.closest("a")).toHaveAttribute("href", "#pricing");
+      expect(
+        within(nav).getByText("Platform").closest("a")
+      ).toHaveAttribute("href", "#platform");
+      expect(
+        within(nav).getByText("How It Works").closest("a")
+      ).toHaveAttribute("href", "#flywheel");
+      expect(
+        within(nav).getByText("Proof").closest("a")
+      ).toHaveAttribute("href", "#proof");
     });
 
-    it("PG-LAND-005: renders Commission a Report CTA", () => {
+    it("PG-LAND-005: renders Join the Waitlist CTA linking to /waitlist", () => {
       const nav = screen.getByRole("navigation");
-      const cta = within(nav).getByText(/Commission a Report/i);
-      expect(cta).toBeInTheDocument();
-      expect(cta.closest("a")).toHaveAttribute("href", "/sign-up");
+      const cta = within(nav).getByText(/Join the Waitlist/i);
+      expect(cta.closest("a")).toHaveAttribute("href", "/waitlist");
     });
 
     it("PG-LAND-005b: nav is rendered as a fixed element", () => {
@@ -121,341 +130,285 @@ describe("Marketing Landing Page v2", () => {
 
   // ─── PG-LAND-006–009: Hero Section ───
   describe("Hero Section", () => {
-    it("PG-LAND-006: renders the eyebrow label", () => {
+    it("PG-LAND-006: renders the overline", () => {
       const hero = screen.getByTestId("hero-section");
       expect(
-        within(hero).getByText(/^Luxury Market Intelligence$/i)
+        within(hero).getByText(/The Intelligence Era of Real Estate/i)
       ).toBeInTheDocument();
     });
 
-    it("PG-LAND-007: renders the v2 headline", () => {
+    it("PG-LAND-007: renders the v3 headline", () => {
       const hero = screen.getByTestId("hero-section");
       expect(
-        within(hero).getByText(
-          /Walk into the room as the advisor who brought the research/i
+        within(hero).getByText(/Your market tells a story/i)
+      ).toBeInTheDocument();
+    });
+
+    it("PG-LAND-008: renders the subheadline about intelligence, voice, system", () => {
+      const hero = screen.getByTestId("hero-section");
+      expect(
+        within(hero).getByText(/intelligence, the voice, and the system/i)
+      ).toBeInTheDocument();
+    });
+
+    it("PG-LAND-009: renders Join the Waitlist link to /waitlist", () => {
+      const hero = screen.getByTestId("hero-section");
+      const cta = within(hero).getByRole("link", {
+        name: /Join the Waitlist/i,
+      });
+      expect(cta).toHaveAttribute("href", "/waitlist");
+    });
+
+    it("PG-LAND-009b: shows founding cohort note with spots remaining", () => {
+      const hero = screen.getByTestId("hero-section");
+      expect(
+        within(hero).getByText(/Founding cohort/i)
+      ).toBeInTheDocument();
+      expect(
+        within(hero).getByText(/7 spots remaining/i)
+      ).toBeInTheDocument();
+    });
+  });
+
+  // ─── PG-LAND-010: Brand Statement ───
+  describe("Brand Statement", () => {
+    it("PG-LAND-010: renders the brand statement", () => {
+      const section = screen.getByTestId("brand-statement");
+      expect(section.textContent).toMatch(/The intelligence era is here/i);
+      expect(section.textContent).toMatch(
+        /you belong at the front of it/i
+      );
+    });
+  });
+
+  // ─── PG-LAND-011–012: The Opportunity ───
+  describe("The Opportunity", () => {
+    it("PG-LAND-011: renders the opportunity headline", () => {
+      const section = screen.getByTestId("opportunity-section");
+      expect(
+        within(section).getByText(
+          /The listing goes to the agent who can say what no one else can/i
         )
       ).toBeInTheDocument();
     });
 
-    it("PG-LAND-008: renders the subheadline about branded reports", () => {
-      const hero = screen.getByTestId("hero-section");
-      expect(
-        within(hero).getByText(/branded to you, grounded in real transaction data/i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-009: renders Commission Your First Report CTA linking to /create", () => {
-      const hero = screen.getByTestId("hero-section");
-      const cta = within(hero).getByRole("link", {
-        name: /Commission Your First Report/i,
-      });
-      expect(cta).toHaveAttribute("href", "/sign-up");
-    });
-
-    it("PG-LAND-009b: renders See how it works link to #how-it-works", () => {
-      const hero = screen.getByTestId("hero-section");
-      const link = within(hero).getByText(/See how it works/i);
-      expect(link.closest("a")).toHaveAttribute("href", "#how-it-works");
-    });
-
-    it("PG-LAND-009c: hero has a gold accent line", () => {
-      const hero = screen.getByTestId("hero-section");
-      const accentLine = within(hero).getByTestId("accent-line");
-      expect(accentLine).toBeInTheDocument();
+    it("PG-LAND-012: renders three stat cards with survey source", () => {
+      const section = screen.getByTestId("opportunity-section");
+      expect(within(section).getByText("85%")).toBeInTheDocument();
+      expect(within(section).getByText("60%")).toBeInTheDocument();
+      expect(within(section).getByText("#1")).toBeInTheDocument();
+      const sources = within(section).getAllByText(
+        /Compass Luxury Agent Survey, 2026/i
+      );
+      expect(sources).toHaveLength(3);
     });
   });
 
-  // ─── PG-LAND-010: Mock Report Card ───
-  describe("Mock Report Card", () => {
-    it("PG-LAND-010: renders the report preview", () => {
-      expect(screen.getByTestId("report-preview")).toBeInTheDocument();
+  // ─── PG-LAND-013–014: The Platform ───
+  describe("The Platform", () => {
+    it("PG-LAND-013: renders platform headline", () => {
+      const section = screen.getByTestId("platform-section");
+      expect(
+        within(section).getByText(/Intelligence\. Voice\. Proof\./i)
+      ).toBeInTheDocument();
     });
 
-    it("PG-LAND-010b: shows Brian Knox advisor info", () => {
-      const preview = screen.getByTestId("report-preview");
-      expect(preview.textContent).toMatch(/Brian Knox/);
+    it("PG-LAND-014: renders Signal Report and Signal Voice cards", () => {
+      const section = screen.getByTestId("platform-section");
+      expect(
+        within(section).getByText("Signal Report")
+      ).toBeInTheDocument();
+      expect(
+        within(section).getByText(/The Proof Mechanism/i)
+      ).toBeInTheDocument();
+      expect(
+        within(section).getByText("Signal Voice")
+      ).toBeInTheDocument();
+      expect(
+        within(section).getByText(/The Reach Mechanism/i)
+      ).toBeInTheDocument();
     });
 
-    it("PG-LAND-010c: shows Knox Brothers and Compass", () => {
-      // Knox Brothers · Compass rendered with middot
-      const preview = screen.getByTestId("report-preview");
-      expect(preview.textContent).toMatch(/Knox Brothers/);
-      expect(preview.textContent).toMatch(/Compass/);
+    it("PG-LAND-014b: renders platform teaser about future products", () => {
+      const section = screen.getByTestId("platform-section");
+      expect(section.textContent).toMatch(
+        /advisor training course and private community/i
+      );
     });
 
-    it("PG-LAND-010d: shows four dimension scores", () => {
-      const preview = screen.getByTestId("report-preview");
-      expect(within(preview).getByText("8.4")).toBeInTheDocument();
-      expect(within(preview).getByText("Liquidity")).toBeInTheDocument();
-      expect(within(preview).getByText("7.1")).toBeInTheDocument();
-      expect(within(preview).getByText("Timing")).toBeInTheDocument();
-      expect(within(preview).getByText("6.8")).toBeInTheDocument();
-      expect(within(preview).getByText("7.6")).toBeInTheDocument();
-    });
-
-    it("PG-LAND-010e: shows segment grades in table", () => {
-      const preview = screen.getByTestId("report-preview");
-      expect(within(preview).getByText("A+")).toBeInTheDocument();
-      expect(within(preview).getByText(/Waterfront SFH/)).toBeInTheDocument();
-      expect(within(preview).getByText("B+")).toBeInTheDocument();
-      expect(within(preview).getByText(/Golf Community/)).toBeInTheDocument();
-    });
-  });
-
-  // ─── PG-LAND-011–012: Credibility Strip ───
-  describe("Credibility Strip", () => {
-    it("PG-LAND-011: renders four data callout figures", () => {
-      const callouts = screen.getByTestId("data-callouts");
-      const figures = within(callouts).getAllByTestId("data-callout");
-      expect(figures).toHaveLength(4);
-    });
-
-    it("PG-LAND-012: displays the four product stats", () => {
-      const strip = screen.getByTestId("data-callouts");
-      expect(within(strip).getByText("31")).toBeInTheDocument();
-      expect(within(strip).getByText(/Market indicators tracked/i)).toBeInTheDocument();
-      expect(within(strip).getByText("8")).toBeInTheDocument();
-      expect(within(strip).getByText(/Buyer personas with dedicated/i)).toBeInTheDocument();
-      expect(within(strip).getByText("<2 min")).toBeInTheDocument();
-      expect(within(strip).getByText(/From brief to finished report/i)).toBeInTheDocument();
-      expect(within(strip).getByText("10")).toBeInTheDocument();
-      expect(within(strip).getByText(/Sections of strategic intelligence/i)).toBeInTheDocument();
+    it("PG-LAND-014c: section has id platform for anchor scroll", () => {
+      const section = screen.getByTestId("platform-section");
+      expect(section).toHaveAttribute("id", "platform");
     });
   });
 
-  // ─── PG-LAND-013–014: The Gap ───
-  describe("The Gap", () => {
-    it("PG-LAND-013: renders the gap headline", () => {
+  // ─── PG-LAND-015–016: Growth Flywheel ───
+  describe("Growth Flywheel", () => {
+    it("PG-LAND-015: renders three flywheel stages", () => {
+      const section = screen.getByTestId("flywheel-section");
+      expect(within(section).getByText("01")).toBeInTheDocument();
+      expect(within(section).getByText("Intelligence")).toBeInTheDocument();
+      expect(within(section).getByText("02")).toBeInTheDocument();
+      expect(within(section).getByText("Performance")).toBeInTheDocument();
+      expect(within(section).getByText("03")).toBeInTheDocument();
+      expect(within(section).getByText("Visibility")).toBeInTheDocument();
+    });
+
+    it("PG-LAND-016: renders flywheel headline", () => {
+      const section = screen.getByTestId("flywheel-section");
       expect(
-        screen.getByText(/Your clients make \$1M decisions/i)
+        within(section).getByText(
+          /Not a subscription\. A compounding asset\./i
+        )
       ).toBeInTheDocument();
     });
 
-    it("PG-LAND-014: renders column headers", () => {
-      expect(
-        screen.getByText(/What most agents deliver/i)
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/What Modern Signal delivers/i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-014b: renders contrast rows", () => {
-      expect(
-        screen.getByText(/A PDF of MLS stats any portal could generate/i)
-      ).toBeInTheDocument();
-      expect(
-        screen.getByText(/Proprietary indexes no other agent/i)
-      ).toBeInTheDocument();
-    });
-  });
-
-  // ─── PG-LAND-015–016: How It Works ───
-  describe("How It Works", () => {
-    it("PG-LAND-015: renders three process steps with updated titles", () => {
-      const process = screen.getByTestId("process-narrative");
-      expect(within(process).getByText("01")).toBeInTheDocument();
-      expect(within(process).getByText("02")).toBeInTheDocument();
-      expect(within(process).getByText("03")).toBeInTheDocument();
-      expect(
-        within(process).getByText(/Brief your market and your client/i)
-      ).toBeInTheDocument();
-      expect(
-        within(process).getByText(/AI agents synthesize the market/i)
-      ).toBeInTheDocument();
-      expect(
-        within(process).getByText(/A publication with your name on the cover/i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-016: section has id how-it-works for anchor scroll", () => {
-      const process = screen.getByTestId("process-narrative");
-      expect(process).toHaveAttribute("id", "how-it-works");
+    it("PG-LAND-016b: section has id flywheel for anchor scroll", () => {
+      const section = screen.getByTestId("flywheel-section");
+      expect(section).toHaveAttribute("id", "flywheel");
     });
   });
 
-  // ─── PG-LAND-017–018: The Report ───
-  describe("The Report", () => {
-    it("PG-LAND-017: renders the v2 heading", () => {
-      const breakdown = screen.getByTestId("report-breakdown");
-      expect(
-        within(breakdown).getByText(/Ten sections\. Zero filler\./i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-018: lists all 10 report sections", () => {
-      const breakdown = screen.getByTestId("report-breakdown");
-      expect(
-        within(breakdown).getByText(/Strategic Overview & Insights Index/i)
-      ).toBeInTheDocument();
-      expect(
-        within(breakdown).getByText(/Executive Summary & Market Matrix/i)
-      ).toBeInTheDocument();
-      expect(
-        within(breakdown).getByText(/Key Market Drivers/i)
-      ).toBeInTheDocument();
-      expect(
-        within(breakdown).getByText(/Neighborhood Intelligence/i)
-      ).toBeInTheDocument();
-      // Use getAllByText since "The Narrative" may match "Market Narrative" in report card
-      expect(
-        within(breakdown).getAllByText(/^The Narrative$/i).length
-      ).toBeGreaterThanOrEqual(1);
-      expect(
-        within(breakdown).getByText(/Competitive Positioning/i)
-      ).toBeInTheDocument();
-      expect(
-        within(breakdown).getByText(/Forward Outlook & Forecasts/i)
-      ).toBeInTheDocument();
-      expect(
-        within(breakdown).getByText(/Strategic Summary/i)
-      ).toBeInTheDocument();
-      expect(
-        within(breakdown).getByText(/Methodology & Data Sources/i)
-      ).toBeInTheDocument();
-      expect(
-        within(breakdown).getByText(/About the Advisor/i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-018b: section has id the-report for anchor scroll", () => {
-      const breakdown = screen.getByTestId("report-breakdown");
-      expect(breakdown).toHaveAttribute("id", "the-report");
+  // ─── PG-LAND-017: Promise Section ───
+  describe("Promise Section", () => {
+    it("PG-LAND-017: renders the promise blockquote", () => {
+      const section = screen.getByTestId("promise-section");
+      expect(section.textContent).toMatch(/that doesn.t go away/i);
+      expect(section.textContent).toMatch(
+        /those belong to you forever/i
+      );
     });
   });
 
-  // ─── PG-LAND-019–020: Testimonials ───
-  describe("Testimonials", () => {
-    it("PG-LAND-019: renders the testimonials heading", () => {
-      const section = screen.getByTestId("testimonials");
+  // ─── PG-LAND-018–019: Proof / Knox Brothers ───
+  describe("Proof / Knox Brothers", () => {
+    it("PG-LAND-018: renders proof headline and body", () => {
+      const section = screen.getByTestId("proof-section");
       expect(
-        within(section).getByText(/The room changed/i)
+        within(section).getByText(
+          /This platform was proven before it was productized/i
+        )
       ).toBeInTheDocument();
     });
 
-    it("PG-LAND-020: renders 3 testimonial quotes with names", () => {
-      const section = screen.getByTestId("testimonials");
-      expect(within(section).getByText(/Marcus Trevino/)).toBeInTheDocument();
-      expect(within(section).getByText(/Jennifer Langford/)).toBeInTheDocument();
-      expect(within(section).getByText(/David Kessler/)).toBeInTheDocument();
+    it("PG-LAND-019: renders $117M and Top 1% stats", () => {
+      const section = screen.getByTestId("proof-section");
+      expect(within(section).getByText("$117M")).toBeInTheDocument();
+      expect(within(section).getByText("Top 1%")).toBeInTheDocument();
+    });
+
+    it("PG-LAND-019b: renders Knox Brothers Precedent", () => {
+      const section = screen.getByTestId("proof-section");
+      expect(
+        within(section).getByText(/The Knox Brothers Precedent/i)
+      ).toBeInTheDocument();
+    });
+
+    it("PG-LAND-019c: section has id proof for anchor scroll", () => {
+      const section = screen.getByTestId("proof-section");
+      expect(section).toHaveAttribute("id", "proof");
     });
   });
 
-  // ─── PG-LAND-021–023: Pricing ───
-  describe("Pricing", () => {
-    it("PG-LAND-021: renders the pricing heading", () => {
-      const section = screen.getByTestId("pricing");
-      expect(
-        within(section).getByText(/One report\. One relationship redefined\./i)
-      ).toBeInTheDocument();
+  // ─── PG-LAND-020–021: Bottom CTA ───
+  describe("Bottom CTA", () => {
+    it("PG-LAND-020: renders the bottom CTA headline", () => {
+      const section = screen.getByTestId("bottom-cta");
+      expect(section.textContent).toMatch(/intelligence era/i);
     });
 
-    it("PG-LAND-022: displays $500 price", () => {
-      const section = screen.getByTestId("pricing");
-      expect(within(section).getByText("$500")).toBeInTheDocument();
-      expect(within(section).getByText("per report")).toBeInTheDocument();
-      expect(
-        within(section).getByText(/no subscription required/i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-023: shows what is included list", () => {
-      const section = screen.getByTestId("pricing");
-      expect(
-        within(section).getByText(/Full 10-section intelligence report/i)
-      ).toBeInTheDocument();
-      expect(
-        within(section).getByText(/Market Insights Index with confidence ratings/i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-023b: shows founding advisor rate note", () => {
-      expect(
-        screen.getByText(/Founding advisor rate/i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-023c: section has id pricing for anchor scroll", () => {
-      const section = screen.getByTestId("pricing");
-      expect(section).toHaveAttribute("id", "pricing");
-    });
-
-    it("PG-LAND-023d: renders Commission Your Report CTA", () => {
-      const section = screen.getByTestId("pricing");
+    it("PG-LAND-021: renders Reserve My Spot link to /waitlist", () => {
+      const section = screen.getByTestId("bottom-cta");
       const cta = within(section).getByRole("link", {
-        name: /Commission Your Report/i,
+        name: /Reserve My Spot/i,
       });
-      expect(cta).toHaveAttribute("href", "/sign-up");
+      expect(cta).toHaveAttribute("href", "/waitlist");
+    });
+
+    it("PG-LAND-021b: section has id join for anchor scroll", () => {
+      const section = screen.getByTestId("bottom-cta");
+      expect(section).toHaveAttribute("id", "join");
     });
   });
 
-  // ─── PG-LAND-024–025: Final CTA ───
-  describe("Final CTA", () => {
-    it("PG-LAND-024: renders the closing headline", () => {
-      const closing = screen.getByTestId("closing-statement");
-      expect(
-        within(closing).getByText(/Your market expertise is real/i)
-      ).toBeInTheDocument();
-      expect(
-        within(closing).getByText(/Prove it in the room/i)
-      ).toBeInTheDocument();
-    });
-
-    it("PG-LAND-025: renders Commission Your Intelligence Report CTA", () => {
-      const closing = screen.getByTestId("closing-statement");
-      const cta = within(closing).getByRole("link", {
-        name: /Commission Your Intelligence Report/i,
+  // ─── PG-LAND-022: Waitlist links (no inline form) ───
+  describe("Waitlist Links", () => {
+    it("PG-LAND-022: both CTAs link to /waitlist page", () => {
+      const waitlistLinks = screen.getAllByRole("link", {
+        name: /Join the Waitlist|Reserve My Spot/i,
       });
-      expect(cta).toHaveAttribute("href", "/sign-up");
+      waitlistLinks.forEach((link) => {
+        expect(link).toHaveAttribute("href", "/waitlist");
+      });
     });
   });
 
-  // ─── PG-LAND-026: Footer ───
+  // ─── PG-LAND-023: Footer ───
   describe("Footer", () => {
-    it("PG-LAND-026: renders the footer with branding", () => {
-      const footer = screen.getByRole("contentinfo");
-      const allText = within(footer).getAllByText(/Modern Signal Advisory/i);
-      expect(allText.length).toBeGreaterThanOrEqual(1);
-      expect(within(footer).getByText(/2026/)).toBeInTheDocument();
+    it("PG-LAND-023: renders the marketing footer with branding", () => {
+      const footer = screen.getByTestId("marketing-footer");
+      expect(footer.textContent).toMatch(/Modern/);
+      expect(footer.textContent).toMatch(/Signal/);
+      expect(footer.textContent).toMatch(/2026/);
+      expect(footer.textContent).toMatch(/Confidential/);
     });
   });
 
-  // ─── PG-LAND-027–029: Creative Brief Guardrails ───
+  // ─── PG-LAND-024–026: Creative Brief Guardrails ───
   describe("Creative Brief Guardrails", () => {
-    it("PG-LAND-027: page contains no exclamation points", () => {
+    it("PG-LAND-024: page contains no exclamation points", () => {
       const main = screen.getByRole("main");
       expect(main.textContent).not.toMatch(/!/);
     });
 
-    it("PG-LAND-028: page contains no magazine-quality language", () => {
+    it("PG-LAND-025: page contains no smartest-person-in-the-room framing", () => {
       const main = screen.getByRole("main");
-      expect(main.textContent).not.toMatch(/magazine.quality/i);
+      expect(main.textContent).not.toMatch(/smartest/i);
     });
 
-    it("PG-LAND-029: page contains no complimentary or free language", () => {
+    it("PG-LAND-026: page contains no internal jargon (IDA)", () => {
       const main = screen.getByRole("main");
-      expect(main.textContent).not.toMatch(/complimentary/i);
-      expect(main.textContent).not.toMatch(/\bfree\b/i);
+      expect(main.textContent).not.toMatch(/\bIDA\b/);
+      expect(main.textContent).not.toMatch(
+        /Intelligence.Driven Advisor/i
+      );
     });
   });
 
-  // ─── PG-LAND-030–032: Removed sections (regression) ───
-  describe("Removed sections (regression)", () => {
-    it("PG-LAND-030: Editorial Showcase section no longer exists", () => {
-      expect(screen.queryByText(/A publication, not a printout/i)).not.toBeInTheDocument();
+  // ─── PG-LAND-027–032: Removed sections (regression from v2) ───
+  describe("Removed v2 sections (regression)", () => {
+    it("PG-LAND-027: mock report card no longer in hero", () => {
+      expect(screen.queryByTestId("report-preview")).not.toBeInTheDocument();
     });
 
-    it("PG-LAND-031: Intelligence Pillars section no longer exists", () => {
-      expect(screen.queryByTestId("intelligence-pillars")).not.toBeInTheDocument();
+    it("PG-LAND-028: credibility strip no longer exists", () => {
+      expect(screen.queryByTestId("data-callouts")).not.toBeInTheDocument();
+    });
+
+    it("PG-LAND-029: testimonials section no longer exists", () => {
+      expect(screen.queryByTestId("testimonials")).not.toBeInTheDocument();
+    });
+
+    it("PG-LAND-030: pricing section no longer exists", () => {
+      expect(screen.queryByTestId("pricing")).not.toBeInTheDocument();
+      expect(screen.queryByText("$500")).not.toBeInTheDocument();
+    });
+
+    it("PG-LAND-031: no Commission CTAs remain", () => {
+      expect(
+        screen.queryByText(/Commission Your First Report/i)
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(/Commission Your Report/i)
+      ).not.toBeInTheDocument();
     });
 
     it("PG-LAND-032: no Request Access or Get Started CTAs remain", () => {
-      const hero = screen.getByTestId("hero-section");
       expect(
-        within(hero).queryByText(/Request Access/i)
+        screen.queryByText(/Request Access/i)
       ).not.toBeInTheDocument();
       expect(
-        within(hero).queryByText(/^Get Started$/i)
+        screen.queryByText(/^Get Started$/i)
       ).not.toBeInTheDocument();
     });
   });

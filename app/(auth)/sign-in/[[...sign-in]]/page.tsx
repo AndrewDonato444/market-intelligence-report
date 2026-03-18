@@ -9,18 +9,20 @@ import { Suspense, useCallback, useState } from "react";
 /* ── Brand Panel (left side on desktop, compact header on mobile) ── */
 function BrandPanel() {
   return (
-    <div className="hidden md:flex md:w-[45%] bg-[var(--color-primary)] flex-col justify-center items-center px-[var(--spacing-12)] py-[var(--spacing-16)]">
-      <div className="max-w-xs text-center">
-        <h1 className="font-[family-name:var(--font-playfair)] text-2xl font-bold text-[var(--color-text-inverse)]">
-          Modern Signal Advisory
+    <div className="hidden md:flex md:w-[45%] bg-[var(--color-mkt-dark)] flex-col justify-center items-center px-[var(--spacing-12)] py-[var(--spacing-16)]">
+      <div className="max-w-sm text-center">
+        <h1 className="font-[family-name:var(--font-display)] text-4xl font-light text-[var(--color-mkt-text-inverse)] tracking-[0.06em]">
+          Modern{" "}
+          <span className="text-[var(--color-mkt-accent)]">Signal</span>{" "}
+          Advisory
         </h1>
-        <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-inverse)]/70 mt-[var(--spacing-2)]">
-          Luxury Market Intelligence
+        <p className="font-[family-name:var(--font-body)] text-base text-[var(--color-mkt-text-inverse)]/70 mt-[var(--spacing-3)]">
+          The Intelligence Era of Real Estate
         </p>
-        <div className="w-12 h-0.5 bg-[var(--color-accent)] mx-auto mt-[var(--spacing-4)]" />
-        <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-inverse)]/50 mt-[var(--spacing-8)] leading-relaxed">
-          Institutional-grade market analysis &mdash; branded to you, grounded
-          in real transaction data.
+        <div className="w-16 h-0.5 bg-[var(--color-mkt-accent)] mx-auto mt-[var(--spacing-6)]" />
+        <p className="font-[family-name:var(--font-body)] text-base text-[var(--color-mkt-text-inverse)]/50 mt-[var(--spacing-8)] leading-relaxed">
+          The intelligence, the voice, and the system to tell your
+          market&rsquo;s story &mdash; with authority, every month without fail.
         </p>
       </div>
     </div>
@@ -30,11 +32,13 @@ function BrandPanel() {
 /* ── Mobile Brand Header ── */
 function MobileBrandHeader() {
   return (
-    <div className="md:hidden bg-[var(--color-primary)] px-[var(--spacing-6)] py-[var(--spacing-6)] text-center">
-      <h1 className="font-[family-name:var(--font-playfair)] text-xl font-bold text-[var(--color-text-inverse)]">
-        Modern Signal Advisory
+    <div className="md:hidden bg-[var(--color-mkt-dark)] px-[var(--spacing-6)] py-[var(--spacing-6)] text-center">
+      <h1 className="font-[family-name:var(--font-display)] text-xl font-light text-[var(--color-mkt-text-inverse)] tracking-[0.06em]">
+        Modern{" "}
+        <span className="text-[var(--color-mkt-accent)]">Signal</span>{" "}
+        Advisory
       </h1>
-      <div className="w-10 h-0.5 bg-[var(--color-accent)] mx-auto mt-[var(--spacing-2)]" />
+      <div className="w-10 h-0.5 bg-[var(--color-mkt-accent)] mx-auto mt-[var(--spacing-2)]" />
     </div>
   );
 }
@@ -101,25 +105,25 @@ function SignInForm() {
       <BrandPanel />
 
       {/* Form Panel */}
-      <div className="flex-1 flex items-center justify-center bg-[var(--color-surface)] px-[var(--spacing-6)] py-[var(--spacing-12)]">
+      <div className="flex-1 flex items-center justify-center bg-[var(--color-mkt-bg)] px-[var(--spacing-6)] py-[var(--spacing-12)]">
         <div className="w-full max-w-sm">
-          <h2 className="font-[family-name:var(--font-playfair)] text-2xl font-bold text-[var(--color-primary)]">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-light text-[var(--color-mkt-text)]">
             Welcome back
           </h2>
-          <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-secondary)] mt-[var(--spacing-1)]">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-mkt-text-secondary)] mt-[var(--spacing-1)]">
             Sign in to your intelligence dashboard
           </p>
 
           {confirmationError && (
             <div className="mt-[var(--spacing-4)] bg-red-50 border border-red-200 rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)]">
-              <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-error)]">
+              <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-error)]">
                 Email confirmation failed. Please try signing up again.
               </p>
             </div>
           )}
           {error && (
             <div className="mt-[var(--spacing-4)] bg-red-50 border border-red-200 rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)]">
-              <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-error)]">
+              <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-error)]">
                 {error}
               </p>
             </div>
@@ -129,7 +133,7 @@ function SignInForm() {
             <div>
               <label
                 htmlFor="email"
-                className="block font-[family-name:var(--font-inter)] text-sm font-medium text-[var(--color-text)] mb-[var(--spacing-1)]"
+                className="block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-mkt-text)] mb-[var(--spacing-1)]"
               >
                 Email
               </label>
@@ -140,14 +144,14 @@ function SignInForm() {
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 placeholder="you@example.com"
-                className="w-full px-[var(--spacing-3)] py-[var(--spacing-2)] border border-[var(--color-border)] rounded-[var(--radius-sm)] font-[family-name:var(--font-inter)] text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-strong)] focus:border-transparent transition-shadow duration-[var(--duration-fast)]"
+                className="w-full px-[var(--spacing-3)] py-[var(--spacing-2)] border border-[var(--color-mkt-border)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm text-[var(--color-mkt-text)] bg-[var(--color-mkt-surface)] placeholder:text-[var(--color-mkt-border-muted)] focus:outline-none focus:ring-2 focus:ring-[var(--color-mkt-accent)]/30 focus:border-[var(--color-mkt-accent)] transition-shadow duration-[var(--duration-fast)]"
               />
             </div>
 
             <div>
               <label
                 htmlFor="password"
-                className="block font-[family-name:var(--font-inter)] text-sm font-medium text-[var(--color-text)] mb-[var(--spacing-1)]"
+                className="block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-mkt-text)] mb-[var(--spacing-1)]"
               >
                 Password
               </label>
@@ -170,22 +174,22 @@ function SignInForm() {
             <button
               type="submit"
               disabled={loading || turnstileError}
-              className="w-full py-[var(--spacing-3)] bg-[var(--color-primary)] text-[var(--color-text-inverse)] rounded-[var(--radius-sm)] font-[family-name:var(--font-inter)] text-sm font-semibold hover:bg-[var(--color-primary-hover)] disabled:opacity-50 transition-colors duration-[var(--duration-default)]"
+              className="w-full py-[var(--spacing-3)] bg-[var(--color-mkt-text)] text-[var(--color-mkt-surface)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm font-semibold hover:bg-[var(--color-mkt-darkest)] disabled:opacity-50 transition-colors duration-[var(--duration-default)]"
             >
               {loading ? "Signing in\u2026" : "Sign In"}
             </button>
           </form>
 
-          {/* Sign-up callout */}
-          <div className="mt-[var(--spacing-8)] pt-[var(--spacing-6)] border-t border-[var(--color-border)]">
-            <p className="font-[family-name:var(--font-inter)] text-sm text-[var(--color-text-secondary)]">
-              New to Modern Signal Advisory?
+          {/* Waitlist callout */}
+          <div className="mt-[var(--spacing-8)] pt-[var(--spacing-6)] border-t border-[var(--color-mkt-border)]">
+            <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-mkt-text-secondary)]">
+              Don&rsquo;t have an account yet?
             </p>
             <Link
-              href="/sign-up"
-              className="inline-flex items-center gap-1.5 font-[family-name:var(--font-inter)] text-sm font-semibold text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] mt-[var(--spacing-1)] transition-colors duration-[var(--duration-default)]"
+              href="/waitlist"
+              className="inline-flex items-center gap-1.5 font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-mkt-accent)] hover:text-[var(--color-mkt-text)] mt-[var(--spacing-1)] transition-colors duration-[var(--duration-default)]"
             >
-              Create Account
+              Join the Waitlist
               <span aria-hidden="true">&rarr;</span>
             </Link>
           </div>
