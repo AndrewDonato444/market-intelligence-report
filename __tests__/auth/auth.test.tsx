@@ -3,9 +3,9 @@ import path from "path";
 
 describe("Authentication with Supabase", () => {
   describe("File structure", () => {
-    it("has middleware.ts for route protection", () => {
+    it("has proxy.ts for route protection", () => {
       expect(
-        fs.existsSync(path.join(process.cwd(), "middleware.ts"))
+        fs.existsSync(path.join(process.cwd(), "proxy.ts"))
       ).toBe(true);
     });
 
@@ -75,23 +75,23 @@ describe("Authentication with Supabase", () => {
     });
   });
 
-  describe("Middleware configuration", () => {
-    let middlewareContent: string;
+  describe("Proxy configuration", () => {
+    let proxyContent: string;
 
     beforeAll(() => {
-      middlewareContent = fs.readFileSync(
-        path.join(process.cwd(), "middleware.ts"),
+      proxyContent = fs.readFileSync(
+        path.join(process.cwd(), "proxy.ts"),
         "utf8"
       );
     });
 
     it("imports Supabase middleware helper", () => {
-      expect(middlewareContent).toContain("updateSession");
+      expect(proxyContent).toContain("updateSession");
     });
 
     it("exports matcher config", () => {
-      expect(middlewareContent).toContain("export const config");
-      expect(middlewareContent).toContain("matcher");
+      expect(proxyContent).toContain("export const config");
+      expect(proxyContent).toContain("matcher");
     });
   });
 
