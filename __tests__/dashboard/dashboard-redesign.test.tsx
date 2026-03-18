@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, screen, within } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import React from "react";
 import fs from "fs";
 import path from "path";
@@ -87,7 +87,6 @@ interface MockReport {
 }
 
 import { DashboardEmptyState } from "@/components/dashboard/dashboard-empty-state";
-import { DashboardStats } from "@/components/dashboard/dashboard-stats";
 import { MarketCard } from "@/components/dashboard/market-card";
 import { RecentReportsList } from "@/components/dashboard/recent-reports-list";
 import { DashboardContent } from "@/components/dashboard/dashboard-content";
@@ -95,7 +94,7 @@ import { DashboardContent } from "@/components/dashboard/dashboard-content";
 const makeMarket = (overrides: Partial<MockMarket> = {}): MockMarket => ({
   id: "market-1",
   name: "Naples, FL",
-  geography: { city: "Naples", state: "FL" },
+  geography: { city: "Naples", state: "Florida" },
   luxuryTier: "ultra_luxury",
   priceFloor: 10000000,
   priceCeiling: null,
@@ -129,8 +128,8 @@ describe("Dashboard Redesign (#159)", () => {
     it("has DashboardEmptyState component", () => {
       expect(fs.existsSync(path.join(process.cwd(), "components/dashboard/dashboard-empty-state.tsx"))).toBe(true);
     });
-    it("has DashboardStats component", () => {
-      expect(fs.existsSync(path.join(process.cwd(), "components/dashboard/dashboard-stats.tsx"))).toBe(true);
+    it("has DashboardWelcomeHero component", () => {
+      expect(fs.existsSync(path.join(process.cwd(), "components/dashboard/dashboard-welcome-hero.tsx"))).toBe(true);
     });
     it("has MarketCard component", () => {
       expect(fs.existsSync(path.join(process.cwd(), "components/dashboard/market-card.tsx"))).toBe(true);
@@ -172,21 +171,22 @@ describe("Dashboard Redesign (#159)", () => {
       render(<DashboardContent markets={markets} reports={[]} />);
       expect(screen.getByTestId("market-cards-section")).toBeInTheDocument();
     });
-    it("hides stats row (no stats to show)", () => {
+    it("shows welcome hero with onboarding prompt", () => {
       render(<DashboardContent markets={markets} reports={[]} />);
-      expect(screen.queryByTestId("dashboard-stats")).not.toBeInTheDocument();
+      expect(screen.getByTestId("welcome-hero")).toBeInTheDocument();
     });
     it("shows empty reports state with CTA", () => {
       render(<DashboardContent markets={markets} reports={[]} />);
       expect(screen.getByText(/No intelligence briefs yet/i)).toBeInTheDocument();
-      expect(screen.getByRole("link", { name: /Generate Your First Report/i })).toBeInTheDocument();
+      const ctas = screen.getAllByRole("link", { name: /Generate Your First Report/i });
+      expect(ctas.length).toBeGreaterThanOrEqual(1);
     });
   });
 
   describe("CMP-159.04: Markets and reports - full dashboard", () => {
     const markets = [
       makeMarket(),
-      makeMarket({ id: "market-2", name: "Aspen, CO", geography: { city: "Aspen", state: "CO" }, luxuryTier: "high_luxury", priceFloor: 5000000, segments: ["Ski-in/Ski-out"] }),
+      makeMarket({ id: "market-2", name: "Aspen, CO", geography: { city: "Aspen", state: "Colorado" }, luxuryTier: "high_luxury", priceFloor: 5000000, segments: ["Ski-in/Ski-out"] }),
     ];
     const reports = [
       makeReport(),
@@ -194,21 +194,16 @@ describe("Dashboard Redesign (#159)", () => {
       makeReport({ id: "report-3", title: "Naples Q4 2025", status: "failed", marketId: "market-1", marketName: "Naples, FL", createdAt: new Date("2025-12-20") }),
     ];
 
-    it("shows stats row with report count, last report date, and market count", () => {
+    it("shows welcome hero", () => {
       render(<DashboardContent markets={markets} reports={reports} />);
-      const stats = screen.getByTestId("dashboard-stats");
-      expect(stats).toBeInTheDocument();
-      expect(within(stats).getByText("3")).toBeInTheDocument();
-      expect(within(stats).getByText("2")).toBeInTheDocument();
-      expect(within(stats).getByText(/Reports Generated/i)).toBeInTheDocument();
-      expect(within(stats).getByText(/Active Markets/i)).toBeInTheDocument();
-      expect(within(stats).getByText(/Last Report/i)).toBeInTheDocument();
+      expect(screen.getByTestId("welcome-hero")).toBeInTheDocument();
     });
     it("shows market cards with market name and tier badge", () => {
       render(<DashboardContent markets={markets} reports={reports} />);
-      expect(screen.getByText("Naples, FL")).toBeInTheDocument();
+      // Cards now show geography.city, not market.name
+      expect(screen.getByText("Naples")).toBeInTheDocument();
       expect(screen.getByText("ULTRA LUXURY")).toBeInTheDocument();
-      expect(screen.getByText("Aspen, CO")).toBeInTheDocument();
+      expect(screen.getByText("Aspen")).toBeInTheDocument();
       expect(screen.getByText("HIGH LUXURY")).toBeInTheDocument();
     });
     it("shows recent reports with titles", () => {
@@ -223,24 +218,19 @@ describe("Dashboard Redesign (#159)", () => {
     });
   });
 
-  describe("CMP-159.05: MarketCard - New Report action", () => {
-    it("has a New Report link that navigates to creation flow with marketId", () => {
+  describe("CMP-159.05: MarketCard - clickable tile", () => {
+    it("entire tile links to creation flow with marketId", () => {
       render(<MarketCard market={makeMarket()} />);
-      const link = screen.getByRole("link", { name: /New Report/i });
+      const link = screen.getByRole("link");
       expect(link).toHaveAttribute("href", "/reports/create?marketId=market-1");
     });
-    it("shows market name", () => {
+    it("shows city name from geography", () => {
       render(<MarketCard market={makeMarket()} />);
-      expect(screen.getByText("Naples, FL")).toBeInTheDocument();
+      expect(screen.getByText("Naples")).toBeInTheDocument();
     });
     it("shows luxury tier badge", () => {
       render(<MarketCard market={makeMarket()} />);
       expect(screen.getByText("ULTRA LUXURY")).toBeInTheDocument();
-    });
-    it("shows segments as dot-separated string", () => {
-      render(<MarketCard market={makeMarket({ segments: ["Waterfront", "Golf Course"] })} />);
-      expect(screen.getByText(/Waterfront/)).toBeInTheDocument();
-      expect(screen.getByText(/Golf Course/)).toBeInTheDocument();
     });
     it("shows price floor info", () => {
       render(<MarketCard market={makeMarket({ priceFloor: 10000000 })} />);
@@ -294,10 +284,10 @@ describe("Dashboard Redesign (#159)", () => {
   });
 
   describe("CMP-159.08: Dashboard entrance animations", () => {
-    it("wraps stats row in an AnimatedContainer", () => {
+    it("wraps welcome hero in an AnimatedContainer", () => {
       render(<DashboardContent markets={[makeMarket()]} reports={[makeReport()]} />);
-      const stats = screen.getByTestId("dashboard-stats");
-      const container = stats.closest('[data-testid="animated-container"]');
+      const hero = screen.getByTestId("welcome-hero");
+      const container = hero.closest('[data-testid="animated-container"]');
       expect(container).toBeInTheDocument();
     });
     it("wraps market cards in a stagger container", () => {
@@ -321,29 +311,6 @@ describe("Dashboard Redesign (#159)", () => {
     });
   });
 
-  describe("CMP-159.10: DashboardStats component", () => {
-    it("renders report count", () => {
-      render(<DashboardStats totalReports={12} lastReportDate={new Date("2026-03-08")} activeMarkets={2} />);
-      expect(screen.getByText("12")).toBeInTheDocument();
-      expect(screen.getByText(/Reports Generated/i)).toBeInTheDocument();
-    });
-    it("renders active markets count", () => {
-      render(<DashboardStats totalReports={12} lastReportDate={new Date("2026-03-08")} activeMarkets={2} />);
-      expect(screen.getByText("2")).toBeInTheDocument();
-      expect(screen.getByText(/Active Markets/i)).toBeInTheDocument();
-    });
-    it("renders last report date", () => {
-      const date = new Date(2026, 2, 8); // Mar 8, 2026 in local timezone
-      render(<DashboardStats totalReports={12} lastReportDate={date} activeMarkets={2} />);
-      expect(screen.getByText(/Mar 8, 2026/)).toBeInTheDocument();
-      expect(screen.getByText(/Last Report/i)).toBeInTheDocument();
-    });
-    it("shows dash when no last report date", () => {
-      render(<DashboardStats totalReports={0} lastReportDate={null} activeMarkets={0} />);
-      const dash = screen.getByText((content) => content.includes("\u2014"));
-      expect(dash).toBeInTheDocument();
-    });
-  });
 
   describe("CMP-159.11: Define New Market link", () => {
     it("shows a link to define new market when markets exist", () => {
