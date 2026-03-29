@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { getMarketImageUrl } from "@/lib/utils/market-image";
 
 export interface PipelineStage {
   agentName: string;
@@ -42,8 +41,6 @@ interface ReportStatusData {
   title: string;
   status: "queued" | "generating" | "completed" | "failed";
   marketName: string;
-  marketCity?: string;
-  marketState?: string;
   config: {
     sections?: string[];
   } | null;
@@ -150,32 +147,6 @@ function getStageStatus(
   return "pending";
 }
 
-function MarketHeroBanner({ city, state }: { city: string; state: string }) {
-  const imageUrl = getMarketImageUrl(city, state);
-  if (!imageUrl) return null;
-
-  return (
-    <div className="relative h-32 w-full overflow-hidden">
-      <img
-        src={imageUrl}
-        alt=""
-        aria-hidden="true"
-        className="absolute inset-0 w-full h-full object-cover"
-        onError={(e) => {
-          (e.target as HTMLElement).parentElement!.style.display = "none";
-        }}
-      />
-      <div
-        className="absolute inset-0"
-        style={{
-          background:
-            "linear-gradient(to bottom, rgba(15,23,42,0.1) 0%, rgba(15,23,42,0.4) 60%, rgba(15,23,42,0.7) 100%)",
-        }}
-      />
-    </div>
-  );
-}
-
 export function PipelineStatusDashboard({
   report: initialReport,
 }: PipelineStatusDashboardProps) {
@@ -247,22 +218,20 @@ export function PipelineStatusDashboard({
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
-      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] overflow-hidden">
-        {/* Market hero image */}
-        {initialReport.marketCity && initialReport.marketState && (
-          <MarketHeroBanner city={initialReport.marketCity} state={initialReport.marketState} />
-        )}
-
-        <div className="p-6">
+      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
         <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
           {initialReport.title}
         </h2>
-        {initialReport.createdAt && (
-          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-1">
-            Created{" "}
-            {new Date(initialReport.createdAt).toLocaleDateString()}
-          </p>
-        )}
+        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+          {initialReport.marketName}
+          {initialReport.createdAt && (
+            <>
+              {" "}
+              &middot; Created{" "}
+              {new Date(initialReport.createdAt).toLocaleDateString()}
+            </>
+          )}
+        </p>
         <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-4" />
 
         {/* Status badge */}
@@ -276,35 +245,45 @@ export function PipelineStatusDashboard({
           >
             {statusConfig.label}
           </span>
+          {totalDuration && (
+            <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+              Total time: {totalDuration}
+            </span>
+          )}
         </div>
 
-        {/* Progress bar — only shown while in progress */}
-        {reportStatus !== "completed" && (
-          <div className="mt-4">
-            <div className="w-full h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full transition-all duration-500 ${
-                  reportStatus === "generating" ? "animate-pulse" : ""
-                }`}
-                style={{
-                  width: `${percent}%`,
-                  backgroundColor:
-                    reportStatus === "failed"
-                      ? "var(--color-error)"
-                      : "var(--color-accent)",
-                }}
-              />
-            </div>
-            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-1">
-              {percent}% complete
-            </p>
+        {/* Progress bar */}
+        <div className="mt-4">
+          <div className="w-full h-2 bg-[var(--color-border)] rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-500 ${
+                reportStatus === "generating" ? "animate-pulse" : ""
+              }`}
+              style={{
+                width: `${percent}%`,
+                backgroundColor:
+                  reportStatus === "failed"
+                    ? "var(--color-error)"
+                    : "var(--color-accent)",
+              }}
+            />
           </div>
-        )}
+          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-1">
+            {percent}% complete
+          </p>
+        </div>
 
         {/* Status messages */}
         {reportStatus === "queued" && (
           <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-4">
             Report is queued and waiting to begin generation.
+          </p>
+        )}
+
+        {reportStatus === "completed" && (
+          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-success)] mt-4">
+            Report generation completed successfully
+            {totalDuration ? ` in ${totalDuration}` : ""}.
           </p>
         )}
 
@@ -320,7 +299,6 @@ export function PipelineStatusDashboard({
             )}
           </div>
         )}
-        </div>
       </div>
 
       {/* Pipeline stages */}

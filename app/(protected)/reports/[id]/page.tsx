@@ -35,8 +35,6 @@ export default async function ReportDetailPage({
         title: report.title,
         status: report.status,
         marketName: report.marketName,
-        marketCity: (report.marketGeography as { city: string; state: string })?.city,
-        marketState: (report.marketGeography as { city: string; state: string })?.state,
         config: report.config,
         createdAt: report.createdAt?.toISOString() ?? null,
         generationStartedAt: report.generationStartedAt?.toISOString() ?? null,
@@ -52,8 +50,8 @@ export default async function ReportDetailPage({
             shareTokenExpiresAt={report.shareTokenExpiresAt?.toISOString()}
           />
           <ContentStudioButton reportId={id} />
-          <ReportPreview sections={sections} />
           <ReportDisclaimer />
+          <ReportPreview sections={sections} />
         </>
       )}
     </div>

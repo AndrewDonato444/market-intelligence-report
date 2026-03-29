@@ -195,7 +195,7 @@ describe("Unified Content Studio", () => {
   // CMP-CS-001: Default tab is Social Media
   // -------------------------------------------------------------------------
   describe("CMP-CS-001: Default tab rendering", () => {
-    it("shows two tabs (Social Media and Email Campaigns)", () => {
+    it("shows Content Studio header with two tabs", () => {
       render(
         <ContentStudioPage
           reportId="test-report-id"
@@ -210,6 +210,7 @@ describe("Unified Content Studio", () => {
         />
       );
 
+      expect(screen.getByText("Content Studio")).toBeInTheDocument();
       expect(screen.getByText("Social Media")).toBeInTheDocument();
       expect(screen.getByText("Email Campaigns")).toBeInTheDocument();
     });
@@ -441,6 +442,7 @@ describe("Unified Content Studio", () => {
         />
       );
 
+      expect(screen.getByText("Content Studio")).toBeInTheDocument();
       expect(screen.getByTestId("generate-kit-btn")).toBeInTheDocument();
     });
 
@@ -508,7 +510,50 @@ describe("Unified Content Studio", () => {
     });
   });
 
-  // CMP-CS-008: Entitlement gating removed — all features included in base plan
+  // -------------------------------------------------------------------------
+  // CMP-CS-008: Entitlement gating — Starter tier
+  // -------------------------------------------------------------------------
+  describe("CMP-CS-008: Entitlement gating", () => {
+    it("shows upgrade prompt on Social Media tab for Starter tier", () => {
+      render(
+        <ContentStudioPage
+          reportId="test-report-id"
+          kitStatus={null}
+          kitContent={null}
+          kitGeneratedAt={null}
+          emailStatus={null}
+          emailContent={null}
+          emailGeneratedAt={null}
+          kitEntitlement={{ allowed: false, limit: 0 }}
+          emailEntitlement={{ allowed: false, limit: 0 }}
+        />
+      );
+
+      expect(screen.getByText(/social media kit.*professional feature/i)).toBeInTheDocument();
+      expect(screen.queryByTestId("generate-kit-btn")).not.toBeInTheDocument();
+    });
+
+    it("shows upgrade prompt on Email tab for Starter tier", () => {
+      mockSearchParams = new URLSearchParams("tab=email");
+
+      render(
+        <ContentStudioPage
+          reportId="test-report-id"
+          kitStatus={null}
+          kitContent={null}
+          kitGeneratedAt={null}
+          emailStatus={null}
+          emailContent={null}
+          emailGeneratedAt={null}
+          kitEntitlement={{ allowed: false, limit: 0 }}
+          emailEntitlement={{ allowed: false, limit: 0 }}
+        />
+      );
+
+      expect(screen.getByText(/email campaigns.*professional feature/i)).toBeInTheDocument();
+      expect(screen.queryByTestId("generate-email-btn")).not.toBeInTheDocument();
+    });
+  });
 
   // -------------------------------------------------------------------------
   // CMP-CS-009: Back to Report link

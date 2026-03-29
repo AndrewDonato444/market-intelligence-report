@@ -101,9 +101,26 @@ export function SubscriptionManagement({
         </p>
         <div className={accentLine} />
 
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-          No active subscription found. Please contact support if you believe this is an error.
+        <dl className="mb-4">
+          <dt className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wider">
+            Current Plan
+          </dt>
+          <dd className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-primary)] mt-1">
+            Free
+          </dd>
+        </dl>
+
+        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mb-4">
+          Upgrade to unlock unlimited reports and premium data sources.
         </p>
+
+        <button
+          onClick={handleUpgrade}
+          disabled={loading}
+          className="px-6 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50"
+        >
+          {loading ? "Loading..." : "Upgrade"}
+        </button>
       </div>
     );
   }
