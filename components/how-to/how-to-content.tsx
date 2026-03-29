@@ -147,7 +147,7 @@ const faqItems = [
   {
     question: "How long does a report take to generate?",
     answer:
-      "Most market intelligence briefs are ready in under five minutes. The analysis engine examines recent transactions, market dynamics, and competitive positioning to produce a publication-quality document.",
+      "Most reports are created in less than 10 minutes. Some may take longer depending on the amount of data being processed. The analysis engine examines recent transactions, market dynamics, and competitive positioning to produce a publication-quality document.",
   },
   {
     question: "What data sources power the analysis?",
