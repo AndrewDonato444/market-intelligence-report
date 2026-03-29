@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
 import type { UserListResponse } from "@/app/api/admin/users/route";
 
 type StatusFilter = "all" | "active" | "suspended" | "deleted";
@@ -34,6 +35,7 @@ function formatDate(iso: string | null): string {
 const PAGE_SIZE = 20;
 
 export function UserListDashboard() {
+  const router = useRouter();
   const [data, setData] = useState<UserListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -109,9 +111,10 @@ export function UserListDashboard() {
     <div
       style={{
         padding: "var(--spacing-6)",
-        fontFamily: "var(--font-sans)",
+        fontFamily: "var(--font-body)",
         maxWidth: 1200,
       }}
+      className="app-fade-in"
     >
       {/* Header */}
       <div
@@ -126,8 +129,9 @@ export function UserListDashboard() {
           <h1
             style={{
               fontSize: "var(--text-2xl)",
+              fontFamily: "var(--font-display)",
               fontWeight: "var(--font-semibold)",
-              color: "var(--color-text)",
+              color: "var(--color-app-text)",
               margin: 0,
             }}
           >
@@ -136,13 +140,31 @@ export function UserListDashboard() {
           <p
             style={{
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-secondary)",
+              color: "var(--color-app-text-secondary)",
               margin: "var(--spacing-1) 0 0",
             }}
           >
             Manage platform accounts
           </p>
         </div>
+        <div style={{ display: "flex", gap: "var(--spacing-3)", alignItems: "center" }}>
+        <button
+          onClick={() => router.push("/admin/users/create")}
+          style={{
+            padding: "var(--spacing-2) var(--spacing-4)",
+            background: "var(--color-app-accent)",
+            color: "#fff",
+            border: "none",
+            borderRadius: "var(--radius-md)",
+            fontSize: "var(--text-sm)",
+            fontWeight: 500,
+            cursor: "pointer",
+            fontFamily: "var(--font-body)",
+            whiteSpace: "nowrap",
+          }}
+        >
+          + Add User
+        </button>
         <input
           type="text"
           placeholder="Search by name or email..."
@@ -150,15 +172,16 @@ export function UserListDashboard() {
           onChange={(e) => setSearchInput(e.target.value)}
           style={{
             padding: "var(--spacing-2) var(--spacing-3)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-md)",
             fontSize: "var(--text-sm)",
             width: 280,
             outline: "none",
-            background: "var(--color-surface)",
-            color: "var(--color-text)",
+            background: "var(--color-app-surface)",
+            color: "var(--color-app-text)",
           }}
         />
+        </div>
       </div>
 
       {/* Status filter tabs */}
@@ -180,12 +203,12 @@ export function UserListDashboard() {
                 onClick={() => handleStatusFilter(s)}
                 style={{
                   padding: "var(--spacing-1) var(--spacing-3)",
-                  border: `1px solid ${isActive ? "var(--color-primary)" : "var(--color-border)"}`,
+                  border: `1px solid ${isActive ? "var(--color-app-accent)" : "var(--color-app-border)"}`,
                   borderRadius: "var(--radius-md)",
                   fontSize: "var(--text-sm)",
                   fontWeight: isActive ? "var(--font-semibold)" : "var(--font-normal)",
-                  background: isActive ? "var(--color-primary-light)" : "var(--color-surface)",
-                  color: isActive ? "var(--color-primary)" : "var(--color-text-secondary)",
+                  background: isActive ? "var(--color-app-active-bg)" : "var(--color-app-surface)",
+                  color: isActive ? "var(--color-app-accent)" : "var(--color-app-text-secondary)",
                   cursor: "pointer",
                 }}
               >
@@ -202,7 +225,7 @@ export function UserListDashboard() {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p>Loading users...</p>
@@ -244,7 +267,7 @@ export function UserListDashboard() {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p style={{ fontSize: "var(--text-lg)", fontWeight: "var(--font-medium)" }}>
@@ -261,8 +284,8 @@ export function UserListDashboard() {
           {/* Table */}
           <div
             style={{
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
+              background: "var(--color-app-surface)",
+              border: "1px solid var(--color-app-border)",
               borderRadius: "var(--radius-md)",
               overflow: "hidden",
             }}
@@ -277,8 +300,8 @@ export function UserListDashboard() {
               <thead>
                 <tr
                   style={{
-                    borderBottom: "1px solid var(--color-border)",
-                    background: "var(--color-background)",
+                    borderBottom: "1px solid var(--color-app-border)",
+                    background: "var(--color-app-bg)",
                   }}
                 >
                   <th
@@ -287,7 +310,7 @@ export function UserListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       cursor: "pointer",
                       userSelect: "none",
                     }}
@@ -300,7 +323,7 @@ export function UserListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       cursor: "pointer",
                       userSelect: "none",
                     }}
@@ -312,7 +335,7 @@ export function UserListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                     }}
                   >
                     Company
@@ -322,7 +345,7 @@ export function UserListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                     }}
                   >
                     Status
@@ -333,7 +356,7 @@ export function UserListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       cursor: "pointer",
                       userSelect: "none",
                     }}
@@ -346,7 +369,7 @@ export function UserListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       cursor: "pointer",
                       userSelect: "none",
                     }}
@@ -365,13 +388,13 @@ export function UserListDashboard() {
                         window.location.href = `/admin/users/${user.id}`;
                       }}
                       style={{
-                        borderBottom: "1px solid var(--color-border)",
+                        borderBottom: "1px solid var(--color-app-border)",
                         transition: "background var(--duration-default, 150ms)",
                         cursor: "pointer",
                       }}
                       onMouseEnter={(e) => {
                         (e.currentTarget as HTMLElement).style.background =
-                          "var(--color-primary-light)";
+                          "var(--color-app-active-bg)";
                       }}
                       onMouseLeave={(e) => {
                         (e.currentTarget as HTMLElement).style.background = "";
@@ -381,7 +404,7 @@ export function UserListDashboard() {
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
                           fontWeight: "var(--font-medium)",
-                          color: "var(--color-text)",
+                          color: "var(--color-app-text)",
                         }}
                       >
                         {user.name}
@@ -389,7 +412,7 @@ export function UserListDashboard() {
                       <td
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
-                          color: "var(--color-text-secondary)",
+                          color: "var(--color-app-text-secondary)",
                         }}
                       >
                         {user.email}
@@ -397,7 +420,7 @@ export function UserListDashboard() {
                       <td
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
-                          color: "var(--color-text-secondary)",
+                          color: "var(--color-app-text-secondary)",
                         }}
                       >
                         {user.company || "\u2014"}
@@ -424,7 +447,7 @@ export function UserListDashboard() {
                       <td
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
-                          color: "var(--color-text-secondary)",
+                          color: "var(--color-app-text-secondary)",
                         }}
                       >
                         {formatDate(user.lastLoginAt)}
@@ -432,7 +455,7 @@ export function UserListDashboard() {
                       <td
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
-                          color: "var(--color-text-secondary)",
+                          color: "var(--color-app-text-secondary)",
                         }}
                       >
                         {formatDate(user.createdAt)}
@@ -452,7 +475,7 @@ export function UserListDashboard() {
               alignItems: "center",
               marginTop: "var(--spacing-4)",
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-secondary)",
+              color: "var(--color-app-text-secondary)",
             }}
           >
             <span>
@@ -464,10 +487,10 @@ export function UserListDashboard() {
                 disabled={page <= 1}
                 style={{
                   padding: "var(--spacing-1) var(--spacing-3)",
-                  border: "1px solid var(--color-border)",
+                  border: "1px solid var(--color-app-border)",
                   borderRadius: "var(--radius-sm)",
-                  background: "var(--color-surface)",
-                  color: page <= 1 ? "var(--color-text-tertiary)" : "var(--color-text)",
+                  background: "var(--color-app-surface)",
+                  color: page <= 1 ? "var(--color-app-text-tertiary)" : "var(--color-app-text)",
                   cursor: page <= 1 ? "default" : "pointer",
                   fontSize: "var(--text-sm)",
                 }}
@@ -479,10 +502,10 @@ export function UserListDashboard() {
                 disabled={page >= totalPages}
                 style={{
                   padding: "var(--spacing-1) var(--spacing-3)",
-                  border: "1px solid var(--color-border)",
+                  border: "1px solid var(--color-app-border)",
                   borderRadius: "var(--radius-sm)",
-                  background: "var(--color-surface)",
-                  color: page >= totalPages ? "var(--color-text-tertiary)" : "var(--color-text)",
+                  background: "var(--color-app-surface)",
+                  color: page >= totalPages ? "var(--color-app-text-tertiary)" : "var(--color-app-text)",
                   cursor: page >= totalPages ? "default" : "pointer",
                   fontSize: "var(--text-sm)",
                 }}

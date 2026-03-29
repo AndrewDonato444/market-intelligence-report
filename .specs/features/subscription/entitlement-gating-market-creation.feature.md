@@ -14,7 +14,7 @@ personas:
   - established-practitioner
 status: implemented
 created: 2026-03-12
-updated: 2026-03-12
+updated: 2026-03-16
 ---
 
 # Entitlement Gating in Market Creation
@@ -29,7 +29,7 @@ updated: 2026-03-12
 Before a market is created, the system checks the `markets_created` entitlement via `checkEntitlement(userId, "markets_created")`. Unlike `reports_per_month`, this is a **lifetime count** (not monthly) — markets accumulate and are not reset. If the user has remaining quota, creation proceeds normally with a usage indicator. If the cap is hit, a soft gate with upgrade messaging replaces the save action.
 
 Market creation happens in **two places**:
-1. **Standalone market creation** — `MarketCreationShell` on `/markets/create`, where the "Save Market" button is the final step
+1. **Standalone market creation** — `MarketCreationShell` on `/markets/create`, where the "Save Market" button is on the final step (Step 2: Your Tier)
 2. **Inline during report creation** — `StepYourReview` in the report creation flow creates a market via `POST /api/markets` when `isNewMarket` is true, before creating the report
 
 Both paths hit the same `POST /api/markets` endpoint, so the server-side check covers both. The client-side UX is different for each path.
@@ -44,14 +44,14 @@ This is a **soft gate**: the agent sees what they'd get by upgrading, not just "
 ### Scenario: Agent creates a market with remaining quota
 Given an agent on the Professional plan with 3 markets allowed
 And the agent has defined 1 market
-When the agent reaches Step 3 (Your Focus) of the market creation flow
+When the agent reaches the final step (Your Tier) of the market creation flow
 Then the "Save Market" button is enabled
 And a usage indicator shows "1 of 3 markets defined"
 And clicking "Save Market" creates the market and the count becomes 2
 
 ### Scenario: Agent creates a market with unlimited quota
 Given an agent on the Enterprise plan with unlimited markets
-When the agent reaches Step 3 of the market creation flow
+When the agent reaches the final step of the market creation flow
 Then the "Save Market" button is enabled
 And no usage indicator is shown (unlimited users don't need to count)
 And clicking "Save Market" creates the market normally
@@ -59,7 +59,7 @@ And clicking "Save Market" creates the market normally
 ### Scenario: Agent hits their market cap (soft gate)
 Given an agent on the Starter plan with 1 market allowed
 And the agent has already defined 1 market
-When the agent reaches Step 3 of the market creation flow
+When the agent reaches the final step of the market creation flow
 Then the "Save Market" button is replaced with a disabled state
 And a soft-gate banner appears explaining:
   - "You've reached your market limit on the Starter plan."
@@ -70,7 +70,7 @@ And a "Maybe Later" dismiss option is available
 ### Scenario: Agent on their last market slot sees a heads-up
 Given an agent on the Professional plan with 3 markets allowed
 And the agent has defined 2 markets
-When the agent reaches Step 3 of the market creation flow
+When the agent reaches the final step of the market creation flow
 Then the usage indicator shows "2 of 3 markets defined"
 And a subtle note reads: "This is your last available market on the Professional plan"
 And the "Save Market" button is enabled
@@ -84,7 +84,7 @@ And no market is created
 ### Scenario: Inline market creation in report flow is also gated
 Given an agent on the Starter plan who has defined 1 of 1 markets
 And the agent has started a new report with a new market (isNewMarket: true)
-When the agent clicks "Generate Report" on Step 5 (Review & Generate)
+When the agent clicks "Generate Report" on Step 4 (Review)
 Then `POST /api/markets` returns 403
 And the report creation is halted with a helpful error: "You've reached your market limit. Use an existing market or upgrade your plan."
 And no report is created
@@ -106,15 +106,15 @@ Given an agent on the Professional plan with 1 market defined
 When the agent attempts to create a market but validation fails
 Then the usage count remains at 1
 
-### Scenario: Entitlement check loads on last step entry
-Given an agent navigates to Step 3 of the market creation flow
+### Scenario: Entitlement check loads on final step entry
+Given an agent navigates to the final step (Your Tier) of the market creation flow
 When the step mounts
 Then `checkEntitlement` is called via `GET /api/entitlements/check?type=markets_created`
 And the result determines whether the save button is enabled or the soft gate is shown
 And a loading skeleton is shown while the check is in progress
 
 ### Scenario: Entitlement check fails gracefully (fail-open)
-Given an agent navigates to Step 3 of the market creation flow
+Given an agent navigates to the final step of the market creation flow
 When the entitlement check API call fails (network error, server error)
 Then the "Save Market" button remains enabled
 And no usage indicator is shown
@@ -124,7 +124,7 @@ And the server-side check in `POST /api/markets` also fails open per #173's fail
 Given an agent on the Starter plan (1 market cap)
 And an admin has granted an override boosting markets_created to 5
 And the agent has defined 2 markets
-When the agent reaches Step 3 of the market creation flow
+When the agent reaches the final step of the market creation flow
 Then the usage indicator shows "2 of 5 markets defined"
 And the "Save Market" button is enabled
 
@@ -139,8 +139,8 @@ And clicking it still navigates to the creation flow (the gate is on the final s
 ## User Journey
 
 1. Agent clicks "Define New Market" from dashboard or markets page
-2. Agent progresses through Steps 1-2 (Your Market, Your Tier)
-3. Agent arrives at **Step 3: Your Focus** (final step of market creation)
+2. Agent completes Step 1 (Your Market — geography)
+3. Agent arrives at **Step 2: Your Tier** (final step of market creation)
 4. **This feature**: system checks `markets_created` entitlement on step mount
 5. If quota remains: usage indicator shown, "Save Market" enabled
 6. If cap hit: soft gate banner shown, "View Plans" CTA, button disabled
@@ -149,8 +149,8 @@ And clicking it still navigates to the creation flow (the gate is on the final s
 
 **Alternate path (inline report creation)**:
 1. Agent starts report creation flow with a new market
-2. Agent configures market in Steps 1-3, audience in Step 4
-3. Agent reaches Step 5 (Review & Generate)
+2. Agent configures market in Steps 1-2, audience in Step 3
+3. Agent reaches Step 4 (Review)
 4. Agent clicks "Generate Report"
 5. `POST /api/markets` checks entitlement: if denied, report creation halts with a clear message
 6. If allowed: market created, then report created (report entitlement checked separately by #174)
@@ -159,25 +159,21 @@ And clicking it still navigates to the creation flow (the gate is on the final s
 
 ## UI Mockup
 
-### When quota remains (happy path — Step 3 of market creation)
+### When quota remains (happy path — final step of market creation)
 
 ```
-┌─ Step 3: Your Focus ────────────────────────────────────────────────────┐
+┌─ Step 2: Your Tier ─────────────────────────────────────────────────────┐
 │                                                                          │
-│  YOUR FOCUS                                                              │
+│  YOUR TIER                                                               │
 │  (font: serif, text: 2xl, weight: bold, color: primary)                 │
 │                                                                          │
-│  Choose the market segments and property types you want to track.        │
+│  Choose the luxury tier and price range.                                 │
 │  (font: sans, text: sm, color: text-secondary)                          │
 │  ─── (accent line) ───                                                   │
 │                                                                          │
-│  ┌─ Segment Cards (existing) ───────────────────────────────────────┐   │
-│  │  Waterfront · Golf · Downtown · New Construction ...             │   │
-│  └──────────────────────────────────────────────────────────────────┘   │
-│                                                                          │
-│  ┌─ Property Type Cards (existing) ─────────────────────────────────┐   │
-│  │  Single Family · Condo · Townhome ...                            │   │
-│  └──────────────────────────────────────────────────────────────────┘   │
+│  ┌─ Tier Cards (existing) ────────────────────────────────────────┐     │
+│  │  Luxury · High Luxury · Ultra Luxury                            │     │
+│  └──────────────────────────────────────────────────────────────────┘     │
 │                                                                          │
 │  ┌─ Usage Indicator (bg: primary-light, radius: sm, p: spacing-2) ─┐   │
 │  │  1 of 3 markets defined                                          │   │
@@ -205,12 +201,12 @@ And clicking it still navigates to the creation flow (the gate is on the final s
 ### When cap is hit (soft gate)
 
 ```
-┌─ Step 3: Your Focus ────────────────────────────────────────────────────┐
+┌─ Step 2: Your Tier ─────────────────────────────────────────────────────┐
 │                                                                          │
-│  YOUR FOCUS                                                              │
+│  YOUR TIER                                                               │
 │  ...                                                                     │
-│  (Segment and property type cards still visible — agent can see what    │
-│  they configured, but cannot save)                                      │
+│  (Tier cards still visible — agent can see what they configured,        │
+│  but cannot save)                                                        │
 │                                                                          │
 │  ┌─ Soft Gate Banner ─────────────────────────────────────────────────┐ │
 │  │  (bg: surface, border: border-strong, radius: md, shadow: sm,     │ │
@@ -239,7 +235,7 @@ And clicking it still navigates to the creation flow (the gate is on the final s
 ### Inline report flow — market cap error
 
 ```
-┌─ Step 5: Review & Generate ─────────────────────────────────────────────┐
+┌─ Step 4: Review ───────────────────────────────────────────────────────┐
 │                                                                          │
 │  ...                                                                     │
 │                                                                          │
@@ -299,7 +295,7 @@ The server-side check is authoritative. Client-side checks are for UX only.
 ### Client-side flow in `MarketCreationShell`
 
 ```
-On final step (Step 3) mount:
+On final step (Step 2: Your Tier) mount:
 1. If mode === "edit" → skip entitlement check entirely
 2. If mode === "create":
    a. Fetch GET /api/entitlements/check?type=markets_created
@@ -345,7 +341,7 @@ Usage is incremented in `POST /api/markets` **after** `createMarket()` returns s
 | User has no subscription record | Default Starter caps apply (1 market) per #173 |
 | Entitlement check API is slow (>3s) | Show loading state, don't block indefinitely. After 5s timeout, fail open (enable button) |
 | User deletes a market — does quota free up? | **No** — `markets_created` tracks lifetime creations, not active count. This prevents gaming. Future: consider a `markets_active` entitlement if needed |
-| Inline market creation fails in report flow | Report creation halts. Error shown in Step 5. No report created, no report usage consumed |
+| Inline market creation fails in report flow | Report creation halts. Error shown in Step 4 (Review). No report created, no report usage consumed |
 | User opens two tabs and creates simultaneously | Server-side check is authoritative. Second request may fail — show error gracefully |
 | Mid-session tier upgrade | Next entitlement check reflects new tier immediately |
 | Admin override expires mid-session | Next entitlement check reflects updated state. Server-side check catches it |
@@ -388,7 +384,7 @@ Usage is incremented in `POST /api/markets` **after** `createMarket()` returns s
 
 ## Implementation Notes
 
-- **Two layers of enforcement**: Client-side (UX — preemptive gate on Step 3 of market creation) and server-side (authoritative — 403 in POST /api/markets). Never trust the client alone.
+- **Two layers of enforcement**: Client-side (UX — preemptive gate on final step of market creation) and server-side (authoritative — 403 in POST /api/markets). Never trust the client alone.
 - **Usage increment is post-success only**: Call `incrementUsage` after `createMarket()` returns successfully. If creation fails, quota is not consumed.
 - **Fail-open everywhere**: If the entitlement check fails (DB down, network error), the user can still create markets. Availability > correctness for entitlement checks (per #173 design).
 - **No modal**: The soft gate is an inline banner, not a popup. Same pattern as #174.
@@ -396,3 +392,4 @@ Usage is incremented in `POST /api/markets` **after** `createMarket()` returns s
 - **Animation**: Soft gate banner enters with `fadeVariant` from existing animation library. Usage indicator fades in on load. Same pattern as #174.
 - **Edit bypass**: `MarketCreationShell` has `mode` prop — when `mode === "edit"`, skip all entitlement logic entirely. Edits are free.
 - **Reuse #174 pattern**: The `EntitlementGateBanner` inline component, usage indicator styling, loading skeleton, and "View Plans" link should match #174 exactly for consistency.
+- **Focus step removed** (2026-03-16): The Focus step was dead code — segments/propertyTypes data was collected but never consumed by the pipeline. Market creation is now 2 steps (Your Market → Your Tier). The entitlement check triggers on Step 2 (the final step) instead of the former Step 3.

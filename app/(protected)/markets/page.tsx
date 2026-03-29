@@ -21,44 +21,51 @@ export default async function MarketsPage() {
   const userId = await getAuthUserId();
   if (!userId) redirect("/sign-in");
 
-  const markets = await getMarkets(userId);
+  let markets: Awaited<ReturnType<typeof getMarkets>> = [];
+  let reportCounts: number[] = [];
 
-  // Fetch report counts for each market (for delete confirmation)
-  const reportCounts = await Promise.all(
-    markets.map((m) => getMarketReportCount(userId, m.id))
-  );
+  try {
+    markets = await getMarkets(userId);
+
+    // Fetch report counts for each market (for delete confirmation)
+    reportCounts = await Promise.all(
+      markets.map((m) => getMarketReportCount(userId, m.id))
+    );
+  } catch (error) {
+    console.error("[MarketsPage] Failed to load data:", error);
+  }
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
             Markets
           </h2>
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
             Define and manage your target luxury markets.
           </p>
         </div>
         <Link
           href="/markets/new"
-          className="px-4 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+          className="px-4 py-2 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-surface)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
         >
           Define New Market
         </Link>
       </div>
 
       {markets.length === 0 ? (
-        <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8 text-center">
-          <h3 className="font-[family-name:var(--font-serif)] text-lg font-semibold text-[var(--color-primary)]">
+        <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8 text-center">
+          <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-[var(--color-app-text)]">
             No markets defined yet
           </h3>
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-2">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-2">
             Define your first target market to start generating intelligence
             reports.
           </p>
           <Link
             href="/markets/new"
-            className="inline-block mt-4 px-6 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+            className="inline-block mt-4 px-6 py-2 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-surface)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
           >
             Define New Market
           </Link>
@@ -74,28 +81,28 @@ export default async function MarketsPage() {
             return (
               <div
                 key={market.id}
-                className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-5 flex items-center justify-between"
+                className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-5 flex items-center justify-between"
               >
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-[family-name:var(--font-sans)] text-base font-semibold text-[var(--color-text)]">
+                    <h3 className="font-[family-name:var(--font-body)] text-base font-semibold text-[var(--color-app-text)]">
                       {market.name}
                     </h3>
                     {market.isDefault === 1 && (
-                      <span className="px-2 py-0.5 bg-[var(--color-accent-light)] text-[var(--color-accent)] font-[family-name:var(--font-sans)] text-xs font-medium rounded-full">
+                      <span className="px-2 py-0.5 bg-[var(--color-app-accent-light)] text-[var(--color-app-accent)] font-[family-name:var(--font-body)] text-xs font-medium rounded-full">
                         Default
                       </span>
                     )}
                   </div>
-                  <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+                  <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
                     {geo.city}, {geo.state}
                     {geo.county ? ` · ${geo.county}` : ""}
                   </p>
                   <div className="flex gap-3 mt-2">
-                    <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+                    <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
                       {TIER_LABELS[market.luxuryTier] || market.luxuryTier}
                     </span>
-                    <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+                    <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
                       {formatPrice(market.priceFloor)}
                       {market.priceCeiling
                         ? ` – ${formatPrice(market.priceCeiling)}`
@@ -106,22 +113,17 @@ export default async function MarketsPage() {
                 <div className="flex items-center gap-3">
                   <Link
                     href={`/markets/${market.id}/edit`}
-                    className="px-3 py-1.5 text-xs font-[family-name:var(--font-sans)] font-medium text-[var(--color-text-secondary)] border border-[var(--color-border)] rounded-[var(--radius-sm)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors duration-[var(--duration-default)]"
+                    className="px-3 py-1.5 text-xs font-[family-name:var(--font-body)] font-medium text-[var(--color-app-text-secondary)] border border-[var(--color-app-border)] rounded-[var(--radius-sm)] hover:border-[var(--color-app-accent)] hover:text-[var(--color-app-accent)] transition-colors duration-[var(--duration-default)]"
                   >
                     Edit
                   </Link>
-                  <Link
-                    href={`/markets/${market.id}/peers`}
-                    className="px-3 py-1.5 text-xs font-[family-name:var(--font-sans)] font-medium text-[var(--color-accent)] border border-[var(--color-accent)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-light)] transition-colors duration-[var(--duration-default)]"
-                  >
-                    Peers
-                  </Link>
+                  {/* Peers button disabled — peer markets feature on roadmap for future release */}
                   <DeleteMarketButton
                     marketId={market.id}
                     marketName={market.name}
                     reportCount={reportCounts[idx]}
                   />
-                  <div className="w-1 h-8 bg-[var(--color-accent)] rounded-full" />
+                  <div className="w-1 h-8 bg-[var(--color-app-accent)] rounded-full" />
                 </div>
               </div>
             );

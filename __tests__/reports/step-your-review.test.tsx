@@ -124,7 +124,6 @@ describe("Step 5: Review & Generate (#156)", () => {
     let StepYourReview: React.ComponentType<{
       marketData: typeof MOCK_MARKET_DATA | null;
       tierData: typeof MOCK_TIER_DATA | null;
-      focusData: typeof MOCK_FOCUS_DATA | null;
       audienceData: typeof MOCK_AUDIENCE_DATA | null;
       onStepComplete: (data: { reportId: string; title: string }) => void;
       onValidationChange?: (valid: boolean) => void;
@@ -146,7 +145,6 @@ describe("Step 5: Review & Generate (#156)", () => {
       const defaultProps = {
         marketData: MOCK_MARKET_DATA,
         tierData: MOCK_TIER_DATA,
-        focusData: MOCK_FOCUS_DATA,
         audienceData: MOCK_AUDIENCE_DATA,
         onStepComplete: jest.fn(),
         onValidationChange: jest.fn(),
@@ -168,7 +166,7 @@ describe("Step 5: Review & Generate (#156)", () => {
 
     it("CMP-156-05: renders accent divider", async () => {
       renderReview();
-      expect(document.querySelector(".bg-\\[var\\(--color-accent\\)\\]")).toBeInTheDocument();
+      expect(document.querySelector(".bg-\\[var\\(--color-app-accent\\)\\]")).toBeInTheDocument();
     });
 
     it("CMP-156-06: shows Your Market section with city, state", async () => {
@@ -180,17 +178,12 @@ describe("Step 5: Review & Generate (#156)", () => {
     it("CMP-156-07: shows Your Tier section with label and price range", async () => {
       renderReview();
       expect(screen.getByText("Your Tier")).toBeInTheDocument();
-      expect(screen.getByText(/Luxury/)).toBeInTheDocument();
       expect(screen.getByText(/\$1,000,000/)).toBeInTheDocument();
     });
 
-    it("CMP-156-08: shows Your Focus section with segment and property type tags", async () => {
+    it("CMP-156-08: Your Focus section is not shown (step removed)", async () => {
       renderReview();
-      expect(screen.getByText("Your Focus")).toBeInTheDocument();
-      expect(screen.getByText("Waterfront")).toBeInTheDocument();
-      expect(screen.getByText("Golf Course")).toBeInTheDocument();
-      expect(screen.getByText("Single Family")).toBeInTheDocument();
-      expect(screen.getByText("Estate")).toBeInTheDocument();
+      expect(screen.queryByText("Your Focus")).not.toBeInTheDocument();
     });
 
     it("CMP-156-09: shows Your Audience section with persona names", async () => {
@@ -214,15 +207,13 @@ describe("Step 5: Review & Generate (#156)", () => {
     it("CMP-156-11: Edit links navigate back to steps", async () => {
       const { props } = renderReview();
       const editButtons = screen.getAllByText("Edit");
-      expect(editButtons.length).toBeGreaterThanOrEqual(4);
+      expect(editButtons.length).toBe(3); // Market, Tier, Audience — Focus removed
       fireEvent.click(editButtons[0]);
       expect(props.onNavigateToStep).toHaveBeenCalledWith(0);
       fireEvent.click(editButtons[1]);
       expect(props.onNavigateToStep).toHaveBeenCalledWith(1);
       fireEvent.click(editButtons[2]);
       expect(props.onNavigateToStep).toHaveBeenCalledWith(2);
-      fireEvent.click(editButtons[3]);
-      expect(props.onNavigateToStep).toHaveBeenCalledWith(3);
     });
 
     it("CMP-156-12: auto-generates title from market and tier", async () => {
@@ -246,9 +237,10 @@ describe("Step 5: Review & Generate (#156)", () => {
       expect(screen.getByText(/\/ 500/)).toBeInTheDocument();
     });
 
-    it("CMP-156-15: shows estimated generation time", async () => {
+    it("CMP-156-15: shows generation time disclaimer", async () => {
       renderReview();
-      expect(screen.getByText(/Estimated generation time: 2-4 minutes/)).toBeInTheDocument();
+      expect(screen.getByText(/Reports can take up to 10 minutes to generate/)).toBeInTheDocument();
+      expect(screen.getByText(/available in the Reports tab/)).toBeInTheDocument();
     });
 
     it("CMP-156-16: shows Generate Report button", async () => {

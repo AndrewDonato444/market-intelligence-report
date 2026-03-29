@@ -9,7 +9,7 @@ const statusConfig: Record<ConnectorStatus, { label: string; color: string; bg: 
   healthy: { label: "Healthy", color: "var(--color-success)", bg: "var(--color-success-light, rgba(34,197,94,0.1))" },
   degraded: { label: "Degraded", color: "var(--color-warning)", bg: "var(--color-warning-light, rgba(234,179,8,0.1))" },
   unhealthy: { label: "Unhealthy", color: "var(--color-error)", bg: "var(--color-error-light, rgba(239,68,68,0.1))" },
-  unknown: { label: "Not Checked", color: "var(--color-text-tertiary)", bg: "var(--color-surface)" },
+  unknown: { label: "Not Checked", color: "var(--color-app-text-tertiary)", bg: "var(--color-app-surface)" },
 };
 
 function formatTtl(seconds: number): string {
@@ -69,8 +69,8 @@ export function DataSourcesDashboard() {
 
   if (loading) {
     return (
-      <div className="p-[var(--spacing-6)]">
-        <p className="font-[family-name:var(--font-sans)] text-[var(--color-text-secondary)]">
+      <div className="p-[var(--spacing-6)] app-fade-in">
+        <p className="font-[family-name:var(--font-body)] text-[var(--color-app-text-secondary)]">
           Loading data sources...
         </p>
       </div>
@@ -78,15 +78,15 @@ export function DataSourcesDashboard() {
   }
 
   return (
-    <div className="p-[var(--spacing-6)] max-w-4xl">
+    <div className="p-[var(--spacing-6)] max-w-4xl app-fade-in">
       <div className="flex items-center justify-between mb-[var(--spacing-6)]">
-        <h1 className="font-[family-name:var(--font-sans)] text-2xl font-semibold text-[var(--color-text)]">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-semibold text-[var(--color-app-text)]">
           Data Sources
         </h1>
         <button
           onClick={runHealthCheck}
           disabled={checking}
-          className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-md)] bg-[var(--color-primary)] text-white font-[family-name:var(--font-sans)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+          className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-md)] bg-[var(--color-app-accent)] text-white font-[family-name:var(--font-body)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
         >
           {checking ? "Checking..." : "Check All"}
         </button>
@@ -100,14 +100,14 @@ export function DataSourcesDashboard() {
           return (
             <div
               key={source.name}
-              className="border border-[var(--color-border)] rounded-[var(--radius-lg)] p-[var(--spacing-5)] bg-[var(--color-surface)]"
+              className="border border-[var(--color-app-border)] rounded-[var(--radius-lg)] p-[var(--spacing-5)] bg-[var(--color-app-surface)]"
             >
               <div className="flex items-center justify-between mb-[var(--spacing-3)]">
-                <h2 className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-text)] capitalize">
+                <h2 className="font-[family-name:var(--font-body)] text-lg font-semibold text-[var(--color-app-text)] capitalize">
                   {source.name === "realestateapi" ? "RealEstateAPI" : source.name === "scrapingdog" ? "ScrapingDog" : source.name}
                 </h2>
                 <span
-                  className="flex items-center gap-[var(--spacing-2)] px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-[var(--radius-full)] text-xs font-medium font-[family-name:var(--font-sans)]"
+                  className="flex items-center gap-[var(--spacing-2)] px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-[var(--radius-full)] text-xs font-medium font-[family-name:var(--font-body)]"
                   style={{ color: cfg.color, backgroundColor: cfg.bg }}
                 >
                   <span
@@ -118,32 +118,32 @@ export function DataSourcesDashboard() {
                 </span>
               </div>
 
-              <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mb-[var(--spacing-4)]">
+              <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mb-[var(--spacing-4)]">
                 {source.description}
               </p>
 
-              <div className="grid grid-cols-2 gap-[var(--spacing-3)] text-sm font-[family-name:var(--font-sans)]">
+              <div className="grid grid-cols-2 gap-[var(--spacing-3)] text-sm font-[family-name:var(--font-body)]">
                 <div>
-                  <span className="text-[var(--color-text-tertiary)]">Endpoints: </span>
-                  <span className="text-[var(--color-text-secondary)]">
+                  <span className="text-[var(--color-app-text-tertiary)]">Endpoints: </span>
+                  <span className="text-[var(--color-app-text-secondary)]">
                     {source.endpoints.join(", ")}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[var(--color-text-tertiary)]">Cache TTL: </span>
-                  <span className="text-[var(--color-text-secondary)]">
+                  <span className="text-[var(--color-app-text-tertiary)]">Cache TTL: </span>
+                  <span className="text-[var(--color-app-text-secondary)]">
                     {formatTtl(source.cacheTtlSeconds)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[var(--color-text-tertiary)]">Last check: </span>
-                  <span className="text-[var(--color-text-secondary)]">
+                  <span className="text-[var(--color-app-text-tertiary)]">Last check: </span>
+                  <span className="text-[var(--color-app-text-secondary)]">
                     {timeAgo(source.health?.lastChecked ? String(source.health.lastChecked) : null)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-[var(--color-text-tertiary)]">Env: </span>
-                  <span className="text-[var(--color-text-secondary)]">
+                  <span className="text-[var(--color-app-text-tertiary)]">Env: </span>
+                  <span className="text-[var(--color-app-text-secondary)]">
                     {source.requiredEnvVars.map((v) => v).join(", ")}{" "}
                     {source.envVarsPresent ? (
                       <span style={{ color: "var(--color-success)" }}>&#10003;</span>
@@ -156,7 +156,7 @@ export function DataSourcesDashboard() {
 
               {source.health?.error && (
                 <div
-                  className="mt-[var(--spacing-3)] p-[var(--spacing-3)] rounded-[var(--radius-sm)] text-sm font-[family-name:var(--font-sans)]"
+                  className="mt-[var(--spacing-3)] p-[var(--spacing-3)] rounded-[var(--radius-sm)] text-sm font-[family-name:var(--font-body)]"
                   style={{
                     backgroundColor: "var(--color-warning-light, rgba(234,179,8,0.1))",
                     color: "var(--color-warning)",
@@ -170,7 +170,7 @@ export function DataSourcesDashboard() {
         })}
 
         {sources.length === 0 && (
-          <p className="font-[family-name:var(--font-sans)] text-[var(--color-text-secondary)] text-center py-[var(--spacing-8)]">
+          <p className="font-[family-name:var(--font-body)] text-[var(--color-app-text-secondary)] text-center py-[var(--spacing-8)]">
             No data sources registered.
           </p>
         )}

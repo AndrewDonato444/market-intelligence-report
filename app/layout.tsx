@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Inter } from "next/font/google";
+import { Playfair_Display, Inter, Cormorant_Garamond, DM_Sans } from "next/font/google";
 import "./globals.css";
+import { Analytics } from "@vercel/analytics/next";
 
 const playfairDisplay = Playfair_Display({
   subsets: ["latin"],
@@ -16,6 +17,21 @@ const inter = Inter({
   display: "swap",
 });
 
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  variable: "--font-display",
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600"],
+  variable: "--font-body",
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Modern Signal Advisory — Luxury Market Intelligence",
   description:
@@ -28,8 +44,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${playfairDisplay.variable} ${inter.variable}`}>
-      <body>{children}</body>
+    <html lang="en" className={`${playfairDisplay.variable} ${inter.variable} ${cormorantGaramond.variable} ${dmSans.variable}`}>
+      <body>{children}<Analytics /></body>
     </html>
   );
 }

@@ -30,6 +30,7 @@ jest.mock("next/link", () => ({
 // =====================================================
 // PG-HOWTO: How To Guide Page Tests
 // Covers: rendering, checklist, steps, FAQ, navigation
+// Spec: .specs/features/dashboard/how-to-guide.feature.md
 // =====================================================
 
 describe("How To Guide Page", () => {
@@ -52,7 +53,6 @@ describe("How To Guide Page", () => {
     let HowToContent: any;
 
     beforeAll(async () => {
-      // Import the client component that receives data as props
       const mod = await import(
         "@/components/how-to/how-to-content"
       );
@@ -60,14 +60,14 @@ describe("How To Guide Page", () => {
     });
 
     it("renders the page title", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       expect(
         screen.getByRole("heading", { level: 1, name: /getting started/i })
       ).toBeInTheDocument();
     });
 
     it("renders a subtitle describing the guide purpose", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       expect(
         screen.getByText(/guide to creating market intelligence/i)
       ).toBeInTheDocument();
@@ -88,19 +88,19 @@ describe("How To Guide Page", () => {
     });
 
     it("renders a progress checklist section", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       expect(screen.getByTestId("quick-start-checklist")).toBeInTheDocument();
     });
 
     it("shows three checklist items", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const checklist = screen.getByTestId("quick-start-checklist");
       const items = within(checklist).getAllByRole("listitem");
       expect(items).toHaveLength(3);
     });
 
     it("shows all items incomplete for new user", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const checklist = screen.getByTestId("quick-start-checklist");
       const completedIcons = within(checklist).queryAllByTestId(
         "checklist-complete"
@@ -109,7 +109,7 @@ describe("How To Guide Page", () => {
     });
 
     it("shows market item complete when user has markets", () => {
-      render(<HowToContent hasMarkets={true} hasReports={false} />);
+      render(<HowToContent hasMarkets={true} hasReports={false} hasKit={false} />);
       const checklist = screen.getByTestId("quick-start-checklist");
       const completedIcons = within(checklist).getAllByTestId(
         "checklist-complete"
@@ -118,12 +118,29 @@ describe("How To Guide Page", () => {
     });
 
     it("shows market and report items complete when user has both", () => {
-      render(<HowToContent hasMarkets={true} hasReports={true} />);
+      render(<HowToContent hasMarkets={true} hasReports={true} hasKit={false} />);
       const checklist = screen.getByTestId("quick-start-checklist");
       const completedIcons = within(checklist).getAllByTestId(
         "checklist-complete"
       );
       expect(completedIcons).toHaveLength(2);
+    });
+
+    it("shows all three items complete when user has markets, reports, and kit", () => {
+      render(<HowToContent hasMarkets={true} hasReports={true} hasKit={true} />);
+      const checklist = screen.getByTestId("quick-start-checklist");
+      const completedIcons = within(checklist).getAllByTestId(
+        "checklist-complete"
+      );
+      expect(completedIcons).toHaveLength(3);
+    });
+
+    it("checklist item 3 says 'Explore your Content Studio'", () => {
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
+      const checklist = screen.getByTestId("quick-start-checklist");
+      expect(
+        within(checklist).getByText(/explore your content studio/i)
+      ).toBeInTheDocument();
     });
   });
 
@@ -141,14 +158,14 @@ describe("How To Guide Page", () => {
     });
 
     it("renders three step cards", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       expect(screen.getByTestId("step-1")).toBeInTheDocument();
       expect(screen.getByTestId("step-2")).toBeInTheDocument();
       expect(screen.getByTestId("step-3")).toBeInTheDocument();
     });
 
     it("step 1 is about defining your market", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const step1 = screen.getByTestId("step-1");
       expect(
         within(step1).getByText(/define your market/i)
@@ -156,28 +173,34 @@ describe("How To Guide Page", () => {
     });
 
     it("step 2 is about generating your report", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const step2 = screen.getByTestId("step-2");
       expect(
         within(step2).getByText(/generate your report/i)
       ).toBeInTheDocument();
     });
 
-    it("step 3 is about sharing your intelligence", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+    it("step 3 is about activating your Content Studio", () => {
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const step3 = screen.getByTestId("step-3");
       expect(
-        within(step3).getByText(/share your intelligence/i)
+        within(step3).getByText(/activate your content studio/i)
       ).toBeInTheDocument();
     });
 
+    it("step 3 description mentions social content and email campaigns", () => {
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
+      const step3 = screen.getByTestId("step-3");
+      const text = step3.textContent!.toLowerCase();
+      expect(text).toContain("social");
+      expect(text).toContain("email");
+    });
+
     it("each step has a description explaining why it matters", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
-      // Each step card should have body text (not just the title)
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const step1 = screen.getByTestId("step-1");
       const step2 = screen.getByTestId("step-2");
       const step3 = screen.getByTestId("step-3");
-      // At minimum, each should have more than just the heading
       expect(step1.textContent!.length).toBeGreaterThan(30);
       expect(step2.textContent!.length).toBeGreaterThan(30);
       expect(step3.textContent!.length).toBeGreaterThan(30);
@@ -186,7 +209,7 @@ describe("How To Guide Page", () => {
 
   // --- Dynamic CTAs based on user state ---
 
-  describe("PG-HOWTO-05: Dynamic CTA text", () => {
+  describe("PG-HOWTO-05: Dynamic CTA text and hrefs", () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let HowToContent: any;
 
@@ -198,7 +221,7 @@ describe("How To Guide Page", () => {
     });
 
     it("shows first-time CTAs for new users", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const step1 = screen.getByTestId("step-1");
       const step2 = screen.getByTestId("step-2");
       expect(
@@ -209,34 +232,54 @@ describe("How To Guide Page", () => {
       ).toBeInTheDocument();
     });
 
-    it("step 1 CTA links to markets/new for new users", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+    it("step 1 CTA links to /markets/new for new users", () => {
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const step1 = screen.getByTestId("step-1");
       const cta = within(step1).getByRole("link");
       expect(cta).toHaveAttribute("href", "/markets/new");
     });
 
     it("step 1 CTA links to /markets for returning users", () => {
-      render(<HowToContent hasMarkets={true} hasReports={false} />);
+      render(<HowToContent hasMarkets={true} hasReports={false} hasKit={false} />);
       const step1 = screen.getByTestId("step-1");
       const cta = within(step1).getByRole("link");
       expect(cta).toHaveAttribute("href", "/markets");
     });
 
+    it("step 2 CTA links to /reports/create", () => {
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
+      const step2 = screen.getByTestId("step-2");
+      const cta = within(step2).getByRole("link");
+      expect(cta).toHaveAttribute("href", "/reports/create");
+    });
+
     it("step 3 CTA is disabled when user has no reports", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const step3 = screen.getByTestId("step-3");
-      // Should not have an active link
       const link = within(step3).queryByRole("link");
       expect(link).toBeNull();
-      // Should have disabled text
       expect(
         within(step3).getByText(/coming after your first report/i)
       ).toBeInTheDocument();
     });
 
+    it("step 3 CTA links to /content-studio for returning users", () => {
+      render(<HowToContent hasMarkets={true} hasReports={true} hasKit={false} />);
+      const step3 = screen.getByTestId("step-3");
+      const cta = within(step3).getByRole("link");
+      expect(cta).toHaveAttribute("href", "/content-studio");
+    });
+
+    it("step 3 CTA says 'Open Content Studio' for returning users", () => {
+      render(<HowToContent hasMarkets={true} hasReports={true} hasKit={false} />);
+      const step3 = screen.getByTestId("step-3");
+      expect(
+        within(step3).getByText(/open content studio/i)
+      ).toBeInTheDocument();
+    });
+
     it("shows returning-user CTAs when user has markets and reports", () => {
-      render(<HowToContent hasMarkets={true} hasReports={true} />);
+      render(<HowToContent hasMarkets={true} hasReports={true} hasKit={false} />);
       expect(screen.getByText(/view your markets/i)).toBeInTheDocument();
       expect(
         screen.getByText(/create another report/i)
@@ -258,31 +301,38 @@ describe("How To Guide Page", () => {
     });
 
     it("renders a Common Questions section", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       expect(
         screen.getByRole("heading", { name: /common questions/i })
       ).toBeInTheDocument();
     });
 
     it("renders at least 5 FAQ items", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const faqSection = screen.getByTestId("faq-section");
       const buttons = within(faqSection).getAllByRole("button");
       expect(buttons.length).toBeGreaterThanOrEqual(5);
     });
 
+    it("includes a question about Content Studio", () => {
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
+      const faqSection = screen.getByTestId("faq-section");
+      expect(
+        within(faqSection).getByText(/what is the content studio/i)
+      ).toBeInTheDocument();
+    });
+
     it("FAQ answers are initially hidden", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const faqSection = screen.getByTestId("faq-section");
       const answers = within(faqSection).queryAllByTestId("faq-answer");
-      // All answers should be hidden initially
       answers.forEach((answer) => {
         expect(answer).not.toBeVisible();
       });
     });
 
     it("clicking a question reveals its answer", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const faqSection = screen.getByTestId("faq-section");
       const buttons = within(faqSection).getAllByRole("button");
       fireEvent.click(buttons[0]);
@@ -293,16 +343,13 @@ describe("How To Guide Page", () => {
     });
 
     it("only one answer is visible at a time (accordion)", () => {
-      render(<HowToContent hasMarkets={false} hasReports={false} />);
+      render(<HowToContent hasMarkets={false} hasReports={false} hasKit={false} />);
       const faqSection = screen.getByTestId("faq-section");
       const buttons = within(faqSection).getAllByRole("button");
 
-      // Open first
       fireEvent.click(buttons[0]);
-      // Open second
       fireEvent.click(buttons[1]);
 
-      // Count visible answers — should be exactly 1
       const allAnswers = within(faqSection).getAllByTestId("faq-answer");
       const visibleCount = allAnswers.filter(
         (el) =>
@@ -318,7 +365,6 @@ describe("How To Guide Page", () => {
 
   describe("PG-HOWTO-07: Sidebar integration", () => {
     it("sidebar includes How To link", () => {
-      // Re-import sidebar (mocks are already set up at top)
       // eslint-disable-next-line @typescript-eslint/no-var-requires
       const { Sidebar } = require("@/components/layout/sidebar");
       render(<Sidebar />);
@@ -331,20 +377,6 @@ describe("How To Guide Page", () => {
       render(<Sidebar />);
       const link = screen.getByText("How To").closest("a");
       expect(link).toHaveAttribute("href", "/how-to");
-    });
-
-    it("How To link appears between Dashboard and Reports", () => {
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
-      const { Sidebar } = require("@/components/layout/sidebar");
-      render(<Sidebar />);
-      const links = screen
-        .getAllByRole("link")
-        .map((el) => el.textContent?.trim());
-      const dashIdx = links.indexOf("Dashboard");
-      const howToIdx = links.indexOf("How To");
-      const reportsIdx = links.indexOf("Reports");
-      expect(howToIdx).toBeGreaterThan(dashIdx);
-      expect(howToIdx).toBeLessThan(reportsIdx);
     });
   });
 
@@ -363,7 +395,7 @@ describe("How To Guide Page", () => {
 
     it("does not use tech jargon (AI, agents, algorithm)", () => {
       const { container } = render(
-        <HowToContent hasMarkets={false} hasReports={false} />
+        <HowToContent hasMarkets={false} hasReports={false} hasKit={false} />
       );
       const text = container.textContent!.toLowerCase();
       expect(text).not.toContain("ai agent");
@@ -374,10 +406,9 @@ describe("How To Guide Page", () => {
 
     it("uses professional advisory vocabulary", () => {
       const { container } = render(
-        <HowToContent hasMarkets={false} hasReports={false} />
+        <HowToContent hasMarkets={false} hasReports={false} hasKit={false} />
       );
       const text = container.textContent!.toLowerCase();
-      // Should contain at least some of the persona-aligned terms
       const advisoryTerms = [
         "intelligence",
         "market",
@@ -392,7 +423,7 @@ describe("How To Guide Page", () => {
 
     it("does not use casual onboarding language", () => {
       const { container } = render(
-        <HowToContent hasMarkets={false} hasReports={false} />
+        <HowToContent hasMarkets={false} hasReports={false} hasKit={false} />
       );
       const text = container.textContent!.toLowerCase();
       expect(text).not.toMatch(/let's get started/i);

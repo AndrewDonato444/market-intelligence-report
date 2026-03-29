@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 const navItems = [
   { label: "Back to App", href: "/dashboard", icon: "arrow-left" },
+  { label: "Waitlist", href: "/admin/waitlist", icon: "clipboard" },
   { label: "User Management", href: "/admin/users", icon: "users" },
   { label: "Report Registry", href: "/admin/reports", icon: "file-text" },
   { label: "Error Triage", href: "/admin/error-triage", icon: "alert-triangle" },
@@ -93,13 +94,19 @@ const iconMap: Record<string, React.ReactNode> = {
       <line x1="1" y1="10" x2="23" y2="10" />
     </svg>
   ),
+  clipboard: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+    </svg>
+  ),
 };
 
 export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 bg-[var(--color-surface)] border-r border-[var(--color-border)] shrink-0 flex flex-col">
+    <aside className="w-60 bg-[var(--color-app-sidebar-bg)] border-r border-[var(--color-app-border)] shrink-0 flex flex-col">
       <nav className="flex-1 p-[var(--spacing-3)]">
         <ul className="space-y-[var(--spacing-1)]">
           {navItems.map((item) => {
@@ -108,13 +115,13 @@ export function AdminSidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] text-sm transition-colors duration-[var(--duration-default)] ${
+                  className={`flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm transition-colors duration-[var(--duration-default)] ${
                     isActive
-                      ? "bg-[var(--color-primary-light)] text-[var(--color-primary)] font-medium"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-text)]"
+                      ? "bg-[var(--color-app-active-bg)] text-[var(--color-app-text)] font-medium"
+                      : "text-[var(--color-app-text-secondary)] hover:bg-[var(--color-app-active-bg)] hover:text-[var(--color-app-text)]"
                   }`}
                 >
-                  <span className={isActive ? "text-[var(--color-accent)]" : ""}>
+                  <span className={isActive ? "text-[var(--color-app-accent)]" : ""}>
                     {iconMap[item.icon]}
                   </span>
                   {item.label}
@@ -124,8 +131,8 @@ export function AdminSidebar() {
           })}
         </ul>
       </nav>
-      <div className="p-[var(--spacing-3)] border-t border-[var(--color-border)]">
-        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+      <div className="p-[var(--spacing-3)] border-t border-[var(--color-app-border)]">
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
           Modern Signal Advisory
         </p>
       </div>

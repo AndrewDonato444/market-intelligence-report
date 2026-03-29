@@ -284,6 +284,46 @@ describe("Social Media Agent", () => {
     });
   });
 
+  describe("Scenario: Regression — kit generation with non-analytics computedAnalytics", () => {
+    it("SVC-KIT-R01: does not crash when computedAnalytics is a section content blob (no .market)", async () => {
+      // Reproduces: TypeError: Cannot read properties of undefined (reading 'totalProperties')
+      // When report.config has no computedAnalytics, the service falls back to
+      // analyticsSection.content which is {dashboard, detailMetrics, narrative} — no .market
+      const sectionContentBlob = {
+        dashboard: { some: "data" },
+        detailMetrics: { some: "metrics" },
+        narrative: "Some narrative text",
+      };
+
+      const { executeSocialMediaAgent } = await import("@/lib/agents/social-media");
+      mockCreate.mockResolvedValue({ content: [{ type: "text", text: JSON.stringify(buildMockKitContent()) }], usage: { input_tokens: 5000, output_tokens: 8000 } });
+
+      // Should NOT throw — the agent should handle missing analytics gracefully
+      const result = await executeSocialMediaAgent({
+        reportSections: MOCK_REPORT_SECTIONS,
+        computedAnalytics: sectionContentBlob,
+        market: MOCK_MARKET,
+        personas: [],
+      });
+
+      expect(result.content.postIdeas.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it("SVC-KIT-R02: does not crash when computedAnalytics is null", async () => {
+      const { executeSocialMediaAgent } = await import("@/lib/agents/social-media");
+      mockCreate.mockResolvedValue({ content: [{ type: "text", text: JSON.stringify(buildMockKitContent()) }], usage: { input_tokens: 5000, output_tokens: 8000 } });
+
+      const result = await executeSocialMediaAgent({
+        reportSections: MOCK_REPORT_SECTIONS,
+        computedAnalytics: null,
+        market: MOCK_MARKET,
+        personas: [],
+      });
+
+      expect(result.content.postIdeas.length).toBeGreaterThanOrEqual(1);
+    });
+  });
+
   describe("Scenario: Claude prompt construction", () => {
     it("system prompt establishes luxury social media strategist", async () => {
       const { executeSocialMediaAgent } = await import("@/lib/agents/social-media");

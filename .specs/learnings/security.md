@@ -19,6 +19,11 @@ Security patterns for this codebase.
 - **Decision**: Fail-open on status check errors. If the REST API call fails (network, missing env var), return `null` and allow access. Rationale: locking ALL users out due to a transient status-check failure is worse than briefly allowing a suspended user through. The auth gate is defense-in-depth, not the only barrier.
 - **Gotcha**: Status pages (`/suspended`, `/account-inactive`) must be marked as `isStatusPage` and exempted from the status redirect check. Otherwise, a suspended user gets redirected to `/suspended`, which triggers the middleware again, which redirects to `/suspended` — infinite loop. Same pattern as `isPublicRoute` for `/sign-in`.
 
+### 2026-03-16 — ToS Acceptance on Signup
+- **Pattern**: Store `tos_accepted_at` in Supabase `user_metadata` during `signUp()` call, then read it from `authUser.user_metadata` in `ensureUserProfile()` when creating the DB user row. This bridges the gap between client-side acceptance and server-side persistence without an extra API call — the timestamp flows through Supabase's built-in metadata system.
+- **Decision**: Validate ToS checkbox client-side before calling `supabase.auth.signUp()`. This prevents account creation entirely without acceptance. The timestamp is set at form submission time (not backend time) for accurate audit trails.
+- **Decision**: `getAuthUser()` was updated to return `user_metadata` alongside `id` and `email`. This is a backward-compatible addition — existing callers that destructure `{ id, email }` still work. The metadata is forwarded to `ensureUserProfile()` as an optional third parameter.
+
 ## Cookies & Tokens
 
 <!-- Cookie settings, token storage, refresh patterns -->

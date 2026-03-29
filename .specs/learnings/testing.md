@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-29 — PDF Copyright Notices (#245)
+- **Gotcha**: PDF section renderers crash on minimal test content. `disclaimer_methodology` requires `{ narrative, dataSources: [], disclaimer }` — missing `dataSources` causes `Cannot read properties of undefined (reading 'length')`. `executive_briefing` needs `headline` with `rating`, `medianPrice`, etc. `the_narrative` needs `marketContext.segments`. For SectionPage tests, use `disclaimer_methodology` with complete content shape — it's the simplest renderer that always renders.
+- **Pattern**: For "doesn't appear" tests (e.g., confidentiality block only on last section), use `queryByText` (returns null) instead of `getByText` (throws). Combine with `not.toBeInTheDocument()` for clear negative assertions.
+
 ### 2026-03-13 — Pipeline Test Suite (#PTS)
 - **Pattern**: For fire-and-forget pipeline routes (POST starts run, updates DB on completion), test the synchronous path only — verify the run record is created with `status: "running"` and returned immediately. The async `.then()` / `.catch()` executes after the response; testing it requires flushing promises or integration tests.
 - **Pattern**: When POST API routes require multiple fields (e.g., `compiledData`, `marketName`, `geography`), tests must send ALL required fields — not just the ID. A test that only sends `snapshotId` will get 400 from the snapshot creation route, not 200. Match the API contract exactly in test fixtures.
@@ -70,6 +74,32 @@ Patterns for testing in this codebase.
 ### 2026-03-09
 - **Gotcha**: `jest.mock("@/path/to/module")` fails with "Could not locate module" if the file doesn't exist yet on disk. When writing tests before implementation (TDD), use local mock functions instead of `jest.mock` for modules that haven't been created yet.
 - **Pattern**: For admin auth testing, mock `getAuthUserId` and `getProfile` separately, then test the composed `requireAdmin()` function. This lets you test all combinations (unauth, auth but no profile, auth but non-admin, admin).
+
+---
+
+## Source File Inspection Tests
+
+<!-- Patterns for tests that read source files directly -->
+
+### 2026-03-29 — Admin Pages Design Refresh Token Migration Tests
+- **Pattern**: For large migrations (18+ dashboard files), use a mixed test strategy: render tests for simple components (AdminSidebar, AnalyticsNav, ExportButton) and `fs.readFileSync` source file inspection for complex components with API fetch dependencies. The `it.each(DASHBOARD_COMPONENTS)` pattern efficiently tests the same assertion across all 18 files.
+- **Gotcha**: Admin sidebar tokens are checked by multiple test files (admin-sidebar.test.tsx, tier-management-dashboard.test.tsx). After migrating `--color-primary` → `--color-app-text`, grep ALL `__tests__/` for old token names — not just the design-refresh test file. Pattern: `grep -r "color-primary\|color-primary-light\|color-text-secondary" __tests__/admin/`.
+- **Pattern**: For asserting cold tokens are removed from source files, check specific patterns like `bg-[var(--color-primary)]`, `text-[var(--color-primary)]`, `border-[var(--color-primary)]` rather than a bare `--color-primary` match, which would false-positive on comments or chart colors that legitimately reference the cold token.
+- **Gotcha**: When agents remove `fontFamily: "var(--font-sans)"` from inline styles without adding `fontFamily: "var(--font-body)"`, the test for `--font-body` presence fails. Verify replacements, not just removals — a file can pass the "no --font-sans" test while failing the "--font-body present" test.
+
+### 2026-03-28 — Design Refresh Token Migration Tests
+- **Pattern**: Use `fs.readFileSync` to read component source files and assert token presence/absence. This is more reliable than DOM-based assertions for CSS custom property migration since class names with `var()` references are hard to query via `querySelector`.
+- **Pattern**: Negative-lookahead regex `var\(--color-(?!app-)` asserts cold tokens are absent while allowing warm `--color-app-*` variants to pass. Wrap in a helper (`assertNoColdColorTokens`) that iterates a cold token list and calls `fail()` with the filename for clear error messages.
+- **Gotcha**: Existing tests using `document.querySelector` with CSS variable class names (e.g., `.bg-\\[var\\(--color-accent\\)\\]`) break silently when tokens are migrated. After any token migration, grep all test files for the old token names and update selectors. Pattern: `grep -r "color-accent\|color-primary\|font-serif\|font-sans" __tests__/`.
+
+### 2026-03-28 — How-To Page Design Refresh Tests
+- **Gotcha**: When checklist item text duplicates step card CTA text (e.g., "Generate your first report" appears in both QuickStartChecklist and StepCard), `screen.getByText()` throws "multiple elements found". Scope assertions with `within(screen.getByTestId("step-2"))` to target the CTA specifically. This is a recurring pattern when progress trackers mirror step card content.
+- **Pattern**: For FAQ accordion divider assertions, use `faq.innerHTML.toContain("color-app-border")` rather than trying to query individual border divider elements — they lack dedicated test IDs and are structural styling, not interactive content.
+
+### 2026-03-28 — Settings & Account Design Refresh (className assertion approach)
+- **Pattern**: An alternative to `fs.readFileSync` source inspection is `element.className.toContain("--token-name")` which asserts on the rendered DOM class string. Works well when tests render components via `@testing-library/react` — simpler setup, catches actual runtime class application, and no need for path resolution. Best for components where the token names appear directly in className strings.
+- **Pattern**: Helper functions `hasVar(el, varName)` and `findByVar(container, varName)` that recursively search the DOM tree for elements whose className contains a CSS variable name. Useful for finding accent lines, card backgrounds, and other elements without dedicated test IDs.
+- **Gotcha**: When using `replace_all` for bulk token migration in source files, order matters — replace longer token names first (e.g., `--color-text-tertiary` before `--color-text-secondary` before `--color-text`) and use boundary delimiters (e.g., match `--color-text)]` not just `--color-text`) to prevent substring conflicts.
 
 ---
 

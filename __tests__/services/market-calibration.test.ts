@@ -91,8 +91,12 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
     peerComparisons: [], peerRankings: [], scorecard: [],
     confidence: { level: "high", sampleSize: 120, detailCoverage: 0.8, staleDataSources: [] },
     news: { targetMarket: [], peerMarkets: {} },
-    detailMetrics: { medianDaysOnMarket: 128, cashBuyerPercentage: 0.54, listToSaleRatio: 0.96, floodZonePercentage: 0.02, investorBuyerPercentage: 0.18, freeClearPercentage: 0.45 },
+    detailMetrics: { medianDaysOnMarket: 128, cashBuyerPercentage: 0.54, listToSaleRatio: 0.96, floodZonePercentage: 0.02, investorBuyerPercentage: 0.18, freeClearPercentage: 0.45, dataSources: { dom: "mls", listToSale: "mls" } },
     dataAsOfDate: null,
+    analysisPeriod: {
+      current: { min: "2025-03-18", max: "2026-03-17", count: 0 },
+      prior: { min: "2024-03-18", max: "2025-03-17", count: 0 },
+    },
     ...overrides,
   };
 }
@@ -258,7 +262,7 @@ describe("Market Calibration Engine", () => {
   describe("Scenario: Engine handles sparse market data gracefully", () => {
     it("marks calibration quality as partial with quality notes", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
-      const a = makeAnalytics({ confidence: { level: "medium", sampleSize: 15, detailCoverage: 0.3, staleDataSources: [] }, detailMetrics: { medianDaysOnMarket: null, cashBuyerPercentage: null, listToSaleRatio: null, floodZonePercentage: null, investorBuyerPercentage: null, freeClearPercentage: null } });
+      const a = makeAnalytics({ confidence: { level: "medium", sampleSize: 15, detailCoverage: 0.3, staleDataSources: [] }, detailMetrics: { medianDaysOnMarket: null, cashBuyerPercentage: null, listToSaleRatio: null, floodZonePercentage: null, investorBuyerPercentage: null, freeClearPercentage: null, dataSources: { dom: "none", listToSale: "none" } } });
       a.market = { ...a.market, totalProperties: 15 };
       const result = await calibratePersonasToMarket(a, [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
       assertCalibrated(result);
@@ -277,7 +281,7 @@ describe("Market Calibration Engine", () => {
 
     it("returns N/A for missing detail metrics", async () => {
       const { calibratePersonasToMarket } = await import("@/lib/services/market-calibration");
-      const a = makeAnalytics({ detailMetrics: { medianDaysOnMarket: null, cashBuyerPercentage: null, listToSaleRatio: null, floodZonePercentage: null, investorBuyerPercentage: null, freeClearPercentage: null } });
+      const a = makeAnalytics({ detailMetrics: { medianDaysOnMarket: null, cashBuyerPercentage: null, listToSaleRatio: null, floodZonePercentage: null, investorBuyerPercentage: null, freeClearPercentage: null, dataSources: { dom: "none", listToSale: "none" } } });
       const result = await calibratePersonasToMarket(a, [{ selectionOrder: 1, persona: makePersona() }], makeMarket());
       assertCalibrated(result);
       const d = result.personas[0].localBenchmarks.find((b: LocalBenchmark) => b.metric === "medianDOM");

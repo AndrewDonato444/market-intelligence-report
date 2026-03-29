@@ -36,8 +36,6 @@ export interface StepMarketData {
   existingMarketId?: string;
   city: string;
   state: string;
-  county?: string;
-  region?: string;
   marketName: string;
   isNewMarket: boolean;
 }
@@ -46,21 +44,19 @@ interface StepYourMarketProps {
   markets: MarketOption[];
   onStepComplete: (data: StepMarketData) => void;
   onValidationChange?: (valid: boolean) => void;
+  onQuickStart?: (market: MarketOption) => void;
 }
 
 export function StepYourMarket({
   markets,
   onStepComplete,
   onValidationChange,
+  onQuickStart,
 }: StepYourMarketProps) {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
-  const [county, setCounty] = useState("");
-  const [region, setRegion] = useState("");
   const [marketName, setMarketName] = useState("");
   const [marketNameManuallySet, setMarketNameManuallySet] = useState(false);
-  const [selectedExistingId, setSelectedExistingId] = useState<string | null>(null);
-  const [showRefine, setShowRefine] = useState(false);
 
   const isValid = city.trim().length > 0 && state.trim().length > 0;
   const showPreview = isValid;
@@ -83,43 +79,26 @@ export function StepYourMarket({
   useEffect(() => {
     if (isValid) {
       onStepComplete({
-        existingMarketId: selectedExistingId || undefined,
         city: city.trim(),
         state: state.trim(),
-        county: county.trim() || undefined,
-        region: region.trim() || undefined,
         marketName: marketName || `${city.trim()} Luxury`,
-        isNewMarket: !selectedExistingId,
+        isNewMarket: true,
       });
     }
-  }, [city, state, county, region, marketName, selectedExistingId, isValid, onStepComplete]);
+  }, [city, state, marketName, isValid, onStepComplete]);
 
   const handleCityChange = useCallback((value: string) => {
     setCity(value);
-    setSelectedExistingId(null);
   }, []);
 
   const handleCitySelect = useCallback((selectedCity: string, selectedState: string) => {
     setCity(selectedCity);
     setState(selectedState);
-    setSelectedExistingId(null);
   }, []);
 
   const handleStateChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
     setState(e.target.value);
-    setSelectedExistingId(null);
   }, []);
-
-  const handleExistingMarketSelect = useCallback(
-    (market: MarketOption) => {
-      setCity(market.geography.city);
-      setState(market.geography.state);
-      setMarketName(market.name);
-      setMarketNameManuallySet(true);
-      setSelectedExistingId(market.id);
-    },
-    [],
-  );
 
   const handleMarketNameChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -130,53 +109,60 @@ export function StepYourMarket({
   );
 
   const labelClass =
-    "block font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text-secondary)] mb-1.5";
+    "block font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-text-secondary)] mb-1.5";
   const inputClass =
-    "w-full px-3 py-2 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-background)] font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors duration-[var(--duration-default)]";
+    "w-full px-3 py-2 rounded-[var(--radius-sm)] border border-[var(--color-app-border)] bg-[var(--color-app-bg)] font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] placeholder:text-[var(--color-app-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-app-accent)] focus:border-[var(--color-app-accent)] transition-colors duration-[var(--duration-default)]";
 
   return (
     <div className="py-4">
       {/* Heading */}
-      <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+      <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
         Where do you operate?
       </h2>
-      <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+      <p className="mt-2 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
         We'll use this to find luxury transactions in your area.
       </p>
 
-      <div className="w-8 h-0.5 bg-[var(--color-accent)] mt-4 mb-6" />
+      <div className="w-8 h-0.5 bg-[var(--color-app-accent)] mt-4 mb-6" />
 
       {/* Existing markets */}
       {markets.length > 0 && (
         <div className="mb-6">
-          <p className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] mb-3">
-            Use an existing market
+          <p className="font-[family-name:var(--font-body)] text-xs font-medium uppercase tracking-wide text-[var(--color-app-text-tertiary)] mb-3">
+            Saved Markets
           </p>
-          <div className="flex flex-wrap gap-3">
+          <div className="flex flex-wrap gap-3 mb-4">
             {markets.map((m) => (
-              <button
+              <div
                 key={m.id}
-                type="button"
-                onClick={() => handleExistingMarketSelect(m)}
-                className={`px-4 py-3 rounded-[var(--radius-sm)] border text-left transition-all duration-[var(--duration-default)] ${
-                  selectedExistingId === m.id
-                    ? "border-[var(--color-accent)] bg-[var(--color-accent-light)] shadow-[var(--shadow-sm)]"
-                    : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)]/50"
-                }`}
+                className="flex flex-col items-start gap-1 p-3 border border-[var(--color-app-border)] rounded-[var(--radius-sm)] bg-[var(--color-app-surface)]"
               >
-                <span className="block font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
+                <span className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
                   {m.name}
                 </span>
-                <span className="block font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mt-0.5">
+                <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
                   {m.geography.city}, {m.geography.state}
                   {m.luxuryTier && ` \u00B7 ${TIER_LABELS[m.luxuryTier] || m.luxuryTier}`}
                 </span>
-              </button>
+                {onQuickStart && (
+                  <button
+                    type="button"
+                    onClick={() => onQuickStart(m)}
+                    className="mt-1 px-3 py-1 text-xs font-semibold bg-[var(--color-app-accent)] text-[var(--color-app-text)] rounded-[var(--radius-sm)] hover:bg-[var(--color-app-accent-hover)] transition-colors duration-[var(--duration-default)]"
+                  >
+                    Use This
+                  </button>
+                )}
+              </div>
             ))}
           </div>
-          <p className="mt-3 font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
-            — or define a new market —
-          </p>
+          <div className="flex items-center gap-3 mt-2">
+            <div className="flex-1 h-px bg-[var(--color-app-border)]" />
+            <span className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-text-secondary)] whitespace-nowrap">
+              or define a new market
+            </span>
+            <div className="flex-1 h-px bg-[var(--color-app-border)]" />
+          </div>
         </div>
       )}
 
@@ -214,66 +200,23 @@ export function StepYourMarket({
         </select>
       </div>
 
-      {/* Refine your area */}
+      {/* Report Name */}
       <div className="mb-4">
-        <button
-          type="button"
-          onClick={() => setShowRefine(!showRefine)}
-          className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] cursor-pointer transition-colors duration-[var(--duration-default)]"
-        >
-          {showRefine ? "\u25BC" : "\u25B6"} Refine your area
-        </button>
-
-        {showRefine && (
-          <div className="mt-3 space-y-4">
-            <div>
-              <label htmlFor="step-county" className={labelClass}>
-                County
-              </label>
-              <input
-                id="step-county"
-                type="text"
-                value={county}
-                onChange={(e) => setCounty(e.target.value)}
-                placeholder="e.g., Collier County"
-                className={inputClass}
-                aria-label="County"
-              />
-            </div>
-            <div>
-              <label htmlFor="step-region" className={labelClass}>
-                Region
-              </label>
-              <input
-                id="step-region"
-                type="text"
-                value={region}
-                onChange={(e) => setRegion(e.target.value)}
-                placeholder="e.g., Southwest Florida"
-                className={inputClass}
-                aria-label="Region"
-              />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* Market Name */}
-      <div className="mb-4">
-        <label htmlFor="step-market-name" className={labelClass}>
-          Market Name
+        <label htmlFor="step-report-name" className={labelClass}>
+          Report Name
         </label>
         <input
-          id="step-market-name"
+          id="step-report-name"
           type="text"
           value={marketName}
           onChange={handleMarketNameChange}
           placeholder="e.g., Naples Luxury"
           className={inputClass}
-          aria-label="Market Name"
+          aria-label="Report Name"
         />
-        <p className="mt-1 font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
-          This appears as the title in your report.
+        <p className="mt-2 flex items-center gap-1.5 font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
+          <span className="text-[var(--color-app-accent)]">◆</span>
+          This name appears on the cover of your report.
         </p>
       </div>
 
@@ -283,8 +226,6 @@ export function StepYourMarket({
           <MarketPreviewCard
             city={city}
             state={state}
-            county={county || undefined}
-            region={region || undefined}
           />
         )}
       </AnimatePresence>

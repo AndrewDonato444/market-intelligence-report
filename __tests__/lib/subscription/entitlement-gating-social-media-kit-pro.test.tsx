@@ -136,18 +136,15 @@ describe("GenerateKitButton — Pro Feature Gating (#181)", () => {
       expect(link).toHaveAttribute("href", "/account");
     });
 
-    it("CMP-KP-04: compact mode shows Pro Feature badge for Starter", async () => {
+    it('CMP-KP-04: compact mode shows "Get Kit" linking to report detail for Starter', async () => {
       render(<GenerateKitButton reportId="report-1" compact />);
 
       await waitFor(() => {
-        expect(screen.getByText(/pro feature/i)).toBeInTheDocument();
+        expect(screen.getByText("Get Kit")).toBeInTheDocument();
       });
 
-      const link = screen.getByText(/pro feature/i).closest("a");
-      expect(link).toHaveAttribute("href", "/account");
-
-      // Should NOT show generate button
-      expect(screen.queryByText(/generate kit/i)).not.toBeInTheDocument();
+      const link = screen.getByText("Get Kit").closest("a");
+      expect(link).toHaveAttribute("href", "/reports/report-1#social-media-kit");
     });
   });
 
@@ -218,15 +215,15 @@ describe("GenerateKitButton — Pro Feature Gating (#181)", () => {
       expect(screen.queryByText(/professional feature/i)).not.toBeInTheDocument();
     });
 
-    it("CMP-KP-08: compact mode shows limit-reached for at-cap Professional", async () => {
+    it('CMP-KP-08: compact mode shows "Get Kit" linking to report detail for at-cap Professional', async () => {
       render(<GenerateKitButton reportId="report-1" compact />);
 
       await waitFor(() => {
-        expect(screen.getByText(/limit reached/i)).toBeInTheDocument();
+        expect(screen.getByText("Get Kit")).toBeInTheDocument();
       });
 
-      // Should NOT show Pro Feature badge
-      expect(screen.queryByText(/pro feature/i)).not.toBeInTheDocument();
+      const link = screen.getByText("Get Kit").closest("a");
+      expect(link).toHaveAttribute("href", "/reports/report-1#social-media-kit");
     });
   });
 

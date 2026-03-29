@@ -6,8 +6,9 @@
  * then fires executePipeline() asynchronously.
  */
 
-export const maxDuration = 300; // 5 min — pipeline needs time for data fetch + Claude agents
+export const maxDuration = 600; // 10 min — pipeline needs time for data fetch + Claude agents
 
+import { after } from "next/server";
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/supabase/admin-auth";
 import { db, schema } from "@/lib/db";
@@ -77,9 +78,16 @@ export async function POST(
       },
     });
 
-    // Fire and forget — pipeline runs async
-    executePipeline(reportId).catch((err) => {
-      console.error(`Pipeline retry failed for report ${reportId}:`, err);
+    // Use after() to run pipeline after response — keeps function alive
+    after(async () => {
+      try {
+        console.log(`[admin/retry] Starting pipeline for report ${reportId}`);
+        await executePipeline(reportId);
+        console.log(`[admin/retry] Pipeline completed for report ${reportId}`);
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error(`[admin/retry] Pipeline FAILED for report ${reportId}:`, error.message, error.stack);
+      }
     });
 
     const response: RetryResponse = {

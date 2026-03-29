@@ -1,10 +1,59 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import {
+  isBlockedUserAgent,
+  isBlockedIp,
+  computeSuspicionScore,
+  isExemptRoute,
+  SUSPICION_THRESHOLD,
+} from "@/lib/security/anti-scraper";
+import { checkRateLimit, extractClientIp } from "@/lib/security/rate-limiter";
+import type { RateLimitResult } from "@/lib/security/rate-limiter";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
+
+  // --- Anti-scraper checks (before any auth overhead) ---
+  const pathname = request.nextUrl.pathname;
+  let rateLimitResult: RateLimitResult | null = null;
+
+  const isApiRoute = pathname.startsWith("/api");
+
+  if (!isExemptRoute(pathname) && isApiRoute) {
+    // Check honeypot-derived IP blocklist first (cheapest check)
+    const clientIp = extractClientIp(request.headers);
+    if (isBlockedIp(clientIp)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    const ua = request.headers.get("user-agent");
+    if (isBlockedUserAgent(ua)) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+    const suspicionScore = computeSuspicionScore(request.headers);
+    if (suspicionScore >= SUSPICION_THRESHOLD) {
+      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    }
+
+    // --- Rate limiting (after anti-scraper, before auth) ---
+    rateLimitResult = await checkRateLimit(clientIp, pathname);
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: "Too many requests. Please try again later." },
+        {
+          status: 429,
+          headers: {
+            "Retry-After": String(rateLimitResult.retryAfter),
+            "X-RateLimit-Limit": String(rateLimitResult.limit),
+            "X-RateLimit-Remaining": "0",
+            "X-RateLimit-Reset": String(rateLimitResult.resetAt),
+          },
+        }
+      );
+    }
+  }
 
   if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
     // Supabase not configured — skip auth checks in development
@@ -51,9 +100,15 @@ export async function updateSession(request: NextRequest) {
     request.nextUrl.pathname === "/" ||
     request.nextUrl.pathname.startsWith("/sign-in") ||
     request.nextUrl.pathname.startsWith("/sign-up") ||
+    request.nextUrl.pathname.startsWith("/forgot-password") ||
+    request.nextUrl.pathname.startsWith("/reset-password") ||
+    request.nextUrl.pathname.startsWith("/waitlist") ||
     request.nextUrl.pathname.startsWith("/auth/callback") ||
     request.nextUrl.pathname.startsWith("/auth/verified") ||
-    request.nextUrl.pathname.startsWith("/api/webhooks");
+    request.nextUrl.pathname.startsWith("/api/webhooks") ||
+    request.nextUrl.pathname.startsWith("/api/health") ||
+    request.nextUrl.pathname.startsWith("/api/auth") ||
+    request.nextUrl.pathname.startsWith("/api/waitlist");
 
   // Status pages are accessible without status check (to show the message)
   const isStatusPage =
@@ -81,6 +136,13 @@ export async function updateSession(request: NextRequest) {
       url.pathname = "/account-inactive";
       return NextResponse.redirect(url);
     }
+  }
+
+  // Attach rate limit headers to successful responses (reuse result from earlier check)
+  if (rateLimitResult) {
+    supabaseResponse.headers.set("X-RateLimit-Limit", String(rateLimitResult.limit));
+    supabaseResponse.headers.set("X-RateLimit-Remaining", String(rateLimitResult.remaining));
+    supabaseResponse.headers.set("X-RateLimit-Reset", String(rateLimitResult.resetAt));
   }
 
   return supabaseResponse;

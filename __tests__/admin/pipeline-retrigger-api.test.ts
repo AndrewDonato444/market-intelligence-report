@@ -73,6 +73,15 @@ jest.mock("@/lib/services/activity-log", () => ({
   logActivity: (params: unknown) => mockLogActivity(params),
 }));
 
+// Mock next/server after() to execute callback immediately
+jest.mock("next/server", () => {
+  const actual = jest.requireActual("next/server");
+  return {
+    ...actual,
+    after: (fn: () => void) => { fn(); },
+  };
+});
+
 import { POST } from "@/app/api/admin/reports/[id]/retry/route";
 import { NextRequest } from "next/server";
 

@@ -1,13 +1,10 @@
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { redirect, notFound } from "next/navigation";
 import { getReportWithMarket, getReportSections } from "@/lib/services/report";
-import { getSocialMediaKit } from "@/lib/services/social-media-kit";
-import { getEmailCampaign } from "@/lib/services/email-campaign";
 import { PipelineStatusDashboard } from "@/components/reports/pipeline-status";
 import { ReportPreview } from "@/components/reports/report-preview";
 import { ReportActions } from "@/components/reports/report-actions";
-import { GenerateKitButton } from "@/components/reports/generate-kit-button";
-import { GenerateEmailButton } from "@/components/reports/generate-email-button";
+import { ContentStudioButton } from "@/components/reports/content-studio-button";
 import { ReportDisclaimer } from "@/components/reports/report-disclaimer";
 
 export default async function ReportDetailPage({
@@ -31,14 +28,6 @@ export default async function ReportDetailPage({
       ? (await getReportSections(authId, id)) ?? []
       : [];
 
-  const kit = report.status === "completed"
-    ? await getSocialMediaKit(id)
-    : null;
-
-  const emailCampaign = report.status === "completed"
-    ? await getEmailCampaign(id)
-    : null;
-
   return (
     <div className="space-y-6">
       <PipelineStatusDashboard report={{
@@ -60,16 +49,7 @@ export default async function ReportDetailPage({
             shareToken={report.shareToken}
             shareTokenExpiresAt={report.shareTokenExpiresAt?.toISOString()}
           />
-          <GenerateKitButton
-            reportId={id}
-            initialKitStatus={kit ? (kit.status as "queued" | "generating" | "completed" | "failed") : "none"}
-            initialErrorMessage={kit?.errorMessage ?? null}
-          />
-          <GenerateEmailButton
-            reportId={id}
-            initialCampaignStatus={emailCampaign ? (emailCampaign.status as "queued" | "generating" | "completed" | "failed") : "none"}
-            initialErrorMessage={emailCampaign?.errorMessage ?? null}
-          />
+          <ContentStudioButton reportId={id} />
           <ReportDisclaimer />
           <ReportPreview sections={sections} />
         </>

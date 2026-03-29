@@ -110,22 +110,22 @@ describe("Unified Market Creation", () => {
       expect(shellContent).toContain("StepYourTier");
     });
 
-    it("CMP-MKT-12: imports StepYourFocus", () => {
-      expect(shellContent).toContain("StepYourFocus");
+    it("CMP-MKT-12: does not import StepYourFocus (removed — dead code)", () => {
+      expect(shellContent).not.toContain("StepYourFocus");
     });
 
     it("CMP-MKT-13: imports CreationStepIndicator", () => {
       expect(shellContent).toContain("CreationStepIndicator");
     });
 
-    it("CMP-MKT-14: has exactly 3 steps", () => {
-      // Should define 3 steps in the STEPS array
+    it("CMP-MKT-14: has exactly 2 steps", () => {
+      // Should define 2 steps in the STEPS array
       const stepsMatch = shellContent.match(/const STEPS\s*=\s*\[/);
       expect(stepsMatch).not.toBeNull();
       // Count step objects (each has a "name" key)
-      const stepNames = shellContent.match(/"Your Market"|"Your Tier"|"Your Focus"/g);
+      const stepNames = shellContent.match(/"Your Market"|"Your Tier"/g);
       expect(stepNames).not.toBeNull();
-      expect(stepNames!.length).toBe(3);
+      expect(stepNames!.length).toBe(2);
     });
 
     it("CMP-MKT-15: supports edit mode via props", () => {

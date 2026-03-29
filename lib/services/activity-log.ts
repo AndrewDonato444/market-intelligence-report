@@ -1,29 +1,8 @@
 import { db, schema } from "@/lib/db";
 import { eq, and, desc } from "drizzle-orm";
+import { resolveUserId } from "./resolve-user-id";
 
 export type ActivityEntry = typeof schema.userActivity.$inferSelect;
-
-/**
- * Resolve a Supabase auth ID to the internal users.id.
- * Also accepts an internal ID directly (passthrough).
- */
-async function resolveUserId(authOrInternalId: string): Promise<string | null> {
-  // Try as auth_id first (most common from API routes)
-  const [byAuth] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authOrInternalId))
-    .limit(1);
-  if (byAuth) return byAuth.id;
-
-  // Fall back to checking if it's already an internal id
-  const [byId] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.id, authOrInternalId))
-    .limit(1);
-  return byId?.id ?? null;
-}
 
 /**
  * Log a user activity. Fire-and-forget — never throws.

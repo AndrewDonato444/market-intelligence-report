@@ -100,6 +100,10 @@ describe("DEFAULT_ENTITLEMENTS fallback", () => {
       getCurrentUsage: jest.fn(async () => 0),
     }));
 
+    jest.doMock("@/lib/services/resolve-user-id", () => ({
+      resolveUserId: jest.fn(async (id: string) => id),
+    }));
+
     const { checkEntitlement } = await import("@/lib/services/entitlement-check");
     const result = await checkEntitlement("user-no-sub", "transaction_limit");
 

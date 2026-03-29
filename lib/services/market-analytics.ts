@@ -94,6 +94,12 @@ export interface ComputedAnalytics {
 
   /** Most recent transaction sale date in the dataset (ISO string) — for data freshness display */
   dataAsOfDate: string | null;
+
+  /** Rolling period bounds and per-period sample sizes for YoY transparency */
+  analysisPeriod: {
+    current: { min: string; max: string; count: number };
+    prior: { min: string; max: string; count: number };
+  };
 }
 
 export interface DimensionScore {
@@ -110,6 +116,8 @@ export interface DashboardIndicator {
   trend: "up" | "down" | "flat" | null;
   trendValue: number | null;
   category: "power_four" | "supporting";
+  /** Optional footnote when metric uses a fallback data source */
+  footnote?: string;
 }
 
 export interface NeighborhoodBreakdown {
@@ -149,6 +157,8 @@ export interface SegmentScorecard {
   trend: "up" | "down" | "flat";
 }
 
+export type MetricSource = "mls" | "mls_statusdate" | "tax_market_value" | "estimated_value" | "none";
+
 export interface DetailDerivedMetrics {
   medianDaysOnMarket: number | null;
   cashBuyerPercentage: number | null;
@@ -156,6 +166,11 @@ export interface DetailDerivedMetrics {
   floodZonePercentage: number | null;
   investorBuyerPercentage: number | null;
   freeClearPercentage: number | null;
+  /** Tracks where DOM and list-to-sale data originated for labeling transparency */
+  dataSources: {
+    dom: MetricSource;
+    listToSale: MetricSource;
+  };
 }
 
 // --- Main computation ---
@@ -167,15 +182,28 @@ export function computeMarketAnalytics(
   const { properties, details } = data.targetMarket;
   const currentYear = new Date().getFullYear();
 
-  // --- Core metrics (same logic as current data-analyst) ---
-  const grouped = groupByPropertyType(properties);
+  // --- Split by rolling period bounds (not calendar year) ---
+  const periods = data.analysisPeriod;
+  const { currentPeriodProps, priorPeriodProps } = periods
+    ? splitByPeriodBounds(properties, periods)
+    : splitByYearFallback(properties, currentYear);
+
+  const currentPeriodCount = currentPeriodProps.length;
+  const priorPeriodCount = priorPeriodProps.length;
+
+  // --- Core metrics computed on current-period properties only ---
+  const grouped = groupByPropertyType(currentPeriodProps);
   const segments = computeAllSegments(grouped);
-  const { currentYearProps, priorYearProps } = splitByYear(properties, currentYear);
-  const yoy = computeYoY(currentYearProps, priorYearProps);
+
+  // Enforce minimum sample size for YoY — both periods need >= 3 transactions
+  const MIN_YOY_SAMPLE = 3;
+  const yoy = (currentPeriodCount >= MIN_YOY_SAMPLE && priorPeriodCount >= MIN_YOY_SAMPLE)
+    ? computeYoY(currentPeriodProps, priorPeriodProps)
+    : computeYoY([], []); // Returns all-null metrics
 
   // Compute per-segment YoY and assign segment-specific ratings
-  const priorGrouped = groupByPropertyType(priorYearProps);
-  const currentGrouped = groupByPropertyType(currentYearProps);
+  const priorGrouped = groupByPropertyType(priorPeriodProps);
+  const currentGrouped = groupByPropertyType(currentPeriodProps);
   for (const segment of segments) {
     const segCurrentProps = currentGrouped.get(segment.propertyType) ?? [];
     const segPriorProps = priorGrouped.get(segment.propertyType) ?? [];
@@ -184,7 +212,7 @@ export function computeMarketAnalytics(
     segment.rating = assignRating(segYoY.medianPriceChange, segYoY.volumeChange, segment.count);
   }
 
-  const marketMetrics = computeOverallMetrics(properties, yoy);
+  const marketMetrics = computeOverallMetrics(currentPeriodProps, yoy);
 
   // --- Detail-derived metrics ---
   const detailMetrics = computeDetailMetrics(details);
@@ -224,6 +252,13 @@ export function computeMarketAnalytics(
   // --- Data freshness (most recent sale date) ---
   const dataAsOfDate = computeDataAsOfDate(properties);
 
+  // --- Analysis period metadata ---
+  const defaultPeriodBounds = { min: "N/A", max: "N/A" };
+  const analysisPeriod = {
+    current: { ...(periods?.current ?? defaultPeriodBounds), count: currentPeriodCount },
+    prior: { ...(periods?.prior ?? defaultPeriodBounds), count: priorPeriodCount },
+  };
+
   return {
     market: marketMetrics,
     segments,
@@ -242,6 +277,7 @@ export function computeMarketAnalytics(
     confidence,
     detailMetrics,
     dataAsOfDate,
+    analysisPeriod,
   };
 }
 
@@ -279,14 +315,38 @@ function computeAllSegments(grouped: Map<string, PropertySummary[]>): SegmentMet
   return segments;
 }
 
-function splitByYear(properties: PropertySummary[], currentYear: number) {
-  const MIN_SAMPLE = 3;
+/**
+ * Split properties using the actual rolling period bounds from computePeriodBounds().
+ * This ensures YoY compares the same windows used to fetch the data.
+ */
+function splitByPeriodBounds(
+  properties: PropertySummary[],
+  periods: { current: { min: string; max: string }; prior: { min: string; max: string } }
+) {
+  const currentPeriodProps = properties.filter((p) => {
+    if (!p.lastSaleDate) return false;
+    return p.lastSaleDate >= periods.current.min && p.lastSaleDate <= periods.current.max;
+  });
+  const priorPeriodProps = properties.filter((p) => {
+    if (!p.lastSaleDate) return false;
+    return p.lastSaleDate >= periods.prior.min && p.lastSaleDate <= periods.prior.max;
+  });
+  return { currentPeriodProps, priorPeriodProps };
+}
+
+/**
+ * Legacy fallback: split by calendar year when no period bounds are available.
+ * Used only when CompiledMarketData lacks analysisPeriod (e.g. fixtures, legacy data).
+ */
+function splitByYearFallback(properties: PropertySummary[], currentYear: number) {
+  // Lowered from 3→2 to align with per-neighborhood NEIGHBORHOOD_MIN_SAMPLE.
+  // This function is only called from computeNeighborhoods where samples are
+  // already small (100 properties / 35+ zips).
+  const MIN_SAMPLE = 2;
 
   let recentYear = currentYear;
   let priorYear = currentYear - 1;
 
-  // If current calendar year has too few sales (e.g. early in the year),
-  // fall back to comparing the two most recent full years instead.
   const currentYearCount = properties.filter(
     (p) => p.lastSaleDate && new Date(p.lastSaleDate).getFullYear() === currentYear
   ).length;
@@ -296,15 +356,15 @@ function splitByYear(properties: PropertySummary[], currentYear: number) {
     priorYear = currentYear - 2;
   }
 
-  const currentYearProps = properties.filter((p) => {
+  const currentPeriodProps = properties.filter((p) => {
     if (!p.lastSaleDate) return false;
     return new Date(p.lastSaleDate).getFullYear() === recentYear;
   });
-  const priorYearProps = properties.filter((p) => {
+  const priorPeriodProps = properties.filter((p) => {
     if (!p.lastSaleDate) return false;
     return new Date(p.lastSaleDate).getFullYear() === priorYear;
   });
-  return { currentYearProps, priorYearProps };
+  return { currentPeriodProps, priorPeriodProps };
 }
 
 function computeOverallMetrics(
@@ -345,34 +405,81 @@ export function computeDetailMetrics(details: PropertyDetail[]): DetailDerivedMe
       floodZonePercentage: null,
       investorBuyerPercentage: null,
       freeClearPercentage: null,
+      dataSources: { dom: "none", listToSale: "none" },
     };
   }
 
-  // Days on market from MLS history
+  // --- Days on market ---
+  let domSource: MetricSource = "none";
+
+  // Primary: MLS history daysOnMarket field
   const domValues = details
     .flatMap((d) => d.mlsHistory)
     .map((m) => (m.daysOnMarket != null ? parseInt(String(m.daysOnMarket), 10) : null))
     .filter((v): v is number => v != null && !isNaN(v));
 
-  // Cash buyer percentage
+  if (domValues.length > 0) {
+    domSource = "mls";
+  }
+
+  // Fallback DOM: compute from MLS statusDate range when daysOnMarket is null.
+  // For each detail with 2+ MLS entries, estimate DOM as the day span between
+  // the earliest and latest statusDate.
+  if (domValues.length === 0) {
+    for (const detail of details) {
+      if (detail.mlsHistory.length < 2) continue;
+      const dates = detail.mlsHistory
+        .map((m) => m.statusDate ? new Date(m.statusDate).getTime() : NaN)
+        .filter((t) => !isNaN(t));
+      if (dates.length >= 2) {
+        const span = Math.round((Math.max(...dates) - Math.min(...dates)) / (1000 * 60 * 60 * 24));
+        if (span > 0 && span < 365) domValues.push(span);
+      }
+    }
+    if (domValues.length > 0) domSource = "mls_statusdate";
+  }
+
+  // --- Cash buyer percentage ---
   const cashCount = details.filter((d) => d.flags.cashBuyer || d.flags.cashSale).length;
 
-  // List-to-sale ratio — compare most recent sale price to most recent MLS list price.
+  // --- List-to-sale ratio ---
+  // Compare most recent sale price to most recent MLS list price.
   // Only include ratios in the plausible range (0.7–1.5) to filter out data mismatches
   // where MLS price may be per-sqft, in thousands, or from a different listing.
+  let ltsSource: MetricSource = "none";
   const ratios: number[] = [];
   for (const detail of details) {
     const lastMls = detail.mlsHistory.find((m) => m.price != null);
     // Sale price: try saleHistory first, fall back to root lastSalePrice
     const salePrice =
-      (detail.saleHistory[0]?.price || null) ?? detail.lastSalePrice;
-    if (lastMls?.price && salePrice && salePrice > 0) {
-      const listPrice = parseFloat(String(lastMls.price));
-      if (listPrice > 0) {
-        const ratio = salePrice / listPrice;
-        // Plausible list-to-sale ratios fall between 70% and 150%
-        if (ratio >= 0.7 && ratio <= 1.5) {
-          ratios.push(ratio);
+      (detail.saleHistory[0]?.price ?? null) ?? detail.lastSalePrice;
+
+    // List price: try MLS price first, fall back to taxInfo.marketValue or estimatedValue
+    let listPrice: number | null = null;
+    let thisSource: MetricSource = "none";
+    if (lastMls?.price) {
+      listPrice = parseFloat(String(lastMls.price));
+      thisSource = "mls";
+    } else if (detail.taxInfo?.marketValue && detail.taxInfo.marketValue > 0) {
+      listPrice = detail.taxInfo.marketValue;
+      thisSource = "tax_market_value";
+    } else if (detail.estimatedValue && detail.estimatedValue > 0) {
+      listPrice = detail.estimatedValue;
+      thisSource = "estimated_value";
+    }
+
+    if (listPrice && listPrice > 0 && salePrice && salePrice > 0) {
+      const ratio = salePrice / listPrice;
+      // Plausible list-to-sale ratios fall between 70% and 150%
+      if (ratio >= 0.7 && ratio <= 1.5) {
+        ratios.push(ratio);
+        // Track the least-preferred (worst-quality) source used across all valid ratios.
+        // Priority: mls > mls_statusdate > tax_market_value > estimated_value > none
+        const SOURCE_RANK: Record<MetricSource, number> = {
+          mls: 4, mls_statusdate: 3, tax_market_value: 2, estimated_value: 1, none: 0,
+        };
+        if (SOURCE_RANK[thisSource] < SOURCE_RANK[ltsSource] || ltsSource === "none") {
+          ltsSource = thisSource;
         }
       }
     }
@@ -394,6 +501,7 @@ export function computeDetailMetrics(details: PropertyDetail[]): DetailDerivedMe
     floodZonePercentage: floodCount / details.length,
     investorBuyerPercentage: investorCount / details.length,
     freeClearPercentage: freeClearCount / details.length,
+    dataSources: { dom: domSource, listToSale: ltsSource },
   };
 }
 
@@ -659,20 +767,35 @@ export function computeDashboard(
       category: "power_four",
     },
     {
-      name: "Median Days on Market",
+      name: detailMetrics.dataSources.dom === "mls_statusdate"
+        ? "Est. Days on Market"
+        : "Median Days on Market",
       value: detailMetrics.medianDaysOnMarket,
       trend: trendDir(yoy.domChange),
       trendValue: yoy.domChange,
       category: "power_four",
+      ...(detailMetrics.dataSources.dom === "mls_statusdate" && {
+        footnote: "Estimated from MLS listing date range (daysOnMarket field unavailable)",
+      }),
     },
     {
-      name: "List-to-Sale Ratio",
+      name: detailMetrics.dataSources.listToSale === "tax_market_value"
+        ? "Sale-to-Assessed Ratio"
+        : detailMetrics.dataSources.listToSale === "estimated_value"
+          ? "Sale-to-Estimated Value"
+          : "List-to-Sale Ratio",
       value: detailMetrics.listToSaleRatio != null
         ? detailMetrics.listToSaleRatio
         : null,
       trend: trendDir(yoy.listToSaleChange),
       trendValue: yoy.listToSaleChange,
       category: "power_four",
+      ...(detailMetrics.dataSources.listToSale !== "mls" &&
+        detailMetrics.dataSources.listToSale !== "none" && {
+          footnote: detailMetrics.dataSources.listToSale === "tax_market_value"
+            ? "MLS list price unavailable; using tax-assessed market value as proxy"
+            : "MLS list price unavailable; using automated valuation estimate as proxy",
+        }),
     },
   ];
 
@@ -738,13 +861,37 @@ const WELL_KNOWN_ZIP_NEIGHBORHOODS: Record<string, string> = {
   "34112": "East Naples", "34113": "Marco Island Corridor",
   "34119": "Livingston Corridor", "34120": "Golden Gate Estates",
   "34134": "Bonita Springs",
-  // Miami
-  "33101": "Downtown Miami", "33109": "Key Biscayne", "33129": "Brickell",
-  "33130": "Brickell / Downtown", "33131": "Brickell", "33132": "Edgewater / Wynwood",
-  "33133": "Coconut Grove", "33137": "Wynwood / Design District",
+  // Miami-Dade — comprehensive coverage
+  "33101": "Downtown Miami", "33109": "Key Biscayne", "33122": "Miami Lakes / Doral",
+  "33125": "Little Havana / Flagami", "33126": "Flagami / West Miami",
+  "33127": "Wynwood / Overtown", "33128": "Downtown Miami",
+  "33129": "Brickell", "33130": "Brickell / Downtown",
+  "33131": "Brickell", "33132": "Edgewater / Wynwood",
+  "33133": "Coconut Grove", "33134": "Coral Gables",
+  "33135": "Little Havana / Shenandoah", "33136": "Overtown / Civic Center",
+  "33137": "Wynwood / Design District", "33138": "Upper East Side / MiMo",
   "33139": "Miami Beach / South Beach", "33140": "Miami Beach / Mid-Beach",
-  "33141": "Miami Beach / Surfside", "33154": "Bal Harbour",
-  "33156": "Pinecrest", "33158": "Palmetto Bay",
+  "33141": "Miami Beach / Surfside", "33142": "Allapattah / Liberty City",
+  "33143": "South Miami / High Pines", "33144": "Westchester / Coral Way",
+  "33145": "The Roads / Shenandoah", "33146": "Coral Gables / Riviera",
+  "33147": "Opa-locka / Liberty City", "33149": "Key Biscayne",
+  "33150": "Little Haiti / Lemon City", "33154": "Bal Harbour",
+  "33155": "Westchester / Coral Way", "33156": "Pinecrest",
+  "33157": "Perrine / Palmetto Bay", "33158": "Palmetto Bay",
+  "33160": "North Miami Beach / Sunny Isles", "33161": "North Miami",
+  "33162": "North Miami Beach", "33165": "Westchester / Olympia Heights",
+  "33166": "Medley / Hialeah Gardens", "33167": "North Miami / West Little River",
+  "33168": "North Miami / Biscayne Gardens", "33169": "Miami Gardens",
+  "33170": "Homestead / Naranja", "33173": "Kendall / The Hammocks",
+  "33174": "Fontainebleau / Sweetwater", "33175": "Kendall / Sunset",
+  "33176": "Kendall / The Falls", "33177": "Richmond Heights / Cutler Bay",
+  "33178": "Doral / Sweetwater", "33179": "Ives Estates / Ojus",
+  "33180": "Aventura / Ojus", "33181": "North Miami Beach / Eastern Shores",
+  "33182": "Kendale Lakes / Tamiami", "33183": "Kendale Lakes",
+  "33184": "Sweetwater / Tamiami", "33185": "Kendall West",
+  "33186": "Kendall / The Crossings", "33187": "South Kendall / Lakes by the Bay",
+  "33189": "Cutler Bay", "33190": "Cutler Bay / Palmetto Bay",
+  "33193": "Country Walk / West Kendall", "33196": "Country Walk / The Hammocks",
   // Palm Beach
   "33480": "Palm Beach", "33401": "West Palm Beach",
   // New York
@@ -807,8 +954,11 @@ export function computeNeighborhoods(
 
   const neighborhoods: NeighborhoodBreakdown[] = [];
 
-  // Minimum sample size for per-neighborhood YoY (Bug 5 fix)
-  const NEIGHBORHOOD_MIN_SAMPLE = 3;
+  // Minimum sample size for per-neighborhood YoY (Bug 5 fix).
+  // Lowered from 3→2: with 100 properties spread across 35+ zips, requiring 3
+  // per period left most neighborhoods without YoY data. 2 per period still
+  // filters out single-transaction noise while allowing mid-size zips to report.
+  const NEIGHBORHOOD_MIN_SAMPLE = 2;
 
   for (const [zip, props] of byZip) {
     const rawPrices = props
@@ -823,9 +973,9 @@ export function computeNeighborhoods(
       .map((p) => p.price! / p.sqft!);
     const psfValues = removeOutliers(rawPsf, 2.0);
 
-    // YoY for this neighborhood (uses splitByYear for same fallback logic)
-    const { currentYearProps: currentProps, priorYearProps: priorProps } =
-      splitByYear(props, currentYear);
+    // YoY for this neighborhood (uses calendar-year fallback — neighborhoods don't have period bounds)
+    const { currentPeriodProps: currentProps, priorPeriodProps: priorProps } =
+      splitByYearFallback(props, currentYear);
 
     // Bug 5 fix: enforce per-segment MIN_SAMPLE before computing YoY.
     // Without this, neighborhoods with 1 transaction in one year and 0 in the
@@ -880,7 +1030,7 @@ export function computePeerComparisons(
       .filter((p) => p.price != null && p.sqft != null)
       .map((p) => p.price! / p.sqft!);
 
-    const { currentYearProps, priorYearProps } = splitByYear(peer.properties, currentYear);
+    const { currentPeriodProps: currentYearProps, priorPeriodProps: priorYearProps } = splitByYearFallback(peer.properties, currentYear);
     const peerYoY = computeYoY(currentYearProps, priorYearProps);
     const rating = assignRating(peerYoY.medianPriceChange, peerYoY.volumeChange, peer.properties.length);
 

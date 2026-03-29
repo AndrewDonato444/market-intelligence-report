@@ -12,7 +12,7 @@ export default function SettingsLayout({
 
   return (
     <div>
-      <h1 className="font-[family-name:var(--font-serif)] text-3xl font-bold text-[var(--color-primary)] mb-2">
+      <h1 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[var(--color-app-text)] mb-2">
         Settings
       </h1>
       <SettingsNav currentPath={pathname} />

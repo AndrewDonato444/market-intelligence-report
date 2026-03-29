@@ -63,6 +63,10 @@ class MockNextResponse {
 
 jest.mock("next/server", () => ({
   NextResponse: MockNextResponse,
+  after: jest.fn((fn: () => void) => {
+    // In tests, execute after() callbacks synchronously (fire-and-forget)
+    try { fn(); } catch {}
+  }),
 }));
 
 // --- Mock dependencies ---

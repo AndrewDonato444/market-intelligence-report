@@ -144,6 +144,7 @@ export const users = pgTable("users", {
   status: userAccountStatusEnum("status").notNull().default("active"),
   suspendedAt: timestamp("suspended_at", { withTimezone: true }),
   deletedAt: timestamp("deleted_at", { withTimezone: true }),
+  tosAcceptedAt: timestamp("tos_accepted_at", { withTimezone: true }),
   lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
@@ -239,6 +240,7 @@ export const reports = pgTable(
       sections?: string[];
       dateRange?: { start: string; end: string };
       customPrompts?: Record<string, string>;
+      computedAnalytics?: Record<string, unknown>;
     }>(),
     outputUrl: text("output_url"),
     pdfUrl: text("pdf_url"),
@@ -1051,3 +1053,33 @@ export const pipelineTestRuns = pgTable(
 
 export type PipelineTestRun = typeof pipelineTestRuns.$inferSelect;
 export type NewPipelineTestRun = typeof pipelineTestRuns.$inferInsert;
+
+// --- Waitlist ---
+
+export const waitlistStatusEnum = pgEnum("waitlist_status", [
+  "pending",
+  "invited",
+  "joined",
+]);
+
+export const waitlist = pgTable(
+  "waitlist",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    firstName: varchar("first_name", { length: 100 }).notNull(),
+    lastName: varchar("last_name", { length: 100 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull(),
+    phone: varchar("phone", { length: 50 }),
+    market: varchar("market", { length: 255 }).notNull(),
+    website: text("website"),
+    status: waitlistStatusEnum("status").notNull().default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("waitlist_email_idx").on(table.email),
+  ]
+);
+
+export type WaitlistEntry = typeof waitlist.$inferSelect;
+export type NewWaitlistEntry = typeof waitlist.$inferInsert;

@@ -85,6 +85,11 @@ export interface CompiledMarketData {
     staleDataSources: string[];
     errors: FetchError[];
   };
+  /** Rolling 12-month period bounds used for current/prior searches */
+  analysisPeriod: {
+    current: { min: string; max: string };
+    prior: { min: string; max: string };
+  };
 }
 
 export interface PeerMarketData {
@@ -228,17 +233,9 @@ export async function fetchAllMarketData(
   apiCalls += comps.callCount;
   if (comps.stale) staleDataSources.push("realestateapi:comps");
 
-  // --- Step 4: Fetch peer market data ---
-  checkAbort(abortSignal);
-
-  const peerMarkets = await fetchPeerMarkets(
-    market,
-    connectorOpts,
-    abortSignal,
-    errors
-  );
-  apiCalls += peerMarkets.callCount;
-  if (peerMarkets.stale) staleDataSources.push("realestateapi:peers");
+  // --- Step 4: Peer market data (disabled — feature on roadmap, not yet in report) ---
+  // Backend code preserved in fetchPeerMarkets() for future use.
+  const peerMarkets = { records: [] as PeerMarketData[], callCount: 0, stale: false };
 
   // --- Step 5: Fetch neighborhood amenities ---
   checkAbort(abortSignal);
@@ -312,6 +309,7 @@ export async function fetchAllMarketData(
       staleDataSources: [...new Set(staleDataSources)],
       errors,
     },
+    analysisPeriod: periods,
   };
 }
 
@@ -592,8 +590,9 @@ async function fetchMarketNews(
     }
   }
 
-  // Fetch news for each peer market (1 query per peer to limit credit usage)
-  const peers = market.peerMarkets ?? [];
+  // Peer market news disabled — feature on roadmap, not yet in report.
+  // Backend code preserved; re-enable when peer markets are active.
+  const peers: typeof market.peerMarkets = []; // was: market.peerMarkets ?? []
   for (const peer of peers) {
     if (abortSignal.aborted) break;
     const query = buildNewsQuery(queries[0] ?? "luxury real estate market", peer.geography);
@@ -639,10 +638,19 @@ export function computePeriodBounds(now = new Date()): {
   const fmt = (d: Date) => d.toISOString().split("T")[0];
 
   const currentMax = fmt(now);
-  const currentMin = fmt(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate() + 1));
 
-  const priorMax = fmt(new Date(now.getFullYear() - 1, now.getMonth(), now.getDate()));
-  const priorMin = fmt(new Date(now.getFullYear() - 2, now.getMonth(), now.getDate() + 1));
+  // Current period starts 1 year ago + 1 day. Use ms arithmetic to avoid month-overflow bugs.
+  const oneYearAgo = new Date(now.getTime());
+  oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+  const currentMinDate = new Date(oneYearAgo.getTime() + 86_400_000); // +1 day
+  const currentMin = fmt(currentMinDate);
+
+  const priorMax = fmt(oneYearAgo);
+
+  const twoYearsAgo = new Date(now.getTime());
+  twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+  const priorMinDate = new Date(twoYearsAgo.getTime() + 86_400_000); // +1 day
+  const priorMin = fmt(priorMinDate);
 
   return {
     current: { min: currentMin, max: currentMax },

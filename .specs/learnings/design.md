@@ -8,6 +8,32 @@ Patterns for UI and design system in this codebase.
 
 <!-- When to use which tokens, overrides -->
 
+### 2026-03-29 — PDF Copyright Notices (#245)
+- **Pattern**: Copyright/confidentiality notices use a two-tier footer approach: the existing `pageFooter` (absolute positioned at `bottom: 32`) holds report title + page number, and a second copyright row (at `bottom: 20`, no border) sits below it with 4pt spacing. Both use `fixed` prop to repeat on every page.
+- **Decision**: Confidentiality notices appear exactly twice — cover page and final section page. This is deliberate per anti-persona guidance: a compliance officer would want it on every page, but that clutters the advisory content. Cover + final page provides legal coverage without visual noise.
+- **Pattern**: `createBrandedColors()` overrides `primary`, `accent`, `textPrimary` etc. but NOT `textTertiary` or `surface`. Copyright text uses `textTertiary` and `surface` — so it's brand-immune by design, no special logic needed.
+
+### 2026-03-29 — Design Refresh: Admin Pages Token Migration (Phase 8)
+- **Pattern**: Admin components use three different styling approaches — inline `style={{}}` objects with `fontFamily: "var(--font-sans)"`, Tailwind `className` with `font-[family-name:var(--font-sans)]`, and hardcoded Tailwind colors (`bg-blue-600`, `text-gray-500`). Token migration must handle all three patterns. Test-suite-dashboard was the only file using hardcoded Tailwind — required a full rewrite from `bg-blue-600` → `bg-[var(--color-app-accent)]` etc.
+- **Decision**: Panel components (EntitlementOverridesPanel) don't have page-level h1 headings — only h3 section headings. Per the spec, h1 uses `--font-display` (Cormorant Garamond) but h2/h3 section headings use `--font-body` (DM Sans) at `font-semibold`. Test expectations must distinguish dashboards from embedded panels.
+- **Pattern**: Chart SVG elements (stroke colors for lines/dots, fill for bars) that used `--color-primary` for the main data series should migrate to `--color-app-text` (for primary lines) or `--color-app-accent` (for highlighted/accent series). Chart grid lines (`--color-border` → `--color-app-border`) and labels (`--color-text-secondary` → `--color-app-text-secondary`) follow the standard migration.
+- **Gotcha**: When migrating inline `style={{}}` font-family declarations, removing `--font-sans` without adding `--font-body` leaves components with no font-family at all (report-detail-panel). The fix: set `fontFamily: "var(--font-body)"` on the outermost wrapper div so it cascades to all children.
+
+### 2026-03-28 — Design Refresh: How-To Page Token Migration
+- **Pattern**: Single-file component migration is the simplest case — all 4 sub-components (HowToContent, QuickStartChecklist, StepCard, FaqAccordion) live in `how-to-content.tsx`, so the migration is a single-file find-and-replace with no cross-file coordination. The server page (`page.tsx`) does data-fetching only and needs no token changes.
+- **Decision**: CTA button text swapped from `text-white` to `text-[var(--color-app-surface)]` (warm white `#FDFCFA` instead of pure `#FFFFFF`). This maintains palette coherence — gold button + warm white text reads as one aesthetic rather than gold + cold white clash.
+- **Pattern**: Font migration pattern for design refresh: `--font-serif` → `--font-display` for headings/display text, `--font-sans` → `--font-body` for body/UI text. The display font (Cormorant Garamond) replaces the editorial serif (Playfair Display) for a warmer editorial feel; the body font (DM Sans) replaces the data-optimized sans (Inter) for softer UI text.
+
+### 2026-03-28 — Design Refresh: Settings & Account Pages Token Migration
+- **Pattern**: BrandPreview is a report-facing component inside an app-facing page. Its interior uses report tokens (`--font-serif`, `--font-sans`, `--color-report-bg`) but its container border is app-facing (`--color-app-border`). The general rule: chrome/framing = app tokens, content preview = report tokens.
+- **Gotcha**: ChangePasswordSection was a two-hop migration — already on warm fonts (`--font-display`/`--font-body`) from an earlier pass but used marketing tokens (`--color-mkt-*`) instead of app tokens (`--color-app-*`). When migrating mkt→app, button semantics shift: `--color-mkt-text` (charcoal) bg → `--color-app-accent` (gold) bg; `--color-mkt-darkest` hover → `--color-app-accent-hover`. The mkt and app palettes use different gold values so button appearance changes.
+- **Decision**: For components that define shared class strings as variables (e.g., `cardClass`, `headingClass`, `accentLine` in AccountSettings), migrate the variables first — they propagate to all usages automatically. Then handle inline one-off usages individually.
+
+### 2026-03-28 — Design Refresh: Report Creation Flow Token Migration
+- **Pattern**: Bulk token migration across many files uses sed with careful ordering — replace longest tokens first (e.g., `--color-primary-light` before `--color-primary`) to prevent substring conflicts. Using `var(--token)` boundaries (the closing `)`) as sed delimiters prevents false matches.
+- **Decision**: Semantic color tokens (`--color-success`, `--color-error`, `--color-warning`) are never migrated — they are context-independent and should remain unchanged across warm/cold palette shifts.
+- **Pattern**: Warm palette migration is additive-only — never rename, delete, or change values of existing CSS custom properties. Old tokens remain defined in globals.css; components simply stop referencing them in favor of `--color-app-*` variants.
+
 ### 2026-03-10
 - **Pattern**: PDF styles need additional color tokens not in the base set — `textTertiary` (#94A3B8) for subtle labels, `primaryLight` (#F0F4FF) for callout backgrounds, `accentLight` (#FFFBEB) for blended sections. Add these to the COLORS constant in `styles.ts` alongside existing tokens.
 - **Decision**: Persona card primary/secondary distinction uses left border (3pt accent for primary, standard border for secondary) rather than background color — more subtle and professional for print PDF.

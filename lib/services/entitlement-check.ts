@@ -1,6 +1,7 @@
 import { db, schema } from "@/lib/db";
 import { eq, and, or, isNull, gt } from "drizzle-orm";
 import { getCurrentUsage } from "@/lib/services/usage-tracking";
+import { resolveUserId } from "./resolve-user-id";
 import type { TierEntitlements } from "@/lib/db/schema";
 
 // --- Types ---
@@ -45,11 +46,18 @@ export async function checkEntitlement(
   entitlementType: string
 ): Promise<EntitlementCheckResult> {
   try {
+    // Resolve auth ID → internal users.id (handles both auth and internal IDs)
+    const internalId = await resolveUserId(userId);
+    if (!internalId) {
+      console.warn("[entitlement-check] No user found for id:", userId);
+      return FAIL_OPEN_RESULT;
+    }
+
     // 1. Fetch user's subscription -> get tierId
     const [subscription] = await db
       .select({ tierId: schema.subscriptions.tierId })
       .from(schema.subscriptions)
-      .where(eq(schema.subscriptions.userId, userId))
+      .where(eq(schema.subscriptions.userId, internalId))
       .limit(1);
 
     let tierEntitlements: TierEntitlements = DEFAULT_ENTITLEMENTS;
@@ -78,7 +86,7 @@ export async function checkEntitlement(
       .from(schema.entitlementOverrides)
       .where(
         and(
-          eq(schema.entitlementOverrides.userId, userId),
+          eq(schema.entitlementOverrides.userId, internalId),
           eq(schema.entitlementOverrides.entitlementType, entitlementType),
           or(
             isNull(schema.entitlementOverrides.expiresAt),
@@ -109,7 +117,7 @@ export async function checkEntitlement(
     }
 
     // 7. Fetch current usage
-    const used = await getCurrentUsage(userId, entitlementType);
+    const used = await getCurrentUsage(internalId, entitlementType);
 
     // 8-9. Calculate remaining and allowed
     if (effectiveCap === -1) {

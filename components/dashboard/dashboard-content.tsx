@@ -1,9 +1,10 @@
 "use client";
 
+import { useMemo } from "react";
 import Link from "next/link";
 import { AnimatedContainer, StaggerItem } from "@/components/ui/animated-container";
 import { DashboardEmptyState } from "./dashboard-empty-state";
-import { DashboardStats } from "./dashboard-stats";
+import { DashboardWelcomeHero } from "./dashboard-welcome-hero";
 import { MarketCard } from "./market-card";
 import { RecentReportsList } from "./recent-reports-list";
 
@@ -34,87 +35,100 @@ interface Report {
 interface DashboardContentProps {
   markets: Market[];
   reports: Report[];
+  firstName?: string;
 }
 
-export function DashboardContent({ markets, reports }: DashboardContentProps) {
+export function DashboardContent({ markets, reports, firstName }: DashboardContentProps) {
   const hasMarkets = markets.length > 0;
-  const hasReports = reports.length > 0;
+
+  // Only show successful/in-progress reports on the dashboard — hide failed ones
+  const visibleReports = useMemo(
+    () => reports.filter((r) => r.status !== "failed"),
+    [reports]
+  );
+  const hasReports = visibleReports.length > 0;
 
   // Empty state: no markets at all
   if (!hasMarkets) {
     return <DashboardEmptyState />;
   }
 
-  // Compute stats
-  const lastReportDate = hasReports ? reports[0].createdAt : null;
+  // Build a map of marketId → most recent report date
+  const lastReportByMarket = useMemo(() => {
+    const map = new Map<string, Date>();
+    for (const r of visibleReports) {
+      const existing = map.get(r.marketId);
+      if (!existing || r.createdAt > existing) {
+        map.set(r.marketId, r.createdAt);
+      }
+    }
+    return map;
+  }, [visibleReports]);
 
   return (
     <div className="space-y-[var(--spacing-8)]">
-      {/* Stats Row — only shown when reports exist */}
-      {hasReports && (
-        <AnimatedContainer variant="fade">
-          <DashboardStats
-            totalReports={reports.length}
-            lastReportDate={lastReportDate}
-            activeMarkets={markets.length}
-          />
-        </AnimatedContainer>
-      )}
+      {/* Welcome Hero — personalized greeting + CTA */}
+      <AnimatedContainer variant="fade">
+        <DashboardWelcomeHero
+          firstName={firstName}
+          hasReports={hasReports}
+        />
+      </AnimatedContainer>
 
       {/* Market Cards Section */}
       <div>
-        <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-primary)] mb-[var(--spacing-4)]">
+        <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
           YOUR MARKETS
         </h2>
         <AnimatedContainer variant="stagger">
           <div data-testid="market-cards-section" className="grid gap-[var(--spacing-4)] md:grid-cols-2">
             {markets.map((market) => (
               <StaggerItem key={market.id} variant="slide" direction="up">
-                <MarketCard market={market} />
+                <MarketCard market={market} lastReportDate={lastReportByMarket.get(market.id)} />
               </StaggerItem>
             ))}
           </div>
         </AnimatedContainer>
         <Link
           href="/reports/create"
-          className="inline-block mt-[var(--spacing-3)] font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-accent)] hover:underline"
+          className="inline-block mt-[var(--spacing-3)] font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-accent)] hover:underline"
         >
           + Define New Market
         </Link>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[var(--color-border)]" />
+      <div className="border-t border-[var(--color-app-border)]" />
 
       {/* Recent Intelligence Briefs */}
       <div>
-        <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-primary)] mb-[var(--spacing-4)]">
+        <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
           RECENT INTELLIGENCE BRIEFS
         </h2>
 
         {hasReports ? (
           <AnimatedContainer variant="fade">
             <div data-testid="recent-reports-section">
-              <RecentReportsList reports={reports} />
+              <RecentReportsList reports={visibleReports} />
               <Link
                 href="/reports"
-                className="inline-block mt-[var(--spacing-4)] font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-accent)] hover:underline"
+                className="inline-block mt-[var(--spacing-4)] font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-accent)] hover:underline"
               >
                 View All Reports &rarr;
               </Link>
             </div>
           </AnimatedContainer>
         ) : (
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-[var(--spacing-8)] text-center">
-            <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-[var(--spacing-8)] text-center">
+            <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
               No intelligence briefs yet.
             </p>
-            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-[var(--spacing-2)]">
+            <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] mt-[var(--spacing-2)]">
               Generate your first report to see it here.
             </p>
             <Link
               href="/reports/create"
-              className="inline-flex items-center justify-center mt-[var(--spacing-4)] px-4 py-2 bg-[var(--color-accent)] text-sm font-semibold text-[var(--color-primary)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors"
+              className="inline-flex items-center justify-center mt-[var(--spacing-4)] px-4 py-2 bg-[var(--color-app-accent)] text-sm font-semibold text-[var(--color-app-surface)] rounded-[var(--radius-sm)] hover:bg-[var(--color-app-accent-hover)] transition-colors"
             >
               Generate Your First Report
             </Link>

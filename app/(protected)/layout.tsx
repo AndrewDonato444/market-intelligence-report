@@ -1,4 +1,4 @@
-import { TopNav, Sidebar, PageShell } from "@/components/layout";
+import { TopNav, Sidebar, PageShell, Footer } from "@/components/layout";
 import { getAuthUser } from "@/lib/supabase/auth";
 import { ensureUserProfile } from "@/lib/services/profile";
 
@@ -11,7 +11,7 @@ export default async function ProtectedLayout({
   try {
     const authUser = await getAuthUser();
     if (authUser) {
-      const profile = await ensureUserProfile(authUser.id, authUser.email);
+      const profile = await ensureUserProfile(authUser.id, authUser.email, authUser.user_metadata);
       isAdmin = profile?.role === "admin";
     }
   } catch {
@@ -25,6 +25,7 @@ export default async function ProtectedLayout({
         <Sidebar isAdmin={isAdmin} />
         <PageShell>{children}</PageShell>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -37,6 +37,7 @@ const defaultDetailMetrics: DetailDerivedMetrics = {
   floodZonePercentage: 0.02,
   investorBuyerPercentage: 0.08,
   freeClearPercentage: 0.15,
+  dataSources: { dom: "mls", listToSale: "mls" },
 };
 
 function segment(
@@ -190,6 +191,10 @@ const strongAnalytics: ComputedAnalytics = {
   news: { targetMarket: [], peerMarkets: {} },
   detailMetrics: defaultDetailMetrics,
   dataAsOfDate: null,
+  analysisPeriod: {
+    current: { min: "2025-03-18", max: "2026-03-17", count: 0 },
+    prior: { min: "2024-03-18", max: "2025-03-17", count: 0 },
+  },
 };
 
 // ============================================================
@@ -249,8 +254,13 @@ const lowDataAnalytics: ComputedAnalytics = {
     floodZonePercentage: null,
     investorBuyerPercentage: null,
     freeClearPercentage: null,
+    dataSources: { dom: "none", listToSale: "none" },
   },
   dataAsOfDate: null,
+  analysisPeriod: {
+    current: { min: "2025-03-18", max: "2026-03-17", count: 0 },
+    prior: { min: "2024-03-18", max: "2025-03-17", count: 0 },
+  },
 };
 
 // ============================================================
@@ -300,6 +310,10 @@ const singleSegmentAnalytics: ComputedAnalytics = {
   news: { targetMarket: [], peerMarkets: {} },
   detailMetrics: { ...defaultDetailMetrics, medianDaysOnMarket: 68 },
   dataAsOfDate: null,
+  analysisPeriod: {
+    current: { min: "2025-03-18", max: "2026-03-17", count: 0 },
+    prior: { min: "2024-03-18", max: "2025-03-17", count: 0 },
+  },
 };
 
 // ============================================================
@@ -464,8 +478,13 @@ const emptyAnalytics: ComputedAnalytics = {
     floodZonePercentage: null,
     investorBuyerPercentage: null,
     freeClearPercentage: null,
+    dataSources: { dom: "none", listToSale: "none" },
   },
   dataAsOfDate: null,
+  analysisPeriod: {
+    current: { min: "2025-03-18", max: "2026-03-17", count: 0 },
+    prior: { min: "2024-03-18", max: "2025-03-17", count: 0 },
+  },
 };
 
 // ============================================================

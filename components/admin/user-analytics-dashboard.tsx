@@ -77,14 +77,14 @@ export function UserAnalyticsDashboard() {
   }, [fetchData, period, granularity]);
 
   return (
-    <div className="space-y-[var(--spacing-6)]">
+    <div className="space-y-[var(--spacing-6)] app-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-[family-name:var(--font-sans)] text-2xl font-bold text-[var(--color-text)]">
+          <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
             User Analytics
           </h1>
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
             Active users, signups, power users, and churn indicators
           </p>
         </div>
@@ -105,7 +105,7 @@ export function UserAnalyticsDashboard() {
           <button
             onClick={() => fetchData(period, granularity)}
             disabled={loading}
-            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-app-border)] text-[var(--color-app-text-secondary)] hover:bg-[var(--color-app-active-bg)] disabled:opacity-50 transition-colors"
           >
             {loading ? "Loading..." : "Refresh"}
           </button>
@@ -128,8 +128,8 @@ export function UserAnalyticsDashboard() {
       {/* Loading state */}
       {loading && !data && (
         <div className="text-center py-[var(--spacing-8)]">
-          <div className="inline-block w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-2">
+          <div className="inline-block w-6 h-6 border-2 border-[var(--color-app-accent)] border-t-transparent rounded-full animate-spin" />
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-2">
             Loading user analytics...
           </p>
         </div>
@@ -151,12 +151,12 @@ export function UserAnalyticsDashboard() {
               label="New Signups"
               value={data.summary.newSignups.toLocaleString()}
               subtitle="last 30d"
-              color="var(--color-accent,var(--color-primary))"
+              color="var(--color-app-accent)"
             />
             <KpiCard
               label="Inactive (60d+)"
               value={data.summary.inactiveOver60d.toLocaleString()}
-              color="var(--color-warning,var(--color-error))"
+              color="var(--color-warning)"
             />
           </div>
 
@@ -171,8 +171,8 @@ export function UserAnalyticsDashboard() {
                   onClick={() => setPeriod(p)}
                   className={`px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-full text-xs font-medium transition-colors ${
                     period === p
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)]"
+                      ? "bg-[var(--color-app-accent)] text-white"
+                      : "bg-[var(--color-app-surface)] text-[var(--color-app-text-secondary)] border border-[var(--color-app-border)] hover:bg-[var(--color-app-active-bg)]"
                   }`}
                 >
                   {p}
@@ -189,8 +189,8 @@ export function UserAnalyticsDashboard() {
                   onClick={() => setGranularity(g.value)}
                   className={`px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-full text-xs font-medium transition-colors ${
                     granularity === g.value
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)]"
+                      ? "bg-[var(--color-app-accent)] text-white"
+                      : "bg-[var(--color-app-surface)] text-[var(--color-app-text-secondary)] border border-[var(--color-app-border)] hover:bg-[var(--color-app-active-bg)]"
                   }`}
                 >
                   {g.label}
@@ -200,8 +200,8 @@ export function UserAnalyticsDashboard() {
           </div>
 
           {/* Signup Chart */}
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)] p-[var(--spacing-4)]">
-            <h2 className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)] mb-[var(--spacing-4)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-app-border)] p-[var(--spacing-4)]">
+            <h2 className="font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
               New Signups Over Time
             </h2>
 
@@ -209,7 +209,7 @@ export function UserAnalyticsDashboard() {
               <SignupChart data={data.signups} />
             ) : (
               <div className="text-center py-[var(--spacing-8)]">
-                <p className="text-sm text-[var(--color-text-secondary)]">
+                <p className="text-sm text-[var(--color-app-text-secondary)]">
                   No signup data for this period.
                 </p>
               </div>
@@ -217,35 +217,35 @@ export function UserAnalyticsDashboard() {
           </div>
 
           {/* Power Users */}
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)] p-[var(--spacing-6)]">
-            <h2 className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-text)] mb-[var(--spacing-4)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-app-border)] p-[var(--spacing-6)]">
+            <h2 className="font-[family-name:var(--font-body)] text-lg font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
               Top Report Generators
             </h2>
 
             {data.powerUsers.length > 0 ? (
-              <table className="w-full font-[family-name:var(--font-sans)]">
+              <table className="w-full font-[family-name:var(--font-body)]">
                 <thead>
                   <tr className="text-left">
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)]">NAME</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)]">EMAIL</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)] text-right">REPORTS</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)] text-right">LAST REPORT</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)]">NAME</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)]">EMAIL</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)] text-right">REPORTS</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)] text-right">LAST REPORT</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.powerUsers.map((user) => (
-                    <tr key={user.id} className="border-t border-[var(--color-border)]">
+                    <tr key={user.id} className="border-t border-[var(--color-app-border)]">
                       <td className="py-[var(--spacing-2)]">
                         <Link
                           href={`/admin/users/${user.id}`}
-                          className="text-sm font-medium text-[var(--color-accent,var(--color-primary))] hover:underline"
+                          className="text-sm font-medium text-[var(--color-app-accent)] hover:underline"
                         >
                           {user.name}
                         </Link>
                       </td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text-secondary)]">{user.email}</td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text)] text-right font-medium">{user.reportCount}</td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text-secondary)] text-right">
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text-secondary)]">{user.email}</td>
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text)] text-right font-medium">{user.reportCount}</td>
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text-secondary)] text-right">
                         {formatDateShort(user.lastReportDate)}
                       </td>
                     </tr>
@@ -253,45 +253,45 @@ export function UserAnalyticsDashboard() {
                 </tbody>
               </table>
             ) : (
-              <p className="text-sm text-[var(--color-text-secondary)]">No power users found. No reports have been generated yet.</p>
+              <p className="text-sm text-[var(--color-app-text-secondary)]">No power users found. No reports have been generated yet.</p>
             )}
           </div>
 
           {/* Churn Indicators */}
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)] p-[var(--spacing-6)]">
-            <h2 className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-text)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-app-border)] p-[var(--spacing-6)]">
+            <h2 className="font-[family-name:var(--font-body)] text-lg font-semibold text-[var(--color-app-text)]">
               At-Risk Users
             </h2>
-            <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mb-[var(--spacing-4)]">
+            <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mb-[var(--spacing-4)]">
               {data.churnRisk.length} users active in prior 90d but no report in last 30d
             </p>
 
             {data.churnRisk.length > 0 ? (
-              <table className="w-full font-[family-name:var(--font-sans)]">
+              <table className="w-full font-[family-name:var(--font-body)]">
                 <thead>
                   <tr className="text-left">
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)]">NAME</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)]">EMAIL</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)] text-right">LAST REPORT</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)] text-right">DAYS AGO</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)]">NAME</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)]">EMAIL</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)] text-right">LAST REPORT</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)] text-right">DAYS AGO</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.churnRisk.map((user) => (
-                    <tr key={user.id} className="border-t border-[var(--color-border)]">
+                    <tr key={user.id} className="border-t border-[var(--color-app-border)]">
                       <td className="py-[var(--spacing-2)]">
                         <Link
                           href={`/admin/users/${user.id}`}
-                          className="text-sm font-medium text-[var(--color-accent,var(--color-primary))] hover:underline"
+                          className="text-sm font-medium text-[var(--color-app-accent)] hover:underline"
                         >
                           {user.name}
                         </Link>
                       </td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text-secondary)]">{user.email}</td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text-secondary)] text-right">
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text-secondary)]">{user.email}</td>
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text-secondary)] text-right">
                         {formatDateShort(user.lastReportDate)}
                       </td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text)] text-right font-medium">
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text)] text-right font-medium">
                         {user.daysSinceLastReport}
                       </td>
                     </tr>
@@ -299,7 +299,7 @@ export function UserAnalyticsDashboard() {
                 </tbody>
               </table>
             ) : (
-              <p className="text-sm text-[var(--color-text-secondary)]">No at-risk users detected.</p>
+              <p className="text-sm text-[var(--color-app-text-secondary)]">No at-risk users detected.</p>
             )}
           </div>
         </>
@@ -310,16 +310,16 @@ export function UserAnalyticsDashboard() {
 
 function KpiCard({ label, value, subtitle, color }: { label: string; value: string; subtitle?: string; color?: string }) {
   return (
-    <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] border border-[var(--color-border)] p-[var(--spacing-4)]">
-      <p className="text-xs text-[var(--color-text-secondary)] font-[family-name:var(--font-sans)]">{label}</p>
+    <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] border border-[var(--color-app-border)] p-[var(--spacing-4)]">
+      <p className="text-xs text-[var(--color-app-text-secondary)] font-[family-name:var(--font-body)]">{label}</p>
       <p
-        className="text-xl font-semibold mt-1 font-[family-name:var(--font-sans)]"
-        style={{ color: color || "var(--color-text)" }}
+        className="text-xl font-semibold mt-1 font-[family-name:var(--font-body)]"
+        style={{ color: color || "var(--color-app-text)" }}
       >
         {value}
       </p>
       {subtitle && (
-        <p className="text-xs text-[var(--color-text-secondary)] font-[family-name:var(--font-sans)]">{subtitle}</p>
+        <p className="text-xs text-[var(--color-app-text-secondary)] font-[family-name:var(--font-body)]">{subtitle}</p>
       )}
     </div>
   );
@@ -361,7 +361,7 @@ function SignupChart({ data }: { data: SignupEntry[] }) {
             y1={yScale(tick)}
             x2={chartWidth - padding.right}
             y2={yScale(tick)}
-            stroke="var(--color-border)"
+            stroke="var(--color-app-border)"
             strokeDasharray="4 4"
           />
           <text
@@ -369,7 +369,7 @@ function SignupChart({ data }: { data: SignupEntry[] }) {
             y={yScale(tick) + 4}
             textAnchor="end"
             fontSize="10"
-            fill="var(--color-text-secondary)"
+            fill="var(--color-app-text-secondary)"
           >
             {tick}
           </text>
@@ -384,14 +384,14 @@ function SignupChart({ data }: { data: SignupEntry[] }) {
           y={chartHeight - 8}
           textAnchor="middle"
           fontSize="10"
-          fill="var(--color-text-secondary)"
+          fill="var(--color-app-text-secondary)"
         >
           {formatChartDate(data[idx].date)}
         </text>
       ))}
 
       {/* Line */}
-      <path d={linePath} fill="none" stroke="var(--color-accent,var(--color-primary))" strokeWidth="2" />
+      <path d={linePath} fill="none" stroke="var(--color-app-accent)" strokeWidth="2" />
 
       {/* Dots */}
       {data.map((d, i) => (
@@ -400,7 +400,7 @@ function SignupChart({ data }: { data: SignupEntry[] }) {
           cx={xScale(i)}
           cy={yScale(d.count)}
           r="3"
-          fill="var(--color-accent,var(--color-primary))"
+          fill="var(--color-app-accent)"
         />
       ))}
     </svg>

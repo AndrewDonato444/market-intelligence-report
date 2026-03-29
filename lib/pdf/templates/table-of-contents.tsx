@@ -5,6 +5,7 @@
 import React from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, COLORS } from "../styles";
+import { getCopyrightLine } from "../copyright";
 
 interface SectionEntry {
   sectionType: string;
@@ -19,7 +20,7 @@ interface TableOfContentsProps {
 export function TableOfContents({ sections }: TableOfContentsProps) {
   return (
     <Page size="LETTER" style={styles.page}>
-      <View>
+      <View style={{ flex: 1 }}>
         <Text style={styles.heading}>Table of Contents</Text>
         <View style={styles.accentLine} />
         <View style={{ marginTop: 16 }}>
@@ -70,6 +71,9 @@ export function TableOfContents({ sections }: TableOfContentsProps) {
             </View>
           ))}
         </View>
+        {/* Spacer pushes accent line to bottom on sparse TOCs */}
+        <View style={{ flexGrow: 1 }} />
+        <View style={{ ...styles.accentLine, width: 48, height: 1, marginBottom: 0, marginTop: 16 }} />
       </View>
       <View style={styles.pageFooter} fixed>
         <Text style={styles.pageNumber}>Table of Contents</Text>
@@ -79,6 +83,9 @@ export function TableOfContents({ sections }: TableOfContentsProps) {
             `${pageNumber} / ${totalPages}`
           }
         />
+      </View>
+      <View style={{ ...styles.pageFooter, ...styles.copyrightFooterRow, bottom: 20, borderTopWidth: 0 }} fixed>
+        <Text style={styles.copyrightText}>{getCopyrightLine()}</Text>
       </View>
     </Page>
   );

@@ -100,7 +100,8 @@ describe("PipelineVisualizer", () => {
       await waitFor(() => {
         expect(screen.getByText("Completed")).toBeInTheDocument();
       });
-      expect(screen.getByText("Failed")).toBeInTheDocument();
+      // "Failed" appears in the status badge and the summary stats card — use getAllByText
+      expect(screen.getAllByText("Failed").length).toBeGreaterThanOrEqual(1);
     });
 
     it("shows section count for each run", async () => {

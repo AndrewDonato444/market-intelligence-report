@@ -43,6 +43,9 @@ coverage/
 # Pipeline test output
 scripts/output/
 
+# AI-generated market images (hosted on Supabase Storage, not in git)
+public/markets/
+
 # Remotion video projects (managed in DonatoSkills repo, not here)
 videos/
 scripts/build-ig-*.ts

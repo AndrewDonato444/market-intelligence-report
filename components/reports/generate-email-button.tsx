@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Link from "next/link";
 
 type CampaignStatus = "none" | "queued" | "generating" | "completed" | "failed";
@@ -17,6 +17,7 @@ interface GenerateEmailButtonProps {
   initialCampaignStatus?: CampaignStatus;
   initialErrorMessage?: string | null;
   compact?: boolean;
+  onCompleted?: () => void;
 }
 
 export function GenerateEmailButton({
@@ -24,10 +25,14 @@ export function GenerateEmailButton({
   initialCampaignStatus = "none",
   initialErrorMessage = null,
   compact = false,
+  onCompleted,
 }: GenerateEmailButtonProps) {
   const [campaignStatus, setCampaignStatus] = useState<CampaignStatus>(initialCampaignStatus);
   const [errorMessage, setErrorMessage] = useState<string | null>(initialErrorMessage);
   const [triggering, setTriggering] = useState(false);
+  const onCompletedRef = useRef(onCompleted);
+  useEffect(() => { onCompletedRef.current = onCompleted; }, [onCompleted]);
+
   const [entitlement, setEntitlement] = useState<EntitlementState>(
     // Skip entitlement check for campaigns already in progress or completed
     initialCampaignStatus === "completed" || initialCampaignStatus === "generating" || initialCampaignStatus === "queued"
@@ -85,8 +90,11 @@ export function GenerateEmailButton({
       const res = await fetch(`/api/reports/${reportId}/email-campaign/status`);
       if (!res.ok) return;
       const data = await res.json();
-      setCampaignStatus(data.campaign.status);
-      if (data.campaign.status === "failed") {
+      const newStatus = data.campaign.status;
+      setCampaignStatus(newStatus);
+      if (newStatus === "completed") {
+        onCompletedRef.current?.();
+      } else if (newStatus === "failed") {
         setErrorMessage(data.campaign.errorMessage);
       }
     } catch {

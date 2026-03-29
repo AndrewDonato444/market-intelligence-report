@@ -41,7 +41,7 @@ export function DownloadPdfButton({
     <button
       onClick={handleDownload}
       disabled={downloading}
-      className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-primary)] text-white hover:bg-[var(--color-primary)]/90 disabled:opacity-50 transition-colors whitespace-nowrap"
+      className="font-[family-name:var(--font-sans)] text-xs font-semibold px-3 py-1 rounded-[var(--radius-sm)] bg-white text-[var(--color-primary)] hover:bg-white/90 disabled:opacity-50 transition-colors whitespace-nowrap shadow-sm"
     >
       {downloading ? "Generating..." : "Download PDF"}
     </button>

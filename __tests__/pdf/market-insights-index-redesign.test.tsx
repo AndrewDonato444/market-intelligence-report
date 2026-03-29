@@ -179,6 +179,7 @@ describe("Market Insights Index Redesign (#203)", () => {
         medianPricePerSqft: null,
         medianLotSize: null,
         medianYearBuilt: null,
+        dataSources: { dom: "none" as const, listToSale: "none" as const },
       };
       const segments: Parameters<typeof computeInsightsIndex>[3] = [];
 

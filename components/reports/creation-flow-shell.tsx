@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { pageTransition } from "@/lib/animations";
 import { CreationStepIndicator } from "./creation-step-indicator";
 import { StepYourMarket } from "./steps/step-your-market";
 import { StepYourTier } from "./steps/step-your-tier";
-import { StepYourFocus } from "./steps/step-your-focus";
 import { StepYourAudience } from "./steps/step-your-audience";
 import { StepYourReview } from "./steps/step-your-review";
 import { StepGenerating } from "./steps/step-generating";
@@ -17,7 +16,6 @@ import {
 } from "@/lib/hooks/use-flow-persistence";
 import type { StepMarketData } from "./steps/step-your-market";
 import type { StepTierData } from "./steps/step-your-tier";
-import type { StepFocusData } from "./steps/step-your-focus";
 import type { StepAudienceData } from "./steps/step-your-audience";
 import type { StepReviewData } from "./steps/step-your-review";
 import type { PageDirection } from "@/lib/animations";
@@ -30,10 +28,6 @@ const STEPS = [
   {
     name: "Your Tier",
     description: "Choose the luxury tier and price range.",
-  },
-  {
-    name: "Your Focus",
-    description: "Pick market segments and property types.",
   },
   {
     name: "Your Audience",
@@ -67,35 +61,65 @@ interface MarketOption {
 
 interface CreationFlowShellProps {
   markets: MarketOption[];
+  preselectedMarketId?: string;
 }
 
-function getInitialState() {
-  const draft = loadDraft();
-  if (draft && draft.currentStep < 5) {
-    return draft;
-  }
-  return null;
-}
-
-export function CreationFlowShell({ markets }: CreationFlowShellProps) {
-  const initialDraft = useRef(getInitialState());
-  const draft = initialDraft.current;
-
-  const [currentStep, setCurrentStep] = useState(draft?.currentStep ?? 0);
+export function CreationFlowShell({ markets, preselectedMarketId }: CreationFlowShellProps) {
+  // Always start at step 0 for SSR — draft is restored client-side in useEffect
+  // to avoid server/client HTML mismatch (localStorage is unavailable during SSR).
+  const [currentStep, setCurrentStep] = useState(0);
   const [direction, setDirection] = useState<PageDirection>("forward");
   const [stepValid, setStepValid] = useState(false);
-  const [showQuickStart, setShowQuickStart] = useState(
-    markets.length > 0 && !draft,
-  );
-  const marketDataRef = useRef<StepMarketData | null>(
-    draft?.marketData ?? null,
-  );
-  const tierDataRef = useRef<StepTierData | null>(draft?.tierData ?? null);
-  const focusDataRef = useRef<StepFocusData | null>(draft?.focusData ?? null);
-  const audienceDataRef = useRef<StepAudienceData | null>(
-    draft?.audienceData ?? null,
-  );
+  const marketDataRef = useRef<StepMarketData | null>(null);
+  const tierDataRef = useRef<StepTierData | null>(null);
+  const audienceDataRef = useRef<StepAudienceData | null>(null);
   const [reportData, setReportData] = useState<StepReviewData | null>(null);
+
+  // Restore draft or auto-select market after hydration (client-only)
+  useEffect(() => {
+    // Pre-selected market from query param takes priority
+    if (preselectedMarketId) {
+      const match = markets.find((m) => m.id === preselectedMarketId);
+      if (match) {
+        const tierKey = match.luxuryTier as keyof typeof TIER_DEFAULTS;
+        const tierDefaults = TIER_DEFAULTS[tierKey] ?? TIER_DEFAULTS.luxury;
+
+        marketDataRef.current = {
+          existingMarketId: match.id,
+          city: match.geography.city,
+          state: match.geography.state,
+          marketName: match.name,
+          isNewMarket: false,
+        };
+        tierDataRef.current = {
+          luxuryTier: tierKey as "luxury" | "high_luxury" | "ultra_luxury",
+          priceFloor: tierDefaults.priceFloor,
+          priceCeiling: tierDefaults.priceCeiling,
+        };
+        setDirection("forward");
+        setCurrentStep(2);
+        setStepValid(false);
+        saveDraft({
+          currentStep: 2,
+          marketData: marketDataRef.current,
+          tierData: tierDataRef.current,
+          focusData: null,
+          audienceData: null,
+          savedAt: new Date().toISOString(),
+        });
+        return;
+      }
+    }
+
+    // Fall back to draft restore
+    const draft = loadDraft();
+    if (draft && draft.currentStep < 4) {
+      marketDataRef.current = draft.marketData ?? null;
+      tierDataRef.current = draft.tierData ?? null;
+      audienceDataRef.current = draft.audienceData ?? null;
+      setCurrentStep(draft.currentStep);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
@@ -103,12 +127,12 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   // --- Persistence helpers ---
   const persistState = useCallback(
     (step: number) => {
-      if (step >= 5) return;
+      if (step >= 4) return;
       saveDraft({
         currentStep: step,
         marketData: marketDataRef.current,
         tierData: tierDataRef.current,
-        focusData: focusDataRef.current,
+        focusData: null,
         audienceData: audienceDataRef.current,
         savedAt: new Date().toISOString(),
       });
@@ -154,27 +178,20 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
         priceFloor: tierDefaults.priceFloor,
         priceCeiling: tierDefaults.priceCeiling,
       };
-      focusDataRef.current = { segments: [], propertyTypes: [] };
-
-      setShowQuickStart(false);
       setDirection("forward");
-      setCurrentStep(3); // Jump to Audience
+      setCurrentStep(2); // Jump to Audience
       setStepValid(false);
       saveDraft({
-        currentStep: 3,
+        currentStep: 2,
         marketData: marketDataRef.current,
         tierData: tierDataRef.current,
-        focusData: focusDataRef.current,
+        focusData: null,
         audienceData: null,
         savedAt: new Date().toISOString(),
       });
     },
     [],
   );
-
-  const handleStartFresh = useCallback(() => {
-    setShowQuickStart(false);
-  }, []);
 
   // --- Step callbacks ---
   const handleMarketStepComplete = useCallback((data: StepMarketData) => {
@@ -193,14 +210,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
     setStepValid(valid);
   }, []);
 
-  const handleFocusStepComplete = useCallback((data: StepFocusData) => {
-    focusDataRef.current = data;
-  }, []);
-
-  const handleFocusValidation = useCallback((valid: boolean) => {
-    setStepValid(valid);
-  }, []);
-
   const handleAudienceStepComplete = useCallback((data: StepAudienceData) => {
     audienceDataRef.current = data;
   }, []);
@@ -212,7 +221,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   const handleReviewStepComplete = useCallback((data: StepReviewData) => {
     setReportData(data);
     setDirection("forward");
-    setCurrentStep(5);
+    setCurrentStep(4);
     setStepValid(false);
     clearDraft();
   }, []);
@@ -238,6 +247,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
           markets={markets}
           onStepComplete={handleMarketStepComplete}
           onValidationChange={handleMarketValidation}
+          onQuickStart={handleQuickStart}
         />
       );
     }
@@ -253,20 +263,6 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
 
     if (currentStep === 2) {
       return (
-        <StepYourFocus
-          marketData={
-            marketDataRef.current
-              ? { city: marketDataRef.current.city, state: marketDataRef.current.state }
-              : undefined
-          }
-          onStepComplete={handleFocusStepComplete}
-          onValidationChange={handleFocusValidation}
-        />
-      );
-    }
-
-    if (currentStep === 3) {
-      return (
         <StepYourAudience
           onStepComplete={handleAudienceStepComplete}
           onValidationChange={handleAudienceValidation}
@@ -274,12 +270,11 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    if (currentStep === 4) {
+    if (currentStep === 3) {
       return (
         <StepYourReview
           marketData={marketDataRef.current}
           tierData={tierDataRef.current}
-          focusData={focusDataRef.current}
           audienceData={audienceDataRef.current}
           onStepComplete={handleReviewStepComplete}
           onValidationChange={handleReviewValidation}
@@ -288,8 +283,8 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       );
     }
 
-    // Step 6: Generating (feature #157)
-    if (currentStep === 5 && reportData) {
+    // Step 5: Generating (feature #157)
+    if (currentStep === 4 && reportData) {
       return (
         <StepGenerating
           reportId={reportData.reportId}
@@ -314,58 +309,13 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8">
-        <h1 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+      <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
           Create Your Intelligence Report
         </h1>
-        <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-8" />
+        <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-8" />
 
         <CreationStepIndicator steps={STEP_NAMES} currentStep={currentStep} />
-
-        {/* Quick Start for returning users */}
-        {showQuickStart && currentStep === 0 && (
-          <div
-            className="mb-6 p-5 border border-[var(--color-accent)] rounded-[var(--radius-md)] bg-[var(--color-background)]"
-            data-testid="quick-start"
-          >
-            <h3 className="font-[family-name:var(--font-serif)] text-base font-semibold text-[var(--color-primary)] mb-1">
-              Quick Start
-            </h3>
-            <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mb-4">
-              Use one of your saved markets to jump straight to audience
-              selection.
-            </p>
-            <div className="flex flex-wrap gap-3 mb-4">
-              {markets.map((m) => (
-                <div
-                  key={m.id}
-                  className="flex flex-col items-start gap-1 p-3 border border-[var(--color-border)] rounded-[var(--radius-sm)] bg-[var(--color-surface)]"
-                >
-                  <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
-                    {m.name}
-                  </span>
-                  <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
-                    {m.geography.city}, {m.geography.state}
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => handleQuickStart(m)}
-                    className="mt-1 px-3 py-1 text-xs font-semibold bg-[var(--color-accent)] text-[var(--color-primary)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors"
-                  >
-                    Use This
-                  </button>
-                </div>
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={handleStartFresh}
-              className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] underline transition-colors"
-            >
-              Start Fresh
-            </button>
-          </div>
-        )}
 
         {/* Step content with slide animation */}
         <div className="min-h-[200px] relative overflow-hidden">
@@ -383,26 +333,26 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
           </AnimatePresence>
         </div>
 
-        {/* Navigation — hidden on Step 6 (Generating) */}
-        {currentStep !== 5 && (
-          <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-border)]">
+        {/* Navigation — hidden on Generate step */}
+        {currentStep !== 4 && (
+          <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-app-border)]">
             <div>
               {!isFirstStep && (
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-5 py-2.5 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-[var(--duration-default)] rounded-[var(--radius-sm)]"
+                  className="px-5 py-2.5 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)] transition-colors duration-[var(--duration-default)] rounded-[var(--radius-sm)]"
                 >
                   Back
                 </button>
               )}
             </div>
             <div>
-              {currentStep === 4 ? null : (
+              {currentStep === 3 ? null : (
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="px-6 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+                  className="px-6 py-2.5 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
                 >
                   Next
                 </button>

@@ -23,7 +23,6 @@ const EXPECTED_SECTION_TYPES = [
   "neighborhood_intelligence",
   "the_narrative",
   "forward_look",
-  "comparative_positioning",
 ];
 
 // --- Fixture registry ---
@@ -79,18 +78,18 @@ describe("Report Eval Fixtures — All Fixtures Valid", () => {
         report = fixture.report;
       });
 
-      it("should have 7 sections", () => {
-        expect(report.sections.length).toBe(7);
+      it("should have 6 sections (comparative_positioning disabled)", () => {
+        expect(report.sections.length).toBe(6);
       });
 
-      it("should have sections numbered 1-7 in order", () => {
-        for (let i = 0; i < 7; i++) {
+      it("should have sections numbered 1-6 in order", () => {
+        for (let i = 0; i < 6; i++) {
           expect(report.sections[i].sectionNumber).toBe(i + 1);
         }
       });
 
       it("should have correct section types", () => {
-        for (let i = 0; i < 7; i++) {
+        for (let i = 0; i < 6; i++) {
           expect(report.sections[i].sectionType).toBe(
             EXPECTED_SECTION_TYPES[i]
           );
@@ -252,7 +251,7 @@ describe("Report Eval Fixtures — summarizeReportFixture", () => {
     const fixture = getReportFixture("report-strong-market");
     const summary = summarizeReportFixture(fixture);
     expect(summary).toContain("Palm Beach Strong Market");
-    expect(summary).toContain("Sections: 7");
+    expect(summary).toContain("Sections: 6");
     expect(summary).toContain("Confidence: high");
     expect(summary).toContain("executive_briefing");
   });

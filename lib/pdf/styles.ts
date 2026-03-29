@@ -6,6 +6,20 @@
 
 import { StyleSheet } from "@react-pdf/renderer";
 
+/**
+ * Calculate relative luminance and return an appropriate contrast text color.
+ * Uses the ITU-R BT.601 luma formula: (0.299*R + 0.587*G + 0.114*B) / 255
+ * Returns dark text for light backgrounds, white text for dark backgrounds.
+ */
+export function getContrastTextColor(hexColor: string): string {
+  const hex = hexColor.replace("#", "");
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+  return luminance > 0.5 ? "#0F172A" : "#F8FAFC";
+}
+
 // Design token color constants
 export const COLORS = {
   primary: "#0F172A", // deep navy
@@ -104,6 +118,7 @@ export const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.primary,
     marginBottom: 8,
+    lineHeight: 1.3,
   },
   // Body text
   body: {
@@ -127,6 +142,13 @@ export const styles = StyleSheet.create({
     marginBottom: 4,
     paddingLeft: 12,
   },
+  bulletItemNested: {
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textPrimary,
+    marginBottom: 4,
+    paddingLeft: 24,
+  },
   // Accent elements
   accentLine: {
     width: 48,
@@ -148,7 +170,7 @@ export const styles = StyleSheet.create({
     flexDirection: "row" as const,
     borderBottomWidth: 1,
     borderBottomColor: COLORS.border,
-    paddingVertical: 6,
+    paddingVertical: 8,
   },
   tableHeader: {
     fontFamily: "Inter",
@@ -203,8 +225,8 @@ export const styles = StyleSheet.create({
   badge: {
     fontFamily: "Inter",
     fontSize: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
     borderRadius: 4,
     color: COLORS.surface,
   },
@@ -222,35 +244,6 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     color: COLORS.textPrimary,
     marginBottom: 12,
-  },
-  // Persona Intelligence styles
-  personaCard: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 4,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: COLORS.border,
-  },
-  personaCardPrimary: {
-    backgroundColor: COLORS.surface,
-    borderRadius: 4,
-    padding: 16,
-    marginBottom: 16,
-    borderLeftWidth: 3,
-    borderLeftColor: COLORS.accent,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    borderRightWidth: 1,
-    borderRightColor: COLORS.border,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.border,
-  },
-  personaName: {
-    fontFamily: "Playfair Display",
-    fontSize: 16,
-    color: COLORS.primary,
-    marginBottom: 4,
   },
   primaryPersonaLabel: {
     fontFamily: "Inter",
@@ -319,10 +312,54 @@ export const styles = StyleSheet.create({
     textDecorationLine: "line-through" as const,
   },
   blendedSection: {
-    backgroundColor: COLORS.accentLight,
+    backgroundColor: COLORS.background,
+    marginTop: 0,
+  },
+  blendedHeader: {
+    fontFamily: "Playfair Display",
+    fontSize: 24,
+    color: COLORS.primary,
+    marginBottom: 4,
+  },
+  blendedHeaderAccent: {
+    width: 48,
+    height: 2,
+    backgroundColor: COLORS.accent,
+    marginBottom: 20,
+  },
+  blendedTalkingPointCard: {
+    backgroundColor: COLORS.surface,
     borderRadius: 4,
     padding: 16,
-    marginTop: 16,
+    marginBottom: 12,
+    borderLeftWidth: 3,
+    borderLeftColor: COLORS.accent,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    borderRightWidth: 1,
+    borderRightColor: COLORS.border,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.border,
+  },
+  blendedTalkingPointHeadline: {
+    fontFamily: "Playfair Display",
+    fontSize: 13,
+    color: COLORS.primary,
+    marginBottom: 6,
+    lineHeight: 1.3,
+  },
+  blendedTalkingPointDetail: {
+    fontFamily: "Inter",
+    fontSize: 10,
+    color: COLORS.textPrimary,
+    lineHeight: 1.6,
+    marginBottom: 6,
+  },
+  blendedTalkingPointSource: {
+    fontFamily: "Inter",
+    fontSize: 8,
+    color: COLORS.textTertiary,
+    fontStyle: "italic" as const,
   },
   conflictBox: {
     borderLeftWidth: 2,
@@ -335,7 +372,7 @@ export const styles = StyleSheet.create({
   personaCallout: {
     backgroundColor: COLORS.primaryLight,
     borderRadius: 4,
-    padding: 12,
+    padding: 16,
     marginTop: 16,
   },
   personaCalloutLabel: {
@@ -381,5 +418,34 @@ export const styles = StyleSheet.create({
     fontSize: 10,
     color: COLORS.textTertiary,
     marginBottom: 16,
+  },
+  // Copyright & confidentiality
+  copyrightText: {
+    fontFamily: "Inter",
+    fontSize: 7,
+    color: COLORS.textTertiary,
+  },
+  copyrightFooterRow: {
+    paddingTop: 4,
+  },
+  coverConfidentiality: {
+    fontFamily: "Inter",
+    fontSize: 7,
+    color: COLORS.surface, // inverse text on dark cover bg
+    opacity: 0.6,
+    lineHeight: 1.6,
+  },
+  confidentialityBlock: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 4,
+    padding: 16,
+    marginTop: 24,
+  },
+  confidentialityBlockText: {
+    fontFamily: "Inter",
+    fontSize: 7,
+    color: COLORS.textTertiary,
+    lineHeight: 1.6,
   },
 });

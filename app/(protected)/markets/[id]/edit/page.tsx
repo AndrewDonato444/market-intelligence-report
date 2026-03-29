@@ -33,8 +33,6 @@ export default async function EditMarketPage({
           luxuryTier: market.luxuryTier as "luxury" | "high_luxury" | "ultra_luxury",
           priceFloor: market.priceFloor,
           priceCeiling: market.priceCeiling,
-          segments: market.segments as string[] | null,
-          propertyTypes: market.propertyTypes as string[] | null,
         }}
       />
     </div>

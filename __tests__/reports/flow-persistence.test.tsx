@@ -209,8 +209,8 @@ describe("Flow Persistence (#158)", () => {
       expect(screen.getByTestId("step-content-2")).toBeInTheDocument();
     });
 
-    it("clears draft when report generation starts (step 5)", () => {
-      // Save a draft at step 4
+    it("clears draft when report generation starts (step 4 not restorable)", () => {
+      // Save a draft at step 4 (Generate) — component ignores drafts at step >= 4
       localStorage.setItem(
         STORAGE_KEY,
         JSON.stringify({
@@ -224,51 +224,48 @@ describe("Flow Persistence (#158)", () => {
       );
 
       render(React.createElement(CreationFlowShell, { markets: mockMarkets }));
-      // Step 4 is review — verify it restores correctly
-      expect(screen.getByTestId("step-content-4")).toBeInTheDocument();
+      // Drafts at step 4+ are discarded — component starts at step 0
+      expect(screen.getByTestId("step-content-0")).toBeInTheDocument();
     });
 
-    it("shows Quick Start panel when markets exist", () => {
+    it("shows saved markets with Use This buttons when markets exist", () => {
       render(React.createElement(CreationFlowShell, { markets: mockMarkets }));
 
-      // Use the data-testid on the Quick Start panel
-      expect(screen.getByTestId("quick-start")).toBeInTheDocument();
+      // Saved markets are rendered inside StepYourMarket (step-content-0)
       // Check that Use This buttons exist for each market
       const useButtons = screen.getAllByRole("button", { name: /use this/i });
       expect(useButtons.length).toBe(2);
     });
 
-    it("does not show Quick Start when no markets exist", () => {
+    it("does not show Use This buttons when no markets exist", () => {
       render(React.createElement(CreationFlowShell, { markets: [] }));
 
-      expect(screen.queryByTestId("quick-start")).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /use this/i })).not.toBeInTheDocument();
     });
 
-    it("jumps to step 3 (audience) when Quick Start market is selected", () => {
+    it("jumps to step 2 (audience) when a saved market is selected via Use This", () => {
       render(React.createElement(CreationFlowShell, { markets: mockMarkets }));
 
       const useButtons = screen.getAllByRole("button", { name: /use this/i });
       fireEvent.click(useButtons[0]); // Select first market (Naples)
 
-      // Should jump to step 3 (Your Audience, index 3)
-      expect(screen.getByTestId("step-content-3")).toBeInTheDocument();
+      // Should jump to step 2 (Your Audience, index 2)
+      expect(screen.getByTestId("step-content-2")).toBeInTheDocument();
     });
 
-    it("allows starting fresh even with existing markets", () => {
+    it("stays on step 0 after clicking Next from step 0 (still at market entry)", () => {
       render(React.createElement(CreationFlowShell, { markets: mockMarkets }));
 
-      const startFresh = screen.getByRole("button", { name: /start fresh/i });
-      fireEvent.click(startFresh);
-
-      // Quick Start should be dismissed, still on step 0
+      // Step 0 is still visible — form is empty so it stays on step 0 area
       expect(screen.getByTestId("step-content-0")).toBeInTheDocument();
-      expect(screen.queryByTestId("quick-start")).not.toBeInTheDocument();
+      // Saved markets section shows a divider when markets exist
+      expect(screen.getByText(/or define a new market/i)).toBeInTheDocument();
     });
 
     it("preserves data from other steps when navigating back from review", () => {
-      // Pre-seed a complete draft at step 4 (review)
+      // Pre-seed a complete draft at step 3 (review — max restorable step)
       const draft = {
-        currentStep: 4,
+        currentStep: 3,
         marketData: {
           city: "Naples",
           state: "Florida",
@@ -285,20 +282,19 @@ describe("Flow Persistence (#158)", () => {
 
       render(React.createElement(CreationFlowShell, { markets: mockMarkets }));
 
-      // Should be on step 4
-      expect(screen.getByTestId("step-content-4")).toBeInTheDocument();
+      // Should be on step 3 (Review)
+      expect(screen.getByTestId("step-content-3")).toBeInTheDocument();
 
       // Navigate back
       fireEvent.click(screen.getByRole("button", { name: /^back$/i }));
 
-      // Should be on step 3, data still in localStorage
-      expect(screen.getByTestId("step-content-3")).toBeInTheDocument();
+      // Should be on step 2, data still in localStorage
+      expect(screen.getByTestId("step-content-2")).toBeInTheDocument();
       const stored = localStorage.getItem(STORAGE_KEY);
       expect(stored).not.toBeNull();
       const parsed = JSON.parse(stored!);
       expect(parsed.marketData).not.toBeNull();
       expect(parsed.tierData).not.toBeNull();
-      expect(parsed.focusData).not.toBeNull();
     });
   });
 });

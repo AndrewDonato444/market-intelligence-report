@@ -2,11 +2,13 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ReportEntitlementBadge } from "@/components/reports/report-entitlement-badge";
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "grid" },
   { label: "How To", href: "/how-to", icon: "book-open" },
   { label: "Reports", href: "/reports", icon: "file-text" },
+  { label: "Content Studio", href: "/content-studio", icon: "palette" },
   { label: "Markets", href: "/markets", icon: "map-pin" },
   { label: "Settings", href: "/settings", icon: "settings" },
 ];
@@ -41,6 +43,15 @@ const iconMap: Record<string, React.ReactNode> = {
       <circle cx="12" cy="10" r="3" />
     </svg>
   ),
+  palette: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="13.5" cy="6.5" r="0.5" fill="currentColor" />
+      <circle cx="17.5" cy="10.5" r="0.5" fill="currentColor" />
+      <circle cx="8.5" cy="7.5" r="0.5" fill="currentColor" />
+      <circle cx="6.5" cy="12.5" r="0.5" fill="currentColor" />
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.93 0 1.5-.67 1.5-1.5 0-.39-.15-.74-.39-1.04-.23-.29-.38-.63-.38-1.01 0-.83.67-1.5 1.5-1.5H16c3.31 0 6-2.69 6-6 0-5.17-4.49-9-10-9z" />
+    </svg>
+  ),
   settings: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
@@ -58,8 +69,31 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 bg-[var(--color-surface)] border-r border-[var(--color-border)] shrink-0 flex flex-col">
-      <nav className="flex-1 p-[var(--spacing-3)]">
+    <aside className="w-60 bg-[var(--color-app-sidebar-bg)] border-r border-[var(--color-app-border)] shrink-0 flex flex-col">
+      <nav className="flex-1 flex flex-col p-[var(--spacing-3)]">
+        <div
+            className="rounded-[var(--radius-md)] p-[var(--spacing-3)] space-y-[var(--spacing-1)] mb-[var(--spacing-3)]"
+            style={{
+              backgroundColor: "var(--color-app-active-bg)",
+              border: "1px solid var(--color-app-border)",
+            }}
+          >
+            <span
+              className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide"
+              style={{ backgroundColor: "var(--color-app-accent)", color: "#fff" }}
+            >
+              BETA
+            </span>
+            <p className="font-[family-name:var(--font-body)] text-xs leading-snug" style={{ color: "var(--color-app-text-secondary)" }}>
+              Some things may break. We&apos;re improving fast.
+            </p>
+            <a
+              href="mailto:support@modernsignaladvisory.com"
+              className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-accent)] hover:underline"
+            >
+              Report an issue
+            </a>
+          </div>
         <ul className="space-y-[var(--spacing-1)]">
           {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
@@ -67,13 +101,13 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] text-sm transition-colors duration-[var(--duration-default)] ${
+                  className={`flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm transition-colors duration-[var(--duration-default)] ${
                     isActive
-                      ? "bg-[var(--color-primary-light)] text-[var(--color-primary)] font-medium"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-text)]"
+                      ? "bg-[var(--color-app-active-bg)] text-[var(--color-app-accent)] font-medium"
+                      : "text-[var(--color-app-text-secondary)] hover:bg-[var(--color-app-active-bg)] hover:text-[var(--color-app-text)]"
                   }`}
                 >
-                  <span className={isActive ? "text-[var(--color-accent)]" : ""}>
+                  <span className={isActive ? "text-[var(--color-app-accent)]" : ""}>
                     {iconMap[item.icon]}
                   </span>
                   {item.label}
@@ -82,20 +116,30 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
             );
           })}
         </ul>
+        <div
+          className="mt-auto pt-[var(--spacing-3)] space-y-[var(--spacing-3)]"
+        >
+          <div className="px-[var(--spacing-1)]">
+            <p className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-text-secondary)] mb-[var(--spacing-1)]">
+              Report Credits
+            </p>
+            <ReportEntitlementBadge />
+          </div>
+        </div>
       </nav>
       {isAdmin && (
         <div className="px-[var(--spacing-3)] pb-[var(--spacing-2)]">
           <Link
             href="/admin/users"
-            className="flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] text-sm transition-colors duration-[var(--duration-default)] text-[var(--color-accent)] hover:bg-[var(--color-primary-light)] font-medium"
+            className="flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm transition-colors duration-[var(--duration-default)] text-[var(--color-app-accent)] hover:bg-[var(--color-app-active-bg)] font-medium"
           >
             <span>{iconMap.shield}</span>
             Admin
           </Link>
         </div>
       )}
-      <div className="p-[var(--spacing-3)] border-t border-[var(--color-border)]">
-        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+      <div className="p-[var(--spacing-3)] border-t border-[var(--color-app-border)]">
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
           Modern Signal Advisory
         </p>
       </div>

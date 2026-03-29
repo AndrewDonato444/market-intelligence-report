@@ -83,8 +83,13 @@ function makeAnalytics(overrides: Partial<ComputedAnalytics> = {}): ComputedAnal
       floodZonePercentage: 0.1,
       investorBuyerPercentage: 0.2,
       freeClearPercentage: 0.3,
+      dataSources: { dom: "mls", listToSale: "mls" },
     },
     dataAsOfDate: "2025-12-15",
+    analysisPeriod: {
+      current: { min: "2025-03-18", max: "2026-03-17", count: 0 },
+      prior: { min: "2024-03-18", max: "2025-03-17", count: 0 },
+    },
     ...overrides,
   };
 }
@@ -280,9 +285,9 @@ describe("Neighborhood Intelligence Trim", () => {
       expect(content.narrative).toBeDefined();
     });
 
-    it("total section count unchanged (7 without persona)", () => {
+    it("total section count unchanged (6 without persona, comparative_positioning disabled)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      expect(result.sections).toHaveLength(7);
+      expect(result.sections).toHaveLength(6);
     });
 
     it("section types match expected order", () => {

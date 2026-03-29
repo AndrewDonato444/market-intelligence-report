@@ -80,6 +80,7 @@ describe("Step 1: Your Market (#152)", () => {
       markets: typeof MOCK_MARKETS;
       onStepComplete: (data: import("@/components/reports/steps/step-your-market").StepMarketData) => void;
       onValidationChange?: (valid: boolean) => void;
+      onQuickStart?: (market: typeof MOCK_MARKETS[0]) => void;
     }>;
 
     beforeAll(async () => {
@@ -107,17 +108,15 @@ describe("Step 1: Your Market (#152)", () => {
       expect(screen.getByLabelText(/state/i)).toBeInTheDocument();
     });
 
-    it("CMP-152-08: renders Refine your area toggle collapsed by default", () => {
+    it("CMP-152-08: does NOT render Refine your area toggle (removed)", () => {
       render(React.createElement(StepYourMarket, { markets: [], onStepComplete: jest.fn() }));
-      expect(screen.getByText(/Refine your area/)).toBeInTheDocument();
-      expect(screen.queryByLabelText(/county/i)).not.toBeInTheDocument();
+      expect(screen.queryByText(/Refine your area/)).not.toBeInTheDocument();
     });
 
-    it("CMP-152-09: shows county and region when Refine your area is clicked", () => {
+    it("CMP-152-09: does NOT render county or region fields (removed)", () => {
       render(React.createElement(StepYourMarket, { markets: [], onStepComplete: jest.fn() }));
-      fireEvent.click(screen.getByText(/Refine your area/));
-      expect(screen.getByLabelText(/county/i)).toBeInTheDocument();
-      expect(screen.getByLabelText(/region/i)).toBeInTheDocument();
+      expect(screen.queryByLabelText(/county/i)).not.toBeInTheDocument();
+      expect(screen.queryByLabelText(/region/i)).not.toBeInTheDocument();
     });
 
     it("CMP-152-10: does not show existing markets section when no markets exist", () => {
@@ -125,26 +124,26 @@ describe("Step 1: Your Market (#152)", () => {
       expect(screen.queryByText(/Use an existing market/)).not.toBeInTheDocument();
     });
 
-    it("CMP-152-11: shows existing markets section when markets exist", () => {
+    it("CMP-152-11: shows existing market cards when markets exist", () => {
       render(React.createElement(StepYourMarket, { markets: MOCK_MARKETS, onStepComplete: jest.fn() }));
-      expect(screen.getByText(/Use an existing market/)).toBeInTheDocument();
       expect(screen.getByText("Naples Luxury")).toBeInTheDocument();
       expect(screen.getByText("Miami Beach Elite")).toBeInTheDocument();
     });
 
-    it("CMP-152-12: selecting an existing market populates the form", () => {
-      render(React.createElement(StepYourMarket, { markets: MOCK_MARKETS, onStepComplete: jest.fn() }));
-      fireEvent.click(screen.getByText("Naples Luxury"));
-      const cityInput = screen.getByPlaceholderText("e.g., Naples") as HTMLInputElement;
-      expect(cityInput.value).toBe("Naples");
+    it("CMP-152-12: Use This button calls onQuickStart with the market", () => {
+      const onQuickStart = jest.fn();
+      render(React.createElement(StepYourMarket, { markets: MOCK_MARKETS, onStepComplete: jest.fn(), onQuickStart }));
+      const useThisButtons = screen.getAllByText("Use This");
+      fireEvent.click(useThisButtons[0]);
+      expect(onQuickStart).toHaveBeenCalledWith(MOCK_MARKETS[0]);
     });
 
-    it("CMP-152-13: shows market name field pre-filled with City Luxury", () => {
+    it("CMP-152-13: shows report name field labeled 'Report Name' pre-filled with City Luxury", () => {
       render(React.createElement(StepYourMarket, { markets: [], onStepComplete: jest.fn() }));
       const cityInput = screen.getByPlaceholderText("e.g., Naples");
       fireEvent.change(cityInput, { target: { value: "Naples" } });
-      const marketNameInput = screen.getByLabelText(/market name/i) as HTMLInputElement;
-      expect(marketNameInput.value).toBe("Naples Luxury");
+      const reportNameInput = screen.getByLabelText(/report name/i) as HTMLInputElement;
+      expect(reportNameInput.value).toBe("Naples Luxury");
     });
 
     it("CMP-152-14: shows market preview card when city and state are provided", () => {
@@ -171,6 +170,31 @@ describe("Step 1: Your Market (#152)", () => {
       const onValidationChange = jest.fn();
       render(React.createElement(StepYourMarket, { markets: [], onStepComplete: jest.fn(), onValidationChange }));
       expect(onValidationChange).toHaveBeenCalledWith(false);
+    });
+
+    it("CMP-152-29: report name helper text connects field to the report artifact", () => {
+      render(React.createElement(StepYourMarket, { markets: [], onStepComplete: jest.fn() }));
+      expect(screen.getByText(/This name appears on the cover of your report/)).toBeInTheDocument();
+    });
+
+    it("CMP-152-30: report name does not auto-update after manual edit", () => {
+      render(React.createElement(StepYourMarket, { markets: [], onStepComplete: jest.fn() }));
+      const cityInput = screen.getByPlaceholderText("e.g., Naples");
+      fireEvent.change(cityInput, { target: { value: "Naples" } });
+      const reportNameInput = screen.getByLabelText(/report name/i) as HTMLInputElement;
+      fireEvent.change(reportNameInput, { target: { value: "My Custom Report" } });
+      fireEvent.change(cityInput, { target: { value: "Aspen" } });
+      expect(reportNameInput.value).toBe("My Custom Report");
+    });
+
+    it("CMP-152-31: StepMarketData emitted does not include county or region", () => {
+      const onStepComplete = jest.fn();
+      render(React.createElement(StepYourMarket, { markets: [], onStepComplete }));
+      fireEvent.change(screen.getByPlaceholderText("e.g., Naples"), { target: { value: "Naples" } });
+      fireEvent.change(screen.getByLabelText(/state/i), { target: { value: "Florida" } });
+      const lastCall = onStepComplete.mock.calls[onStepComplete.mock.calls.length - 1][0];
+      expect(lastCall).not.toHaveProperty("county");
+      expect(lastCall).not.toHaveProperty("region");
     });
   });
 
@@ -239,8 +263,6 @@ describe("Step 1: Your Market (#152)", () => {
     let MarketPreviewCard: React.ComponentType<{
       city: string;
       state: string;
-      county?: string;
-      region?: string;
     }>;
 
     beforeAll(async () => {
@@ -253,20 +275,14 @@ describe("Step 1: Your Market (#152)", () => {
       expect(screen.getByText("Naples, Florida")).toBeInTheDocument();
     });
 
-    it("CMP-152-26: renders county and region when provided", () => {
-      render(React.createElement(MarketPreviewCard, { city: "Naples", state: "Florida", county: "Collier County", region: "Southwest Florida" }));
-      expect(screen.getByText(/Collier County/)).toBeInTheDocument();
-      expect(screen.getByText(/Southwest Florida/)).toBeInTheDocument();
+    it("CMP-152-26: does NOT render a detail line (county/region removed)", () => {
+      render(React.createElement(MarketPreviewCard, { city: "Naples", state: "Florida" }));
+      expect(screen.queryByTestId("market-preview-detail")).not.toBeInTheDocument();
     });
 
     it("CMP-152-27: has the correct test id", () => {
       render(React.createElement(MarketPreviewCard, { city: "Naples", state: "Florida" }));
       expect(screen.getByTestId("market-preview-card")).toBeInTheDocument();
-    });
-
-    it("CMP-152-28: does not show county/region detail line when not provided", () => {
-      render(React.createElement(MarketPreviewCard, { city: "Naples", state: "Florida" }));
-      expect(screen.queryByTestId("market-preview-detail")).not.toBeInTheDocument();
     });
   });
 });

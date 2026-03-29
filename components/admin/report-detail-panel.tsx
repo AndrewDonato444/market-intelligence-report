@@ -15,8 +15,8 @@ const STATUS_COLORS: Record<string, { color: string; bg: string }> = {
     bg: "var(--color-warning-light, rgba(234,179,8,0.1))",
   },
   queued: {
-    color: "var(--color-text-secondary)",
-    bg: "var(--color-primary-light, rgba(15,23,42,0.05))",
+    color: "var(--color-app-text-secondary)",
+    bg: "var(--color-app-active-bg, rgba(15,23,42,0.05))",
   },
   failed: {
     color: "var(--color-error)",
@@ -161,7 +161,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
             marginBottom: "var(--spacing-6)",
             height: 20,
             width: 200,
-            background: "var(--color-primary-light)",
+            background: "var(--color-app-active-bg)",
             borderRadius: "var(--radius-sm)",
           }}
         />
@@ -169,7 +169,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
           style={{
             height: 32,
             width: 400,
-            background: "var(--color-primary-light)",
+            background: "var(--color-app-active-bg)",
             borderRadius: "var(--radius-sm)",
             marginBottom: "var(--spacing-4)",
           }}
@@ -180,7 +180,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
               key={i}
               style={{
                 height: 100,
-                background: "var(--color-primary-light)",
+                background: "var(--color-app-active-bg)",
                 borderRadius: "var(--radius-md)",
               }}
             />
@@ -189,7 +189,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
         <div
           style={{
             height: 200,
-            background: "var(--color-primary-light)",
+            background: "var(--color-app-active-bg)",
             borderRadius: "var(--radius-md)",
           }}
         />
@@ -203,7 +203,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
         <Link
           href="/admin/reports"
           style={{
-            color: "var(--color-primary)",
+            color: "var(--color-app-accent)",
             fontSize: "var(--text-sm)",
             textDecoration: "none",
             display: "inline-flex",
@@ -218,15 +218,15 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
           style={{
             textAlign: "center",
             padding: "var(--spacing-12)",
-            background: "var(--color-surface)",
+            background: "var(--color-app-surface)",
             borderRadius: "var(--radius-md)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
           }}
         >
-          <p style={{ fontSize: "var(--text-lg)", fontWeight: 600, color: "var(--color-text)", marginBottom: "var(--spacing-2)" }}>
+          <p style={{ fontSize: "var(--text-lg)", fontWeight: 600, color: "var(--color-app-text)", marginBottom: "var(--spacing-2)" }}>
             Report not found
           </p>
-          <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+          <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
             This report may have been deleted or the ID is invalid.
           </p>
         </div>
@@ -240,7 +240,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
         <Link
           href="/admin/reports"
           style={{
-            color: "var(--color-primary)",
+            color: "var(--color-app-accent)",
             fontSize: "var(--text-sm)",
             textDecoration: "none",
             display: "inline-flex",
@@ -267,7 +267,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
             onClick={fetchDetail}
             style={{
               padding: "var(--spacing-2) var(--spacing-4)",
-              background: "var(--color-primary)",
+              background: "var(--color-app-accent)",
               color: "white",
               border: "none",
               borderRadius: "var(--radius-sm)",
@@ -288,12 +288,12 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
   const statusStyle = STATUS_COLORS[report.status] || STATUS_COLORS.queued;
 
   return (
-    <div style={{ padding: "var(--spacing-6)", maxWidth: 1100, margin: "0 auto" }}>
+    <div style={{ padding: "var(--spacing-6)", maxWidth: 1100, margin: "0 auto", fontFamily: "var(--font-body)" }} className="app-fade-in">
       {/* Back link */}
       <Link
         href="/admin/reports"
         style={{
-          color: "var(--color-primary)",
+          color: "var(--color-app-accent)",
           fontSize: "var(--text-sm)",
           textDecoration: "none",
           display: "inline-flex",
@@ -307,7 +307,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
 
       {/* Title + status */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "var(--spacing-2)" }}>
-        <h1 style={{ fontSize: "var(--text-2xl)", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+        <h1 style={{ fontSize: "var(--text-2xl)", fontFamily: "var(--font-display)", fontWeight: 600, color: "var(--color-app-text)", margin: 0 }}>
           {report.title}
         </h1>
         <span
@@ -325,7 +325,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
           {report.status}
         </span>
       </div>
-      <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-4)" }}>
+      <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)", marginBottom: "var(--spacing-4)" }}>
         Created {formatDate(report.createdAt)} · Version {report.version}
       </p>
 
@@ -337,8 +337,8 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
             disabled={snapshotLoading}
             style={{
               padding: "var(--spacing-2) var(--spacing-4)",
-              background: snapshotLoading ? "var(--color-text-secondary)" : "var(--color-primary)",
-              color: "var(--color-text-inverse, white)",
+              background: snapshotLoading ? "var(--color-app-text-secondary)" : "var(--color-app-accent)",
+              color: "var(--color-app-text-inverse, white)",
               border: "none",
               borderRadius: "var(--radius-sm)",
               cursor: snapshotLoading ? "wait" : "pointer",
@@ -357,16 +357,16 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
           style={{
             padding: "var(--spacing-3) var(--spacing-4)",
             marginBottom: "var(--spacing-4)",
-            background: "var(--color-surface)",
+            background: "var(--color-app-surface)",
             borderRadius: "var(--radius-md)",
-            borderLeft: `4px solid ${snapshotMessage.type === "success" ? "var(--color-accent, #CA8A04)" : "var(--color-error)"}`,
+            borderLeft: `4px solid ${snapshotMessage.type === "success" ? "var(--color-app-accent, #CA8A04)" : "var(--color-error)"}`,
             boxShadow: "var(--shadow-md, 0 4px 6px -1px rgba(15,23,42,0.07))",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
-          <span style={{ fontSize: "var(--text-sm)", color: snapshotMessage.type === "success" ? "var(--color-text)" : "var(--color-error)" }}>
+          <span style={{ fontSize: "var(--text-sm)", color: snapshotMessage.type === "success" ? "var(--color-app-text)" : "var(--color-error)" }}>
             {snapshotMessage.type === "success" ? "✓ " : ""}{snapshotMessage.text}
           </span>
           {snapshotMessage.type === "success" && (
@@ -374,7 +374,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
               href="/admin/test-suite"
               style={{
                 fontSize: "var(--text-sm)",
-                color: "var(--color-primary)",
+                color: "var(--color-app-accent)",
                 textDecoration: "none",
                 fontWeight: 500,
                 whiteSpace: "nowrap",
@@ -393,23 +393,23 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
         <div
           style={{
             padding: "var(--spacing-4)",
-            background: "var(--color-surface)",
+            background: "var(--color-app-surface)",
             borderRadius: "var(--radius-md)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
           }}
         >
-          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-2)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", marginBottom: "var(--spacing-2)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Agent
           </p>
-          <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+          <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-app-text)", margin: 0 }}>
             {user.name}
           </p>
           {user.company && (
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0 }}>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0 }}>
               {user.company}
             </p>
           )}
-          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0 }}>
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0 }}>
             {user.email}
           </p>
         </div>
@@ -418,18 +418,18 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
         <div
           style={{
             padding: "var(--spacing-4)",
-            background: "var(--color-surface)",
+            background: "var(--color-app-surface)",
             borderRadius: "var(--radius-md)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
           }}
         >
-          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-2)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", marginBottom: "var(--spacing-2)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Market
           </p>
-          <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+          <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-app-text)", margin: 0 }}>
             {market.name}
           </p>
-          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0 }}>
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0 }}>
             {TIER_LABELS[market.luxuryTier] || market.luxuryTier} · {formatPrice(market.priceFloor)}
           </p>
         </div>
@@ -438,28 +438,28 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
         <div
           style={{
             padding: "var(--spacing-4)",
-            background: "var(--color-surface)",
+            background: "var(--color-app-surface)",
             borderRadius: "var(--radius-md)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
           }}
         >
-          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-2)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+          <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", marginBottom: "var(--spacing-2)", fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
             Generation Time
           </p>
           {report.status === "queued" ? (
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", margin: 0 }}>
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)", margin: 0 }}>
               Not started yet
             </p>
           ) : (
             <>
-              <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+              <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-app-text)", margin: 0 }}>
                 {formatDuration(report.generationTimeMs)}
               </p>
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0 }}>
+              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0 }}>
                 Started {formatDateTime(report.generationStartedAt)}
               </p>
               {report.generationCompletedAt && (
-                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0 }}>
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0 }}>
                   Completed {formatDateTime(report.generationCompletedAt)}
                 </p>
               )}
@@ -482,7 +482,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
           <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-error)", marginBottom: "var(--spacing-2)" }}>
             Error Details
           </p>
-          <div style={{ fontSize: "var(--text-sm)", color: "var(--color-text)" }}>
+          <div style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text)" }}>
             <p style={{ margin: "0 0 var(--spacing-1) 0" }}>
               <strong>Agent:</strong> {report.errorDetails.agent}
             </p>
@@ -504,7 +504,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
                   style={{
                     background: "none",
                     border: "none",
-                    color: "var(--color-primary)",
+                    color: "var(--color-app-accent)",
                     cursor: "pointer",
                     fontSize: "var(--text-xs)",
                     padding: 0,
@@ -518,7 +518,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
                     style={{
                       marginTop: "var(--spacing-2)",
                       padding: "var(--spacing-3)",
-                      background: "var(--color-background, #f8f9fa)",
+                      background: "var(--color-app-bg, #f8f9fa)",
                       borderRadius: "var(--radius-sm)",
                       fontSize: "var(--text-xs)",
                       fontFamily: "monospace",
@@ -535,11 +535,11 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
             )}
             {report.errorDetails.previousErrors && report.errorDetails.previousErrors.length > 0 && (
               <div style={{ marginTop: "var(--spacing-3)" }}>
-                <p style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "var(--spacing-1)" }}>
+                <p style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--color-app-text-secondary)", marginBottom: "var(--spacing-1)" }}>
                   Previous Errors:
                 </p>
                 {report.errorDetails.previousErrors.map((pe, i) => (
-                  <p key={i} style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: "0 0 2px 0" }}>
+                  <p key={i} style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: "0 0 2px 0" }}>
                     · {pe.agent}: {pe.message} ({formatDateTime(pe.occurredAt)})
                   </p>
                 ))}
@@ -547,7 +547,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
             )}
           </div>
           {report.retriedAt && (
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", marginTop: "var(--spacing-2)" }}>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", marginTop: "var(--spacing-2)" }}>
               Retried at {formatDateTime(report.retriedAt)}{report.retriedBy ? ` by ${report.retriedBy}` : ""}
             </p>
           )}
@@ -557,7 +557,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
               style={{
                 marginTop: "var(--spacing-3)",
                 padding: "var(--spacing-2) var(--spacing-4)",
-                background: "var(--color-primary)",
+                background: "var(--color-app-accent)",
                 color: "white",
                 border: "none",
                 borderRadius: "var(--radius-sm)",
@@ -574,19 +574,19 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
               style={{
                 marginTop: "var(--spacing-3)",
                 padding: "var(--spacing-3)",
-                background: "var(--color-surface)",
+                background: "var(--color-app-surface)",
                 borderRadius: "var(--radius-sm)",
-                border: "1px solid var(--color-border)",
+                border: "1px solid var(--color-app-border)",
               }}
             >
-              <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)", margin: "0 0 var(--spacing-1) 0" }}>
+              <p style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-app-text)", margin: "0 0 var(--spacing-1) 0" }}>
                 Re-run Pipeline?
               </p>
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: "0 0 var(--spacing-2) 0" }}>
+              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: "0 0 var(--spacing-2) 0" }}>
                 This will re-run the full pipeline for &quot;{report.title}&quot;
               </p>
               {report.errorDetails && (
-                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: "0 0 var(--spacing-2) 0" }}>
+                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: "0 0 var(--spacing-2) 0" }}>
                   Last error: {report.errorDetails.agent}: {report.errorDetails.message}
                 </p>
               )}
@@ -601,10 +601,10 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
                   disabled={retrying}
                   style={{
                     padding: "var(--spacing-1) var(--spacing-3)",
-                    border: "1px solid var(--color-border)",
+                    border: "1px solid var(--color-app-border)",
                     borderRadius: "var(--radius-sm)",
-                    background: "var(--color-surface)",
-                    color: "var(--color-text)",
+                    background: "var(--color-app-surface)",
+                    color: "var(--color-app-text)",
                     cursor: retrying ? "default" : "pointer",
                     fontSize: "var(--text-sm)",
                   }}
@@ -616,7 +616,7 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
                   disabled={retrying}
                   style={{
                     padding: "var(--spacing-1) var(--spacing-3)",
-                    background: retrying ? "var(--color-text-secondary)" : "var(--color-primary)",
+                    background: retrying ? "var(--color-app-text-secondary)" : "var(--color-app-accent)",
                     color: "white",
                     border: "none",
                     borderRadius: "var(--radius-sm)",
@@ -636,49 +636,49 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
       {/* Report sections */}
       <div
         style={{
-          background: "var(--color-surface)",
+          background: "var(--color-app-surface)",
           borderRadius: "var(--radius-md)",
-          border: "1px solid var(--color-border)",
+          border: "1px solid var(--color-app-border)",
           marginBottom: "var(--spacing-6)",
           overflow: "hidden",
         }}
       >
-        <div style={{ padding: "var(--spacing-4)", borderBottom: "1px solid var(--color-border)" }}>
-          <h2 style={{ fontSize: "var(--text-base)", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+        <div style={{ padding: "var(--spacing-4)", borderBottom: "1px solid var(--color-app-border)" }}>
+          <h2 style={{ fontSize: "var(--text-base)", fontWeight: 600, color: "var(--color-app-text)", margin: 0 }}>
             Report Sections ({sections.length})
           </h2>
         </div>
         {sections.length === 0 ? (
           <div style={{ padding: "var(--spacing-8)", textAlign: "center" }}>
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
               {report.status === "queued" ? "No sections generated yet — report is queued." : "No sections found."}
             </p>
           </div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
-                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <tr style={{ borderBottom: "1px solid var(--color-app-border)" }}>
+                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Section
                 </th>
-                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Agent
                 </th>
-                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Generated At
                 </th>
               </tr>
             </thead>
             <tbody>
               {sections.map((section) => (
-                <tr key={section.id} style={{ borderBottom: "1px solid var(--color-border)" }}>
-                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-text)" }}>
+                <tr key={section.id} style={{ borderBottom: "1px solid var(--color-app-border)" }}>
+                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-app-text)" }}>
                     {section.title}
                   </td>
-                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
                     {section.agentName || "—"}
                   </td>
-                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
                     {formatDateTime(section.generatedAt)}
                   </td>
                 </tr>
@@ -691,15 +691,15 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
       {/* Social Media Kit */}
       <div
         style={{
-          background: "var(--color-surface)",
+          background: "var(--color-app-surface)",
           borderRadius: "var(--radius-md)",
-          border: "1px solid var(--color-border)",
+          border: "1px solid var(--color-app-border)",
           marginBottom: "var(--spacing-6)",
           overflow: "hidden",
         }}
       >
-        <div style={{ padding: "var(--spacing-4)", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2 style={{ fontSize: "var(--text-base)", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+        <div style={{ padding: "var(--spacing-4)", borderBottom: "1px solid var(--color-app-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ fontSize: "var(--text-base)", fontWeight: 600, color: "var(--color-app-text)", margin: 0 }}>
             Social Media Kit
           </h2>
           {socialMediaKit && (
@@ -720,12 +720,12 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
         </div>
         <div style={{ padding: "var(--spacing-4)" }}>
           {!socialMediaKit ? (
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", margin: 0 }}>
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)", margin: 0 }}>
               No kit generated
             </p>
           ) : socialMediaKit.status === "failed" ? (
             <>
-              <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-2)" }}>
+              <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)", marginBottom: "var(--spacing-2)" }}>
                 Attempted {formatDateTime(socialMediaKit.generatedAt)}
               </p>
               {socialMediaKit.errorMessage && (
@@ -735,15 +735,15 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
               )}
             </>
           ) : socialMediaKit.status === "generating" || socialMediaKit.status === "queued" ? (
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", margin: 0 }}>
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)", margin: 0 }}>
               Kit is {socialMediaKit.status}...
             </p>
           ) : (
             <>
-              <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", marginBottom: "var(--spacing-3)" }}>
+              <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)", marginBottom: "var(--spacing-3)" }}>
                 Generated {formatDateTime(socialMediaKit.generatedAt)}
               </p>
-              <p style={{ fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--spacing-2)" }}>
+              <p style={{ fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "var(--spacing-2)" }}>
                 Content Summary
               </p>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--spacing-1)" }}>
@@ -757,8 +757,8 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
                   { label: "Calendar Weeks", count: socialMediaKit.contentCounts.calendarSuggestions },
                 ].map((item) => (
                   <div key={item.label} style={{ display: "flex", justifyContent: "space-between", padding: "var(--spacing-1) var(--spacing-2)", fontSize: "var(--text-sm)" }}>
-                    <span style={{ color: "var(--color-text-secondary)" }}>{item.label}</span>
-                    <span style={{ fontWeight: 600, color: "var(--color-text)", fontFamily: "monospace" }}>{item.count}</span>
+                    <span style={{ color: "var(--color-app-text-secondary)" }}>{item.label}</span>
+                    <span style={{ fontWeight: 600, color: "var(--color-app-text)", fontFamily: "monospace" }}>{item.count}</span>
                   </div>
                 ))}
               </div>
@@ -770,63 +770,63 @@ export function ReportDetailPanel({ reportId }: { reportId: string }) {
       {/* API Usage */}
       <div
         style={{
-          background: "var(--color-surface)",
+          background: "var(--color-app-surface)",
           borderRadius: "var(--radius-md)",
-          border: "1px solid var(--color-border)",
+          border: "1px solid var(--color-app-border)",
           overflow: "hidden",
         }}
       >
-        <div style={{ padding: "var(--spacing-4)", borderBottom: "1px solid var(--color-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-          <h2 style={{ fontSize: "var(--text-base)", fontWeight: 600, color: "var(--color-text)", margin: 0 }}>
+        <div style={{ padding: "var(--spacing-4)", borderBottom: "1px solid var(--color-app-border)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <h2 style={{ fontSize: "var(--text-base)", fontWeight: 600, color: "var(--color-app-text)", margin: 0 }}>
             API Usage
           </h2>
-          <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-text)", fontFamily: "monospace" }}>
+          <span style={{ fontSize: "var(--text-sm)", fontWeight: 600, color: "var(--color-app-text)", fontFamily: "monospace" }}>
             Total: ${totalApiCost}
           </span>
         </div>
         {apiUsage.length === 0 ? (
           <div style={{ padding: "var(--spacing-8)", textAlign: "center" }}>
-            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+            <p style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
               No API usage recorded for this report.
             </p>
           </div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
-              <tr style={{ borderBottom: "1px solid var(--color-border)" }}>
-                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+              <tr style={{ borderBottom: "1px solid var(--color-app-border)" }}>
+                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Provider
                 </th>
-                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <th style={{ textAlign: "left", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Endpoint
                 </th>
-                <th style={{ textAlign: "right", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <th style={{ textAlign: "right", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Cost
                 </th>
-                <th style={{ textAlign: "right", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <th style={{ textAlign: "right", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Time
                 </th>
-                <th style={{ textAlign: "center", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                <th style={{ textAlign: "center", padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-xs)", fontWeight: 500, color: "var(--color-app-text-secondary)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
                   Cached
                 </th>
               </tr>
             </thead>
             <tbody>
               {apiUsage.map((usage) => (
-                <tr key={usage.id} style={{ borderBottom: "1px solid var(--color-border)" }}>
-                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-text)" }}>
+                <tr key={usage.id} style={{ borderBottom: "1px solid var(--color-app-border)" }}>
+                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-app-text)" }}>
                     {usage.provider}
                   </td>
-                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", fontFamily: "monospace" }}>
+                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)", fontFamily: "monospace" }}>
                     {usage.endpoint}
                   </td>
-                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-text)", fontFamily: "monospace", textAlign: "right" }}>
+                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-app-text)", fontFamily: "monospace", textAlign: "right" }}>
                     ${Number(usage.cost).toFixed(4)}
                   </td>
-                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)", textAlign: "right" }}>
+                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)", textAlign: "right" }}>
                     {formatResponseTime(usage.responseTimeMs)}
                   </td>
-                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", textAlign: "center", color: usage.cached ? "var(--color-success)" : "var(--color-text-secondary)" }}>
+                  <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontSize: "var(--text-sm)", textAlign: "center", color: usage.cached ? "var(--color-success)" : "var(--color-app-text-secondary)" }}>
                     {usage.cached ? "Yes" : "No"}
                   </td>
                 </tr>

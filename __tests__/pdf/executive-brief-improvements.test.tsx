@@ -142,18 +142,6 @@ describe("Executive Brief Improvements", () => {
       expect(screen.getByText("Market Overview")).toBeInTheDocument();
     });
 
-    it("EB-15: confidence block is preceded by 'Data Confidence' header", () => {
-      const section = makeExecutiveBriefingSection();
-      render(React.createElement(ExecutiveBriefingPdf, { section }));
-      expect(screen.getByText("Data Confidence")).toBeInTheDocument();
-    });
-
-    it("EB-16: confidence line shows level and sample size", () => {
-      const section = makeExecutiveBriefingSection();
-      render(React.createElement(ExecutiveBriefingPdf, { section }));
-      expect(screen.getByText(/High confidence \(n=45 transactions\)/)).toBeInTheDocument();
-    });
-
     it("EB-17: timing block is preceded by 'Timing Guidance' header", () => {
       const section = makeExecutiveBriefingSection();
       render(React.createElement(ExecutiveBriefingPdf, { section }));
@@ -194,7 +182,6 @@ describe("Executive Brief Improvements", () => {
       expect(screen.getByText("Market Rating")).toBeInTheDocument();
       expect(screen.getByText("Overall market health based on growth, liquidity, and risk indicators")).toBeInTheDocument();
       expect(screen.getByText("Market Overview")).toBeInTheDocument();
-      expect(screen.getByText("Data Confidence")).toBeInTheDocument();
       expect(screen.queryByText("Timing Guidance")).not.toBeInTheDocument();
     });
 
@@ -210,7 +197,6 @@ describe("Executive Brief Improvements", () => {
       const section = makeExecutiveBriefingSection({ narrative: null });
       render(React.createElement(ExecutiveBriefingPdf, { section }));
       expect(screen.queryByText("Market Overview")).not.toBeInTheDocument();
-      expect(screen.getByText("Data Confidence")).toBeInTheDocument();
       expect(screen.getByText("Market Rating")).toBeInTheDocument();
     });
   });

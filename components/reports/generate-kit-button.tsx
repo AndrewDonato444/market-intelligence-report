@@ -135,9 +135,9 @@ export function GenerateKitButton({
         <Link
           href={`/reports/${reportId}/kit`}
           className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-success)] text-white whitespace-nowrap hover:opacity-90 transition-opacity"
-          title="View Social Media Kit"
+          title="Open Content Studio"
         >
-          View Kit
+          Content Studio
         </Link>
       );
     }
@@ -210,28 +210,40 @@ export function GenerateKitButton({
 
   // --- Entitlement-gated states (kit status is "none") ---
 
+  // Compact mode: all non-active states show "Get Kit" linking to report detail
+  // The report detail page handles entitlement gating (upgrade prompt vs generate button)
+  if (compact) {
+    if (entitlement.status === "loading") {
+      return (
+        <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] opacity-50 whitespace-nowrap">
+          ...
+        </span>
+      );
+    }
+
+    return (
+      <Link
+        href={`/reports/${reportId}#social-media-kit`}
+        className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-accent)] text-[var(--color-primary)] hover:bg-[var(--color-accent-hover)] transition-colors whitespace-nowrap"
+      >
+        Get Kit
+      </Link>
+    );
+  }
+
+  // --- Full mode (report detail page) — unchanged behavior ---
+
   // Loading entitlement check
   if (entitlement.status === "loading") {
     return (
       <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] opacity-50 whitespace-nowrap">
-        {compact ? "..." : "Checking availability..."}
+        Checking availability...
       </span>
     );
   }
 
   // Starter tier — social media kit not included (cap = 0)
   if (entitlement.status === "not_included") {
-    if (compact) {
-      return (
-        <Link
-          href="/account"
-          className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-surface)] border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:border-[var(--color-accent)] transition-colors whitespace-nowrap"
-        >
-          Pro Feature
-        </Link>
-      );
-    }
-
     return (
       <div className="p-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
         <p className="font-[family-name:var(--font-serif)] text-sm font-bold text-[var(--color-primary)] mb-2">
@@ -259,14 +271,6 @@ export function GenerateKitButton({
 
   // Professional user at monthly cap
   if (entitlement.status === "at_cap") {
-    if (compact) {
-      return (
-        <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
-          Limit reached
-        </span>
-      );
-    }
-
     return (
       <div className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] space-y-1">
         <p className="font-medium">Monthly limit reached</p>
@@ -282,11 +286,7 @@ export function GenerateKitButton({
       disabled={triggering}
       className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-accent)] text-[var(--color-primary)] hover:bg-[var(--color-accent-hover)] disabled:opacity-50 transition-colors whitespace-nowrap"
     >
-      {triggering
-        ? "Starting..."
-        : compact
-          ? "Generate Kit"
-          : "Generate Social Media Kit"}
+      {triggering ? "Starting..." : "Generate Social Media Kit"}
     </button>
   );
 }

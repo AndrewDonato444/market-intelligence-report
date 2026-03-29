@@ -24,7 +24,7 @@ const STATUS_CONFIG: Record<string, { label: string; className: string }> = {
   },
   generating: {
     label: "Generating",
-    className: "text-[var(--color-accent)] animate-pulse",
+    className: "text-[var(--color-app-accent)] animate-pulse",
   },
   failed: {
     label: "Failed",
@@ -56,24 +56,26 @@ export function RecentReportsList({ reports }: RecentReportsListProps) {
           <div
             key={report.id}
             data-testid="report-row"
-            className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow p-[var(--spacing-4)]"
+            className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] hover:shadow-[var(--shadow-md)] transition-shadow p-[var(--spacing-4)]"
           >
             <div className="flex items-center justify-between">
               <div className="flex-1 min-w-0">
                 <Link
                   href={`/reports/${report.id}`}
-                  className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors"
+                  className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] hover:text-[var(--color-app-accent)] transition-colors"
                 >
                   {report.title}
                 </Link>
-                <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mt-[var(--spacing-1)]">
+                <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] mt-[var(--spacing-1)]">
                   {report.marketName} &middot; {formatDate(report.createdAt)}
                 </p>
               </div>
               <div className="flex items-center gap-[var(--spacing-3)] ml-[var(--spacing-3)]">
-                <span className={`font-[family-name:var(--font-sans)] text-xs font-medium ${statusConfig.className}`}>
-                  {statusConfig.label}
-                </span>
+                {report.status !== "completed" && (
+                  <span className={`font-[family-name:var(--font-body)] text-xs font-medium ${statusConfig.className}`}>
+                    {statusConfig.label}
+                  </span>
+                )}
                 {report.status === "completed" && (
                   <DownloadPdfButton reportId={report.id} reportTitle={report.title} />
                 )}

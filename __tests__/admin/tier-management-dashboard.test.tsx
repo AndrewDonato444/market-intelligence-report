@@ -264,6 +264,6 @@ describe("CMP-TIER-SIDEBAR: Sidebar navigation", () => {
     render(React.createElement(AdminSidebar));
 
     const link = screen.getByText("Subscription Tiers").closest("a");
-    expect(link?.className).toContain("color-primary");
+    expect(link?.className).toContain("color-app-text");
   });
 });

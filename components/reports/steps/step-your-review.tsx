@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { fadeVariant, staggerContainer } from "@/lib/animations";
 import type { StepMarketData } from "./step-your-market";
 import type { StepTierData } from "./step-your-tier";
-import type { StepFocusData } from "./step-your-focus";
 import type { StepAudienceData } from "./step-your-audience";
 
 // ---------------------------------------------------------------------------
@@ -20,7 +19,6 @@ export interface StepReviewData {
 interface StepYourReviewProps {
   marketData: StepMarketData | null;
   tierData: StepTierData | null;
-  focusData: StepFocusData | null;
   audienceData: StepAudienceData | null;
   onStepComplete: (data: StepReviewData) => void;
   onValidationChange?: (valid: boolean) => void;
@@ -35,42 +33,6 @@ const TIER_LABELS: Record<string, string> = {
   luxury: "Luxury",
   high_luxury: "High Luxury",
   ultra_luxury: "Ultra Luxury",
-};
-
-const SEGMENT_LABELS: Record<string, string> = {
-  "high-rise": "High-Rise",
-  penthouse: "Penthouse",
-  townhouse: "Townhouse",
-  "arts district": "Arts & Culture District",
-  "trophy home": "Trophy Home",
-  waterfront: "Waterfront",
-  beachfront: "Beachfront",
-  lakefront: "Lakefront",
-  marina: "Private Dock / Marina",
-  island: "Island",
-  "golf course": "Golf Course",
-  "gated community": "Gated Community",
-  "ski-in/ski-out": "Ski-In/Ski-Out",
-  "mountain view": "Mountain View",
-  equestrian: "Equestrian",
-  "country estate": "Country Estate",
-  "historic district": "Historic District",
-  "new development": "New Development",
-  vineyard: "Vineyard",
-  desert: "Desert",
-};
-
-const PROPERTY_TYPE_LABELS: Record<string, string> = {
-  single_family: "Single Family",
-  estate: "Estate",
-  condo: "Condo",
-  townhouse: "Townhouse",
-  "co-op": "Co-op",
-  penthouse: "Penthouse",
-  chalet: "Chalet",
-  villa: "Villa",
-  ranch: "Ranch",
-  land: "Land",
 };
 
 // All report sections (matches report-validation.ts)
@@ -120,17 +82,17 @@ function ReviewSectionCard({
   return (
     <motion.div
       variants={fadeVariant}
-      className="border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 bg-[var(--color-surface)]"
+      className="border border-[var(--color-app-border)] rounded-[var(--radius-md)] p-4 bg-[var(--color-app-surface)]"
     >
       <div className="flex items-start justify-between mb-2">
-        <span className="uppercase text-xs font-semibold text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)]">
+        <span className="uppercase text-xs font-semibold text-[var(--color-app-text-tertiary)] font-[family-name:var(--font-body)]">
           {label}
         </span>
         <button
           type="button"
           onClick={onEdit}
           aria-label={`Edit ${label}`}
-          className="text-xs text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-[family-name:var(--font-sans)] transition-colors duration-[var(--duration-default)]"
+          className="text-xs text-[var(--color-app-accent)] hover:text-[var(--color-app-accent-hover)] font-[family-name:var(--font-body)] transition-colors duration-[var(--duration-default)]"
         >
           Edit
         </button>
@@ -153,11 +115,11 @@ function Tag({
 }) {
   const bg =
     variant === "accent"
-      ? "bg-[var(--color-accent-light)]"
-      : "bg-[var(--color-primary-light)]";
+      ? "bg-[var(--color-app-accent-light)]"
+      : "bg-[var(--color-app-active-bg)]";
   return (
     <span
-      className={`inline-block px-2.5 py-1 ${bg} text-xs rounded-full font-[family-name:var(--font-sans)] text-[var(--color-text)] mr-1.5 mb-1.5`}
+      className={`inline-block px-2.5 py-1 ${bg} text-xs rounded-full font-[family-name:var(--font-body)] text-[var(--color-app-text)] mr-1.5 mb-1.5`}
     >
       {children}
     </span>
@@ -172,6 +134,7 @@ function Tag({
 const VIEW_PLANS_HREF = "/account";
 
 // Entitlement check result shape
+
 interface EntitlementState {
   allowed: boolean;
   limit: number;
@@ -182,7 +145,6 @@ interface EntitlementState {
 export function StepYourReview({
   marketData,
   tierData,
-  focusData,
   audienceData,
   onStepComplete,
   onValidationChange,
@@ -206,8 +168,6 @@ export function StepYourReview({
   const [entitlementLoading, setEntitlementLoading] = useState(true);
   const [gateDismissed, setGateDismissed] = useState(false);
 
-  // Transaction scope entitlement
-  const [txScope, setTxScope] = useState<EntitlementState | null>(null);
 
   // Report step 5 as always valid
   useEffect(() => {
@@ -240,24 +200,6 @@ export function StepYourReview({
     };
   }, []);
 
-  // Fetch transaction scope entitlement on mount
-  useEffect(() => {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
-
-    fetch("/api/entitlements/check?type=transaction_limit", {
-      signal: controller.signal,
-    })
-      .then((res) => (res.ok ? res.json() : Promise.reject()))
-      .then((data: EntitlementState) => setTxScope(data))
-      .catch(() => setTxScope(null))
-      .finally(() => clearTimeout(timeout));
-
-    return () => {
-      controller.abort();
-      clearTimeout(timeout);
-    };
-  }, []);
 
   // Fetch persona names for display
   useEffect(() => {
@@ -316,14 +258,12 @@ export function StepYourReview({
               geography: {
                 city: marketData.city,
                 state: marketData.state,
-                county: marketData.county || undefined,
-                region: marketData.region || undefined,
               },
               luxuryTier: tierData?.luxuryTier || "luxury",
               priceFloor: tierData?.priceFloor || 1000000,
               priceCeiling: tierData?.priceCeiling || undefined,
-              segments: focusData?.segments || [],
-              propertyTypes: focusData?.propertyTypes || [],
+              segments: [],
+              propertyTypes: [],
             }),
           });
 
@@ -367,7 +307,7 @@ export function StepYourReview({
       setIsSubmitting(false);
       setError("Something went wrong. Please try again.");
     }
-  }, [isTitleValid, isSubmitting, marketData, tierData, focusData, audienceData, title, onStepComplete]);
+  }, [isTitleValid, isSubmitting, marketData, tierData, audienceData, title, onStepComplete]);
 
   // Price range display
   const priceDisplay = useMemo(() => {
@@ -382,13 +322,13 @@ export function StepYourReview({
   return (
     <div className="py-4">
       {/* Heading */}
-      <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+      <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
         Review Your Report
       </h2>
-      <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+      <p className="mt-2 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
         Everything look right? Edit any section or generate your intelligence report.
       </p>
-      <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-6" />
+      <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-6" />
 
       {/* Summary sections */}
       <motion.div
@@ -399,38 +339,20 @@ export function StepYourReview({
       >
         {/* Your Market */}
         <ReviewSectionCard label="Your Market" onEdit={() => onNavigateToStep(0)}>
-          <p className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+          <p className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
             {marketData?.city || "Not selected"}, {marketData?.state || ""}
           </p>
         </ReviewSectionCard>
 
         {/* Your Tier */}
         <ReviewSectionCard label="Your Tier" onEdit={() => onNavigateToStep(1)}>
-          <p className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+          <p className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
             {tierLabel} &middot; {priceDisplay}
           </p>
         </ReviewSectionCard>
 
-        {/* Your Focus */}
-        <ReviewSectionCard label="Your Focus" onEdit={() => onNavigateToStep(2)}>
-          <div className="mb-1">
-            {(focusData?.segments || []).map((s: string) => (
-              <Tag key={s} variant="primary">
-                {SEGMENT_LABELS[s] || s}
-              </Tag>
-            ))}
-          </div>
-          <div>
-            {(focusData?.propertyTypes || []).map((pt: string) => (
-              <Tag key={pt} variant="accent">
-                {PROPERTY_TYPE_LABELS[pt] || pt}
-              </Tag>
-            ))}
-          </div>
-        </ReviewSectionCard>
-
         {/* Your Audience */}
-        <ReviewSectionCard label="Your Audience" onEdit={() => onNavigateToStep(3)}>
+        <ReviewSectionCard label="Your Audience" onEdit={() => onNavigateToStep(2)}>
           {(audienceData?.personaIds || []).length > 0 ? (
             <div>
               {audienceData!.personaIds.map((id) => (
@@ -440,46 +362,18 @@ export function StepYourReview({
               ))}
             </div>
           ) : (
-            <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] italic">
+            <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] italic">
               No buyer personas selected — report will use general framing
             </p>
           )}
         </ReviewSectionCard>
 
-        {/* Transaction Scope Indicator */}
-        {txScope && (
-          <motion.div
-            variants={fadeVariant}
-            className="rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] p-3"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <span className="uppercase text-xs font-semibold text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)]">
-                  Transaction Scope
-                </span>
-                <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mt-0.5">
-                  {txScope.limit === -1
-                    ? "Unlimited transaction scope"
-                    : `Analyzing up to ${txScope.limit} transactions per period`}
-                </p>
-              </div>
-              {txScope.limit !== -1 && txScope.limit <= 100 && (
-                <a
-                  href={VIEW_PLANS_HREF}
-                  className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] transition-colors duration-[var(--duration-default)] whitespace-nowrap"
-                >
-                  Upgrade for deeper analysis
-                </a>
-              )}
-            </div>
-          </motion.div>
-        )}
 
         {/* Report Title */}
         <motion.div variants={fadeVariant} className="pt-2">
           <label
             htmlFor="report-title"
-            className="block uppercase text-xs font-semibold text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)] mb-2"
+            className="block uppercase text-xs font-semibold text-[var(--color-app-text-tertiary)] font-[family-name:var(--font-body)] mb-2"
           >
             Report Title
           </label>
@@ -490,29 +384,57 @@ export function StepYourReview({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={500}
-            className="w-full px-3 py-2.5 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-[var(--radius-sm)] bg-[var(--color-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] transition-colors duration-[var(--duration-default)]"
+            className="w-full px-3 py-2.5 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] border border-[var(--color-app-border)] rounded-[var(--radius-sm)] bg-[var(--color-app-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--color-app-accent)] transition-colors duration-[var(--duration-default)]"
           />
           <div className="flex justify-between mt-1">
             <div>
               {isTitleEmpty && (
-                <p className="text-xs text-[var(--color-error)] font-[family-name:var(--font-sans)]" role="alert">
+                <p className="text-xs text-[var(--color-error)] font-[family-name:var(--font-body)]" role="alert">
                   Report title is required
                 </p>
               )}
             </div>
             <p
               id="title-char-count"
-              className="text-xs text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)]"
+              className="text-xs text-[var(--color-app-text-tertiary)] font-[family-name:var(--font-body)]"
             >
               {title.length} / 500
             </p>
           </div>
         </motion.div>
 
-        {/* Estimated time */}
-        <motion.div variants={fadeVariant}>
-          <p className="text-center font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] py-2">
-            Estimated generation time: 2-4 minutes
+        {/* What's being built — hype section */}
+        <motion.div
+          variants={fadeVariant}
+          className="rounded-[var(--radius-md)] border border-[var(--color-app-border)] bg-[var(--color-app-surface)] p-5 mt-2"
+        >
+          <p className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-app-text)] mb-1">
+            What we&rsquo;re building for you
+          </p>
+          <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] mb-4">
+            Your report pulls live transaction data, runs it through our analysis engine, and frames every insight around your market, your tier, and your buyers. Here&rsquo;s what&rsquo;s inside:
+          </p>
+          <ul className="space-y-2">
+            {[
+              { title: "Executive Briefing", desc: "The state of your market in one sharp read" },
+              { title: "Luxury Market Dashboard", desc: "Price trends, velocity, and absorption — by the numbers" },
+              { title: "Neighborhood Intelligence", desc: "Micro-market breakdown of where buyers are actually closing" },
+              { title: "The Narrative", desc: "A market storyline your clients will remember" },
+              { title: "Forward Look", desc: "90-day outlook based on current supply and demand signals" },
+              { title: "Comparative Positioning", desc: "How your market stacks up against peer markets" },
+              { title: "Persona Intelligence", desc: "Every insight reframed through the lens of your selected buyers" },
+            ].map(({ title, desc }) => (
+              <li key={title} className="flex items-start gap-2.5">
+                <span className="text-[var(--color-app-accent)] text-xs mt-0.5 flex-shrink-0">◆</span>
+                <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text)]">
+                  <span className="font-semibold">{title}</span>
+                  <span className="text-[var(--color-app-text-secondary)]"> — {desc}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+          <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] mt-4 pt-3 border-t border-[var(--color-app-border)]">
+            Reports can take up to 10 minutes to generate. Upon completion, your report will be available in the Reports tab.
           </p>
         </motion.div>
 
@@ -522,9 +444,9 @@ export function StepYourReview({
             variants={fadeVariant}
             aria-busy="true"
             aria-label="Checking report availability"
-            className="rounded-[var(--radius-sm)] bg-[var(--color-primary-light)] p-[var(--spacing-2)]"
+            className="rounded-[var(--radius-sm)] bg-[var(--color-app-active-bg)] p-[var(--spacing-2)]"
           >
-            <div className="h-3.5 w-44 bg-[var(--color-border)] rounded animate-pulse" />
+            <div className="h-3.5 w-44 bg-[var(--color-app-border)] rounded animate-pulse" />
           </motion.div>
         )}
 
@@ -535,15 +457,15 @@ export function StepYourReview({
             aria-label={`Report usage: ${entitlement.used} of ${entitlement.limit} reports used this month`}
             className={`rounded-[var(--radius-sm)] p-[var(--spacing-2)] ${
               isLastReport
-                ? "bg-[var(--color-accent-light)]"
-                : "bg-[var(--color-primary-light)]"
+                ? "bg-[var(--color-app-accent-light)]"
+                : "bg-[var(--color-app-active-bg)]"
             }`}
           >
-            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+            <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
               {entitlement.used} of {entitlement.limit} reports used this month
             </p>
             {isLastReport && (
-              <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-warning)] mt-0.5">
+              <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-warning)] mt-0.5">
                 This is your last report this month on the Starter plan
               </p>
             )}
@@ -556,12 +478,12 @@ export function StepYourReview({
             variants={fadeVariant}
             role="alert"
             id="entitlement-gate-banner"
-            className="border border-[var(--color-border-strong)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-surface)] p-[var(--spacing-6)]"
+            className="border border-[var(--color-app-border-strong)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-app-surface)] p-[var(--spacing-6)]"
           >
-            <h3 className="font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-text)]">
+            <h3 className="font-[family-name:var(--font-display)] text-lg font-bold text-[var(--color-app-text)]">
               You&apos;ve Reached Your Monthly Limit
             </h3>
-            <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+            <p className="mt-2 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
               You&apos;ve used {entitlement!.used} of {entitlement!.limit} reports
               this month on the Starter plan. Upgrade to Professional for 10
               reports per month — plus peer market analysis and expanded audience
@@ -570,14 +492,14 @@ export function StepYourReview({
             <div className="flex items-center gap-4 mt-4">
               <a
                 href={VIEW_PLANS_HREF}
-                className="inline-block px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] hover:bg-[var(--color-accent-hover)]"
+                className="inline-block px-4 py-2 bg-[var(--color-app-accent)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] hover:bg-[var(--color-app-accent-hover)]"
               >
                 View Plans
               </a>
               <button
                 type="button"
                 onClick={() => setGateDismissed(true)}
-                className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] underline"
+                className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] underline"
               >
                 Maybe Later
               </button>
@@ -587,7 +509,7 @@ export function StepYourReview({
 
         {/* Error message */}
         {error && (
-          <p className="text-center font-[family-name:var(--font-sans)] text-sm text-[var(--color-error)]" role="alert">
+          <p className="text-center font-[family-name:var(--font-body)] text-sm text-[var(--color-error)]" role="alert">
             {error}
           </p>
         )}
@@ -601,7 +523,7 @@ export function StepYourReview({
             aria-busy={isSubmitting}
             aria-disabled={isCapHit || undefined}
             aria-describedby={isCapHit ? "entitlement-gate-banner" : undefined}
-            className="w-full py-3 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-accent)]"
+            className="w-full py-3 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-app-accent)]"
           >
             {isSubmitting ? "Generating..." : "Generate Report"}
           </button>

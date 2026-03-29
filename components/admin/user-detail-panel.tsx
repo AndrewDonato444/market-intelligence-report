@@ -58,6 +58,8 @@ export function UserDetailPanel({ userId }: { userId: string }) {
   const [actionLoading, setActionLoading] = useState(false);
   const [actionMessage, setActionMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [activeTab, setActiveTab] = useState<"details" | "overrides">("details");
+  const [resetPasswordLoading, setResetPasswordLoading] = useState(false);
+  const [showResetPasswordConfirm, setShowResetPasswordConfirm] = useState(false);
 
   const fetchDetail = useCallback(async () => {
     setLoading(true);
@@ -126,6 +128,27 @@ export function UserDetailPanel({ userId }: { userId: string }) {
     }
   }, [userId, fetchDetail]);
 
+  const handlePasswordReset = useCallback(async () => {
+    setResetPasswordLoading(true);
+    setActionMessage(null);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/reset-password`, {
+        method: "POST",
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to send reset email");
+      }
+      const result = await res.json();
+      setActionMessage({ type: "success", text: result.message });
+      setShowResetPasswordConfirm(false);
+    } catch (err) {
+      setActionMessage({ type: "error", text: (err as Error).message });
+    } finally {
+      setResetPasswordLoading(false);
+    }
+  }, [userId]);
+
   useEffect(() => {
     fetchDetail();
   }, [fetchDetail]);
@@ -135,7 +158,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
       <div
         style={{
           padding: "var(--spacing-6)",
-          fontFamily: "var(--font-sans)",
+          fontFamily: "var(--font-body)",
           maxWidth: 1000,
         }}
       >
@@ -144,7 +167,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p>Loading user details...</p>
@@ -158,7 +181,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
       <div
         style={{
           padding: "var(--spacing-6)",
-          fontFamily: "var(--font-sans)",
+          fontFamily: "var(--font-body)",
           maxWidth: 1000,
         }}
       >
@@ -205,17 +228,18 @@ export function UserDetailPanel({ userId }: { userId: string }) {
     <div
       style={{
         padding: "var(--spacing-6)",
-        fontFamily: "var(--font-sans)",
+        fontFamily: "var(--font-body)",
         maxWidth: 1000,
       }}
+      className="app-fade-in"
     >
       <BackLink />
 
       {/* Profile Card */}
       <div
         style={{
-          background: "var(--color-surface)",
-          border: "1px solid var(--color-border)",
+          background: "var(--color-app-surface)",
+          border: "1px solid var(--color-app-border)",
           borderRadius: "var(--radius-md)",
           padding: "var(--spacing-5)",
           marginTop: "var(--spacing-4)",
@@ -232,8 +256,9 @@ export function UserDetailPanel({ userId }: { userId: string }) {
             <h1
               style={{
                 fontSize: "var(--text-2xl)",
+                fontFamily: "var(--font-display)",
                 fontWeight: "var(--font-semibold)",
-                color: "var(--color-text)",
+                color: "var(--color-app-text)",
                 margin: 0,
               }}
             >
@@ -242,7 +267,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
             <p
               style={{
                 fontSize: "var(--text-sm)",
-                color: "var(--color-text-secondary)",
+                color: "var(--color-app-text-secondary)",
                 margin: "var(--spacing-1) 0 0",
               }}
             >
@@ -252,7 +277,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
               <p
                 style={{
                   fontSize: "var(--text-sm)",
-                  color: "var(--color-text-secondary)",
+                  color: "var(--color-app-text-secondary)",
                   margin: "var(--spacing-1) 0 0",
                 }}
               >
@@ -263,7 +288,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
               <p
                 style={{
                   fontSize: "var(--text-sm)",
-                  color: "var(--color-text-secondary)",
+                  color: "var(--color-app-text-secondary)",
                   margin: "var(--spacing-1) 0 0",
                 }}
               >
@@ -292,7 +317,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
             gap: "var(--spacing-6)",
             marginTop: "var(--spacing-4)",
             fontSize: "var(--text-sm)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <span>Created: {formatDate(user.createdAt)}</span>
@@ -320,6 +345,79 @@ export function UserDetailPanel({ userId }: { userId: string }) {
             }}
           >
             {actionMessage.text}
+          </div>
+        )}
+
+        {/* Send Password Reset */}
+        {!data.isOwnAccount && user.status !== "deleted" && (
+          <div style={{ marginTop: "var(--spacing-4)" }}>
+            {!showResetPasswordConfirm ? (
+              <button
+                onClick={() => setShowResetPasswordConfirm(true)}
+                style={{
+                  padding: "var(--spacing-2) var(--spacing-4)",
+                  borderRadius: "var(--radius-md)",
+                  border: "1px solid var(--color-app-accent)",
+                  background: "transparent",
+                  color: "var(--color-app-accent)",
+                  fontSize: "var(--text-sm)",
+                  fontWeight: "var(--font-medium)",
+                  cursor: "pointer",
+                }}
+              >
+                Send Password Reset
+              </button>
+            ) : (
+              <div
+                style={{
+                  padding: "var(--spacing-4)",
+                  background: "var(--color-app-active-bg, rgba(0,0,0,0.02))",
+                  border: "1px solid var(--color-app-border)",
+                  borderRadius: "var(--radius-md)",
+                }}
+              >
+                <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-app-text)" }}>
+                  Send Password Reset
+                </p>
+                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
+                  Send a password reset email to {user.email}?
+                </p>
+                <div style={{ display: "flex", gap: "var(--spacing-2)", marginTop: "var(--spacing-3)" }}>
+                  <button
+                    onClick={() => setShowResetPasswordConfirm(false)}
+                    disabled={resetPasswordLoading}
+                    style={{
+                      padding: "var(--spacing-1) var(--spacing-3)",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--color-app-border)",
+                      background: "var(--color-app-surface)",
+                      color: "var(--color-app-text-secondary)",
+                      fontSize: "var(--text-sm)",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handlePasswordReset}
+                    disabled={resetPasswordLoading}
+                    style={{
+                      padding: "var(--spacing-1) var(--spacing-3)",
+                      borderRadius: "var(--radius-sm)",
+                      border: "1px solid var(--color-app-accent)",
+                      background: "var(--color-app-accent)",
+                      color: "#fff",
+                      fontSize: "var(--text-sm)",
+                      fontWeight: "var(--font-medium)",
+                      cursor: resetPasswordLoading ? "not-allowed" : "pointer",
+                      opacity: resetPasswordLoading ? 0.6 : 1,
+                    }}
+                  >
+                    {resetPasswordLoading ? "Sending..." : "Send Reset Email"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -353,10 +451,10 @@ export function UserDetailPanel({ userId }: { userId: string }) {
                   borderRadius: "var(--radius-md)",
                 }}
               >
-                <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-text)" }}>
+                <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-app-text)" }}>
                   Suspend Account
                 </p>
-                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
                   Are you sure you want to suspend {user.name}&apos;s account? They will be unable to access the platform until unsuspended.
                 </p>
                 <div style={{ display: "flex", gap: "var(--spacing-2)", marginTop: "var(--spacing-3)" }}>
@@ -366,9 +464,9 @@ export function UserDetailPanel({ userId }: { userId: string }) {
                     style={{
                       padding: "var(--spacing-1) var(--spacing-3)",
                       borderRadius: "var(--radius-sm)",
-                      border: "1px solid var(--color-border)",
-                      background: "var(--color-surface)",
-                      color: "var(--color-text-secondary)",
+                      border: "1px solid var(--color-app-border)",
+                      background: "var(--color-app-surface)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-sm)",
                       cursor: "pointer",
                     }}
@@ -403,8 +501,8 @@ export function UserDetailPanel({ userId }: { userId: string }) {
                 style={{
                   padding: "var(--spacing-2) var(--spacing-4)",
                   borderRadius: "var(--radius-md)",
-                  border: "1px solid var(--color-primary)",
-                  background: "var(--color-primary)",
+                  border: "1px solid var(--color-app-accent)",
+                  background: "var(--color-app-accent)",
                   color: "#fff",
                   fontSize: "var(--text-sm)",
                   fontWeight: "var(--font-medium)",
@@ -447,10 +545,10 @@ export function UserDetailPanel({ userId }: { userId: string }) {
                   marginTop: "var(--spacing-3)",
                 }}
               >
-                <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-text)" }}>
+                <p style={{ margin: 0, fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-app-text)" }}>
                   Delete Account
                 </p>
-                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+                <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
                   This will permanently delete {user.name}&apos;s account. Their reports will be kept for analytics but de-linked from their profile.
                 </p>
                 <p style={{ margin: "var(--spacing-2) 0 0", fontSize: "var(--text-sm)", color: "var(--color-error)", fontWeight: "var(--font-medium)" }}>
@@ -463,9 +561,9 @@ export function UserDetailPanel({ userId }: { userId: string }) {
                     style={{
                       padding: "var(--spacing-1) var(--spacing-3)",
                       borderRadius: "var(--radius-sm)",
-                      border: "1px solid var(--color-border)",
-                      background: "var(--color-surface)",
-                      color: "var(--color-text-secondary)",
+                      border: "1px solid var(--color-app-border)",
+                      background: "var(--color-app-surface)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-sm)",
                       cursor: "pointer",
                     }}
@@ -502,7 +600,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
           display: "flex",
           gap: "var(--spacing-1)",
           marginTop: "var(--spacing-4)",
-          borderBottom: "1px solid var(--color-border)",
+          borderBottom: "1px solid var(--color-app-border)",
         }}
       >
         {(["details", "overrides"] as const).map((tab) => (
@@ -512,9 +610,9 @@ export function UserDetailPanel({ userId }: { userId: string }) {
             style={{
               padding: "var(--spacing-2) var(--spacing-4)",
               border: "none",
-              borderBottom: activeTab === tab ? "2px solid var(--color-primary)" : "2px solid transparent",
+              borderBottom: activeTab === tab ? "2px solid var(--color-app-accent)" : "2px solid transparent",
               background: "transparent",
-              color: activeTab === tab ? "var(--color-primary)" : "var(--color-text-secondary)",
+              color: activeTab === tab ? "var(--color-app-accent)" : "var(--color-app-text-secondary)",
               fontSize: "var(--text-sm)",
               fontWeight: activeTab === tab ? "var(--font-semibold)" : "var(--font-normal)",
               cursor: "pointer",
@@ -554,8 +652,8 @@ export function UserDetailPanel({ userId }: { userId: string }) {
       {reportCounts.total > 0 && (
         <div
           style={{
-            background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
+            background: "var(--color-app-surface)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-md)",
             padding: "var(--spacing-4)",
             marginTop: "var(--spacing-4)",
@@ -565,7 +663,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
             style={{
               fontSize: "var(--text-sm)",
               fontWeight: "var(--font-semibold)",
-              color: "var(--color-text)",
+              color: "var(--color-app-text)",
               margin: "0 0 var(--spacing-3)",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
@@ -578,7 +676,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
               display: "flex",
               gap: "var(--spacing-6)",
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-secondary)",
+              color: "var(--color-app-text-secondary)",
             }}
           >
             <span>
@@ -600,7 +698,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
               Generating
             </span>
             <span>
-              <strong style={{ color: "var(--color-text-secondary)" }}>
+              <strong style={{ color: "var(--color-app-text-secondary)" }}>
                 {reportCounts.queued}
               </strong>{" "}
               Queued
@@ -612,8 +710,8 @@ export function UserDetailPanel({ userId }: { userId: string }) {
       {/* Markets */}
       <div
         style={{
-          background: "var(--color-surface)",
-          border: "1px solid var(--color-border)",
+          background: "var(--color-app-surface)",
+          border: "1px solid var(--color-app-border)",
           borderRadius: "var(--radius-md)",
           padding: "var(--spacing-4)",
           marginTop: "var(--spacing-4)",
@@ -623,7 +721,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
           style={{
             fontSize: "var(--text-sm)",
             fontWeight: "var(--font-semibold)",
-            color: "var(--color-text)",
+            color: "var(--color-app-text)",
             margin: "0 0 var(--spacing-3)",
             textTransform: "uppercase",
             letterSpacing: "0.05em",
@@ -635,7 +733,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
           <p
             style={{
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-tertiary)",
+              color: "var(--color-app-text-tertiary)",
               margin: 0,
             }}
           >
@@ -651,15 +749,15 @@ export function UserDetailPanel({ userId }: { userId: string }) {
                   justifyContent: "space-between",
                   alignItems: "center",
                   padding: "var(--spacing-2) var(--spacing-3)",
-                  background: "var(--color-background)",
+                  background: "var(--color-app-bg)",
                   borderRadius: "var(--radius-sm)",
                   fontSize: "var(--text-sm)",
                 }}
               >
-                <span style={{ color: "var(--color-text)" }}>
+                <span style={{ color: "var(--color-app-text)" }}>
                   {m.city}, {m.state}
                 </span>
-                <span style={{ color: "var(--color-text-secondary)" }}>
+                <span style={{ color: "var(--color-app-text-secondary)" }}>
                   {TIER_LABELS[m.luxuryTier] || m.luxuryTier} — {formatPrice(m.priceFloor)}
                 </span>
               </div>
@@ -671,8 +769,8 @@ export function UserDetailPanel({ userId }: { userId: string }) {
       {/* Activity Timeline */}
       <div
         style={{
-          background: "var(--color-surface)",
-          border: "1px solid var(--color-border)",
+          background: "var(--color-app-surface)",
+          border: "1px solid var(--color-app-border)",
           borderRadius: "var(--radius-md)",
           padding: "var(--spacing-4)",
           marginTop: "var(--spacing-4)",
@@ -682,7 +780,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
           style={{
             fontSize: "var(--text-sm)",
             fontWeight: "var(--font-semibold)",
-            color: "var(--color-text)",
+            color: "var(--color-app-text)",
             margin: "0 0 var(--spacing-3)",
             textTransform: "uppercase",
             letterSpacing: "0.05em",
@@ -694,7 +792,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
           <p
             style={{
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-tertiary)",
+              color: "var(--color-app-text-tertiary)",
               margin: 0,
             }}
           >
@@ -710,7 +808,7 @@ export function UserDetailPanel({ userId }: { userId: string }) {
                   justifyContent: "space-between",
                   alignItems: "center",
                   padding: "var(--spacing-2) var(--spacing-3)",
-                  background: "var(--color-background)",
+                  background: "var(--color-app-bg)",
                   borderRadius: "var(--radius-sm)",
                   fontSize: "var(--text-sm)",
                 }}
@@ -719,16 +817,16 @@ export function UserDetailPanel({ userId }: { userId: string }) {
                   <span
                     style={{
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text)",
+                      color: "var(--color-app-text)",
                     }}
                   >
                     {entry.action}
                   </span>
-                  <span style={{ color: "var(--color-text-secondary)" }}>
+                  <span style={{ color: "var(--color-app-text-secondary)" }}>
                     {entry.entityType}
                   </span>
                 </div>
-                <span style={{ color: "var(--color-text-tertiary)" }}>
+                <span style={{ color: "var(--color-app-text-tertiary)" }}>
                   {formatDateTime(entry.createdAt)}
                 </span>
               </div>
@@ -751,7 +849,7 @@ function BackLink() {
         alignItems: "center",
         gap: "var(--spacing-1)",
         fontSize: "var(--text-sm)",
-        color: "var(--color-primary)",
+        color: "var(--color-app-accent)",
         textDecoration: "none",
         fontWeight: "var(--font-medium)",
       }}
@@ -765,8 +863,8 @@ function StatCard({ label, value }: { label: string; value: number }) {
   return (
     <div
       style={{
-        background: "var(--color-surface)",
-        border: "1px solid var(--color-border)",
+        background: "var(--color-app-surface)",
+        border: "1px solid var(--color-app-border)",
         borderRadius: "var(--radius-md)",
         padding: "var(--spacing-4)",
         textAlign: "center",
@@ -776,7 +874,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
         style={{
           fontSize: "var(--text-2xl)",
           fontWeight: "var(--font-semibold)",
-          color: "var(--color-text)",
+          color: "var(--color-app-text)",
         }}
       >
         {value}
@@ -784,7 +882,7 @@ function StatCard({ label, value }: { label: string; value: number }) {
       <div
         style={{
           fontSize: "var(--text-sm)",
-          color: "var(--color-text-secondary)",
+          color: "var(--color-app-text-secondary)",
           marginTop: "var(--spacing-1)",
         }}
       >

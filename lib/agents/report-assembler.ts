@@ -116,6 +116,7 @@ export function assembleReport(
         narrative: insightNarrative?.executiveBriefing ?? null,
         confidence: analytics.confidence,
         dataAsOfDate: analytics.dataAsOfDate ?? null,
+        analysisPeriod: analytics.analysisPeriod,
         metricExplainers: {
           marketRating: "Overall market health based on growth, liquidity, and risk indicators",
           medianPrice: "50th percentile sale price across all luxury transactions in the analysis period",
@@ -201,16 +202,17 @@ export function assembleReport(
       },
     },
 
-    // Section 7: Comparative Positioning (pure data)
-    {
-      sectionNumber: 7,
-      sectionType: "comparative_positioning",
-      title: "Comparative Positioning",
-      content: {
-        peerComparisons: analytics.peerComparisons,
-        peerRankings: analytics.peerRankings,
-      },
-    },
+    // Section 7: Comparative Positioning — disabled until peer markets feature is specced.
+    // Assembler code preserved; re-enable when peer data pipeline is active.
+    // {
+    //   sectionNumber: 7,
+    //   sectionType: "comparative_positioning",
+    //   title: "Comparative Positioning",
+    //   content: {
+    //     peerComparisons: analytics.peerComparisons,
+    //     peerRankings: analytics.peerRankings,
+    //   },
+    // },
 
   ];
 
@@ -295,11 +297,20 @@ function buildSourceAttribution(analytics: ComputedAnalytics): string | null {
   }
 
   const count = analytics.market.totalProperties;
+  const period = analytics.analysisPeriod;
+  const formatDate = (d: string) => new Date(d + "T00:00:00").toLocaleDateString("en-US", { month: "short", year: "numeric" });
+
+  const periodStr = period?.current.min
+    ? ` (${formatDate(period.current.min)} \u2013 ${formatDate(period.current.max)})`
+    : "";
+  const priorStr = period?.prior.count != null
+    ? `, ${period.prior.count} prior-period transactions`
+    : "";
   const dateStr = analytics.dataAsOfDate
     ? `, through ${new Date(analytics.dataAsOfDate).toLocaleDateString("en-US", { month: "short", year: "numeric" })}`
     : "";
 
-  return `Analysis of ${count} transactions via RealEstateAPI${dateStr}`;
+  return `Analysis of ${count} current-period transactions${periodStr} via RealEstateAPI${priorStr}${dateStr}`;
 }
 
 /**

@@ -92,9 +92,11 @@ export async function generateSocialMediaKit(
   const analyticsSection = sections.find(
     (s) => s.sectionType === "luxury_market_dashboard" || s.sectionType === "market_overview"
   );
-  const computedAnalytics = (report.config as any)?.computedAnalytics
+  const rawAnalytics = (report.config as any)?.computedAnalytics
     ?? analyticsSection?.content
     ?? null;
+  // Guard: only use analytics if it has the expected ComputedAnalytics shape (.market.totalProperties)
+  const computedAnalytics = rawAnalytics?.market?.totalProperties != null ? rawAnalytics : null;
 
   // 6. Create kit row (queued)
   const [kit] = await db
@@ -230,9 +232,11 @@ export async function regenerateKitSection(
   const analyticsSection = sections.find(
     (s) => s.sectionType === "luxury_market_dashboard" || s.sectionType === "market_overview"
   );
-  const computedAnalytics = (report.config as any)?.computedAnalytics
+  const rawAnalytics = (report.config as any)?.computedAnalytics
     ?? analyticsSection?.content
     ?? null;
+  // Guard: only use analytics if it has the expected ComputedAnalytics shape (.market.totalProperties)
+  const computedAnalytics = rawAnalytics?.market?.totalProperties != null ? rawAnalytics : null;
 
   // 3. Call the Social Media Agent with sectionOnly
   const agentInput: SocialMediaAgentInput = {
@@ -270,13 +274,18 @@ export async function regenerateKitSection(
  * Get the social media kit for a report.
  */
 export async function getSocialMediaKit(reportId: string) {
-  const [kit] = await db
-    .select()
-    .from(schema.socialMediaKits)
-    .where(eq(schema.socialMediaKits.reportId, reportId))
-    .limit(1);
+  try {
+    const [kit] = await db
+      .select()
+      .from(schema.socialMediaKits)
+      .where(eq(schema.socialMediaKits.reportId, reportId))
+      .limit(1);
 
-  return kit ?? null;
+    return kit ?? null;
+  } catch (error) {
+    console.error("[getSocialMediaKit] Database query failed:", error);
+    return null;
+  }
 }
 
 /**
@@ -298,18 +307,23 @@ export async function getKitStatusesForReports(
 ): Promise<Map<string, { status: string; errorMessage: string | null }>> {
   if (reportIds.length === 0) return new Map();
 
-  const kits = await db
-    .select({
-      reportId: schema.socialMediaKits.reportId,
-      status: schema.socialMediaKits.status,
-      errorMessage: schema.socialMediaKits.errorMessage,
-    })
-    .from(schema.socialMediaKits)
-    .where(inArray(schema.socialMediaKits.reportId, reportIds));
+  try {
+    const kits = await db
+      .select({
+        reportId: schema.socialMediaKits.reportId,
+        status: schema.socialMediaKits.status,
+        errorMessage: schema.socialMediaKits.errorMessage,
+      })
+      .from(schema.socialMediaKits)
+      .where(inArray(schema.socialMediaKits.reportId, reportIds));
 
-  const map = new Map<string, { status: string; errorMessage: string | null }>();
-  for (const kit of kits) {
-    map.set(kit.reportId, { status: kit.status, errorMessage: kit.errorMessage });
+    const map = new Map<string, { status: string; errorMessage: string | null }>();
+    for (const kit of kits) {
+      map.set(kit.reportId, { status: kit.status, errorMessage: kit.errorMessage });
+    }
+    return map;
+  } catch (error) {
+    console.error("[getKitStatusesForReports] Database query failed:", error);
+    return new Map();
   }
-  return map;
 }

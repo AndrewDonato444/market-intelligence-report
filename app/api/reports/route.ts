@@ -1,5 +1,6 @@
-export const maxDuration = 300; // 5 min — pipeline needs time for data fetch + Claude agents
+export const maxDuration = 600; // 10 min — pipeline needs time for data fetch + Claude agents
 
+import { after } from "next/server";
 import { getAuthUserId } from "@/lib/supabase/auth";
 import { NextResponse } from "next/server";
 import {
@@ -63,23 +64,39 @@ export async function POST(request: Request) {
     const reportData = { ...validation.data!, personaIds };
     const report = await createReport(userId, reportData);
 
-    // Increment usage after successful creation (fire-and-forget)
-    incrementUsage(userId, "reports_per_month").catch((err) => {
-      console.error("[POST /api/reports] Failed to increment usage:", err);
-    });
+    // Use next/server after() to run background work AFTER response is sent.
+    // This keeps the serverless function alive (up to maxDuration) unlike fire-and-forget
+    // which can be killed by Vercel once the response is sent.
+    after(async () => {
+      // Increment usage
+      try {
+        await incrementUsage(userId, "reports_per_month");
+      } catch (err) {
+        console.error("[POST /api/reports] Failed to increment usage:", err);
+      }
 
-    // Log activity (fire-and-forget)
-    logActivity({
-      userId,
-      action: "report_created",
-      entityType: "report",
-      entityId: report.id,
-      metadata: { title: report.title },
-    });
+      // Log activity
+      try {
+        await logActivity({
+          userId,
+          action: "report_created",
+          entityType: "report",
+          entityId: report.id,
+          metadata: { title: report.title },
+        });
+      } catch (err) {
+        console.error("[POST /api/reports] Failed to log activity:", err);
+      }
 
-    // Fire-and-forget: trigger pipeline execution asynchronously
-    executePipeline(report.id).catch((err) => {
-      console.error(`Pipeline auto-trigger failed for report ${report.id}:`, err);
+      // Execute pipeline
+      try {
+        console.log(`[POST /api/reports] Starting pipeline for report ${report.id}`);
+        await executePipeline(report.id);
+        console.log(`[POST /api/reports] Pipeline completed for report ${report.id}`);
+      } catch (err: unknown) {
+        const error = err instanceof Error ? err : new Error(String(err));
+        console.error(`[POST /api/reports] Pipeline FAILED for report ${report.id}:`, error.message, error.stack);
+      }
     });
 
     return NextResponse.json({ report }, { status: 201 });

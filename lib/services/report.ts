@@ -21,155 +21,180 @@ const STALE_THRESHOLD_MINUTES = 15;
  * so users always see accurate status.
  */
 export async function reapStaleReports() {
-  const cutoff = new Date(Date.now() - STALE_THRESHOLD_MINUTES * 60 * 1000);
+  try {
+    const cutoff = new Date(Date.now() - STALE_THRESHOLD_MINUTES * 60 * 1000);
 
-  await db
-    .update(schema.reports)
-    .set({
-      status: "failed",
-      errorMessage: "Generation timed out. Please retry.",
-    })
-    .where(
-      and(
-        or(
-          eq(schema.reports.status, "queued"),
-          eq(schema.reports.status, "generating")
-        ),
-        lt(schema.reports.generationStartedAt, cutoff)
-      )
-    );
+    await db
+      .update(schema.reports)
+      .set({
+        status: "failed",
+        errorMessage: "Generation timed out. Please retry.",
+      })
+      .where(
+        and(
+          or(
+            eq(schema.reports.status, "queued"),
+            eq(schema.reports.status, "generating")
+          ),
+          lt(schema.reports.generationStartedAt, cutoff)
+        )
+      );
+  } catch (error) {
+    console.error("[reapStaleReports] Database query failed:", error);
+  }
 }
 
 export async function getReports(authId: string) {
-  const [user] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  if (!user) return [];
+    if (!user) return [];
 
-  return db
-    .select({
-      id: schema.reports.id,
-      title: schema.reports.title,
-      status: schema.reports.status,
-      marketId: schema.reports.marketId,
-      marketName: schema.markets.name,
-      createdAt: schema.reports.createdAt,
-      updatedAt: schema.reports.updatedAt,
-    })
-    .from(schema.reports)
-    .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
-    .where(eq(schema.reports.userId, user.id))
-    .orderBy(desc(schema.reports.createdAt));
+    return await db
+      .select({
+        id: schema.reports.id,
+        title: schema.reports.title,
+        status: schema.reports.status,
+        marketId: schema.reports.marketId,
+        marketName: schema.markets.name,
+        marketGeography: schema.markets.geography,
+        createdAt: schema.reports.createdAt,
+        updatedAt: schema.reports.updatedAt,
+      })
+      .from(schema.reports)
+      .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
+      .where(eq(schema.reports.userId, user.id))
+      .orderBy(desc(schema.reports.createdAt));
+  } catch (error) {
+    console.error("[getReports] Database query failed:", error);
+    return [];
+  }
 }
 
 export async function getReport(authId: string, reportId: string) {
-  const [user] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  if (!user) return null;
+    if (!user) return null;
 
-  const [report] = await db
-    .select()
-    .from(schema.reports)
-    .where(
-      and(
-        eq(schema.reports.id, reportId),
-        eq(schema.reports.userId, user.id)
+    const [report] = await db
+      .select()
+      .from(schema.reports)
+      .where(
+        and(
+          eq(schema.reports.id, reportId),
+          eq(schema.reports.userId, user.id)
+        )
       )
-    )
-    .limit(1);
+      .limit(1);
 
-  return report || null;
+    return report || null;
+  } catch (error) {
+    console.error("[getReport] Database query failed:", error);
+    return null;
+  }
 }
 
 export async function getReportWithMarket(authId: string, reportId: string) {
-  const [user] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  if (!user) return null;
+    if (!user) return null;
 
-  const [result] = await db
-    .select({
-      id: schema.reports.id,
-      title: schema.reports.title,
-      status: schema.reports.status,
-      marketName: schema.markets.name,
-      marketGeography: schema.markets.geography,
-      config: schema.reports.config,
-      createdAt: schema.reports.createdAt,
-      generationStartedAt: schema.reports.generationStartedAt,
-      generationCompletedAt: schema.reports.generationCompletedAt,
-      errorMessage: schema.reports.errorMessage,
-      shareToken: schema.reports.shareToken,
-      shareTokenExpiresAt: schema.reports.shareTokenExpiresAt,
-    })
-    .from(schema.reports)
-    .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
-    .where(
-      and(
-        eq(schema.reports.id, reportId),
-        eq(schema.reports.userId, user.id)
+    const [result] = await db
+      .select({
+        id: schema.reports.id,
+        title: schema.reports.title,
+        status: schema.reports.status,
+        marketName: schema.markets.name,
+        marketGeography: schema.markets.geography,
+        config: schema.reports.config,
+        createdAt: schema.reports.createdAt,
+        generationStartedAt: schema.reports.generationStartedAt,
+        generationCompletedAt: schema.reports.generationCompletedAt,
+        errorMessage: schema.reports.errorMessage,
+        shareToken: schema.reports.shareToken,
+        shareTokenExpiresAt: schema.reports.shareTokenExpiresAt,
+      })
+      .from(schema.reports)
+      .innerJoin(schema.markets, eq(schema.reports.marketId, schema.markets.id))
+      .where(
+        and(
+          eq(schema.reports.id, reportId),
+          eq(schema.reports.userId, user.id)
+        )
       )
-    )
-    .limit(1);
+      .limit(1);
 
-  if (!result) return null;
+    if (!result) return null;
 
-  // Build full market name with state if available
-  const geo = result.marketGeography as { city?: string; state?: string } | null;
-  const fullMarketName =
-    geo?.state && !result.marketName.includes(geo.state)
-      ? `${result.marketName}, ${geo.state}`
-      : result.marketName;
+    // Build full market name with state if available
+    const geo = result.marketGeography as { city?: string; state?: string } | null;
+    const fullMarketName =
+      geo?.state && !result.marketName.includes(geo.state)
+        ? `${result.marketName}, ${geo.state}`
+        : result.marketName;
 
-  return { ...result, marketName: fullMarketName };
+    return { ...result, marketName: fullMarketName };
+  } catch (error) {
+    console.error("[getReportWithMarket] Database query failed:", error);
+    return null;
+  }
 }
 
 export async function getReportSections(authId: string, reportId: string) {
-  const [user] = await db
-    .select({ id: schema.users.id })
-    .from(schema.users)
-    .where(eq(schema.users.authId, authId))
-    .limit(1);
+  try {
+    const [user] = await db
+      .select({ id: schema.users.id })
+      .from(schema.users)
+      .where(eq(schema.users.authId, authId))
+      .limit(1);
 
-  if (!user) return null;
+    if (!user) return null;
 
-  // Verify report belongs to user
-  const [report] = await db
-    .select({ id: schema.reports.id })
-    .from(schema.reports)
-    .where(
-      and(
-        eq(schema.reports.id, reportId),
-        eq(schema.reports.userId, user.id)
+    // Verify report belongs to user
+    const [report] = await db
+      .select({ id: schema.reports.id })
+      .from(schema.reports)
+      .where(
+        and(
+          eq(schema.reports.id, reportId),
+          eq(schema.reports.userId, user.id)
+        )
       )
-    )
-    .limit(1);
+      .limit(1);
 
-  if (!report) return null;
+    if (!report) return null;
 
-  return db
-    .select({
-      id: schema.reportSections.id,
-      sectionType: schema.reportSections.sectionType,
-      title: schema.reportSections.title,
-      content: schema.reportSections.content,
-      agentName: schema.reportSections.agentName,
-      sortOrder: schema.reportSections.sortOrder,
-      generatedAt: schema.reportSections.generatedAt,
-    })
-    .from(schema.reportSections)
-    .where(eq(schema.reportSections.reportId, reportId))
-    .orderBy(asc(schema.reportSections.sortOrder));
+    return db
+      .select({
+        id: schema.reportSections.id,
+        sectionType: schema.reportSections.sectionType,
+        title: schema.reportSections.title,
+        content: schema.reportSections.content,
+        agentName: schema.reportSections.agentName,
+        sortOrder: schema.reportSections.sortOrder,
+        generatedAt: schema.reportSections.generatedAt,
+      })
+      .from(schema.reportSections)
+      .where(eq(schema.reportSections.reportId, reportId))
+      .orderBy(asc(schema.reportSections.sortOrder));
+  } catch (error) {
+    console.error("[getReportSections] Database query failed:", error);
+    return null;
+  }
 }
 
 export async function createReport(

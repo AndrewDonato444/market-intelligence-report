@@ -149,9 +149,10 @@ export function ErrorTriageDashboard() {
     <div
       style={{
         padding: "var(--spacing-6)",
-        fontFamily: "var(--font-sans)",
+        fontFamily: "var(--font-body)",
         maxWidth: 1400,
       }}
+      className="app-fade-in"
     >
       {/* Header */}
       <div
@@ -166,8 +167,9 @@ export function ErrorTriageDashboard() {
           <h1
             style={{
               fontSize: "var(--text-2xl)",
+              fontFamily: "var(--font-display)",
               fontWeight: "var(--font-semibold)",
-              color: "var(--color-text)",
+              color: "var(--color-app-text)",
               margin: 0,
             }}
           >
@@ -176,7 +178,7 @@ export function ErrorTriageDashboard() {
           <p
             style={{
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-secondary)",
+              color: "var(--color-app-text-secondary)",
               margin: "var(--spacing-1) 0 0",
             }}
           >
@@ -190,13 +192,13 @@ export function ErrorTriageDashboard() {
           onChange={(e) => setSearchInput(e.target.value)}
           style={{
             padding: "var(--spacing-2) var(--spacing-3)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-md)",
             fontSize: "var(--text-sm)",
             width: 280,
             outline: "none",
-            background: "var(--color-surface)",
-            color: "var(--color-text)",
+            background: "var(--color-app-surface)",
+            color: "var(--color-app-text)",
           }}
         />
       </div>
@@ -214,12 +216,12 @@ export function ErrorTriageDashboard() {
           <div
             style={{
               padding: "var(--spacing-4)",
-              background: "var(--color-surface)",
+              background: "var(--color-app-surface)",
               borderRadius: "var(--radius-md)",
-              border: "1px solid var(--color-border)",
+              border: "1px solid var(--color-app-border)",
             }}
           >
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
               Total Errors
             </p>
             <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--font-semibold)", color: "var(--color-error)", margin: "var(--spacing-1) 0 0" }}>
@@ -229,34 +231,34 @@ export function ErrorTriageDashboard() {
           <div
             style={{
               padding: "var(--spacing-4)",
-              background: "var(--color-surface)",
+              background: "var(--color-app-surface)",
               borderRadius: "var(--radius-md)",
-              border: "1px solid var(--color-border)",
+              border: "1px solid var(--color-app-border)",
             }}
           >
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
               Errors Today
             </p>
-            <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--font-semibold)", color: "var(--color-text)", margin: "var(--spacing-1) 0 0" }}>
+            <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--font-semibold)", color: "var(--color-app-text)", margin: "var(--spacing-1) 0 0" }}>
               {data.summary.errorsToday}
             </p>
           </div>
           <div
             style={{
               padding: "var(--spacing-4)",
-              background: "var(--color-surface)",
+              background: "var(--color-app-surface)",
               borderRadius: "var(--radius-md)",
-              border: "1px solid var(--color-border)",
+              border: "1px solid var(--color-app-border)",
             }}
           >
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
               Most Failing Agent
             </p>
-            <p style={{ fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-text)", margin: "var(--spacing-1) 0 0" }}>
+            <p style={{ fontSize: "var(--text-sm)", fontWeight: "var(--font-semibold)", color: "var(--color-app-text)", margin: "var(--spacing-1) 0 0" }}>
               {data.summary.mostFailingAgent?.agent ?? "\u2014"}
             </p>
             {data.summary.mostFailingAgent && (
-              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0 }}>
+              <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0 }}>
                 {data.summary.mostFailingAgent.count} failure{data.summary.mostFailingAgent.count !== 1 ? "s" : ""}
               </p>
             )}
@@ -264,18 +266,18 @@ export function ErrorTriageDashboard() {
           <div
             style={{
               padding: "var(--spacing-4)",
-              background: "var(--color-surface)",
+              background: "var(--color-app-surface)",
               borderRadius: "var(--radius-md)",
-              border: "1px solid var(--color-border)",
+              border: "1px solid var(--color-app-border)",
             }}
           >
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0, fontWeight: 500, textTransform: "uppercase", letterSpacing: "0.05em" }}>
               Retry Rate
             </p>
-            <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--font-semibold)", color: "var(--color-text)", margin: "var(--spacing-1) 0 0" }}>
+            <p style={{ fontSize: "var(--text-2xl)", fontWeight: "var(--font-semibold)", color: "var(--color-app-text)", margin: "var(--spacing-1) 0 0" }}>
               {retryPercent}%
             </p>
-            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: 0 }}>
+            <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: 0 }}>
               {data.summary.retryRate.retried} of {data.summary.retryRate.total}
             </p>
           </div>
@@ -291,7 +293,7 @@ export function ErrorTriageDashboard() {
           alignItems: "center",
         }}
       >
-        <label style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+        <label style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
           Filters:
         </label>
         <select
@@ -302,11 +304,11 @@ export function ErrorTriageDashboard() {
           }}
           style={{
             padding: "var(--spacing-1) var(--spacing-2)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-sm)",
             fontSize: "var(--text-sm)",
-            background: "var(--color-surface)",
-            color: "var(--color-text)",
+            background: "var(--color-app-surface)",
+            color: "var(--color-app-text)",
           }}
         >
           <option value="">Failing Agent</option>
@@ -324,11 +326,11 @@ export function ErrorTriageDashboard() {
           }}
           style={{
             padding: "var(--spacing-1) var(--spacing-2)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-sm)",
             fontSize: "var(--text-sm)",
-            background: "var(--color-surface)",
-            color: "var(--color-text)",
+            background: "var(--color-app-surface)",
+            color: "var(--color-app-text)",
           }}
         >
           {DATE_RANGE_OPTIONS.map((opt) => (
@@ -345,7 +347,7 @@ export function ErrorTriageDashboard() {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p>Loading error triage data...</p>
@@ -389,7 +391,7 @@ export function ErrorTriageDashboard() {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p
@@ -413,7 +415,7 @@ export function ErrorTriageDashboard() {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p style={{ fontSize: "var(--text-lg)", fontWeight: "var(--font-medium)" }}>
@@ -430,10 +432,10 @@ export function ErrorTriageDashboard() {
             style={{
               marginTop: "var(--spacing-2)",
               padding: "var(--spacing-1) var(--spacing-3)",
-              border: "1px solid var(--color-border)",
+              border: "1px solid var(--color-app-border)",
               borderRadius: "var(--radius-sm)",
-              background: "var(--color-surface)",
-              color: "var(--color-primary)",
+              background: "var(--color-app-surface)",
+              color: "var(--color-app-accent)",
               cursor: "pointer",
               fontSize: "var(--text-sm)",
             }}
@@ -448,8 +450,8 @@ export function ErrorTriageDashboard() {
         <>
           <div
             style={{
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
+              background: "var(--color-app-surface)",
+              border: "1px solid var(--color-app-border)",
               borderRadius: "var(--radius-md)",
               boxShadow: "var(--shadow-sm)",
               overflow: "hidden",
@@ -465,8 +467,8 @@ export function ErrorTriageDashboard() {
               <thead>
                 <tr
                   style={{
-                    borderBottom: "1px solid var(--color-border)",
-                    background: "var(--color-background)",
+                    borderBottom: "1px solid var(--color-app-border)",
+                    background: "var(--color-app-bg)",
                   }}
                 >
                   <th style={{ padding: "var(--spacing-3) var(--spacing-4)", width: 32 }} />
@@ -476,7 +478,7 @@ export function ErrorTriageDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -491,7 +493,7 @@ export function ErrorTriageDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -505,7 +507,7 @@ export function ErrorTriageDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -520,7 +522,7 @@ export function ErrorTriageDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -534,7 +536,7 @@ export function ErrorTriageDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -549,7 +551,7 @@ export function ErrorTriageDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "center",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -571,11 +573,11 @@ export function ErrorTriageDashboard() {
                     <React.Fragment key={err.id}>
                       <tr
                         style={{
-                          borderBottom: isExpanded ? "none" : "1px solid var(--color-border)",
+                          borderBottom: isExpanded ? "none" : "1px solid var(--color-app-border)",
                           transition: "background var(--duration-default, 150ms)",
                         }}
                         onMouseEnter={(e) => {
-                          (e.currentTarget as HTMLElement).style.background = "var(--color-primary-light)";
+                          (e.currentTarget as HTMLElement).style.background = "var(--color-app-active-bg)";
                         }}
                         onMouseLeave={(e) => {
                           (e.currentTarget as HTMLElement).style.background = "";
@@ -585,17 +587,17 @@ export function ErrorTriageDashboard() {
                           style={{ padding: "var(--spacing-3) var(--spacing-2)", textAlign: "center", cursor: "pointer" }}
                           onClick={() => toggleExpand(err.id)}
                         >
-                          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)" }}>
+                          <span style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)" }}>
                             {isExpanded ? "\u25BC" : "\u25B6"}
                           </span>
                         </td>
-                        <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontWeight: "var(--font-medium)", color: "var(--color-text)" }}>
+                        <td style={{ padding: "var(--spacing-3) var(--spacing-4)", fontWeight: "var(--font-medium)", color: "var(--color-app-text)" }}>
                           {err.title}
                         </td>
-                        <td style={{ padding: "var(--spacing-3) var(--spacing-4)", color: "var(--color-text)" }}>
+                        <td style={{ padding: "var(--spacing-3) var(--spacing-4)", color: "var(--color-app-text)" }}>
                           <div>{err.userName}</div>
                           {err.userCompany && (
-                            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)" }}>
+                            <div style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)" }}>
                               {err.userCompany}
                             </div>
                           )}
@@ -615,10 +617,10 @@ export function ErrorTriageDashboard() {
                             {err.failingAgent}
                           </span>
                         </td>
-                        <td style={{ padding: "var(--spacing-3) var(--spacing-4)", color: "var(--color-text-secondary)", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        <td style={{ padding: "var(--spacing-3) var(--spacing-4)", color: "var(--color-app-text-secondary)", maxWidth: 200, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                           {errorMsg}
                         </td>
-                        <td style={{ padding: "var(--spacing-3) var(--spacing-4)", color: "var(--color-text-secondary)" }}>
+                        <td style={{ padding: "var(--spacing-3) var(--spacing-4)", color: "var(--color-app-text-secondary)" }}>
                           {formatDateTime(err.failedAt)}
                         </td>
                         <td style={{ padding: "var(--spacing-3) var(--spacing-4)", textAlign: "center" }}>
@@ -627,26 +629,26 @@ export function ErrorTriageDashboard() {
                               \u2713
                             </span>
                           ) : (
-                            <span style={{ color: "var(--color-text-tertiary)" }}>\u2014</span>
+                            <span style={{ color: "var(--color-app-text-tertiary)" }}>\u2014</span>
                           )}
                         </td>
                       </tr>
                       {isExpanded && (
-                        <tr key={`${err.id}-detail`} style={{ borderBottom: "1px solid var(--color-border)" }}>
+                        <tr key={`${err.id}-detail`} style={{ borderBottom: "1px solid var(--color-app-border)" }}>
                           <td colSpan={7} style={{ padding: 0 }}>
                             <div
                               style={{
                                 padding: "var(--spacing-4) var(--spacing-6)",
                                 background: "var(--color-error-light, rgba(239,68,68,0.03))",
-                                borderTop: "1px solid var(--color-border)",
+                                borderTop: "1px solid var(--color-app-border)",
                                 fontSize: "var(--text-sm)",
                               }}
                             >
-                              <p style={{ margin: "0 0 var(--spacing-1) 0", color: "var(--color-text)" }}>
+                              <p style={{ margin: "0 0 var(--spacing-1) 0", color: "var(--color-app-text)" }}>
                                 <strong>Error:</strong> {err.errorMessage}
                               </p>
                               {err.stageIndex !== null && err.totalStages !== null && (
-                                <p style={{ margin: "0 0 var(--spacing-1) 0", color: "var(--color-text-secondary)" }}>
+                                <p style={{ margin: "0 0 var(--spacing-1) 0", color: "var(--color-app-text-secondary)" }}>
                                   <strong>Stage:</strong> {err.stageIndex + 1} of {err.totalStages}
                                 </p>
                               )}
@@ -657,7 +659,7 @@ export function ErrorTriageDashboard() {
                                     style={{
                                       background: "none",
                                       border: "none",
-                                      color: "var(--color-primary)",
+                                      color: "var(--color-app-accent)",
                                       cursor: "pointer",
                                       fontSize: "var(--text-xs)",
                                       padding: 0,
@@ -671,7 +673,7 @@ export function ErrorTriageDashboard() {
                                       style={{
                                         marginTop: "var(--spacing-2)",
                                         padding: "var(--spacing-3)",
-                                        background: "var(--color-background, #f8f9fa)",
+                                        background: "var(--color-app-bg, #f8f9fa)",
                                         borderRadius: "var(--radius-sm)",
                                         fontSize: "var(--text-xs)",
                                         fontFamily: "monospace",
@@ -688,18 +690,18 @@ export function ErrorTriageDashboard() {
                               )}
                               {err.previousErrors.length > 0 && (
                                 <div style={{ marginTop: "var(--spacing-2)" }}>
-                                  <p style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--color-text-secondary)", marginBottom: "var(--spacing-1)" }}>
+                                  <p style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--color-app-text-secondary)", marginBottom: "var(--spacing-1)" }}>
                                     Previous Errors:
                                   </p>
                                   {err.previousErrors.map((pe, i) => (
-                                    <p key={i} style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: "0 0 2px 0" }}>
+                                    <p key={i} style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: "0 0 2px 0" }}>
                                       \u00b7 {pe.agent}: {pe.message} ({formatDateTime(pe.occurredAt)})
                                     </p>
                                   ))}
                                 </div>
                               )}
                               {err.retriedAt && (
-                                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", marginTop: "var(--spacing-2)" }}>
+                                <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", marginTop: "var(--spacing-2)" }}>
                                   Retried at {formatDateTime(err.retriedAt)}{err.retriedBy ? ` by ${err.retriedBy}` : ""}
                                 </p>
                               )}
@@ -708,10 +710,10 @@ export function ErrorTriageDashboard() {
                                   href={`/admin/reports/${err.id}`}
                                   style={{
                                     padding: "var(--spacing-1) var(--spacing-3)",
-                                    border: "1px solid var(--color-primary)",
+                                    border: "1px solid var(--color-app-accent)",
                                     borderRadius: "var(--radius-sm)",
                                     fontSize: "var(--text-xs)",
-                                    color: "var(--color-primary)",
+                                    color: "var(--color-app-accent)",
                                     textDecoration: "none",
                                     fontWeight: "var(--font-medium)",
                                   }}
@@ -724,7 +726,7 @@ export function ErrorTriageDashboard() {
                                     disabled={retryingIds.has(err.id)}
                                     style={{
                                       padding: "var(--spacing-1) var(--spacing-3)",
-                                      background: "var(--color-primary)",
+                                      background: "var(--color-app-accent)",
                                       color: "white",
                                       border: "none",
                                       borderRadius: "var(--radius-sm)",
@@ -742,15 +744,15 @@ export function ErrorTriageDashboard() {
                                   style={{
                                     marginTop: "var(--spacing-2)",
                                     padding: "var(--spacing-3)",
-                                    background: "var(--color-surface)",
+                                    background: "var(--color-app-surface)",
                                     borderRadius: "var(--radius-sm)",
-                                    border: "1px solid var(--color-border)",
+                                    border: "1px solid var(--color-app-border)",
                                   }}
                                 >
-                                  <p style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--color-text)", margin: "0 0 var(--spacing-1) 0" }}>
+                                  <p style={{ fontSize: "var(--text-xs)", fontWeight: 600, color: "var(--color-app-text)", margin: "0 0 var(--spacing-1) 0" }}>
                                     Re-run pipeline for &quot;{err.title}&quot;?
                                   </p>
-                                  <p style={{ fontSize: "var(--text-xs)", color: "var(--color-text-secondary)", margin: "0 0 var(--spacing-1) 0" }}>
+                                  <p style={{ fontSize: "var(--text-xs)", color: "var(--color-app-text-secondary)", margin: "0 0 var(--spacing-1) 0" }}>
                                     Last error: {err.failingAgent}: {err.errorMessage.length > 80 ? err.errorMessage.slice(0, 77) + "..." : err.errorMessage}
                                   </p>
                                   {retryErrors[err.id] && (
@@ -764,10 +766,10 @@ export function ErrorTriageDashboard() {
                                       disabled={retryingIds.has(err.id)}
                                       style={{
                                         padding: "var(--spacing-1) var(--spacing-3)",
-                                        border: "1px solid var(--color-border)",
+                                        border: "1px solid var(--color-app-border)",
                                         borderRadius: "var(--radius-sm)",
-                                        background: "var(--color-surface)",
-                                        color: "var(--color-text)",
+                                        background: "var(--color-app-surface)",
+                                        color: "var(--color-app-text)",
                                         cursor: retryingIds.has(err.id) ? "default" : "pointer",
                                         fontSize: "var(--text-xs)",
                                       }}
@@ -779,7 +781,7 @@ export function ErrorTriageDashboard() {
                                       disabled={retryingIds.has(err.id)}
                                       style={{
                                         padding: "var(--spacing-1) var(--spacing-3)",
-                                        background: retryingIds.has(err.id) ? "var(--color-text-secondary)" : "var(--color-primary)",
+                                        background: retryingIds.has(err.id) ? "var(--color-app-text-secondary)" : "var(--color-app-accent)",
                                         color: "white",
                                         border: "none",
                                         borderRadius: "var(--radius-sm)",
@@ -812,7 +814,7 @@ export function ErrorTriageDashboard() {
               alignItems: "center",
               marginTop: "var(--spacing-4)",
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-secondary)",
+              color: "var(--color-app-text-secondary)",
             }}
           >
             <span>
@@ -824,10 +826,10 @@ export function ErrorTriageDashboard() {
                 disabled={page <= 1}
                 style={{
                   padding: "var(--spacing-1) var(--spacing-3)",
-                  border: "1px solid var(--color-border)",
+                  border: "1px solid var(--color-app-border)",
                   borderRadius: "var(--radius-sm)",
-                  background: "var(--color-surface)",
-                  color: page <= 1 ? "var(--color-text-tertiary)" : "var(--color-text)",
+                  background: "var(--color-app-surface)",
+                  color: page <= 1 ? "var(--color-app-text-tertiary)" : "var(--color-app-text)",
                   cursor: page <= 1 ? "default" : "pointer",
                   fontSize: "var(--text-sm)",
                 }}
@@ -839,10 +841,10 @@ export function ErrorTriageDashboard() {
                 disabled={page >= totalPages}
                 style={{
                   padding: "var(--spacing-1) var(--spacing-3)",
-                  border: "1px solid var(--color-border)",
+                  border: "1px solid var(--color-app-border)",
                   borderRadius: "var(--radius-sm)",
-                  background: "var(--color-surface)",
-                  color: page >= totalPages ? "var(--color-text-tertiary)" : "var(--color-text)",
+                  background: "var(--color-app-surface)",
+                  color: page >= totalPages ? "var(--color-app-text-tertiary)" : "var(--color-app-text)",
                   cursor: page >= totalPages ? "default" : "pointer",
                   fontSize: "var(--text-sm)",
                 }}
