@@ -23,7 +23,7 @@ export function BrandPreview({ company, colors }: BrandPreviewProps) {
   };
 
   return (
-    <div className="rounded-[var(--radius-sm)] border border-[var(--color-border)] overflow-hidden bg-[var(--color-report-bg,#FAFAF9)]">
+    <div className="rounded-[var(--radius-sm)] border border-[var(--color-app-border)] overflow-hidden bg-[var(--color-report-bg,#FAFAF9)]">
       {/* Header bar */}
       <div
         className="px-4 py-3 flex items-center gap-3"

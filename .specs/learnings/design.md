@@ -8,6 +8,11 @@ Patterns for UI and design system in this codebase.
 
 <!-- When to use which tokens, overrides -->
 
+### 2026-03-28 — Design Refresh: Settings & Account Pages Token Migration
+- **Pattern**: BrandPreview is a report-facing component inside an app-facing page. Its interior uses report tokens (`--font-serif`, `--font-sans`, `--color-report-bg`) but its container border is app-facing (`--color-app-border`). The general rule: chrome/framing = app tokens, content preview = report tokens.
+- **Gotcha**: ChangePasswordSection was a two-hop migration — already on warm fonts (`--font-display`/`--font-body`) from an earlier pass but used marketing tokens (`--color-mkt-*`) instead of app tokens (`--color-app-*`). When migrating mkt→app, button semantics shift: `--color-mkt-text` (charcoal) bg → `--color-app-accent` (gold) bg; `--color-mkt-darkest` hover → `--color-app-accent-hover`. The mkt and app palettes use different gold values so button appearance changes.
+- **Decision**: For components that define shared class strings as variables (e.g., `cardClass`, `headingClass`, `accentLine` in AccountSettings), migrate the variables first — they propagate to all usages automatically. Then handle inline one-off usages individually.
+
 ### 2026-03-28 — Design Refresh: Report Creation Flow Token Migration
 - **Pattern**: Bulk token migration across many files uses sed with careful ordering — replace longest tokens first (e.g., `--color-primary-light` before `--color-primary`) to prevent substring conflicts. Using `var(--token)` boundaries (the closing `)`) as sed delimiters prevents false matches.
 - **Decision**: Semantic color tokens (`--color-success`, `--color-error`, `--color-warning`) are never migrated — they are context-independent and should remain unchanged across warm/cold palette shifts.

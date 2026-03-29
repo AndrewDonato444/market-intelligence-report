@@ -82,6 +82,11 @@ Patterns for testing in this codebase.
 - **Pattern**: Negative-lookahead regex `var\(--color-(?!app-)` asserts cold tokens are absent while allowing warm `--color-app-*` variants to pass. Wrap in a helper (`assertNoColdColorTokens`) that iterates a cold token list and calls `fail()` with the filename for clear error messages.
 - **Gotcha**: Existing tests using `document.querySelector` with CSS variable class names (e.g., `.bg-\\[var\\(--color-accent\\)\\]`) break silently when tokens are migrated. After any token migration, grep all test files for the old token names and update selectors. Pattern: `grep -r "color-accent\|color-primary\|font-serif\|font-sans" __tests__/`.
 
+### 2026-03-28 — Settings & Account Design Refresh (className assertion approach)
+- **Pattern**: An alternative to `fs.readFileSync` source inspection is `element.className.toContain("--token-name")` which asserts on the rendered DOM class string. Works well when tests render components via `@testing-library/react` — simpler setup, catches actual runtime class application, and no need for path resolution. Best for components where the token names appear directly in className strings.
+- **Pattern**: Helper functions `hasVar(el, varName)` and `findByVar(container, varName)` that recursively search the DOM tree for elements whose className contains a CSS variable name. Useful for finding accent lines, card backgrounds, and other elements without dedicated test IDs.
+- **Gotcha**: When using `replace_all` for bulk token migration in source files, order matters — replace longer token names first (e.g., `--color-text-tertiary` before `--color-text-secondary` before `--color-text`) and use boundary delimiters (e.g., match `--color-text)]` not just `--color-text`) to prevent substring conflicts.
+
 ---
 
 ## Assertions

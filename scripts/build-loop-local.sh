@@ -252,9 +252,9 @@ run_agent() {
         # IMPORTANT: Unset ANTHROPIC_API_KEY so Claude CLI uses OAuth (free tier)
         # instead of the production API key from .env.local which incurs charges.
         if [ -n "$model" ]; then
-            env -u ANTHROPIC_API_KEY claude -p "$prompt" --output-format text --allowedTools Read,Edit,Bash,Grep,Glob --model "$model"
+            env -u ANTHROPIC_API_KEY claude -p "$prompt" --output-format text --allowedTools Read,Write,Edit,Bash,Grep,Glob --model "$model"
         else
-            env -u ANTHROPIC_API_KEY claude -p "$prompt" --output-format text --allowedTools Read,Edit,Bash,Grep,Glob
+            env -u ANTHROPIC_API_KEY claude -p "$prompt" --output-format text --allowedTools Read,Write,Edit,Bash,Grep,Glob
         fi
     else
         if [ -n "$model" ]; then

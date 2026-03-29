@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-28 — Design Refresh: Settings & Account Pages Token Migration
+
+- **BrandPreview dual-token boundary** (`design.md`): Report-facing component inside app-facing page — container border uses app tokens, interior uses report tokens. General rule: chrome = app, content preview = report.
+- **Two-hop mkt→app migration** (`design.md`): ChangePasswordSection was already on warm fonts but wrong color family (mkt vs app). Button semantics shift: `--color-mkt-text` bg → `--color-app-accent` bg.
+- **className assertion for token tests** (`testing.md`): `element.className.toContain("--token-name")` is simpler than `fs.readFileSync` source inspection and catches actual rendered class application.
+- **replace_all ordering for token migration** (`testing.md`): Replace longest tokens first (`--color-text-tertiary` before `--color-text`) and use boundary delimiters (`)]`) to prevent substring conflicts.
+
 ### 2026-03-28 — Design Refresh: Report Creation Flow Token Migration
 
 - **Bulk sed token migration ordering** (`design.md`): Replace longest tokens first (`--color-primary-light` before `--color-primary`) to prevent substring conflicts. Use `var()` closing paren as boundary delimiter.

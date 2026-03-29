@@ -79,8 +79,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | data-infrastructure | [YoY Analysis Period Transparency](.specs/features/data-infrastructure/yoy-analysis-period-transparency.feature.md) | `lib/services/market-analytics.ts` | see spec | see spec | implemented |
 | design-refresh | [Backend Design Refresh](.specs/features/design-refresh/backend-design-refresh.feature.md) | `components/layout/top-nav.tsx, components/layout/sidebar.tsx, components/layout/page-shell.tsx, components/layout/footer.tsx, app/(protected)/layout.tsx, app/globals.css` | see spec | see spec | implemented |
 | design-refresh | [Dashboard Design Refresh (Phase 2)](.specs/features/design-refresh/dashboard-design-refresh.feature.md) | `components/dashboard/dashboard-content.tsx, components/dashboard/dashboard-welcome-hero.tsx, components/dashboard/market-card.tsx, components/dashboard/recent-reports-list.tsx, components/dashboard/dashboard-empty-state.tsx` | see spec | see spec | implemented |
+| design-refresh | [Design Refresh — Markets Page (Phase 5)](.specs/features/design-refresh/markets-design-refresh.feature.md) | `app/(protected)/markets/page.tsx, components/markets/market-creation-shell.tsx, components/markets/delete-market-button.tsx, components/markets/peer-market-form.tsx, app/(protected)/markets/[id]/peers/page.tsx` | see spec | see spec | specced |
 | design-refresh | [Design Refresh — Report Creation Flow (Phase 4)](.specs/features/design-refresh/report-creation-flow-design-refresh.feature.md) | `components/reports/creation-flow-shell.tsx, components/reports/creation-step-indicator.tsx, components/reports/steps/step-your-market.tsx, components/reports/steps/step-your-tier.tsx, components/reports/steps/step-your-audience.tsx, components/reports/steps/step-your-review.tsx, components/reports/steps/step-generating.tsx, components/reports/steps/market-autocomplete.tsx, components/reports/steps/market-preview-card.tsx, components/reports/persona-card.tsx, components/reports/persona-preview-panel.tsx` | see spec | see spec | implemented |
 | design-refresh | [Reports List Page Design Refresh](.specs/features/design-refresh/reports-list-design-refresh.feature.md) | `app/(protected)/reports/page.tsx, components/reports/report-tile-grid.tsx` | see spec | see spec | implemented |
+| design-refresh | [Design Refresh — Settings & Account Pages](.specs/features/design-refresh/settings-account-design-refresh.feature.md) | `app/(protected)/settings/layout.tsx, components/layout/settings-nav.tsx, components/profile/profile-form.tsx, components/profile/brand-preview.tsx, components/account/account-settings.tsx, components/account/change-password-section.tsx, components/ui/password-input.tsx` | see spec | see spec | specced |
 | email-campaigns | [Bulk Email Campaign Agent](.specs/features/email-campaigns/bulk-email-campaign-agent.feature.md) | `lib/agents/email-campaign.ts` | see spec | see spec | implemented |
 | email-campaigns | [Email Campaign CSV Export](.specs/features/email-campaigns/email-campaign-csv-export.feature.md) | `components/reports/email-viewer.tsx` | see spec | see spec | specced |
 | email-campaigns | [Email Campaign Viewer UX Polish](.specs/features/email-campaigns/email-campaign-viewer-ux-polish.feature.md) | `components/reports/email-viewer.tsx` | see spec | see spec | specced |
@@ -175,10 +177,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 12 |
+| specced | 14 |
 | tested | 0 |
 | implemented | 135 |
-| **Total** | **149** |
+| **Total** | **151** |
 
 ---
 
@@ -196,6 +198,8 @@ _None_
 - [Admin Create User](.specs/features/admin/create-user.feature.md)
 - [Market Card Photo Tiles](.specs/features/dashboard/market-card-photo-tiles.feature.md)
 - [Dashboard Welcome Hero](.specs/features/dashboard/welcome-hero.feature.md)
+- [Design Refresh — Markets Page (Phase 5)](.specs/features/design-refresh/markets-design-refresh.feature.md)
+- [Design Refresh — Settings & Account Pages](.specs/features/design-refresh/settings-account-design-refresh.feature.md)
 - [Email Campaign CSV Export](.specs/features/email-campaigns/email-campaign-csv-export.feature.md)
 - [Email Campaign Viewer UX Polish](.specs/features/email-campaigns/email-campaign-viewer-ux-polish.feature.md)
 - [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md)

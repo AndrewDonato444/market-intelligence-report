@@ -21,9 +21,9 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 125 |
+| ✅ Completed | 127 |
 | 🔄 In Progress | 0 |
-| ⬜ Pending | 37 |
+| ⬜ Pending | 36 |
 | ⏸️ Blocked | 1 |
 
 **Last updated**: 2026-03-28
@@ -40,8 +40,8 @@
 | 251 | Design Refresh: Dashboard | user-request | M | 250 | ✅ |
 | 252 | Design Refresh: Reports list page | user-request | M | 250 | ✅ |
 | 253 | Design Refresh: Report creation flow | user-request | S | 250 | ✅ |
-| 254 | Design Refresh: Markets page | user-request | M | 250 | ⬜ |
-| 255 | Design Refresh: Settings & Account pages | user-request | S | 250 | ⬜ |
+| 254 | Design Refresh: Markets page | user-request | M | 250 | ✅ |
+| 255 | Design Refresh: Settings & Account pages | user-request | S | 250 | ✅ |
 | 256 | Design Refresh: How-To page | user-request | S | 250 | ⬜ |
 | 257 | Design Refresh: Admin pages | user-request | S | 250 | ⬜ |
 
