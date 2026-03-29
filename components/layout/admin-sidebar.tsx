@@ -106,7 +106,7 @@ export function AdminSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 bg-[var(--color-surface)] border-r border-[var(--color-border)] shrink-0 flex flex-col">
+    <aside className="w-60 bg-[var(--color-app-sidebar-bg)] border-r border-[var(--color-app-border)] shrink-0 flex flex-col">
       <nav className="flex-1 p-[var(--spacing-3)]">
         <ul className="space-y-[var(--spacing-1)]">
           {navItems.map((item) => {
@@ -115,13 +115,13 @@ export function AdminSidebar() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] text-sm transition-colors duration-[var(--duration-default)] ${
+                  className={`flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm transition-colors duration-[var(--duration-default)] ${
                     isActive
-                      ? "bg-[var(--color-primary-light)] text-[var(--color-primary)] font-medium"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-text)]"
+                      ? "bg-[var(--color-app-active-bg)] text-[var(--color-app-text)] font-medium"
+                      : "text-[var(--color-app-text-secondary)] hover:bg-[var(--color-app-active-bg)] hover:text-[var(--color-app-text)]"
                   }`}
                 >
-                  <span className={isActive ? "text-[var(--color-accent)]" : ""}>
+                  <span className={isActive ? "text-[var(--color-app-accent)]" : ""}>
                     {iconMap[item.icon]}
                   </span>
                   {item.label}
@@ -131,8 +131,8 @@ export function AdminSidebar() {
           })}
         </ul>
       </nav>
-      <div className="p-[var(--spacing-3)] border-t border-[var(--color-border)]">
-        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+      <div className="p-[var(--spacing-3)] border-t border-[var(--color-app-border)]">
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
           Modern Signal Advisory
         </p>
       </div>

@@ -19,6 +19,14 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-29 — Design Refresh: Admin Pages Token Migration (Phase 8)
+
+- **Mixed style patterns in admin components** (`design.md`): Admin components use three different styling approaches — inline `style={{}}` objects, Tailwind `className` with `var()`, and hardcoded Tailwind colors (test-suite-dashboard). Token migration must handle all three. Source file grep for cold tokens catches all patterns.
+- **Panel vs dashboard h1 distinction** (`design.md`): Panel components (EntitlementOverridesPanel) don't have page-level h1 headings — they use h3 section headings with `--font-body`. Tests should distinguish dashboards (expect `--font-display`) from panels (expect only `--font-body`).
+- **Source file inspection for complex components** (`testing.md`): For admin dashboards with API fetch dependencies, source file content checks (`fs.readFileSync`) are faster and more reliable than rendering. Only render simple components (AdminSidebar, AnalyticsNav, ExportButton) directly; use file inspection for the other 18.
+- **Cross-test token migration grep** (`testing.md`): Admin sidebar tokens are checked by 3 separate test files (admin-sidebar.test, tier-management-dashboard.test, admin-design-refresh.test). After migrating tokens, grep ALL `__tests__/` for old token names, not just the design-refresh test.
+- **Font removal without replacement** (`testing.md`): When agents remove `--font-sans` from inline styles, verify `--font-body` was added back — removing without replacing leaves components with no font-family declaration at all. The outer wrapper `fontFamily` declaration propagates to children.
+
 ### 2026-03-28 — Design Refresh: How-To Page Token Migration
 
 - **Single-file component migration** (`design.md`): All 4 sub-components in one file → single-file find-and-replace, no cross-file coordination. Server page needs no changes (data-fetching only).

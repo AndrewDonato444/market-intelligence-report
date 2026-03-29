@@ -77,6 +77,12 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for tests that read source files directly -->
 
+### 2026-03-29 — Admin Pages Design Refresh Token Migration Tests
+- **Pattern**: For large migrations (18+ dashboard files), use a mixed test strategy: render tests for simple components (AdminSidebar, AnalyticsNav, ExportButton) and `fs.readFileSync` source file inspection for complex components with API fetch dependencies. The `it.each(DASHBOARD_COMPONENTS)` pattern efficiently tests the same assertion across all 18 files.
+- **Gotcha**: Admin sidebar tokens are checked by multiple test files (admin-sidebar.test.tsx, tier-management-dashboard.test.tsx). After migrating `--color-primary` → `--color-app-text`, grep ALL `__tests__/` for old token names — not just the design-refresh test file. Pattern: `grep -r "color-primary\|color-primary-light\|color-text-secondary" __tests__/admin/`.
+- **Pattern**: For asserting cold tokens are removed from source files, check specific patterns like `bg-[var(--color-primary)]`, `text-[var(--color-primary)]`, `border-[var(--color-primary)]` rather than a bare `--color-primary` match, which would false-positive on comments or chart colors that legitimately reference the cold token.
+- **Gotcha**: When agents remove `fontFamily: "var(--font-sans)"` from inline styles without adding `fontFamily: "var(--font-body)"`, the test for `--font-body` presence fails. Verify replacements, not just removals — a file can pass the "no --font-sans" test while failing the "--font-body present" test.
+
 ### 2026-03-28 — Design Refresh Token Migration Tests
 - **Pattern**: Use `fs.readFileSync` to read component source files and assert token presence/absence. This is more reliable than DOM-based assertions for CSS custom property migration since class names with `var()` references are hard to query via `querySelector`.
 - **Pattern**: Negative-lookahead regex `var\(--color-(?!app-)` asserts cold tokens are absent while allowing warm `--color-app-*` variants to pass. Wrap in a helper (`assertNoColdColorTokens`) that iterates a cold token list and calls `fail()` with the filename for clear error messages.

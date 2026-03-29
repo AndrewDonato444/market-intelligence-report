@@ -22,8 +22,8 @@
 | Status | Count |
 |--------|-------|
 | ✅ Completed | 128 |
-| 🔄 In Progress | 0 |
-| ⬜ Pending | 35 |
+| 🔄 In Progress | 1 |
+| ⬜ Pending | 34 |
 | ⏸️ Blocked | 1 |
 
 **Last updated**: 2026-03-28
@@ -43,7 +43,7 @@
 | 254 | Design Refresh: Markets page | user-request | M | 250 | ✅ |
 | 255 | Design Refresh: Settings & Account pages | user-request | S | 250 | ✅ |
 | 256 | Design Refresh: How-To page | user-request | S | 250 | ✅ |
-| 257 | Design Refresh: Admin pages | user-request | S | 250 | ⬜ |
+| 257 | Design Refresh: Admin pages | user-request | S | 250 | ✅ |
 
 **Goal**: Every authenticated page uses the warm luxury palette (`--color-app-*` tokens, Cormorant Garamond + DM Sans typography) so sign-in feels like walking deeper into the same space, not switching apps.
 

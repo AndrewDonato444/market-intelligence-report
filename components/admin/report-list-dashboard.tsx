@@ -18,8 +18,8 @@ const STATUS_COLORS: Record<string, { color: string; bg: string }> = {
     bg: "var(--color-warning-light, rgba(234,179,8,0.1))",
   },
   queued: {
-    color: "var(--color-text-secondary)",
-    bg: "var(--color-primary-light, rgba(59,130,246,0.1))",
+    color: "var(--color-app-text-secondary)",
+    bg: "var(--color-app-active-bg, rgba(59,130,246,0.1))",
   },
   failed: {
     color: "var(--color-error)",
@@ -187,9 +187,10 @@ export function ReportListDashboard() {
     <div
       style={{
         padding: "var(--spacing-6)",
-        fontFamily: "var(--font-sans)",
+        fontFamily: "var(--font-body)",
         maxWidth: 1400,
       }}
+      className="app-fade-in"
     >
       {/* Header */}
       <div
@@ -204,8 +205,9 @@ export function ReportListDashboard() {
           <h1
             style={{
               fontSize: "var(--text-2xl)",
+              fontFamily: "var(--font-display)",
               fontWeight: "var(--font-semibold)",
-              color: "var(--color-text)",
+              color: "var(--color-app-text)",
               margin: 0,
             }}
           >
@@ -214,7 +216,7 @@ export function ReportListDashboard() {
           <p
             style={{
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-secondary)",
+              color: "var(--color-app-text-secondary)",
               margin: "var(--spacing-1) 0 0",
             }}
           >
@@ -228,13 +230,13 @@ export function ReportListDashboard() {
           onChange={(e) => setSearchInput(e.target.value)}
           style={{
             padding: "var(--spacing-2) var(--spacing-3)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-md)",
             fontSize: "var(--text-sm)",
             width: 280,
             outline: "none",
-            background: "var(--color-surface)",
-            color: "var(--color-text)",
+            background: "var(--color-app-surface)",
+            color: "var(--color-app-text)",
           }}
         />
       </div>
@@ -259,18 +261,18 @@ export function ReportListDashboard() {
               onClick={() => handleStatusFilter(s)}
               style={{
                 padding: "var(--spacing-1) var(--spacing-3)",
-                border: `1px solid ${isActive ? "var(--color-primary)" : "var(--color-border)"}`,
+                border: `1px solid ${isActive ? "var(--color-app-accent)" : "var(--color-app-border)"}`,
                 borderRadius: "var(--radius-md)",
                 fontSize: "var(--text-sm)",
                 fontWeight: isActive
                   ? "var(--font-semibold)"
                   : "var(--font-normal)",
                 background: isActive
-                  ? "var(--color-primary-light)"
-                  : "var(--color-surface)",
+                  ? "var(--color-app-active-bg)"
+                  : "var(--color-app-surface)",
                 color: isActive
-                  ? "var(--color-primary)"
-                  : "var(--color-text-secondary)",
+                  ? "var(--color-app-accent)"
+                  : "var(--color-app-text-secondary)",
                 cursor: "pointer",
               }}
             >
@@ -289,7 +291,7 @@ export function ReportListDashboard() {
           alignItems: "center",
         }}
       >
-        <label style={{ fontSize: "var(--text-sm)", color: "var(--color-text-secondary)" }}>
+        <label style={{ fontSize: "var(--text-sm)", color: "var(--color-app-text-secondary)" }}>
           Filters:
         </label>
         <select
@@ -300,11 +302,11 @@ export function ReportListDashboard() {
           }}
           style={{
             padding: "var(--spacing-1) var(--spacing-2)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-sm)",
             fontSize: "var(--text-sm)",
-            background: "var(--color-surface)",
-            color: "var(--color-text)",
+            background: "var(--color-app-surface)",
+            color: "var(--color-app-text)",
           }}
         >
           <option value="">Agent</option>
@@ -322,11 +324,11 @@ export function ReportListDashboard() {
           }}
           style={{
             padding: "var(--spacing-1) var(--spacing-2)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-sm)",
             fontSize: "var(--text-sm)",
-            background: "var(--color-surface)",
-            color: "var(--color-text)",
+            background: "var(--color-app-surface)",
+            color: "var(--color-app-text)",
           }}
         >
           <option value="">Market</option>
@@ -344,11 +346,11 @@ export function ReportListDashboard() {
           }}
           style={{
             padding: "var(--spacing-1) var(--spacing-2)",
-            border: "1px solid var(--color-border)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-sm)",
             fontSize: "var(--text-sm)",
-            background: "var(--color-surface)",
-            color: "var(--color-text)",
+            background: "var(--color-app-surface)",
+            color: "var(--color-app-text)",
           }}
         >
           {DATE_RANGE_OPTIONS.map((opt) => (
@@ -365,7 +367,7 @@ export function ReportListDashboard() {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p>Loading reports...</p>
@@ -409,7 +411,7 @@ export function ReportListDashboard() {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p
@@ -433,7 +435,7 @@ export function ReportListDashboard() {
           style={{
             textAlign: "center",
             padding: "var(--spacing-10)",
-            color: "var(--color-text-secondary)",
+            color: "var(--color-app-text-secondary)",
           }}
         >
           <p
@@ -449,10 +451,10 @@ export function ReportListDashboard() {
             style={{
               marginTop: "var(--spacing-2)",
               padding: "var(--spacing-1) var(--spacing-3)",
-              border: "1px solid var(--color-border)",
+              border: "1px solid var(--color-app-border)",
               borderRadius: "var(--radius-sm)",
-              background: "var(--color-surface)",
-              color: "var(--color-primary)",
+              background: "var(--color-app-surface)",
+              color: "var(--color-app-accent)",
               cursor: "pointer",
               fontSize: "var(--text-sm)",
             }}
@@ -467,8 +469,8 @@ export function ReportListDashboard() {
         <>
           <div
             style={{
-              background: "var(--color-surface)",
-              border: "1px solid var(--color-border)",
+              background: "var(--color-app-surface)",
+              border: "1px solid var(--color-app-border)",
               borderRadius: "var(--radius-md)",
               boxShadow: "var(--shadow-sm)",
               overflow: "hidden",
@@ -484,8 +486,8 @@ export function ReportListDashboard() {
               <thead>
                 <tr
                   style={{
-                    borderBottom: "1px solid var(--color-border)",
-                    background: "var(--color-background)",
+                    borderBottom: "1px solid var(--color-app-border)",
+                    background: "var(--color-app-bg)",
                   }}
                 >
                   <th
@@ -494,7 +496,7 @@ export function ReportListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -509,7 +511,7 @@ export function ReportListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -522,7 +524,7 @@ export function ReportListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -536,7 +538,7 @@ export function ReportListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -552,7 +554,7 @@ export function ReportListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -568,7 +570,7 @@ export function ReportListDashboard() {
                       padding: "var(--spacing-3) var(--spacing-4)",
                       textAlign: "left",
                       fontWeight: "var(--font-medium)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       fontSize: "var(--text-xs)",
                       textTransform: "uppercase",
                       letterSpacing: "0.05em",
@@ -591,14 +593,14 @@ export function ReportListDashboard() {
                         window.location.href = `/admin/reports/${report.id}`;
                       }}
                       style={{
-                        borderBottom: "1px solid var(--color-border)",
+                        borderBottom: "1px solid var(--color-app-border)",
                         transition:
                           "background var(--duration-default, 150ms)",
                         cursor: "pointer",
                       }}
                       onMouseEnter={(e) => {
                         (e.currentTarget as HTMLElement).style.background =
-                          "var(--color-primary-light)";
+                          "var(--color-app-active-bg)";
                       }}
                       onMouseLeave={(e) => {
                         (e.currentTarget as HTMLElement).style.background = "";
@@ -608,7 +610,7 @@ export function ReportListDashboard() {
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
                           fontWeight: "var(--font-medium)",
-                          color: "var(--color-text)",
+                          color: "var(--color-app-text)",
                         }}
                       >
                         <div>{report.title}</div>
@@ -616,7 +618,7 @@ export function ReportListDashboard() {
                           <div
                             style={{
                               fontSize: "var(--text-xs)",
-                              color: "var(--color-text-secondary)",
+                              color: "var(--color-app-text-secondary)",
                               marginTop: "2px",
                             }}
                           >
@@ -627,7 +629,7 @@ export function ReportListDashboard() {
                       <td
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
-                          color: "var(--color-text)",
+                          color: "var(--color-app-text)",
                         }}
                       >
                         <div>{report.userName}</div>
@@ -635,7 +637,7 @@ export function ReportListDashboard() {
                           <div
                             style={{
                               fontSize: "var(--text-xs)",
-                              color: "var(--color-text-secondary)",
+                              color: "var(--color-app-text-secondary)",
                             }}
                           >
                             {report.userCompany}
@@ -645,7 +647,7 @@ export function ReportListDashboard() {
                       <td
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
-                          color: "var(--color-text-secondary)",
+                          color: "var(--color-app-text-secondary)",
                         }}
                       >
                         {report.marketName}
@@ -674,7 +676,7 @@ export function ReportListDashboard() {
                       <td
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
-                          color: "var(--color-text-secondary)",
+                          color: "var(--color-app-text-secondary)",
                         }}
                       >
                         {formatDate(report.createdAt)}
@@ -682,7 +684,7 @@ export function ReportListDashboard() {
                       <td
                         style={{
                           padding: "var(--spacing-3) var(--spacing-4)",
-                          color: "var(--color-text-secondary)",
+                          color: "var(--color-app-text-secondary)",
                         }}
                       >
                         {report.status === "generating"
@@ -704,7 +706,7 @@ export function ReportListDashboard() {
               alignItems: "center",
               marginTop: "var(--spacing-4)",
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-secondary)",
+              color: "var(--color-app-text-secondary)",
             }}
           >
             <span>
@@ -716,13 +718,13 @@ export function ReportListDashboard() {
                 disabled={page <= 1}
                 style={{
                   padding: "var(--spacing-1) var(--spacing-3)",
-                  border: "1px solid var(--color-border)",
+                  border: "1px solid var(--color-app-border)",
                   borderRadius: "var(--radius-sm)",
-                  background: "var(--color-surface)",
+                  background: "var(--color-app-surface)",
                   color:
                     page <= 1
-                      ? "var(--color-text-tertiary)"
-                      : "var(--color-text)",
+                      ? "var(--color-app-text-tertiary)"
+                      : "var(--color-app-text)",
                   cursor: page <= 1 ? "default" : "pointer",
                   fontSize: "var(--text-sm)",
                 }}
@@ -734,13 +736,13 @@ export function ReportListDashboard() {
                 disabled={page >= totalPages}
                 style={{
                   padding: "var(--spacing-1) var(--spacing-3)",
-                  border: "1px solid var(--color-border)",
+                  border: "1px solid var(--color-app-border)",
                   borderRadius: "var(--radius-sm)",
-                  background: "var(--color-surface)",
+                  background: "var(--color-app-surface)",
                   color:
                     page >= totalPages
-                      ? "var(--color-text-tertiary)"
-                      : "var(--color-text)",
+                      ? "var(--color-app-text-tertiary)"
+                      : "var(--color-app-text)",
                   cursor: page >= totalPages ? "default" : "pointer",
                   fontSize: "var(--text-sm)",
                 }}

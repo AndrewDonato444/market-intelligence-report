@@ -67,7 +67,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const usersLink = screen.getByText("User Management").closest("a");
-    expect(usersLink?.className).toContain("color-primary");
+    expect(usersLink?.className).toContain("color-app-text");
   });
 
   // Scenario: Active state on user detail sub-page
@@ -76,7 +76,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const usersLink = screen.getByText("User Management").closest("a");
-    expect(usersLink?.className).toContain("color-primary");
+    expect(usersLink?.className).toContain("color-app-text");
   });
 
   // Scenario: Active state does not bleed to unrelated routes
@@ -85,10 +85,10 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const evalLink = screen.getByText("Eval Suite").closest("a");
-    expect(evalLink?.className).toContain("color-primary");
+    expect(evalLink?.className).toContain("color-app-text");
 
     const usersLink = screen.getByText("User Management").closest("a");
-    expect(usersLink?.className).toContain("color-text-secondary");
+    expect(usersLink?.className).toContain("color-app-text-secondary");
   });
 
   // Scenario: Back to App is never active in admin context
@@ -97,7 +97,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const backLink = screen.getByText("Back to App").closest("a");
-    expect(backLink?.className).toContain("color-text-secondary");
+    expect(backLink?.className).toContain("color-app-text-secondary");
   });
 
   it("should not mark Back to App as active when on /admin/users", () => {
@@ -105,7 +105,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const backLink = screen.getByText("Back to App").closest("a");
-    expect(backLink?.className).toContain("color-text-secondary");
+    expect(backLink?.className).toContain("color-app-text-secondary");
   });
 
   // === Report Registry & Error Triage Nav (Feature #125) ===
@@ -132,7 +132,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Report Registry").closest("a");
-    expect(link?.className).toContain("color-primary");
+    expect(link?.className).toContain("color-app-text");
   });
 
   // Scenario: Report Registry active state on detail sub-page
@@ -141,7 +141,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Report Registry").closest("a");
-    expect(link?.className).toContain("color-primary");
+    expect(link?.className).toContain("color-app-text");
   });
 
   // Scenario: Error Triage active state
@@ -150,11 +150,11 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Error Triage").closest("a");
-    expect(link?.className).toContain("color-primary");
+    expect(link?.className).toContain("color-app-text");
 
     // Other nav items should not be active
     const reportLink = screen.getByText("Report Registry").closest("a");
-    expect(reportLink?.className).toContain("color-text-secondary");
+    expect(reportLink?.className).toContain("color-app-text-secondary");
   });
 
   // Scenario: Error Triage does not match report registry routes
@@ -163,7 +163,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Error Triage").closest("a");
-    expect(link?.className).toContain("color-text-secondary");
+    expect(link?.className).toContain("color-app-text-secondary");
   });
 
   // Scenario: Report Registry does not match error triage route
@@ -172,7 +172,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Report Registry").closest("a");
-    expect(link?.className).toContain("color-text-secondary");
+    expect(link?.className).toContain("color-app-text-secondary");
   });
 
   // Scenario: Icons are consistent with existing sidebar style

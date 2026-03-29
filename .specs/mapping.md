@@ -77,6 +77,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | data-infrastructure | [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md) | `lib/connectors/realestateapi.ts` | see spec | see spec | implemented |
 | data-infrastructure | [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md) | `lib/connectors/scrapingdog.ts` | see spec | see spec | implemented |
 | data-infrastructure | [YoY Analysis Period Transparency](.specs/features/data-infrastructure/yoy-analysis-period-transparency.feature.md) | `lib/services/market-analytics.ts` | see spec | see spec | implemented |
+| design-refresh | [Design Refresh — Admin Pages](.specs/features/design-refresh/admin-design-refresh.feature.md) | `components/layout/admin-sidebar.tsx, components/admin/analytics-nav.tsx, components/admin/user-list-dashboard.tsx, components/admin/user-detail-panel.tsx, components/admin/create-user-form.tsx, components/admin/report-list-dashboard.tsx, components/admin/report-detail-panel.tsx, components/admin/error-triage-dashboard.tsx, components/admin/data-sources-dashboard.tsx, components/admin/system-monitoring-dashboard.tsx, components/admin/volume-metrics-dashboard.tsx, components/admin/geographic-analytics-dashboard.tsx, components/admin/user-analytics-dashboard.tsx, components/admin/pipeline-performance-dashboard.tsx, components/admin/kit-analytics-dashboard.tsx, components/admin/tier-management-dashboard.tsx, components/admin/entitlement-overrides-panel.tsx, components/admin/test-suite-dashboard.tsx, components/admin/pipeline-visualizer.tsx, components/admin/waitlist-dashboard.tsx, components/admin/export-button.tsx, app/admin/eval/page.tsx, app/admin/eval/report/page.tsx, app/admin/analytics/layout.tsx` | see spec | see spec | implemented |
 | design-refresh | [Backend Design Refresh](.specs/features/design-refresh/backend-design-refresh.feature.md) | `components/layout/top-nav.tsx, components/layout/sidebar.tsx, components/layout/page-shell.tsx, components/layout/footer.tsx, app/(protected)/layout.tsx, app/globals.css` | see spec | see spec | implemented |
 | design-refresh | [Dashboard Design Refresh (Phase 2)](.specs/features/design-refresh/dashboard-design-refresh.feature.md) | `components/dashboard/dashboard-content.tsx, components/dashboard/dashboard-welcome-hero.tsx, components/dashboard/market-card.tsx, components/dashboard/recent-reports-list.tsx, components/dashboard/dashboard-empty-state.tsx` | see spec | see spec | implemented |
 | design-refresh | [Design Refresh — How-To Page](.specs/features/design-refresh/how-to-design-refresh.feature.md) | `components/how-to/how-to-content.tsx` | see spec | see spec | implemented |
@@ -180,8 +181,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 12 |
 | tested | 0 |
-| implemented | 138 |
-| **Total** | **152** |
+| implemented | 139 |
+| **Total** | **153** |
 
 ---
 
@@ -264,6 +265,7 @@ _None_
 - [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md)
 - [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md)
 - [YoY Analysis Period Transparency](.specs/features/data-infrastructure/yoy-analysis-period-transparency.feature.md)
+- [Design Refresh — Admin Pages](.specs/features/design-refresh/admin-design-refresh.feature.md)
 - [Backend Design Refresh](.specs/features/design-refresh/backend-design-refresh.feature.md)
 - [Dashboard Design Refresh (Phase 2)](.specs/features/design-refresh/dashboard-design-refresh.feature.md)
 - [Design Refresh — How-To Page](.specs/features/design-refresh/how-to-design-refresh.feature.md)

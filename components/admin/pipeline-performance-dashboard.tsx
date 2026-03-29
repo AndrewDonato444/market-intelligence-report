@@ -75,14 +75,14 @@ export function PipelinePerformanceDashboard() {
   }, [fetchData, period, granularity]);
 
   return (
-    <div className="space-y-[var(--spacing-6)]">
+    <div className="space-y-[var(--spacing-6)] app-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-[family-name:var(--font-sans)] text-2xl font-bold text-[var(--color-text)]">
+          <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
             Pipeline Performance
           </h1>
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
             Generation time, cache efficiency, API costs, and error rates
           </p>
         </div>
@@ -103,7 +103,7 @@ export function PipelinePerformanceDashboard() {
           <button
             onClick={() => fetchData(period, granularity)}
             disabled={loading}
-            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-app-border)] text-[var(--color-app-text-secondary)] hover:bg-[var(--color-app-active-bg)] disabled:opacity-50 transition-colors"
           >
             {loading ? "Loading..." : "Refresh"}
           </button>
@@ -126,8 +126,8 @@ export function PipelinePerformanceDashboard() {
       {/* Loading state */}
       {loading && !data && (
         <div className="text-center py-[var(--spacing-8)]">
-          <div className="inline-block w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-2">
+          <div className="inline-block w-6 h-6 border-2 border-[var(--color-app-accent)] border-t-transparent rounded-full animate-spin" />
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-2">
             Loading performance metrics...
           </p>
         </div>
@@ -150,7 +150,7 @@ export function PipelinePerformanceDashboard() {
             <KpiCard
               label="Avg Cost / Report"
               value={data.summary.avgCostPerReport > 0 ? `$${data.summary.avgCostPerReport.toFixed(2)}` : "$0.00"}
-              color="var(--color-accent,var(--color-primary))"
+              color="var(--color-app-accent)"
             />
             <KpiCard
               label="Error Rate"
@@ -170,8 +170,8 @@ export function PipelinePerformanceDashboard() {
                   onClick={() => setPeriod(p)}
                   className={`px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-full text-xs font-medium transition-colors ${
                     period === p
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)]"
+                      ? "bg-[var(--color-app-accent)] text-white"
+                      : "bg-[var(--color-app-surface)] text-[var(--color-app-text-secondary)] border border-[var(--color-app-border)] hover:bg-[var(--color-app-active-bg)]"
                   }`}
                 >
                   {p}
@@ -188,8 +188,8 @@ export function PipelinePerformanceDashboard() {
                   onClick={() => setGranularity(g.value)}
                   className={`px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-full text-xs font-medium transition-colors ${
                     granularity === g.value
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)]"
+                      ? "bg-[var(--color-app-accent)] text-white"
+                      : "bg-[var(--color-app-surface)] text-[var(--color-app-text-secondary)] border border-[var(--color-app-border)] hover:bg-[var(--color-app-active-bg)]"
                   }`}
                 >
                   {g.label}
@@ -199,8 +199,8 @@ export function PipelinePerformanceDashboard() {
           </div>
 
           {/* Generation Time Chart */}
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)] p-[var(--spacing-4)]">
-            <h2 className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)] mb-[var(--spacing-4)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-app-border)] p-[var(--spacing-4)]">
+            <h2 className="font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
               Average Generation Time
             </h2>
 
@@ -208,7 +208,7 @@ export function PipelinePerformanceDashboard() {
               <GenTimeChart data={data.generationTimeSeries} />
             ) : (
               <div className="text-center py-[var(--spacing-8)]">
-                <p className="text-sm text-[var(--color-text-secondary)]">
+                <p className="text-sm text-[var(--color-app-text-secondary)]">
                   No generation data for this period.
                 </p>
               </div>
@@ -216,62 +216,62 @@ export function PipelinePerformanceDashboard() {
           </div>
 
           {/* Errors by Agent */}
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)] p-[var(--spacing-6)]">
-            <h2 className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-text)] mb-[var(--spacing-4)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-app-border)] p-[var(--spacing-6)]">
+            <h2 className="font-[family-name:var(--font-body)] text-lg font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
               Errors by Agent
             </h2>
 
             {data.errorsByAgent.length > 0 ? (
-              <table className="w-full font-[family-name:var(--font-sans)]">
+              <table className="w-full font-[family-name:var(--font-body)]">
                 <thead>
                   <tr className="text-left">
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)]">AGENT</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)] text-right">ERRORS</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)]">AGENT</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)] text-right">ERRORS</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.errorsByAgent.map((entry) => (
-                    <tr key={entry.agent} className="border-t border-[var(--color-border)]" data-testid="agent-error-row">
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text)]">{entry.agent}</td>
+                    <tr key={entry.agent} className="border-t border-[var(--color-app-border)]" data-testid="agent-error-row">
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text)]">{entry.agent}</td>
                       <td className="py-[var(--spacing-2)] text-sm text-[var(--color-error)] text-right font-medium">{entry.count}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <p className="text-sm text-[var(--color-text-secondary)]">No errors recorded in this period.</p>
+              <p className="text-sm text-[var(--color-app-text-secondary)]">No errors recorded in this period.</p>
             )}
           </div>
 
           {/* Cost Breakdown by Provider */}
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)] p-[var(--spacing-6)]">
-            <h2 className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-text)] mb-[var(--spacing-4)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-app-border)] p-[var(--spacing-6)]">
+            <h2 className="font-[family-name:var(--font-body)] text-lg font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
               Cost Breakdown by Provider
             </h2>
 
             {data.costByProvider.length > 0 ? (
-              <table className="w-full font-[family-name:var(--font-sans)]">
+              <table className="w-full font-[family-name:var(--font-body)]">
                 <thead>
                   <tr className="text-left">
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)]">PROVIDER</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)] text-right">REQUESTS</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)] text-right">TOTAL COST</th>
-                    <th className="text-xs font-medium text-[var(--color-text-secondary)] pb-[var(--spacing-2)] text-right">AVG / REQUEST</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)]">PROVIDER</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)] text-right">REQUESTS</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)] text-right">TOTAL COST</th>
+                    <th className="text-xs font-medium text-[var(--color-app-text-secondary)] pb-[var(--spacing-2)] text-right">AVG / REQUEST</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.costByProvider.map((entry) => (
-                    <tr key={entry.provider} className="border-t border-[var(--color-border)]">
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text)] font-medium">{entry.provider}</td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text-secondary)] text-right">{entry.requests}</td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text)] text-right font-medium">${entry.totalCost.toFixed(2)}</td>
-                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-text-secondary)] text-right">${entry.avgCostPerRequest.toFixed(2)}</td>
+                    <tr key={entry.provider} className="border-t border-[var(--color-app-border)]">
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text)] font-medium">{entry.provider}</td>
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text-secondary)] text-right">{entry.requests}</td>
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text)] text-right font-medium">${entry.totalCost.toFixed(2)}</td>
+                      <td className="py-[var(--spacing-2)] text-sm text-[var(--color-app-text-secondary)] text-right">${entry.avgCostPerRequest.toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             ) : (
-              <p className="text-sm text-[var(--color-text-secondary)]">No cost data recorded in this period.</p>
+              <p className="text-sm text-[var(--color-app-text-secondary)]">No cost data recorded in this period.</p>
             )}
           </div>
         </>
@@ -282,11 +282,11 @@ export function PipelinePerformanceDashboard() {
 
 function KpiCard({ label, value, color }: { label: string; value: string; color?: string }) {
   return (
-    <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] border border-[var(--color-border)] p-[var(--spacing-4)]">
-      <p className="text-xs text-[var(--color-text-secondary)] font-[family-name:var(--font-sans)]">{label}</p>
+    <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] border border-[var(--color-app-border)] p-[var(--spacing-4)]">
+      <p className="text-xs text-[var(--color-app-text-secondary)] font-[family-name:var(--font-body)]">{label}</p>
       <p
-        className="text-xl font-semibold mt-1 font-[family-name:var(--font-sans)]"
-        style={{ color: color || "var(--color-text)" }}
+        className="text-xl font-semibold mt-1 font-[family-name:var(--font-body)]"
+        style={{ color: color || "var(--color-app-text)" }}
       >
         {value}
       </p>
@@ -328,7 +328,7 @@ function GenTimeChart({ data }: { data: GenTimeEntry[] }) {
             y1={yScale(tick)}
             x2={chartWidth - padding.right}
             y2={yScale(tick)}
-            stroke="var(--color-border)"
+            stroke="var(--color-app-border)"
             strokeDasharray="4 4"
           />
           <text
@@ -336,7 +336,7 @@ function GenTimeChart({ data }: { data: GenTimeEntry[] }) {
             y={yScale(tick) + 4}
             textAnchor="end"
             fontSize="10"
-            fill="var(--color-text-secondary)"
+            fill="var(--color-app-text-secondary)"
           >
             {tick}s
           </text>
@@ -350,13 +350,13 @@ function GenTimeChart({ data }: { data: GenTimeEntry[] }) {
           y={chartHeight - 8}
           textAnchor="middle"
           fontSize="10"
-          fill="var(--color-text-secondary)"
+          fill="var(--color-app-text-secondary)"
         >
           {formatChartDate(activeData[idx].date)}
         </text>
       ))}
 
-      <path d={linePath} fill="none" stroke="var(--color-primary)" strokeWidth="2" />
+      <path d={linePath} fill="none" stroke="var(--color-app-text)" strokeWidth="2" />
 
       {activeData.map((d, i) => (
         <circle
@@ -364,7 +364,7 @@ function GenTimeChart({ data }: { data: GenTimeEntry[] }) {
           cx={xScale(i)}
           cy={yScale(d.avgSeconds)}
           r="3"
-          fill="var(--color-primary)"
+          fill="var(--color-app-text)"
         />
       ))}
     </svg>
