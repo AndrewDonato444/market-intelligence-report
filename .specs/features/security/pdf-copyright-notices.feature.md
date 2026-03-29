@@ -50,7 +50,7 @@ Given a report PDF is generated
 When the cover page is rendered
 Then a confidentiality notice appears near the bottom of the cover page
 And it reads: "Confidential. This intelligence brief is prepared exclusively for the use of the commissioning advisor and their designated clients. Redistribution without written consent of Modern Signal Advisory is prohibited."
-And it uses 7pt Inter in `color-text-secondary` (#475569) on the dark cover background — rendered in `color-text-inverse` (#F8FAFC) with reduced opacity
+And it uses 7pt Inter in `color-surface` (#FFFFFF) with 60% opacity on the dark cover background
 
 ### Scenario: Confidentiality disclaimer on final page
 Given a report PDF has been fully rendered with all sections
@@ -166,7 +166,7 @@ And agent branding applies only to the agent attribution areas, not the platform
 ### Design token usage
 - Copyright text: `color-text-tertiary` (#94A3B8), 7pt Inter
 - Confidentiality block on final page: `color-border` (#E2E8F0) for border, `color-text-tertiary` for text
-- Confidentiality on cover: `color-text-inverse` (#F8FAFC) at reduced opacity on dark background
+- Confidentiality on cover: `color-surface` (#FFFFFF) at 60% opacity on dark background
 - No new design tokens required — uses existing report palette
 
 ### What this does NOT include
