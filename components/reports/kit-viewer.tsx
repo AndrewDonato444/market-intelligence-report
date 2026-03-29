@@ -812,6 +812,13 @@ export function KitViewer({
           >
             &larr; Back to Report
           </Link>
+          <button
+            onClick={handleRegenerate}
+            disabled={regenerating}
+            className="font-[family-name:var(--font-sans)] text-xs px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+          >
+            {regenerating ? "Regenerating..." : "Regenerate Kit"}
+          </button>
         </div>
 
         <div className="mt-4">
