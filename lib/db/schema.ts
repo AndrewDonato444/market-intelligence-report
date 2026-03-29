@@ -74,6 +74,13 @@ export const emailCampaignStatusEnum = pgEnum("email_campaign_status", [
   "failed",
 ]);
 
+export const dealAnalysisStatusEnum = pgEnum("deal_analysis_status", [
+  "queued",
+  "generating",
+  "completed",
+  "failed",
+]);
+
 // --- Tier Entitlements Type ---
 
 export type TierEntitlements = {
@@ -83,6 +90,7 @@ export type TierEntitlements = {
   email_campaigns: number;      // 0 = not included, 1 = per-report, -1 = unlimited
   personas_per_report: number;  // always numeric (1 or 3)
   transaction_limit: number;    // max transactions per search period (-1 = unlimited)
+  deal_analyses_per_month: number; // 0 = not included, N = monthly cap, -1 = unlimited
 };
 
 // --- Subscription Tiers Table ---
@@ -874,6 +882,127 @@ export const advisorConversations = pgTable(
 export type AdvisorConversationsTable =
   typeof advisorConversations.$inferSelect;
 export type NewAdvisorConversation = typeof advisorConversations.$inferInsert;
+
+// --- Deal Analysis Types ---
+
+export type DealPropertyData = {
+  id: string;
+  address: string;
+  city: string;
+  state: string;
+  zip: string;
+  county: string;
+  subdivision?: string;
+  propertyType: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  squareFeet?: number;
+  lotSize?: number;
+  yearBuilt?: number;
+  estimatedValue?: number;
+  lastSaleDate?: string;
+  lastSaleAmount?: number;
+  pricePerSqFt?: number;
+  ownerOccupied?: boolean;
+  inherited?: boolean;
+  adjustableRate?: boolean;
+  saleHistory?: Array<{
+    date: string;
+    amount: number;
+    buyer?: string;
+    seller?: string;
+  }>;
+  mortgageHistory?: Array<{
+    amount: number;
+    rate?: number;
+    lender?: string;
+    originationDate?: string;
+    dueDate?: string;
+    type?: string;
+  }>;
+  taxAssessment?: number;
+  annualTaxes?: number;
+  medianIncome?: number;
+  floodZone?: string;
+};
+
+export type DealBriefContent = {
+  summary: string;
+  pricingAssessment: {
+    narrative: string;
+    vsMedian: string;
+    vsSegmentComps: string;
+    pricePerSqFtContext: string;
+  };
+  personaMatch: {
+    bestFitPersona: string;
+    matchRationale: string;
+    talkingPoints: string[];
+  };
+  negotiationPoints: {
+    leverageItems: string[];
+    dataBackedArguments: string[];
+    riskFactors: string[];
+  };
+  marketTiming: {
+    signal: "buy" | "wait" | "neutral";
+    rationale: string;
+    forecastContext: string;
+  };
+};
+
+export type MotivatedSellerSignals = {
+  inherited: { fired: boolean; weight: number };
+  nonOwnerOccupied: { fired: boolean; weight: number };
+  adjustableRate: { fired: boolean; weight: number };
+  longHoldPeriod: { fired: boolean; weight: number; yearsHeld?: number };
+  helocPattern: { fired: boolean; weight: number; mortgageCount?: number };
+  highEquity: { fired: boolean; weight: number; equityPercent?: number };
+  totalScore: number;
+};
+
+// --- Deal Analyses Table ---
+
+export const dealAnalyses = pgTable(
+  "deal_analyses",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    marketId: uuid("market_id")
+      .notNull()
+      .references(() => markets.id, { onDelete: "cascade" }),
+    reportId: uuid("report_id")
+      .notNull()
+      .references(() => reports.id, { onDelete: "cascade" }),
+    title: varchar("title", { length: 500 }).notNull(),
+    address: varchar("address", { length: 500 }).notNull(),
+    propertyData: jsonb("property_data").$type<DealPropertyData>(),
+    briefContent: jsonb("brief_content").$type<DealBriefContent>(),
+    motivatedSellerScore: integer("motivated_seller_score"),
+    motivatedSellerSignals: jsonb("motivated_seller_signals").$type<MotivatedSellerSignals>(),
+    status: dealAnalysisStatusEnum("status").notNull().default("queued"),
+    errorMessage: text("error_message"),
+    generatedAt: timestamp("generated_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("deal_analyses_user_id_idx").on(table.userId),
+    index("deal_analyses_market_id_idx").on(table.marketId),
+    index("deal_analyses_report_id_idx").on(table.reportId),
+    index("deal_analyses_status_idx").on(table.status),
+    index("deal_analyses_user_created_idx").on(table.userId, table.createdAt),
+  ]
+);
+
+export type DealAnalysesTable = typeof dealAnalyses.$inferSelect;
+export type NewDealAnalysis = typeof dealAnalyses.$inferInsert;
 
 // --- Pipeline Test Suite Tables ---
 

@@ -1,7 +1,7 @@
 -- Pipeline Test Suite: snapshot + test run tables
 -- Allows replaying cached Layer 0 data through Layers 1→2→3 without API calls.
 
-CREATE TABLE pipeline_snapshots (
+CREATE TABLE IF NOT EXISTS pipeline_snapshots (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL,
   market_name text NOT NULL,
@@ -15,9 +15,9 @@ CREATE TABLE pipeline_snapshots (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX pipeline_snapshots_market_name_idx ON pipeline_snapshots(market_name);
+CREATE INDEX IF NOT EXISTS pipeline_snapshots_market_name_idx ON pipeline_snapshots(market_name);
 
-CREATE TABLE pipeline_test_runs (
+CREATE TABLE IF NOT EXISTS pipeline_test_runs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   snapshot_id uuid NOT NULL REFERENCES pipeline_snapshots(id) ON DELETE CASCADE,
   status text NOT NULL DEFAULT 'running',
@@ -30,5 +30,5 @@ CREATE TABLE pipeline_test_runs (
   created_at timestamptz NOT NULL DEFAULT now()
 );
 
-CREATE INDEX pipeline_test_runs_snapshot_id_idx ON pipeline_test_runs(snapshot_id);
-CREATE INDEX pipeline_test_runs_status_idx ON pipeline_test_runs(status);
+CREATE INDEX IF NOT EXISTS pipeline_test_runs_snapshot_id_idx ON pipeline_test_runs(snapshot_id);
+CREATE INDEX IF NOT EXISTS pipeline_test_runs_status_idx ON pipeline_test_runs(status);
