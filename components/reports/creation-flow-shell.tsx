@@ -61,9 +61,10 @@ interface MarketOption {
 
 interface CreationFlowShellProps {
   markets: MarketOption[];
+  preselectedMarketId?: string;
 }
 
-export function CreationFlowShell({ markets }: CreationFlowShellProps) {
+export function CreationFlowShell({ markets, preselectedMarketId }: CreationFlowShellProps) {
   // Always start at step 0 for SSR — draft is restored client-side in useEffect
   // to avoid server/client HTML mismatch (localStorage is unavailable during SSR).
   const [currentStep, setCurrentStep] = useState(0);
@@ -74,8 +75,43 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
   const audienceDataRef = useRef<StepAudienceData | null>(null);
   const [reportData, setReportData] = useState<StepReviewData | null>(null);
 
-  // Restore draft after hydration (client-only)
+  // Restore draft or auto-select market after hydration (client-only)
   useEffect(() => {
+    // Pre-selected market from query param takes priority
+    if (preselectedMarketId) {
+      const match = markets.find((m) => m.id === preselectedMarketId);
+      if (match) {
+        const tierKey = match.luxuryTier as keyof typeof TIER_DEFAULTS;
+        const tierDefaults = TIER_DEFAULTS[tierKey] ?? TIER_DEFAULTS.luxury;
+
+        marketDataRef.current = {
+          existingMarketId: match.id,
+          city: match.geography.city,
+          state: match.geography.state,
+          marketName: match.name,
+          isNewMarket: false,
+        };
+        tierDataRef.current = {
+          luxuryTier: tierKey as "luxury" | "high_luxury" | "ultra_luxury",
+          priceFloor: tierDefaults.priceFloor,
+          priceCeiling: tierDefaults.priceCeiling,
+        };
+        setDirection("forward");
+        setCurrentStep(2);
+        setStepValid(false);
+        saveDraft({
+          currentStep: 2,
+          marketData: marketDataRef.current,
+          tierData: tierDataRef.current,
+          focusData: null,
+          audienceData: null,
+          savedAt: new Date().toISOString(),
+        });
+        return;
+      }
+    }
+
+    // Fall back to draft restore
     const draft = loadDraft();
     if (draft && draft.currentStep < 4) {
       marketDataRef.current = draft.marketData ?? null;
@@ -83,7 +119,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
       audienceDataRef.current = draft.audienceData ?? null;
       setCurrentStep(draft.currentStep);
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const isLastStep = currentStep === STEPS.length - 1;
   const isFirstStep = currentStep === 0;
