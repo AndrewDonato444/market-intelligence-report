@@ -17,6 +17,7 @@ personas:
 status: implemented
 created: 2026-03-28
 updated: 2026-03-28
+drift_checked: 2026-03-28
 ---
 
 # Backend Design Refresh
@@ -134,7 +135,7 @@ No changes to the spacing scale itself. Changes are to how spacing is applied:
 Given the user is signed in and viewing any protected page
 When the page renders
 Then the TopNav background is var(--color-app-nav-bg) (#1A1714 warm dark)
-And the brand name "Modern Signal Advisory" uses Cormorant Garamond (--font-display) at font-weight 500
+And the brand name "Modern Signal Advisory" uses Cormorant Garamond (--font-display) at font-weight bold (700)
 And the word "Signal" is rendered in var(--color-app-accent) (#B8975A antique gold)
 And the subtitle "Intelligence Platform" uses DM Sans (--font-body) in uppercase tracking
 And the sign-out button uses DM Sans at text-sm
@@ -149,8 +150,7 @@ Then the sidebar background is var(--color-app-sidebar-bg) (#F5F2ED, matching pa
 And the sidebar border-right color is var(--color-app-border) (#E5DDD2 warm sand)
 And nav item labels use DM Sans (--font-body) at text-sm
 And the active nav item has background var(--color-app-active-bg) (subtle gold tint)
-And the active nav item text is var(--color-app-text) (#2C2825 warm charcoal)
-And the active nav item icon is var(--color-app-accent) (#B8975A antique gold)
+And the active nav item text and icon are both var(--color-app-accent) (#B8975A antique gold)
 And inactive nav items have text var(--color-app-text-secondary) (#7A7168)
 And nav items have a transition on hover (background fade, 200ms)
 And the BETA badge uses var(--color-app-accent) as background
@@ -163,8 +163,7 @@ And the sidebar footer text "Modern Signal Advisory" uses DM Sans text-xs in var
 Given the user is signed in and viewing any protected page
 When the page renders
 Then the main content area background is var(--color-app-bg) (#F5F2ED warm ivory)
-And the padding is var(--spacing-8) (32px) on desktop
-And the padding is var(--spacing-4) (16px) on mobile (md breakpoint)
+And the padding is var(--spacing-8) (32px) on all viewports (responsive mobile padding deferred)
 ```
 
 ### Scenario: Footer uses warm dark palette
@@ -213,9 +212,9 @@ And the layout is still h-screen flex column with overflow-hidden on the content
 ```gherkin
 Given the user is on a viewport below the md breakpoint (768px)
 When the page renders
-Then the PageShell padding reduces to var(--spacing-4) (16px)
+Then the PageShell padding remains var(--spacing-8) (responsive mobile padding deferred to a future phase)
 And the sidebar behavior is unchanged (current mobile handling preserved)
-And the TopNav remains full-width and functional
+And the TopNav remains full-wide and functional
 ```
 
 ---
