@@ -22,7 +22,7 @@
 | Status | Count |
 |--------|-------|
 | ✅ Completed | 125 |
-| 🔄 In Progress | 1 |
+| 🔄 In Progress | 0 |
 | ⬜ Pending | 37 |
 | ⏸️ Blocked | 1 |
 

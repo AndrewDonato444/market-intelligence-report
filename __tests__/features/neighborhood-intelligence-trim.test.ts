@@ -285,9 +285,9 @@ describe("Neighborhood Intelligence Trim", () => {
       expect(content.narrative).toBeDefined();
     });
 
-    it("total section count unchanged (7 without persona)", () => {
+    it("total section count unchanged (6 without persona, comparative_positioning disabled)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      expect(result.sections).toHaveLength(7);
+      expect(result.sections).toHaveLength(6);
     });
 
     it("section types match expected order", () => {

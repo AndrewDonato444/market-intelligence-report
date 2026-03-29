@@ -341,7 +341,7 @@ describe("Unified Creation Flow Shell (#151)", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /next/i }));
       const step2 = screen.getByTestId("step-content-1");
-      expect(step2.textContent).toContain("What's your price point?");
+      expect(step2.textContent).toContain("Which tier defines your clientele?");
     });
   });
 });

@@ -9,6 +9,9 @@ jest.mock("@/lib/config/env", () => ({
 }));
 jest.mock("@/lib/connectors/realestateapi");
 jest.mock("@/lib/connectors/scrapingdog");
+jest.mock("@/lib/connectors/grok", () => ({
+  searchXSentiment: jest.fn().mockResolvedValue(null),
+}));
 jest.mock("@/lib/services/data-source-registry", () => ({
   registry: {
     getAll: jest.fn().mockReturnValue([]),
@@ -114,11 +117,10 @@ describe("Data Fetch Service", () => {
 
   describe("fetchAllMarketData", () => {
     it("fetches target market properties with two date-bounded searches", async () => {
-      // Current period returns 1 prop, prior period returns 1 prop, peer returns 0
+      // Current period returns 1 prop, prior period returns 1 prop
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
-        .mockResolvedValueOnce({ properties: [makeProperty("p2", 6000000)], total: 1, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
+        .mockResolvedValueOnce({ properties: [makeProperty("p2", 6000000)], total: 1, stale: false });
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "p1", comps: [], avm: null, stale: false,
@@ -130,8 +132,8 @@ describe("Data Fetch Service", () => {
       // Combined: current + prior
       expect(result.targetMarket.properties).toHaveLength(2);
       expect(result.targetMarket.stale).toBe(false);
-      // 2 target searches (current + prior)
-      expect(mockSearchProperties).toHaveBeenCalledTimes(5); // 2 target + 3 peers (1 configured + 2 auto-filled)
+      // 2 target searches only (peer markets feature is disabled)
+      expect(mockSearchProperties).toHaveBeenCalledTimes(2);
     });
 
     it("throws when target market fetch fails", async () => {
@@ -143,11 +145,10 @@ describe("Data Fetch Service", () => {
     });
 
     it("fetches property details for each period cohort", async () => {
-      // 2 current props, 1 prior prop, 0 peer
+      // 2 current props, 1 prior prop
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 10000000), makeProperty("p2", 8000000)], total: 2, stale: false })
-        .mockResolvedValueOnce({ properties: [makeProperty("p3", 6000000)], total: 1, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
+        .mockResolvedValueOnce({ properties: [makeProperty("p3", 6000000)], total: 1, stale: false });
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "addr", comps: [], avm: null, stale: false,
@@ -164,14 +165,11 @@ describe("Data Fetch Service", () => {
       expect(result.targetMarket.priorPeriodDetails).toHaveLength(1);
     });
 
-    it("fetches peer market data", async () => {
-      const peerProps = [makeProperty("peer-1", 7000000)];
-
-      // 2 target searches (current + prior) + 1 peer
+    it("peer markets feature is disabled — always returns empty array", async () => {
+      // 2 target searches only; peer markets are disabled in Step 4 of the pipeline
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
-        .mockResolvedValueOnce({ properties: peerProps, total: 1, stale: false });
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false });
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "addr", comps: [], avm: null, stale: false,
@@ -180,17 +178,16 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions());
 
-      expect(result.peerMarkets).toHaveLength(3); // 1 configured + 2 auto-filled
-      expect(result.peerMarkets[0].name).toBe("Palm Beach");
-      expect(result.peerMarkets[0].properties).toHaveLength(1);
+      // Peer markets are disabled — no peer API calls, always empty
+      expect(result.peerMarkets).toHaveLength(0);
+      expect(mockSearchProperties).toHaveBeenCalledTimes(2);
     });
 
-    it("continues when peer market fetch fails", async () => {
-      // 2 target searches succeed, peer fails
+    it("peer market errors do not affect target market result", async () => {
+      // Only 2 target searches; peer markets disabled so no rejection scenario
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
-        .mockRejectedValueOnce(new Error("Peer API error"));
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false });
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "addr", comps: [], avm: null, stale: false,
@@ -199,16 +196,15 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions());
 
-      expect(result.peerMarkets).toHaveLength(2); // 2 auto-filled peers succeed
-      expect(result.fetchMetadata.errors).toHaveLength(1);
-      expect(result.fetchMetadata.errors[0].source).toBe("realestateapi");
+      // Peer markets disabled — always empty, no errors recorded for it
+      expect(result.peerMarkets).toHaveLength(0);
+      expect(result.fetchMetadata.errors).toHaveLength(0);
     });
 
     it("fetches neighborhood amenities", async () => {
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false });
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "addr", comps: [], avm: null, stale: false,
@@ -245,11 +241,10 @@ describe("Data Fetch Service", () => {
     });
 
     it("tracks total API calls", async () => {
-      // 2 target searches + 1 peer search
+      // 2 target searches (current + prior)
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 8000000)], total: 1, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })  // prior
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false });  // prior
       mockGetPropertyDetail.mockResolvedValue(makeDetail("p1"));
       mockGetPropertyComps.mockResolvedValue({
         subjectProperty: "addr", comps: [], avm: null, stale: false,
@@ -258,7 +253,7 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions());
 
-      // 2 target searches + details + comps + 1 peer search + amenities
+      // 2 target searches + 1 detail + 1 comp + 1 amenity search + news queries
       expect(result.fetchMetadata.totalApiCalls).toBeGreaterThanOrEqual(5);
     });
 
@@ -271,7 +266,7 @@ describe("Data Fetch Service", () => {
       ).rejects.toThrow(/aborted/);
     });
 
-    it("skips peers when market has no peerMarkets", async () => {
+    it("returns empty peerMarkets regardless of market.peerMarkets config", async () => {
       const marketNoPeers = { ...testMarket, peerMarkets: undefined };
       mockSearchProperties.mockResolvedValue({
         properties: [makeProperty("p1", 8000000)],
@@ -286,17 +281,17 @@ describe("Data Fetch Service", () => {
 
       const result = await fetchAllMarketData(makeOptions({ market: marketNoPeers }));
 
-      expect(result.peerMarkets).toHaveLength(3); // 3 auto-filled peers from STATE_LUXURY_CITIES
-      // 2 target searches (current + prior) + 3 auto-filled peers
-      expect(mockSearchProperties).toHaveBeenCalledTimes(5);
+      // Peer markets feature is disabled — no peers regardless of market config
+      expect(result.peerMarkets).toHaveLength(0);
+      // Only 2 searchProperties calls: current + prior (no peer calls)
+      expect(mockSearchProperties).toHaveBeenCalledTimes(2);
     });
 
     it("continues when PropertyDetail fails for individual properties", async () => {
       // 2 props in current, 0 in prior
       mockSearchProperties
         .mockResolvedValueOnce({ properties: [makeProperty("p1", 10000000), makeProperty("p2", 8000000)], total: 2, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
-        .mockResolvedValueOnce({ properties: [], total: 0, stale: false }); // peer
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false });
       mockGetPropertyDetail
         .mockResolvedValueOnce(makeDetail("p1"))
         .mockRejectedValueOnce(new Error("Detail API error"));
@@ -313,10 +308,10 @@ describe("Data Fetch Service", () => {
     });
 
     it("returns fetchMetadata with duration", async () => {
-      // 2 target searches return empty
-      mockSearchProperties.mockResolvedValue({
-        properties: [], total: 0, stale: false,
-      });
+      // 2 target searches return empty — no detail or comp calls triggered
+      mockSearchProperties
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false })
+        .mockResolvedValueOnce({ properties: [], total: 0, stale: false });
       mockSearchLocal.mockResolvedValue({ businesses: [], query: "", stale: false });
 
       const result = await fetchAllMarketData(makeOptions({ market: { ...testMarket, peerMarkets: undefined } }));
