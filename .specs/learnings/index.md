@@ -19,6 +19,12 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-28 — Design Refresh: How-To Page Token Migration
+
+- **Single-file component migration** (`design.md`): All 4 sub-components in one file → single-file find-and-replace, no cross-file coordination. Server page needs no changes (data-fetching only).
+- **Warm white CTA text** (`design.md`): `text-white` → `--color-app-surface` (`#FDFCFA`) keeps gold button + text in same warm palette.
+- **Checklist/CTA text collision** (`testing.md`): Progress checklist items share text with step card CTAs — scope with `within(getByTestId("step-N"))` to avoid `getByText` multiple match errors.
+
 ### 2026-03-28 — Design Refresh: Settings & Account Pages Token Migration
 
 - **BrandPreview dual-token boundary** (`design.md`): Report-facing component inside app-facing page — container border uses app tokens, interior uses report tokens. General rule: chrome = app, content preview = report.

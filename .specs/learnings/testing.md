@@ -82,6 +82,10 @@ Patterns for testing in this codebase.
 - **Pattern**: Negative-lookahead regex `var\(--color-(?!app-)` asserts cold tokens are absent while allowing warm `--color-app-*` variants to pass. Wrap in a helper (`assertNoColdColorTokens`) that iterates a cold token list and calls `fail()` with the filename for clear error messages.
 - **Gotcha**: Existing tests using `document.querySelector` with CSS variable class names (e.g., `.bg-\\[var\\(--color-accent\\)\\]`) break silently when tokens are migrated. After any token migration, grep all test files for the old token names and update selectors. Pattern: `grep -r "color-accent\|color-primary\|font-serif\|font-sans" __tests__/`.
 
+### 2026-03-28 — How-To Page Design Refresh Tests
+- **Gotcha**: When checklist item text duplicates step card CTA text (e.g., "Generate your first report" appears in both QuickStartChecklist and StepCard), `screen.getByText()` throws "multiple elements found". Scope assertions with `within(screen.getByTestId("step-2"))` to target the CTA specifically. This is a recurring pattern when progress trackers mirror step card content.
+- **Pattern**: For FAQ accordion divider assertions, use `faq.innerHTML.toContain("color-app-border")` rather than trying to query individual border divider elements — they lack dedicated test IDs and are structural styling, not interactive content.
+
 ### 2026-03-28 — Settings & Account Design Refresh (className assertion approach)
 - **Pattern**: An alternative to `fs.readFileSync` source inspection is `element.className.toContain("--token-name")` which asserts on the rendered DOM class string. Works well when tests render components via `@testing-library/react` — simpler setup, catches actual runtime class application, and no need for path resolution. Best for components where the token names appear directly in className strings.
 - **Pattern**: Helper functions `hasVar(el, varName)` and `findByVar(container, varName)` that recursively search the DOM tree for elements whose className contains a CSS variable name. Useful for finding accent lines, card backgrounds, and other elements without dedicated test IDs.

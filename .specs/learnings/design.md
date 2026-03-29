@@ -8,6 +8,11 @@ Patterns for UI and design system in this codebase.
 
 <!-- When to use which tokens, overrides -->
 
+### 2026-03-28 — Design Refresh: How-To Page Token Migration
+- **Pattern**: Single-file component migration is the simplest case — all 4 sub-components (HowToContent, QuickStartChecklist, StepCard, FaqAccordion) live in `how-to-content.tsx`, so the migration is a single-file find-and-replace with no cross-file coordination. The server page (`page.tsx`) does data-fetching only and needs no token changes.
+- **Decision**: CTA button text swapped from `text-white` to `text-[var(--color-app-surface)]` (warm white `#FDFCFA` instead of pure `#FFFFFF`). This maintains palette coherence — gold button + warm white text reads as one aesthetic rather than gold + cold white clash.
+- **Pattern**: Font migration pattern for design refresh: `--font-serif` → `--font-display` for headings/display text, `--font-sans` → `--font-body` for body/UI text. The display font (Cormorant Garamond) replaces the editorial serif (Playfair Display) for a warmer editorial feel; the body font (DM Sans) replaces the data-optimized sans (Inter) for softer UI text.
+
 ### 2026-03-28 — Design Refresh: Settings & Account Pages Token Migration
 - **Pattern**: BrandPreview is a report-facing component inside an app-facing page. Its interior uses report tokens (`--font-serif`, `--font-sans`, `--color-report-bg`) but its container border is app-facing (`--color-app-border`). The general rule: chrome/framing = app tokens, content preview = report tokens.
 - **Gotcha**: ChangePasswordSection was a two-hop migration — already on warm fonts (`--font-display`/`--font-body`) from an earlier pass but used marketing tokens (`--color-mkt-*`) instead of app tokens (`--color-app-*`). When migrating mkt→app, button semantics shift: `--color-mkt-text` (charcoal) bg → `--color-app-accent` (gold) bg; `--color-mkt-darkest` hover → `--color-app-accent-hover`. The mkt and app palettes use different gold values so button appearance changes.
