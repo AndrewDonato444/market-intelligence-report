@@ -19,7 +19,7 @@ personas:
   - legacy-agent
 status: implemented
 created: 2026-03-12
-updated: 2026-03-12
+updated: 2026-03-29
 ---
 
 # How To Guide
@@ -31,7 +31,7 @@ updated: 2026-03-12
 ## Feature: How To Guide Page
 
 An elegant, scannable guide that orients users to the platform's three-step workflow:
-**Define Your Market → Generate Your Report → Share Your Intelligence**.
+**Define Your Market → Generate Your Report → Activate Your Content Studio**.
 
 The page uses the professional editorial tone of the rest of the platform (Bloomberg meets Architectural Digest). No jargon, no "click here" language. Each step shows the *why* alongside the *how* — because these agents sell on expertise, not button-clicking.
 
@@ -41,10 +41,10 @@ Given a user has just signed up and landed in the dashboard
 When they click "How To" in the sidebar navigation
 Then they see a page titled "Getting Started"
 And they see three numbered step sections:
-  | Step | Title                    | Description                                    |
-  | 1    | Define Your Market       | Set up the market area you advise on            |
-  | 2    | Generate Your Report     | Create your market intelligence brief           |
-  | 3    | Share Your Intelligence  | Use your report and social media kit            |
+  | Step | Title                        | Description                                    |
+  | 1    | Define Your Market           | Set up the market area you advise on            |
+  | 2    | Generate Your Report         | Create your market intelligence brief           |
+  | 3    | Activate Your Content Studio | Use your Content Studio for social and email    |
 And each step section includes:
   - A brief explanation of why this step matters
   - A clear call-to-action linking to the relevant page
@@ -55,25 +55,24 @@ And each step section includes:
 ```gherkin
 Given the user is on the How To page
 Then they see a "Your Progress" checklist at the top showing:
-  | Task                          | Status     |
-  | Define at least one market    | complete/incomplete based on user data |
-  | Generate your first report    | complete/incomplete based on user data |
-  | Review your social media kit  | complete/incomplete based on user data |
+  | Task                                | Status     |
+  | Define at least one market          | complete/incomplete based on user data |
+  | Generate your first report          | complete/incomplete based on user data |
+  | Explore your Content Studio         | complete/incomplete based on kit data  |
 And completed tasks show a gold checkmark
 And incomplete tasks show a muted circle
 ```
 
 ### Scenario: Returning user with completed steps
 ```gherkin
-Given a user has already created a market and generated a report
+Given a user has already created a market, generated a report, and has a content studio kit
 When they visit the How To page
-Then the checklist shows "Define at least one market" as complete
-And the checklist shows "Generate your first report" as complete
+Then the checklist shows all three items as complete
 And step sections still display (for reference) but CTAs read contextually:
-  | Step | CTA Text                    |
-  | 1    | "View Your Markets"         |
-  | 2    | "Create Another Report"     |
-  | 3    | "View Social Media Kit"     |
+  | Step | CTA Text                    | Href              |
+  | 1    | "View Your Markets"         | /markets          |
+  | 2    | "Create Another Report"     | /reports/create   |
+  | 3    | "Open Content Studio"       | /content-studio   |
 ```
 
 ### Scenario: User with no markets or reports
@@ -82,17 +81,17 @@ Given a new user with no markets or reports
 When they visit the How To page
 Then the checklist shows all items as incomplete
 And step CTAs read:
-  | Step | CTA Text                    |
-  | 1    | "Define Your First Market"  |
-  | 2    | "Generate Your First Report"|
-  | 3    | "Coming after your first report" (disabled) |
+  | Step | CTA Text                           | Href            | State    |
+  | 1    | "Define Your First Market"         | /markets/new    | enabled  |
+  | 2    | "Generate Your First Report"       | /reports/create | enabled  |
+  | 3    | "Coming after your first report"   | —               | disabled |
 ```
 
 ### Scenario: User navigates to How To from sidebar
 ```gherkin
 Given the user is on any protected page
 When they look at the sidebar navigation
-Then they see a "How To" link positioned between "Dashboard" and "Reports"
+Then they see a "How To" link
 And the link uses a help/book icon
 When they click "How To"
 Then they are navigated to /how-to
@@ -113,11 +112,11 @@ And the page remains readable without horizontal scroll
 Given the user scrolls past the three steps
 Then they see a "Common Questions" section with expandable items:
   | Question                                            |
-  | How long does a report take to generate?            |
-  | What data sources power the analysis?               |
-  | Can I customize which sections appear in my report? |
-  | How do I add peer markets for comparison?           |
-  | What is the Social Media Kit?                       |
+  | How long does a report take to generate?                          |
+  | What data sources power the analysis?                             |
+  | Can I customize which sections appear in my report?               |
+  | What are client personas and how do they shape my report?         |
+  | What is the Content Studio?                                       |
 And each question expands to reveal a concise answer (2-3 sentences)
 And only one question is expanded at a time (accordion behavior)
 ```
@@ -128,7 +127,7 @@ And only one question is expanded at a time (accordion behavior)
 2. **How To page** (this feature) — understands the workflow
 3. Follows Step 1 → **Markets** → defines their market
 4. Follows Step 2 → **Reports** → generates first report
-5. Follows Step 3 → **Social Media Kit** → shares intelligence
+5. Follows Step 3 → **Content Studio** → social posts and email campaigns
 
 ## UI Mockup
 
@@ -137,13 +136,13 @@ And only one question is expanded at a time (accordion behavior)
 │  SIDEBAR  │                                             │
 │           │  Getting Started                            │
 │  Dashboard│  Your guide to creating market intelligence │
-│ >How To   │                                             │
-│  Reports  │  ┌─────────────────────────────────────┐    │
-│  Markets  │  │  YOUR PROGRESS                      │    │
-│  Settings │  │                                     │    │
-│           │  │  ◉ Define at least one market        │    │
-│           │  │  ○ Generate your first report        │    │
-│           │  │  ○ Review your social media kit      │    │
+│  Reports  │                                             │
+│  Content  │  ┌─────────────────────────────────────┐    │
+│   Studio  │  │  YOUR PROGRESS                      │    │
+│  Markets  │  │                                     │    │
+│  Settings │  │  ◉ Define at least one market        │    │
+│ >How To   │  │  ○ Generate your first report        │    │
+│           │  │  ○ Explore your Content Studio       │    │
 │           │  └─────────────────────────────────────┘    │
 │           │                                             │
 │           │  ┌─────────────────────────────────────┐    │
@@ -158,7 +157,6 @@ And only one question is expanded at a time (accordion behavior)
 │           │  │  clients' interests.                 │    │
 │           │  │                                     │    │
 │           │  │  [ Define Your First Market → ]      │    │
-│           │  │  color-accent (gold) button          │    │
 │           │  └─────────────────────────────────────┘    │
 │           │                                             │
 │           │  ┌─────────────────────────────────────┐    │
@@ -173,17 +171,18 @@ And only one question is expanded at a time (accordion behavior)
 │           │  │  minutes.                           │    │
 │           │  │                                     │    │
 │           │  │  [ Generate Your First Report → ]    │    │
-│           │  │  color-accent (gold) button          │    │
+│           │  │  href: /reports/create               │    │
 │           │  └─────────────────────────────────────┘    │
 │           │                                             │
 │           │  ┌─────────────────────────────────────┐    │
 │           │  │                                     │    │
-│           │  │  ③  SHARE YOUR INTELLIGENCE         │    │
+│           │  │  ③  ACTIVATE YOUR CONTENT STUDIO    │    │
 │           │  │                                     │    │
-│           │  │  Each report includes a Social Media │    │
-│           │  │  Kit — ready-to-post commentary      │    │
-│           │  │  that positions you as the market    │    │
-│           │  │  authority your clients expect.      │    │
+│           │  │  Each report powers a Content Studio │    │
+│           │  │  — ready-to-post social content and  │    │
+│           │  │  email campaigns that position you   │    │
+│           │  │  as the market authority your clients │    │
+│           │  │  expect.                            │    │
 │           │  │                                     │    │
 │           │  │  [ Coming after your first report ]  │    │
 │           │  │  muted/disabled state                │    │
@@ -194,8 +193,8 @@ And only one question is expanded at a time (accordion behavior)
 │           │  ▸ How long does a report take?             │
 │           │  ▸ What data sources power the analysis?    │
 │           │  ▸ Can I customize report sections?         │
-│           │  ▸ How do I add peer markets?               │
-│           │  ▸ What is the Social Media Kit?            │
+│           │  ▸ What are client personas?                │
+│           │  ▸ What is the Content Studio?              │
 │           │                                             │
 └─────────────────────────────────────────────────────────┘
 
@@ -232,7 +231,8 @@ Design Token Usage:
 **Key vocabulary choices:**
 - "Market intelligence brief" not "report" (in descriptions — "report" in CTAs for clarity)
 - "Define your market" not "Create a market" (advisory framing)
-- "Share your intelligence" not "Download and share" (positions them as the source)
+- "Activate your Content Studio" not "Share your intelligence" (reflects full feature set)
+- "Content Studio" not "Social Media Kit" (encompasses social + email)
 - "Analysis engine" not "AI agents" (black-box the tech)
 - "Publication-quality" — resonates with every persona's desire for credibility
 

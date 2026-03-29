@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import type { SocialMediaKitContent } from "@/lib/db/schema";
-import { ImageLibrary } from "@/components/reports/image-library";
+
 
 // ---------------------------------------------------------------------------
 // Platform brand config
@@ -812,13 +812,6 @@ export function KitViewer({
           >
             &larr; Back to Report
           </Link>
-          <button
-            onClick={handleRegenerate}
-            disabled={regenerating}
-            className="font-[family-name:var(--font-sans)] text-xs px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
-          >
-            {regenerating ? "Regenerating..." : "Regenerate Kit"}
-          </button>
         </div>
 
         <div className="mt-4">
@@ -1332,24 +1325,6 @@ export function KitViewer({
         </motion.div>
       </AnimatePresence>
 
-      {/* ─── Image Library (outside platform filter — always visible) ─── */}
-      {content.statCallouts.length > 0 && (
-        <section className="space-y-3">
-          <SectionHeading
-            title="Image Library"
-            count={6}
-            icon={
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                <circle cx="8.5" cy="8.5" r="1.5" />
-                <polyline points="21 15 16 10 5 21" />
-              </svg>
-            }
-            accentColor="var(--color-accent)"
-          />
-          <ImageLibrary content={content} />
-        </section>
-      )}
     </div>
   );
 }

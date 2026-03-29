@@ -6,6 +6,7 @@ import Link from "next/link";
 interface HowToContentProps {
   hasMarkets: boolean;
   hasReports: boolean;
+  hasKit: boolean;
 }
 
 // --- Checklist ---
@@ -13,14 +14,16 @@ interface HowToContentProps {
 function QuickStartChecklist({
   hasMarkets,
   hasReports,
+  hasKit,
 }: {
   hasMarkets: boolean;
   hasReports: boolean;
+  hasKit: boolean;
 }) {
   const items = [
     { label: "Define at least one market", complete: hasMarkets },
     { label: "Generate your first report", complete: hasReports },
-    { label: "Review your social media kit", complete: false },
+    { label: "Explore your Content Studio", complete: hasKit },
   ];
 
   return (
@@ -157,14 +160,14 @@ const faqItems = [
       "Each report is structured around the key sections that matter most to luxury market advisors: executive summary, market analysis, competitive landscape, and forward outlook. Section emphasis adapts to your market's characteristics.",
   },
   {
-    question: "How do I add peer markets for comparison?",
+    question: "What are client personas and how do they shape my report?",
     answer:
-      "After defining your primary market, navigate to the market detail page and select peer markets for comparison. The analysis will include cross-market dynamics and relative positioning.",
+      "During report creation, you can select up to three client personas — profiles like the Relocating Executive or the Seasonal Second-Home Buyer. The analysis engine tailors insights, talking points, and narrative framing to match each persona's priorities, so your intelligence speaks directly to the clients you serve.",
   },
   {
-    question: "What is the Social Media Kit?",
+    question: "What is the Content Studio?",
     answer:
-      "Each completed report includes a Social Media Kit — ready-to-post commentary distilled from your market intelligence. These position you as a knowledgeable market authority across your professional channels.",
+      "Each completed report powers a Content Studio — ready-to-post social media content and targeted email campaigns distilled from your market intelligence. Content is organized by platform and persona, so you can publish with confidence across LinkedIn, Instagram, and email.",
   },
 ];
 
@@ -221,7 +224,7 @@ function FaqAccordion() {
 
 // --- Main Content Component ---
 
-export function HowToContent({ hasMarkets, hasReports }: HowToContentProps) {
+export function HowToContent({ hasMarkets, hasReports, hasKit }: HowToContentProps) {
   return (
     <div className="max-w-2xl mx-auto space-y-[var(--spacing-8)]">
       {/* Header */}
@@ -236,7 +239,7 @@ export function HowToContent({ hasMarkets, hasReports }: HowToContentProps) {
       </div>
 
       {/* Checklist */}
-      <QuickStartChecklist hasMarkets={hasMarkets} hasReports={hasReports} />
+      <QuickStartChecklist hasMarkets={hasMarkets} hasReports={hasReports} hasKit={hasKit} />
 
       {/* Steps */}
       <div className="space-y-[var(--spacing-6)]">
@@ -255,19 +258,19 @@ export function HowToContent({ hasMarkets, hasReports }: HowToContentProps) {
           ctaText={
             hasReports ? "Create Another Report" : "Generate Your First Report"
           }
-          ctaHref="/reports/new"
+          ctaHref="/reports/create"
           testId="step-2"
         />
         <StepCard
           number={3}
-          title="Share Your Intelligence"
-          description="Each report includes a Social Media Kit — ready-to-post commentary that positions you as the market authority your clients expect."
+          title="Activate Your Content Studio"
+          description="Each report powers a Content Studio — ready-to-post social content and email campaigns that position you as the market authority your clients expect."
           ctaText={
             hasReports
-              ? "View Social Media Kit"
+              ? "Open Content Studio"
               : "Coming after your first report"
           }
-          ctaHref={hasReports ? "/reports" : undefined}
+          ctaHref={hasReports ? "/content-studio" : undefined}
           disabled={!hasReports}
           testId="step-3"
         />
