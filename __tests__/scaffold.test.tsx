@@ -63,8 +63,14 @@ describe("Project Scaffold", () => {
     it("renders the Modern Signal Advisory wordmark in navigation", () => {
       render(<Home />);
       const nav = screen.getByRole("navigation");
+      // Brand name is split across elements: "Modern " + <span>Signal</span> + " Advisory"
       expect(
-        within(nav).getByText(/Modern Signal Advisory/i)
+        within(nav).getByText((_, element) => {
+          return element?.textContent?.includes("Modern") === true &&
+            element?.textContent?.includes("Signal") === true &&
+            element?.textContent?.includes("Advisory") === true &&
+            element?.tagName === "A";
+        })
       ).toBeInTheDocument();
     });
 

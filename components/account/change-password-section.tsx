@@ -86,8 +86,8 @@ export function ChangePasswordSection() {
   }
 
   return (
-    <div className="bg-[var(--color-mkt-surface)] rounded-[var(--radius-md)] border border-[var(--color-mkt-border)] p-[var(--spacing-6)] mt-[var(--spacing-6)]">
-      <h3 className="font-[family-name:var(--font-display)] text-lg font-medium text-[var(--color-mkt-text)]">
+    <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] border border-[var(--color-app-border)] p-[var(--spacing-6)] mt-[var(--spacing-6)]">
+      <h3 className="font-[family-name:var(--font-display)] text-lg font-medium text-[var(--color-app-text)]">
         Change Password
       </h3>
 
@@ -114,7 +114,7 @@ export function ChangePasswordSection() {
         <div>
           <label
             htmlFor="currentPassword"
-            className="block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-mkt-text)] mb-[var(--spacing-1)]"
+            className="block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] mb-[var(--spacing-1)]"
           >
             Current password
           </label>
@@ -131,7 +131,7 @@ export function ChangePasswordSection() {
         <div>
           <label
             htmlFor="newPassword"
-            className="block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-mkt-text)] mb-[var(--spacing-1)]"
+            className="block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] mb-[var(--spacing-1)]"
           >
             New password
           </label>
@@ -158,7 +158,7 @@ export function ChangePasswordSection() {
         <div>
           <label
             htmlFor="confirmNewPassword"
-            className="block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-mkt-text)] mb-[var(--spacing-1)]"
+            className="block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] mb-[var(--spacing-1)]"
           >
             Confirm new password
           </label>
@@ -180,7 +180,7 @@ export function ChangePasswordSection() {
         <button
           type="submit"
           disabled={!canSubmit}
-          className="px-[var(--spacing-6)] py-[var(--spacing-2)] bg-[var(--color-mkt-text)] text-[var(--color-mkt-surface)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm font-semibold hover:bg-[var(--color-mkt-darkest)] disabled:opacity-50 transition-colors duration-[var(--duration-default)]"
+          className="px-[var(--spacing-6)] py-[var(--spacing-2)] bg-[var(--color-app-accent)] text-[var(--color-app-surface)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm font-semibold hover:bg-[var(--color-app-accent-hover)] disabled:opacity-50 transition-colors duration-[var(--duration-default)]"
         >
           {loading ? "Updating\u2026" : "Update Password"}
         </button>

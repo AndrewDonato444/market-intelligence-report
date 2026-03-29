@@ -235,16 +235,16 @@ export function MarketCreationShell({
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8">
-        <h1 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+      <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
           {isEdit ? "Edit Your Market" : "Define Your Market"}
         </h1>
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
           {isEdit
             ? "Update the market that drives your intelligence reports."
             : "Set up the market that drives your intelligence reports."}
         </p>
-        <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-8" />
+        <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-8" />
 
         <CreationStepIndicator steps={STEP_NAMES} currentStep={currentStep} />
 
@@ -269,9 +269,9 @@ export function MarketCreationShell({
           <div
             aria-busy="true"
             aria-label="Checking market availability"
-            className="mt-4 rounded-[var(--radius-sm)] bg-[var(--color-primary-light)] p-[var(--spacing-2)]"
+            className="mt-4 rounded-[var(--radius-sm)] bg-[var(--color-app-surface)] p-[var(--spacing-2)]"
           >
-            <div className="h-3.5 w-44 bg-[var(--color-border)] rounded animate-pulse" />
+            <div className="h-3.5 w-44 bg-[var(--color-app-border)] rounded animate-pulse" />
           </div>
         )}
 
@@ -281,15 +281,15 @@ export function MarketCreationShell({
             aria-label={`Market usage: ${entitlement.used} of ${entitlement.limit} markets defined`}
             className={`mt-4 rounded-[var(--radius-sm)] p-[var(--spacing-2)] ${
               isLastMarket
-                ? "bg-[var(--color-accent-light)]"
-                : "bg-[var(--color-primary-light)]"
+                ? "bg-[var(--color-app-accent-light)]"
+                : "bg-[var(--color-app-surface)]"
             }`}
           >
-            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+            <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
               {entitlement.used} of {entitlement.limit} markets defined
             </p>
             {isLastMarket && (
-              <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-warning)] mt-0.5">
+              <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-warning)] mt-0.5">
                 This is your last available market on the Professional plan
               </p>
             )}
@@ -301,12 +301,12 @@ export function MarketCreationShell({
           <div
             role="alert"
             id="entitlement-gate-banner"
-            className="mt-4 border border-[var(--color-border-strong)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-surface)] p-[var(--spacing-6)]"
+            className="mt-4 border border-[var(--color-app-border)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-app-surface)] p-[var(--spacing-6)]"
           >
-            <h3 className="font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-text)]">
+            <h3 className="font-[family-name:var(--font-display)] text-lg font-bold text-[var(--color-app-text)]">
               You&apos;ve Reached Your Market Limit
             </h3>
-            <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+            <p className="mt-2 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
               Your current market is still fully active. Upgrade to
               Professional to define up to 3 markets — track multiple
               geographies and give your clients broader intelligence.
@@ -314,14 +314,14 @@ export function MarketCreationShell({
             <div className="flex items-center gap-4 mt-4">
               <a
                 href={VIEW_PLANS_HREF}
-                className="inline-block px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] hover:bg-[var(--color-accent-hover)]"
+                className="inline-block px-4 py-2 bg-[var(--color-app-accent)] text-[var(--color-app-surface)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] hover:bg-[var(--color-app-accent-hover)]"
               >
                 View Plans
               </a>
               <button
                 type="button"
                 onClick={() => setGateDismissed(true)}
-                className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] underline"
+                className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] underline"
               >
                 Maybe Later
               </button>
@@ -331,19 +331,19 @@ export function MarketCreationShell({
 
         {/* Error message */}
         {error && (
-          <p className="mt-4 text-sm text-[var(--color-error)] font-[family-name:var(--font-sans)]">
+          <p className="mt-4 text-sm text-[var(--color-error)] font-[family-name:var(--font-body)]">
             {error}
           </p>
         )}
 
         {/* Navigation */}
-        <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-border)]">
+        <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-app-border)]">
           <div>
             {!isFirstStep && (
               <button
                 type="button"
                 onClick={handleBack}
-                className="px-5 py-2.5 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-[var(--duration-default)] rounded-[var(--radius-sm)]"
+                className="px-5 py-2.5 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)] transition-colors duration-[var(--duration-default)] rounded-[var(--radius-sm)]"
               >
                 Back
               </button>
@@ -357,7 +357,7 @@ export function MarketCreationShell({
                 disabled={isSaveDisabled}
                 aria-disabled={isCapHit || undefined}
                 aria-describedby={isCapHit ? "entitlement-gate-banner" : undefined}
-                className="px-6 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-accent)]"
+                className="px-6 py-2.5 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-surface)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-app-accent)]"
               >
                 {saving
                   ? "Saving…"
@@ -369,7 +369,7 @@ export function MarketCreationShell({
               <button
                 type="button"
                 onClick={handleNext}
-                className="px-6 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+                className="px-6 py-2.5 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-surface)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
               >
                 Next
               </button>

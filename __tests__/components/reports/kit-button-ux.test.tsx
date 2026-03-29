@@ -192,7 +192,7 @@ describe("GenerateKitButton — Kit Button UX", () => {
   });
 
   describe("Compact mode — completed kit (unchanged)", () => {
-    it('CMP-KBU-06: still shows "View Kit" linking to /kit page', () => {
+    it('CMP-KBU-06: still shows "Content Studio" linking to /kit page', () => {
       render(
         <GenerateKitButton
           reportId="report-1"
@@ -201,7 +201,7 @@ describe("GenerateKitButton — Kit Button UX", () => {
         />
       );
 
-      const link = screen.getByText("View Kit").closest("a");
+      const link = screen.getByText("Content Studio").closest("a");
       expect(link).toHaveAttribute("href", "/reports/report-1/kit");
     });
   });

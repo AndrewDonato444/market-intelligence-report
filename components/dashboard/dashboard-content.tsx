@@ -77,7 +77,7 @@ export function DashboardContent({ markets, reports, firstName }: DashboardConte
 
       {/* Market Cards Section */}
       <div>
-        <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-primary)] mb-[var(--spacing-4)]">
+        <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
           YOUR MARKETS
         </h2>
         <AnimatedContainer variant="stagger">
@@ -91,18 +91,18 @@ export function DashboardContent({ markets, reports, firstName }: DashboardConte
         </AnimatedContainer>
         <Link
           href="/reports/create"
-          className="inline-block mt-[var(--spacing-3)] font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-accent)] hover:underline"
+          className="inline-block mt-[var(--spacing-3)] font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-accent)] hover:underline"
         >
           + Define New Market
         </Link>
       </div>
 
       {/* Divider */}
-      <div className="border-t border-[var(--color-border)]" />
+      <div className="border-t border-[var(--color-app-border)]" />
 
       {/* Recent Intelligence Briefs */}
       <div>
-        <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-primary)] mb-[var(--spacing-4)]">
+        <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
           RECENT INTELLIGENCE BRIEFS
         </h2>
 
@@ -112,23 +112,23 @@ export function DashboardContent({ markets, reports, firstName }: DashboardConte
               <RecentReportsList reports={visibleReports} />
               <Link
                 href="/reports"
-                className="inline-block mt-[var(--spacing-4)] font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-accent)] hover:underline"
+                className="inline-block mt-[var(--spacing-4)] font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-accent)] hover:underline"
               >
                 View All Reports &rarr;
               </Link>
             </div>
           </AnimatedContainer>
         ) : (
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-[var(--spacing-8)] text-center">
-            <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-[var(--spacing-8)] text-center">
+            <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
               No intelligence briefs yet.
             </p>
-            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-[var(--spacing-2)]">
+            <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] mt-[var(--spacing-2)]">
               Generate your first report to see it here.
             </p>
             <Link
               href="/reports/create"
-              className="inline-flex items-center justify-center mt-[var(--spacing-4)] px-4 py-2 bg-[var(--color-accent)] text-sm font-semibold text-[var(--color-primary)] rounded-[var(--radius-sm)] hover:bg-[var(--color-accent-hover)] transition-colors"
+              className="inline-flex items-center justify-center mt-[var(--spacing-4)] px-4 py-2 bg-[var(--color-app-accent)] text-sm font-semibold text-[var(--color-app-surface)] rounded-[var(--radius-sm)] hover:bg-[var(--color-app-accent-hover)] transition-colors"
             >
               Generate Your First Report
             </Link>

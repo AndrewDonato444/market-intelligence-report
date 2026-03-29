@@ -25,13 +25,13 @@ export default async function PeerMarketsPage({
   return (
     <div className="max-w-3xl">
       <div className="mb-6">
-        <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
           {market.name}
         </h2>
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
           {geo.city}, {geo.state} — Competitive analysis peers
         </p>
-        <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3" />
+        <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3" />
       </div>
 
       <PeerMarketForm marketId={market.id} initialPeers={peerMarkets} />

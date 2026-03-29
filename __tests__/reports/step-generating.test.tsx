@@ -175,7 +175,7 @@ describe("Step 6: Agent Processing Animation (#157)", () => {
 
     it("CMP-157-05: renders accent divider", async () => {
       await act(async () => { renderStep(); });
-      expect(document.querySelector(".bg-\\[var\\(--color-accent\\)\\]")).toBeInTheDocument();
+      expect(document.querySelector(".bg-\\[var\\(--color-app-accent\\)\\]")).toBeInTheDocument();
     });
 
     // -----------------------------------------------------------------------

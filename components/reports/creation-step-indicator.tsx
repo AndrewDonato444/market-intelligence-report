@@ -21,8 +21,8 @@ export function CreationStepIndicator({
               <div
                 className={`w-8 h-0.5 ${
                   isComplete
-                    ? "bg-[var(--color-accent)]"
-                    : "bg-[var(--color-border)]"
+                    ? "bg-[var(--color-app-accent)]"
+                    : "bg-[var(--color-app-border)]"
                 }`}
               />
             )}
@@ -30,10 +30,10 @@ export function CreationStepIndicator({
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${
                   isActive
-                    ? "border-2 border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
+                    ? "border-2 border-[var(--color-app-accent)] bg-[var(--color-app-accent)] text-white"
                     : isComplete
-                      ? "border-2 border-[var(--color-accent)] bg-[var(--color-accent)] text-white"
-                      : "border-2 border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-tertiary)]"
+                      ? "border-2 border-[var(--color-app-accent)] bg-[var(--color-app-accent)] text-white"
+                      : "border-2 border-[var(--color-app-border)] bg-[var(--color-app-surface)] text-[var(--color-app-text-tertiary)]"
                 }`}
               >
                 {isComplete ? (
@@ -56,12 +56,12 @@ export function CreationStepIndicator({
                 )}
               </div>
               <span
-                className={`font-[family-name:var(--font-sans)] text-xs whitespace-nowrap ${
+                className={`font-[family-name:var(--font-body)] text-xs whitespace-nowrap ${
                   isActive
-                    ? "text-[var(--color-accent)] font-semibold"
+                    ? "text-[var(--color-app-accent)] font-semibold"
                     : isComplete
-                      ? "text-[var(--color-accent)]"
-                      : "text-[var(--color-text-tertiary)]"
+                      ? "text-[var(--color-app-accent)]"
+                      : "text-[var(--color-app-text-tertiary)]"
                 }`}
               >
                 {label}

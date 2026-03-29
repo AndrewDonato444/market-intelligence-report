@@ -82,17 +82,17 @@ function ReviewSectionCard({
   return (
     <motion.div
       variants={fadeVariant}
-      className="border border-[var(--color-border)] rounded-[var(--radius-md)] p-4 bg-[var(--color-surface)]"
+      className="border border-[var(--color-app-border)] rounded-[var(--radius-md)] p-4 bg-[var(--color-app-surface)]"
     >
       <div className="flex items-start justify-between mb-2">
-        <span className="uppercase text-xs font-semibold text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)]">
+        <span className="uppercase text-xs font-semibold text-[var(--color-app-text-tertiary)] font-[family-name:var(--font-body)]">
           {label}
         </span>
         <button
           type="button"
           onClick={onEdit}
           aria-label={`Edit ${label}`}
-          className="text-xs text-[var(--color-accent)] hover:text-[var(--color-accent-hover)] font-[family-name:var(--font-sans)] transition-colors duration-[var(--duration-default)]"
+          className="text-xs text-[var(--color-app-accent)] hover:text-[var(--color-app-accent-hover)] font-[family-name:var(--font-body)] transition-colors duration-[var(--duration-default)]"
         >
           Edit
         </button>
@@ -115,11 +115,11 @@ function Tag({
 }) {
   const bg =
     variant === "accent"
-      ? "bg-[var(--color-accent-light)]"
-      : "bg-[var(--color-primary-light)]";
+      ? "bg-[var(--color-app-accent-light)]"
+      : "bg-[var(--color-app-active-bg)]";
   return (
     <span
-      className={`inline-block px-2.5 py-1 ${bg} text-xs rounded-full font-[family-name:var(--font-sans)] text-[var(--color-text)] mr-1.5 mb-1.5`}
+      className={`inline-block px-2.5 py-1 ${bg} text-xs rounded-full font-[family-name:var(--font-body)] text-[var(--color-app-text)] mr-1.5 mb-1.5`}
     >
       {children}
     </span>
@@ -322,13 +322,13 @@ export function StepYourReview({
   return (
     <div className="py-4">
       {/* Heading */}
-      <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+      <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
         Review Your Report
       </h2>
-      <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+      <p className="mt-2 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
         Everything look right? Edit any section or generate your intelligence report.
       </p>
-      <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-6" />
+      <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-6" />
 
       {/* Summary sections */}
       <motion.div
@@ -339,14 +339,14 @@ export function StepYourReview({
       >
         {/* Your Market */}
         <ReviewSectionCard label="Your Market" onEdit={() => onNavigateToStep(0)}>
-          <p className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+          <p className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
             {marketData?.city || "Not selected"}, {marketData?.state || ""}
           </p>
         </ReviewSectionCard>
 
         {/* Your Tier */}
         <ReviewSectionCard label="Your Tier" onEdit={() => onNavigateToStep(1)}>
-          <p className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+          <p className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
             {tierLabel} &middot; {priceDisplay}
           </p>
         </ReviewSectionCard>
@@ -362,7 +362,7 @@ export function StepYourReview({
               ))}
             </div>
           ) : (
-            <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] italic">
+            <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] italic">
               No buyer personas selected — report will use general framing
             </p>
           )}
@@ -373,7 +373,7 @@ export function StepYourReview({
         <motion.div variants={fadeVariant} className="pt-2">
           <label
             htmlFor="report-title"
-            className="block uppercase text-xs font-semibold text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)] mb-2"
+            className="block uppercase text-xs font-semibold text-[var(--color-app-text-tertiary)] font-[family-name:var(--font-body)] mb-2"
           >
             Report Title
           </label>
@@ -384,19 +384,19 @@ export function StepYourReview({
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={500}
-            className="w-full px-3 py-2.5 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] border border-[var(--color-border)] rounded-[var(--radius-sm)] bg-[var(--color-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)] transition-colors duration-[var(--duration-default)]"
+            className="w-full px-3 py-2.5 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] border border-[var(--color-app-border)] rounded-[var(--radius-sm)] bg-[var(--color-app-surface)] focus:outline-none focus:ring-1 focus:ring-[var(--color-app-accent)] transition-colors duration-[var(--duration-default)]"
           />
           <div className="flex justify-between mt-1">
             <div>
               {isTitleEmpty && (
-                <p className="text-xs text-[var(--color-error)] font-[family-name:var(--font-sans)]" role="alert">
+                <p className="text-xs text-[var(--color-error)] font-[family-name:var(--font-body)]" role="alert">
                   Report title is required
                 </p>
               )}
             </div>
             <p
               id="title-char-count"
-              className="text-xs text-[var(--color-text-tertiary)] font-[family-name:var(--font-sans)]"
+              className="text-xs text-[var(--color-app-text-tertiary)] font-[family-name:var(--font-body)]"
             >
               {title.length} / 500
             </p>
@@ -406,12 +406,12 @@ export function StepYourReview({
         {/* What's being built — hype section */}
         <motion.div
           variants={fadeVariant}
-          className="rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] p-5 mt-2"
+          className="rounded-[var(--radius-md)] border border-[var(--color-app-border)] bg-[var(--color-app-surface)] p-5 mt-2"
         >
-          <p className="font-[family-name:var(--font-serif)] text-base font-bold text-[var(--color-primary)] mb-1">
+          <p className="font-[family-name:var(--font-display)] text-base font-bold text-[var(--color-app-text)] mb-1">
             What we&rsquo;re building for you
           </p>
-          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mb-4">
+          <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] mb-4">
             Your report pulls live transaction data, runs it through our analysis engine, and frames every insight around your market, your tier, and your buyers. Here&rsquo;s what&rsquo;s inside:
           </p>
           <ul className="space-y-2">
@@ -425,15 +425,15 @@ export function StepYourReview({
               { title: "Persona Intelligence", desc: "Every insight reframed through the lens of your selected buyers" },
             ].map(({ title, desc }) => (
               <li key={title} className="flex items-start gap-2.5">
-                <span className="text-[var(--color-accent)] text-xs mt-0.5 flex-shrink-0">◆</span>
-                <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text)]">
+                <span className="text-[var(--color-app-accent)] text-xs mt-0.5 flex-shrink-0">◆</span>
+                <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text)]">
                   <span className="font-semibold">{title}</span>
-                  <span className="text-[var(--color-text-secondary)]"> — {desc}</span>
+                  <span className="text-[var(--color-app-text-secondary)]"> — {desc}</span>
                 </span>
               </li>
             ))}
           </ul>
-          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-4 pt-3 border-t border-[var(--color-border)]">
+          <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] mt-4 pt-3 border-t border-[var(--color-app-border)]">
             Reports can take up to 10 minutes to generate. Upon completion, your report will be available in the Reports tab.
           </p>
         </motion.div>
@@ -444,9 +444,9 @@ export function StepYourReview({
             variants={fadeVariant}
             aria-busy="true"
             aria-label="Checking report availability"
-            className="rounded-[var(--radius-sm)] bg-[var(--color-primary-light)] p-[var(--spacing-2)]"
+            className="rounded-[var(--radius-sm)] bg-[var(--color-app-active-bg)] p-[var(--spacing-2)]"
           >
-            <div className="h-3.5 w-44 bg-[var(--color-border)] rounded animate-pulse" />
+            <div className="h-3.5 w-44 bg-[var(--color-app-border)] rounded animate-pulse" />
           </motion.div>
         )}
 
@@ -457,15 +457,15 @@ export function StepYourReview({
             aria-label={`Report usage: ${entitlement.used} of ${entitlement.limit} reports used this month`}
             className={`rounded-[var(--radius-sm)] p-[var(--spacing-2)] ${
               isLastReport
-                ? "bg-[var(--color-accent-light)]"
-                : "bg-[var(--color-primary-light)]"
+                ? "bg-[var(--color-app-accent-light)]"
+                : "bg-[var(--color-app-active-bg)]"
             }`}
           >
-            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+            <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
               {entitlement.used} of {entitlement.limit} reports used this month
             </p>
             {isLastReport && (
-              <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-warning)] mt-0.5">
+              <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-warning)] mt-0.5">
                 This is your last report this month on the Starter plan
               </p>
             )}
@@ -478,12 +478,12 @@ export function StepYourReview({
             variants={fadeVariant}
             role="alert"
             id="entitlement-gate-banner"
-            className="border border-[var(--color-border-strong)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-surface)] p-[var(--spacing-6)]"
+            className="border border-[var(--color-app-border-strong)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-app-surface)] p-[var(--spacing-6)]"
           >
-            <h3 className="font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-text)]">
+            <h3 className="font-[family-name:var(--font-display)] text-lg font-bold text-[var(--color-app-text)]">
               You&apos;ve Reached Your Monthly Limit
             </h3>
-            <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+            <p className="mt-2 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
               You&apos;ve used {entitlement!.used} of {entitlement!.limit} reports
               this month on the Starter plan. Upgrade to Professional for 10
               reports per month — plus peer market analysis and expanded audience
@@ -492,14 +492,14 @@ export function StepYourReview({
             <div className="flex items-center gap-4 mt-4">
               <a
                 href={VIEW_PLANS_HREF}
-                className="inline-block px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] hover:bg-[var(--color-accent-hover)]"
+                className="inline-block px-4 py-2 bg-[var(--color-app-accent)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] hover:bg-[var(--color-app-accent-hover)]"
               >
                 View Plans
               </a>
               <button
                 type="button"
                 onClick={() => setGateDismissed(true)}
-                className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] underline"
+                className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] underline"
               >
                 Maybe Later
               </button>
@@ -509,7 +509,7 @@ export function StepYourReview({
 
         {/* Error message */}
         {error && (
-          <p className="text-center font-[family-name:var(--font-sans)] text-sm text-[var(--color-error)]" role="alert">
+          <p className="text-center font-[family-name:var(--font-body)] text-sm text-[var(--color-error)]" role="alert">
             {error}
           </p>
         )}
@@ -523,7 +523,7 @@ export function StepYourReview({
             aria-busy={isSubmitting}
             aria-disabled={isCapHit || undefined}
             aria-describedby={isCapHit ? "entitlement-gate-banner" : undefined}
-            className="w-full py-3 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-accent)]"
+            className="w-full py-3 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-[var(--color-app-accent)]"
           >
             {isSubmitting ? "Generating..." : "Generate Report"}
           </button>

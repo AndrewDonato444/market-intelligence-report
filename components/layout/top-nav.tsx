@@ -13,19 +13,19 @@ export function TopNav() {
   }
 
   return (
-    <header className="h-14 bg-[var(--color-primary)] text-[var(--color-text-inverse)] px-[var(--spacing-6)] flex items-center justify-between shrink-0">
+    <header className="h-16 bg-[var(--color-app-nav-bg)] text-[var(--color-app-text-tertiary)] px-[var(--spacing-6)] flex items-center justify-between shrink-0">
       <div className="flex items-center gap-[var(--spacing-3)]">
-        <span className="font-[family-name:var(--font-serif)] text-lg font-bold">
-          Modern Signal Advisory
+        <span className="font-[family-name:var(--font-display)] text-lg font-bold text-white">
+          Modern <span className="text-[var(--color-app-accent)]">Signal</span> Advisory
         </span>
-        <div className="w-px h-5 bg-[var(--color-text-tertiary)]" />
-        <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] tracking-wider uppercase">
+        <div className="w-px h-5 bg-[var(--color-app-text-tertiary)] opacity-40" />
+        <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] tracking-wider uppercase">
           Intelligence Platform
         </span>
       </div>
       <button
         onClick={handleSignOut}
-        className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-tertiary)] hover:text-[var(--color-text-inverse)] transition-colors"
+        className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-tertiary)] hover:text-white transition-colors"
       >
         Sign Out
       </button>

@@ -226,7 +226,7 @@ export function EntitlementOverridesPanel({
       <div
         style={{
           padding: "var(--spacing-4)",
-          color: "var(--color-text-secondary)",
+          color: "var(--color-app-text-secondary)",
           fontSize: "var(--text-sm)",
         }}
       >
@@ -250,7 +250,7 @@ export function EntitlementOverridesPanel({
   }
 
   return (
-    <div style={{ fontFamily: "var(--font-sans)" }}>
+    <div className="app-fade-in" style={{ fontFamily: "var(--font-body)" }}>
       {/* Action Message */}
       {actionMessage && (
         <div
@@ -277,8 +277,8 @@ export function EntitlementOverridesPanel({
       {effectiveEntitlements && tier && (
         <div
           style={{
-            background: "var(--color-surface)",
-            border: "1px solid var(--color-border)",
+            background: "var(--color-app-surface)",
+            border: "1px solid var(--color-app-border)",
             borderRadius: "var(--radius-md)",
             padding: "var(--spacing-4)",
             marginBottom: "var(--spacing-4)",
@@ -288,7 +288,7 @@ export function EntitlementOverridesPanel({
             style={{
               fontSize: "var(--text-sm)",
               fontWeight: "var(--font-semibold)",
-              color: "var(--color-text)",
+              color: "var(--color-app-text)",
               margin: "0 0 var(--spacing-1)",
               textTransform: "uppercase",
               letterSpacing: "0.05em",
@@ -299,7 +299,7 @@ export function EntitlementOverridesPanel({
           <p
             style={{
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-secondary)",
+              color: "var(--color-app-text-secondary)",
               margin: "0 0 var(--spacing-3)",
             }}
           >
@@ -319,7 +319,7 @@ export function EntitlementOverridesPanel({
                   key={type}
                   style={{
                     padding: "var(--spacing-3)",
-                    background: "var(--color-background)",
+                    background: "var(--color-app-bg)",
                     borderRadius: "var(--radius-sm)",
                     textAlign: "center",
                   }}
@@ -327,7 +327,7 @@ export function EntitlementOverridesPanel({
                   <div
                     style={{
                       fontSize: "var(--text-xs)",
-                      color: "var(--color-text-secondary)",
+                      color: "var(--color-app-text-secondary)",
                       marginBottom: "var(--spacing-1)",
                     }}
                   >
@@ -338,8 +338,8 @@ export function EntitlementOverridesPanel({
                       fontSize: "var(--text-lg)",
                       fontWeight: "var(--font-semibold)",
                       color: ent.hasOverride
-                        ? "var(--color-primary)"
-                        : "var(--color-text)",
+                        ? "var(--color-app-accent)"
+                        : "var(--color-app-text)",
                     }}
                   >
                     {ent.hasOverride && ent.tierCap !== ent.effective
@@ -349,7 +349,7 @@ export function EntitlementOverridesPanel({
                   <div
                     style={{
                       fontSize: "var(--text-xs)",
-                      color: "var(--color-text-tertiary)",
+                      color: "var(--color-app-text-tertiary)",
                       marginTop: "2px",
                     }}
                   >
@@ -365,8 +365,8 @@ export function EntitlementOverridesPanel({
       {/* Overrides Section */}
       <div
         style={{
-          background: "var(--color-surface)",
-          border: "1px solid var(--color-border)",
+          background: "var(--color-app-surface)",
+          border: "1px solid var(--color-app-border)",
           borderRadius: "var(--radius-md)",
           padding: "var(--spacing-4)",
         }}
@@ -383,7 +383,7 @@ export function EntitlementOverridesPanel({
             style={{
               fontSize: "var(--text-sm)",
               fontWeight: "var(--font-semibold)",
-              color: "var(--color-text)",
+              color: "var(--color-app-text)",
               margin: 0,
               textTransform: "uppercase",
               letterSpacing: "0.05em",
@@ -400,7 +400,7 @@ export function EntitlementOverridesPanel({
               padding: "var(--spacing-1) var(--spacing-3)",
               borderRadius: "var(--radius-sm)",
               border: "none",
-              background: "var(--color-primary)",
+              background: "var(--color-app-accent)",
               color: "#fff",
               fontSize: "var(--text-sm)",
               fontWeight: "var(--font-medium)",
@@ -415,8 +415,8 @@ export function EntitlementOverridesPanel({
         {showForm && (
           <div
             style={{
-              background: "var(--color-background)",
-              border: "1px solid var(--color-border)",
+              background: "var(--color-app-bg)",
+              border: "1px solid var(--color-app-border)",
               borderRadius: "var(--radius-md)",
               padding: "var(--spacing-4)",
               marginBottom: "var(--spacing-4)",
@@ -426,7 +426,7 @@ export function EntitlementOverridesPanel({
               style={{
                 fontSize: "var(--text-lg)",
                 fontWeight: "var(--font-semibold)",
-                color: "var(--color-text)",
+                color: "var(--color-app-text)",
                 margin: "0 0 var(--spacing-1)",
               }}
             >
@@ -435,7 +435,7 @@ export function EntitlementOverridesPanel({
             <p
               style={{
                 fontSize: "var(--text-sm)",
-                color: "var(--color-text-secondary)",
+                color: "var(--color-app-text-secondary)",
                 margin: "0 0 var(--spacing-4)",
               }}
             >
@@ -449,7 +449,7 @@ export function EntitlementOverridesPanel({
                   display: "block",
                   fontSize: "var(--text-sm)",
                   fontWeight: "var(--font-medium)",
-                  color: "var(--color-text)",
+                  color: "var(--color-app-text)",
                   marginBottom: "var(--spacing-1)",
                 }}
               >
@@ -461,11 +461,11 @@ export function EntitlementOverridesPanel({
                 style={{
                   width: "100%",
                   padding: "var(--spacing-2)",
-                  border: "1px solid var(--color-border-strong, var(--color-border))",
+                  border: "1px solid var(--color-app-border, var(--color-app-border))",
                   borderRadius: "var(--radius-sm)",
                   fontSize: "var(--text-sm)",
-                  background: "var(--color-surface)",
-                  color: "var(--color-text)",
+                  background: "var(--color-app-surface)",
+                  color: "var(--color-app-text)",
                 }}
               >
                 {ENTITLEMENT_TYPES.map((type) => (
@@ -494,7 +494,7 @@ export function EntitlementOverridesPanel({
                   display: "block",
                   fontSize: "var(--text-sm)",
                   fontWeight: "var(--font-medium)",
-                  color: "var(--color-text)",
+                  color: "var(--color-app-text)",
                   marginBottom: "var(--spacing-1)",
                 }}
               >
@@ -509,11 +509,11 @@ export function EntitlementOverridesPanel({
                 style={{
                   width: "100%",
                   padding: "var(--spacing-2)",
-                  border: "1px solid var(--color-border-strong, var(--color-border))",
+                  border: "1px solid var(--color-app-border, var(--color-app-border))",
                   borderRadius: "var(--radius-sm)",
                   fontSize: "var(--text-sm)",
-                  background: "var(--color-surface)",
-                  color: "var(--color-text)",
+                  background: "var(--color-app-surface)",
+                  color: "var(--color-app-text)",
                   opacity: formUnlimited ? 0.5 : 1,
                 }}
               />
@@ -523,7 +523,7 @@ export function EntitlementOverridesPanel({
                   alignItems: "center",
                   gap: "var(--spacing-1)",
                   fontSize: "var(--text-sm)",
-                  color: "var(--color-text-secondary)",
+                  color: "var(--color-app-text-secondary)",
                   marginTop: "var(--spacing-1)",
                 }}
               >
@@ -554,7 +554,7 @@ export function EntitlementOverridesPanel({
                   display: "block",
                   fontSize: "var(--text-sm)",
                   fontWeight: "var(--font-medium)",
-                  color: "var(--color-text)",
+                  color: "var(--color-app-text)",
                   marginBottom: "var(--spacing-1)",
                 }}
               >
@@ -574,7 +574,7 @@ export function EntitlementOverridesPanel({
                     alignItems: "center",
                     gap: "4px",
                     fontSize: "var(--text-sm)",
-                    color: "var(--color-text-secondary)",
+                    color: "var(--color-app-text-secondary)",
                   }}
                 >
                   <input
@@ -591,7 +591,7 @@ export function EntitlementOverridesPanel({
                     alignItems: "center",
                     gap: "4px",
                     fontSize: "var(--text-sm)",
-                    color: "var(--color-text-secondary)",
+                    color: "var(--color-app-text-secondary)",
                   }}
                 >
                   <input
@@ -611,11 +611,11 @@ export function EntitlementOverridesPanel({
                   style={{
                     width: "100%",
                     padding: "var(--spacing-2)",
-                    border: "1px solid var(--color-border-strong, var(--color-border))",
+                    border: "1px solid var(--color-app-border, var(--color-app-border))",
                     borderRadius: "var(--radius-sm)",
                     fontSize: "var(--text-sm)",
-                    background: "var(--color-surface)",
-                    color: "var(--color-text)",
+                    background: "var(--color-app-surface)",
+                    color: "var(--color-app-text)",
                   }}
                 />
               )}
@@ -639,7 +639,7 @@ export function EntitlementOverridesPanel({
                   display: "block",
                   fontSize: "var(--text-sm)",
                   fontWeight: "var(--font-medium)",
-                  color: "var(--color-text)",
+                  color: "var(--color-app-text)",
                   marginBottom: "var(--spacing-1)",
                 }}
               >
@@ -653,11 +653,11 @@ export function EntitlementOverridesPanel({
                 style={{
                   width: "100%",
                   padding: "var(--spacing-2)",
-                  border: "1px solid var(--color-border-strong, var(--color-border))",
+                  border: "1px solid var(--color-app-border, var(--color-app-border))",
                   borderRadius: "var(--radius-sm)",
                   fontSize: "var(--text-sm)",
-                  background: "var(--color-surface)",
-                  color: "var(--color-text)",
+                  background: "var(--color-app-surface)",
+                  color: "var(--color-app-text)",
                   resize: "vertical",
                 }}
               />
@@ -674,9 +674,9 @@ export function EntitlementOverridesPanel({
                 style={{
                   padding: "var(--spacing-1) var(--spacing-3)",
                   borderRadius: "var(--radius-sm)",
-                  border: "1px solid var(--color-border)",
-                  background: "var(--color-surface)",
-                  color: "var(--color-text-secondary)",
+                  border: "1px solid var(--color-app-border)",
+                  background: "var(--color-app-surface)",
+                  color: "var(--color-app-text-secondary)",
                   fontSize: "var(--text-sm)",
                   cursor: "pointer",
                 }}
@@ -690,7 +690,7 @@ export function EntitlementOverridesPanel({
                   padding: "var(--spacing-1) var(--spacing-3)",
                   borderRadius: "var(--radius-sm)",
                   border: "none",
-                  background: "var(--color-primary)",
+                  background: "var(--color-app-accent)",
                   color: "#fff",
                   fontSize: "var(--text-sm)",
                   fontWeight: "var(--font-medium)",
@@ -709,7 +709,7 @@ export function EntitlementOverridesPanel({
           <p
             style={{
               fontSize: "var(--text-sm)",
-              color: "var(--color-text-tertiary)",
+              color: "var(--color-app-text-tertiary)",
               margin: 0,
             }}
           >
@@ -729,10 +729,10 @@ export function EntitlementOverridesPanel({
                 <div
                   key={override.id}
                   style={{
-                    border: "1px solid var(--color-border)",
+                    border: "1px solid var(--color-app-border)",
                     borderRadius: "var(--radius-sm)",
                     padding: "var(--spacing-3)",
-                    background: "var(--color-surface)",
+                    background: "var(--color-app-surface)",
                     opacity: expired ? 0.6 : 1,
                   }}
                 >
@@ -747,7 +747,7 @@ export function EntitlementOverridesPanel({
                       <span
                         style={{
                           fontWeight: "var(--font-semibold)",
-                          color: "var(--color-text)",
+                          color: "var(--color-app-text)",
                           fontSize: "var(--text-sm)",
                         }}
                       >
@@ -759,7 +759,7 @@ export function EntitlementOverridesPanel({
                         style={{
                           marginLeft: "var(--spacing-3)",
                           fontSize: "var(--text-sm)",
-                          color: "var(--color-text-secondary)",
+                          color: "var(--color-app-text-secondary)",
                         }}
                       >
                         {expired ? (
@@ -799,9 +799,9 @@ export function EntitlementOverridesPanel({
                               style={{
                                 padding: "2px var(--spacing-2)",
                                 borderRadius: "var(--radius-sm)",
-                                border: "1px solid var(--color-border)",
-                                background: "var(--color-surface)",
-                                color: "var(--color-text-secondary)",
+                                border: "1px solid var(--color-app-border)",
+                                background: "var(--color-app-surface)",
+                                color: "var(--color-app-text-secondary)",
                                 fontSize: "var(--text-xs)",
                                 cursor: "pointer",
                               }}
@@ -851,7 +851,7 @@ export function EntitlementOverridesPanel({
                     <p
                       style={{
                         fontSize: "var(--text-sm)",
-                        color: "var(--color-text-secondary)",
+                        color: "var(--color-app-text-secondary)",
                         fontStyle: "italic",
                         margin: "var(--spacing-2) 0 0",
                       }}
@@ -862,7 +862,7 @@ export function EntitlementOverridesPanel({
                   <p
                     style={{
                       fontSize: "var(--text-xs)",
-                      color: "var(--color-text-tertiary)",
+                      color: "var(--color-app-text-tertiary)",
                       margin: "var(--spacing-1) 0 0",
                     }}
                   >

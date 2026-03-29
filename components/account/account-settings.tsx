@@ -85,14 +85,14 @@ function UsageEntitlementBar({
   return (
     <div data-testid={testId} className="mb-4">
       <div className="flex items-center justify-between mb-1">
-        <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+        <span className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
           {label}
         </span>
-        <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+        <span className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
           {isUnlimited ? (
             <>
               {used} reports generated
-              <span className="ml-2 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-[var(--color-accent)]/10 text-[var(--color-accent)]">
+              <span className="ml-2 inline-block px-2 py-0.5 text-xs font-medium rounded-full bg-[var(--color-app-accent)]/10 text-[var(--color-app-accent)]">
                 Unlimited
               </span>
             </>
@@ -103,7 +103,7 @@ function UsageEntitlementBar({
       </div>
       {!isUnlimited && limit > 0 && (
         <>
-          <div className="w-full h-2 rounded-full bg-[var(--color-border)]">
+          <div className="w-full h-2 rounded-full bg-[var(--color-app-border)]">
             <div
               data-testid="usage-bar-fill"
               className={`h-2 rounded-full transition-all ${barColorClass}`}
@@ -111,11 +111,11 @@ function UsageEntitlementBar({
                 width: `${Math.min(percentage, 100)}%`,
                 backgroundColor: isWarning
                   ? "var(--color-warning)"
-                  : "var(--color-primary)",
+                  : "var(--color-app-text)",
               }}
             />
           </div>
-          <div className="mt-1 font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+          <div className="mt-1 font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
             {isAtCap ? "Cap reached" : `${remaining} remaining`}
           </div>
         </>
@@ -133,26 +133,26 @@ function SubscriptionSection({ data }: { data: SubscriptionData }) {
   return (
     <>
       {/* Tier Card */}
-      <div className="p-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
+      <div className="p-4 rounded-[var(--radius-md)] border border-[var(--color-app-border)] bg-[var(--color-app-surface)]">
         <div className="flex items-center justify-between">
-          <span className="font-[family-name:var(--font-serif)] text-xl font-bold text-[var(--color-primary)] uppercase">
+          <span className="font-[family-name:var(--font-display)] text-xl font-bold text-[var(--color-app-text)] uppercase">
             {tierName}
           </span>
-          <span className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-accent)]">
+          <span className="font-[family-name:var(--font-body)] text-lg font-semibold text-[var(--color-app-accent)]">
             {displayPrice}
           </span>
         </div>
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-2">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-2">
           {tierDescription}
         </p>
       </div>
 
       {/* Usage This Period */}
       <div className="mt-6">
-        <h3 className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)] mb-1">
+        <h3 className="font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-app-text)] mb-1">
           Usage This Period
         </h3>
-        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mb-4">
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] mb-4">
           {formatBillingDate(billingPeriod.start)} &ndash; {formatBillingDate(billingPeriod.end)}
         </p>
 
@@ -174,30 +174,52 @@ function SubscriptionSection({ data }: { data: SubscriptionData }) {
 
         {/* Social Media Kits */}
         <div className="flex items-center justify-between mb-4">
-          <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+          <span className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
             Social Media Kits
           </span>
-          <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-            Included
+          <span className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
+            {socialMediaKits.limit === 0 ? (
+              <span className="text-[var(--color-app-text-tertiary)]">Not included in your plan</span>
+            ) : socialMediaKits.limit === -1 ? (
+              "Unlimited"
+            ) : (
+              `Included (${socialMediaKits.limit} per report)`
+            )}
           </span>
         </div>
+        {socialMediaKits.limit === 0 && nextTier && (
+          <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] -mt-3 mb-4">
+            Upgrade to {nextTier.name} to generate social media content from your reports
+          </p>
+        )}
 
         {/* Email Campaigns */}
         <div className="flex items-center justify-between mb-4">
-          <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
+          <span className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
             Email Campaigns
           </span>
-          <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-            Included
+          <span className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
+            {emailCampaigns.limit === 0 ? (
+              <span className="text-[var(--color-app-text-tertiary)]">Not included in your plan</span>
+            ) : emailCampaigns.limit === -1 ? (
+              "Unlimited"
+            ) : (
+              `Included (${emailCampaigns.limit} per report)`
+            )}
           </span>
         </div>
+        {emailCampaigns.limit === 0 && nextTier && (
+          <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] -mt-3 mb-4">
+            Upgrade to {nextTier.name} to generate email campaigns from your reports
+          </p>
+        )}
 
-        {/* Client Personas */}
+        {/* Buyer Personas */}
         <div className="flex items-center justify-between mb-4">
-          <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
-            Client Personas
+          <span className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)]">
+            Buyer Personas
           </span>
-          <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+          <span className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
             {personasPerReport.limit} per report
           </span>
         </div>
@@ -205,12 +227,64 @@ function SubscriptionSection({ data }: { data: SubscriptionData }) {
 
       {/* At-cap upgrade prompt for reports */}
       {hasReportAtCap && nextTier && (
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-warning)] mt-2">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-warning)] mt-2">
           You&apos;ve used all your reports this month. Upgrade to {nextTier.name} for{" "}
           {nextTier.entitlements.reports_per_month} reports per month.
         </p>
       )}
 
+      {/* Upgrade Prompt */}
+      {nextTier && (
+        <div className="mt-6 p-4 rounded-[var(--radius-md)] border border-[var(--color-app-border)] bg-[var(--color-app-surface)]">
+          <div className="flex items-center justify-between mb-4">
+            <span className="font-[family-name:var(--font-display)] text-lg font-bold text-[var(--color-app-text)]">
+              Unlock more with {nextTier.name}
+            </span>
+            <span className="font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-app-accent)]">
+              {nextTier.displayPrice}
+            </span>
+          </div>
+
+          <div className="space-y-2 mb-4">
+            <div className="flex justify-between font-[family-name:var(--font-body)] text-sm">
+              <span className="text-[var(--color-app-text)]">Reports per month</span>
+              <span className="text-[var(--color-app-text-secondary)]">
+                {nextTier.entitlements.reports_per_month} <span className="text-[var(--color-app-text-tertiary)]">(you have {reports.limit})</span>
+              </span>
+            </div>
+            <div className="flex justify-between font-[family-name:var(--font-body)] text-sm">
+              <span className="text-[var(--color-app-text)]">Markets</span>
+              <span className="text-[var(--color-app-text-secondary)]">
+                {nextTier.entitlements.markets_created} <span className="text-[var(--color-app-text-tertiary)]">(you have {markets.limit})</span>
+              </span>
+            </div>
+            <div className="flex justify-between font-[family-name:var(--font-body)] text-sm">
+              <span className="text-[var(--color-app-text)]">Social media kits</span>
+              <span className="text-[var(--color-app-text-secondary)]">
+                {nextTier.entitlements.social_media_kits > 0 ? "Included" : "Not included"}
+                {socialMediaKits.limit === 0 && <span className="text-[var(--color-app-text-tertiary)]"> (not in your plan)</span>}
+              </span>
+            </div>
+            <div className="flex justify-between font-[family-name:var(--font-body)] text-sm">
+              <span className="text-[var(--color-app-text)]">Email campaigns</span>
+              <span className="text-[var(--color-app-text-secondary)]">
+                {nextTier.entitlements.email_campaigns > 0 ? "Included" : "Not included"}
+                {emailCampaigns.limit === 0 && <span className="text-[var(--color-app-text-tertiary)]"> (not in your plan)</span>}
+              </span>
+            </div>
+            <div className="flex justify-between font-[family-name:var(--font-body)] text-sm">
+              <span className="text-[var(--color-app-text)]">Buyer personas</span>
+              <span className="text-[var(--color-app-text-secondary)]">
+                {nextTier.entitlements.personas_per_report} <span className="text-[var(--color-app-text-tertiary)]">(you have {personasPerReport.limit})</span>
+              </span>
+            </div>
+          </div>
+
+          <button className="w-full px-4 py-2 bg-[var(--color-app-accent)] text-[var(--color-app-surface)] font-[family-name:var(--font-body)] font-medium text-sm rounded-[var(--radius-sm)] transition-colors hover:opacity-90">
+            Contact Us to Upgrade
+          </button>
+        </div>
+      )}
     </>
   );
 }
@@ -230,12 +304,12 @@ export function AccountSettings({
   }
 
   const cardClass =
-    "bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6";
+    "bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6";
   const headingClass =
-    "font-[family-name:var(--font-serif)] text-xl font-bold text-[var(--color-primary)]";
+    "font-[family-name:var(--font-display)] text-xl font-bold text-[var(--color-app-text)]";
   const subTextClass =
-    "font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1";
-  const accentLine = "w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-6";
+    "font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1";
+  const accentLine = "w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-6";
 
   return (
     <div className="space-y-8">
@@ -247,34 +321,34 @@ export function AccountSettings({
 
         <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <dt className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wider">
+            <dt className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-text-tertiary)] uppercase tracking-wider">
               Email
             </dt>
-            <dd className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mt-1">
+            <dd className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] mt-1">
               {email}
             </dd>
           </div>
           <div>
-            <dt className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wider">
+            <dt className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-text-tertiary)] uppercase tracking-wider">
               Member Since
             </dt>
-            <dd className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mt-1">
+            <dd className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] mt-1">
               {formatMemberSince(memberSince)}
             </dd>
           </div>
           <div>
-            <dt className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wider">
+            <dt className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-text-tertiary)] uppercase tracking-wider">
               Reports Generated
             </dt>
-            <dd className="font-[family-name:var(--font-sans)] text-2xl font-bold text-[var(--color-primary)] mt-1">
+            <dd className="font-[family-name:var(--font-body)] text-2xl font-bold text-[var(--color-app-text)] mt-1">
               {stats.reportCount}
             </dd>
           </div>
           <div>
-            <dt className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text-tertiary)] uppercase tracking-wider">
+            <dt className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-text-tertiary)] uppercase tracking-wider">
               Markets Defined
             </dt>
-            <dd className="font-[family-name:var(--font-sans)] text-2xl font-bold text-[var(--color-primary)] mt-1">
+            <dd className="font-[family-name:var(--font-body)] text-2xl font-bold text-[var(--color-app-text)] mt-1">
               {stats.marketCount}
             </dd>
           </div>
@@ -290,7 +364,7 @@ export function AccountSettings({
         {subscriptionData ? (
           <SubscriptionSection data={subscriptionData} />
         ) : (
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
             Unable to load subscription details. Please try again.
           </p>
         )}
@@ -304,13 +378,13 @@ export function AccountSettings({
         </p>
         <div className={accentLine} />
 
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] mb-4">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] mb-4">
           Sign out from all active sessions. You will need to sign in again on
           every device.
         </p>
         <button
           onClick={handleSignOutEverywhere}
-          className="px-4 py-2 bg-[var(--color-error)] hover:bg-[var(--color-error)]/90 text-white font-[family-name:var(--font-sans)] font-medium text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+          className="px-4 py-2 bg-[var(--color-error)] hover:bg-[var(--color-error)]/90 text-white font-[family-name:var(--font-body)] font-medium text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
         >
           Sign Out Everywhere
         </button>

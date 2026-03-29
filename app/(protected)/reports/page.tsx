@@ -31,17 +31,17 @@ export default async function ReportsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
             Reports
           </h2>
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
             Your generated market intelligence reports.
           </p>
         </div>
         <div className="text-right">
           <Link
             href="/reports/create"
-            className="inline-block px-4 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+            className="inline-block px-4 py-2 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-white font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
           >
             Generate New Report
           </Link>
@@ -50,13 +50,13 @@ export default async function ReportsPage() {
       </div>
 
       {reports.length === 0 ? (
-        <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8 text-center">
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+        <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8 text-center">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
             No reports yet. Generate your first market intelligence report.
           </p>
           <Link
             href="/reports/create"
-            className="inline-block mt-4 px-6 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+            className="inline-block mt-4 px-6 py-2 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-white font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
           >
             Generate New Report
           </Link>

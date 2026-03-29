@@ -88,14 +88,14 @@ export function VolumeMetricsDashboard() {
   }, [fetchData, period, granularity]);
 
   return (
-    <div className="space-y-[var(--spacing-6)]">
+    <div className="space-y-[var(--spacing-6)] app-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-[family-name:var(--font-sans)] text-2xl font-bold text-[var(--color-text)]">
+          <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
             Volume Metrics
           </h1>
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
             Report generation trends and volume metrics
           </p>
         </div>
@@ -112,7 +112,7 @@ export function VolumeMetricsDashboard() {
           <button
             onClick={() => fetchData(period, granularity)}
             disabled={loading}
-            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+            className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-app-border)] text-[var(--color-app-text-secondary)] hover:bg-[var(--color-app-active-bg)] disabled:opacity-50 transition-colors"
           >
             {loading ? "Loading..." : "Refresh"}
           </button>
@@ -135,8 +135,8 @@ export function VolumeMetricsDashboard() {
       {/* Loading state */}
       {loading && !overview && (
         <div className="text-center py-[var(--spacing-8)]">
-          <div className="inline-block w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-2">
+          <div className="inline-block w-6 h-6 border-2 border-[var(--color-app-accent)] border-t-transparent rounded-full animate-spin" />
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-2">
             Loading analytics data...
           </p>
         </div>
@@ -177,8 +177,8 @@ export function VolumeMetricsDashboard() {
                   onClick={() => setPeriod(p)}
                   className={`px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-full text-xs font-medium transition-colors ${
                     period === p
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)]"
+                      ? "bg-[var(--color-app-accent)] text-white"
+                      : "bg-[var(--color-app-surface)] text-[var(--color-app-text-secondary)] border border-[var(--color-app-border)] hover:bg-[var(--color-app-active-bg)]"
                   }`}
                 >
                   {p}
@@ -195,8 +195,8 @@ export function VolumeMetricsDashboard() {
                   onClick={() => setGranularity(g.value)}
                   className={`px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-full text-xs font-medium transition-colors ${
                     granularity === g.value
-                      ? "bg-[var(--color-primary)] text-white"
-                      : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)]"
+                      ? "bg-[var(--color-app-accent)] text-white"
+                      : "bg-[var(--color-app-surface)] text-[var(--color-app-text-secondary)] border border-[var(--color-app-border)] hover:bg-[var(--color-app-active-bg)]"
                   }`}
                 >
                   {g.label}
@@ -206,8 +206,8 @@ export function VolumeMetricsDashboard() {
           </div>
 
           {/* Volume Chart */}
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)] p-[var(--spacing-4)]">
-            <h2 className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)] mb-[var(--spacing-4)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-app-border)] p-[var(--spacing-4)]">
+            <h2 className="font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
               Report Volume Over Time
             </h2>
 
@@ -215,7 +215,7 @@ export function VolumeMetricsDashboard() {
               <VolumeChart data={volume.timeSeries} />
             ) : (
               <div className="text-center py-[var(--spacing-8)]">
-                <p className="text-sm text-[var(--color-text-secondary)]">
+                <p className="text-sm text-[var(--color-app-text-secondary)]">
                   No report data for this period.
                 </p>
               </div>
@@ -229,10 +229,10 @@ export function VolumeMetricsDashboard() {
 
 function KpiCard({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
-    <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] border border-[var(--color-border)] p-[var(--spacing-4)]">
-      <p className="text-xs text-[var(--color-text-secondary)] font-[family-name:var(--font-sans)]">{label}</p>
-      <p className={`text-xl font-semibold mt-1 font-[family-name:var(--font-sans)] ${
-        warn ? "text-[var(--color-error)]" : "text-[var(--color-text)]"
+    <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] border border-[var(--color-app-border)] p-[var(--spacing-4)]">
+      <p className="text-xs text-[var(--color-app-text-secondary)] font-[family-name:var(--font-body)]">{label}</p>
+      <p className={`text-xl font-semibold mt-1 font-[family-name:var(--font-body)] ${
+        warn ? "text-[var(--color-error)]" : "text-[var(--color-app-text)]"
       }`}>
         {value}
       </p>
@@ -278,7 +278,7 @@ function VolumeChart({ data }: { data: VolumeEntry[] }) {
               y1={yScale(tick)}
               x2={chartWidth - padding.right}
               y2={yScale(tick)}
-              stroke="var(--color-border)"
+              stroke="var(--color-app-border)"
               strokeDasharray="4 4"
             />
             <text
@@ -286,7 +286,7 @@ function VolumeChart({ data }: { data: VolumeEntry[] }) {
               y={yScale(tick) + 4}
               textAnchor="end"
               fontSize="10"
-              fill="var(--color-text-secondary)"
+              fill="var(--color-app-text-secondary)"
             >
               {tick}
             </text>
@@ -301,14 +301,14 @@ function VolumeChart({ data }: { data: VolumeEntry[] }) {
             y={chartHeight - 8}
             textAnchor="middle"
             fontSize="10"
-            fill="var(--color-text-secondary)"
+            fill="var(--color-app-text-secondary)"
           >
             {formatChartDate(data[idx].date)}
           </text>
         ))}
 
         {/* Lines */}
-        <path d={makePath("total")} fill="none" stroke="var(--color-primary)" strokeWidth="2" />
+        <path d={makePath("total")} fill="none" stroke="var(--color-app-text)" strokeWidth="2" />
         <path d={makePath("completed")} fill="none" stroke="var(--color-success)" strokeWidth="2" />
         <path d={makePath("failed")} fill="none" stroke="var(--color-error)" strokeWidth="1.5" strokeDasharray="4 2" />
 
@@ -319,14 +319,14 @@ function VolumeChart({ data }: { data: VolumeEntry[] }) {
             cx={xScale(i)}
             cy={yScale(d.total)}
             r="3"
-            fill="var(--color-primary)"
+            fill="var(--color-app-text)"
           />
         ))}
       </svg>
 
       {/* Legend */}
       <div className="flex gap-[var(--spacing-4)] mt-[var(--spacing-2)] justify-center">
-        <LegendItem color="var(--color-primary)" label="Total" />
+        <LegendItem color="var(--color-app-text)" label="Total" />
         <LegendItem color="var(--color-success)" label="Completed" />
         <LegendItem color="var(--color-error)" label="Failed" />
       </div>
@@ -338,7 +338,7 @@ function LegendItem({ color, label }: { color: string; label: string }) {
   return (
     <div className="flex items-center gap-[var(--spacing-1)]">
       <span className="inline-block w-3 h-0.5" style={{ backgroundColor: color }} />
-      <span className="text-xs text-[var(--color-text-secondary)]">{label}</span>
+      <span className="text-xs text-[var(--color-app-text-secondary)]">{label}</span>
     </div>
   );
 }

@@ -104,22 +104,22 @@ export function TestSuiteDashboard() {
 
   if (loading) {
     return (
-      <div className="p-8">
-        <h1 className="text-2xl font-bold mb-4">Pipeline Test Suite</h1>
-        <p className="text-gray-500">Loading...</p>
+      <div className="p-8 font-[family-name:var(--font-body)]">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold mb-4 text-[var(--color-app-text)]">Pipeline Test Suite</h1>
+        <p className="text-[var(--color-app-text-secondary)]">Loading...</p>
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Pipeline Test Suite</h1>
+    <div className="app-fade-in p-8 max-w-6xl mx-auto font-[family-name:var(--font-body)]">
+      <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold mb-6 text-[var(--color-app-text)]">Pipeline Test Suite</h1>
 
       {/* Snapshots */}
       <section className="mb-10">
-        <h2 className="text-lg font-semibold mb-3">Data Snapshots</h2>
+        <h2 className="text-lg font-semibold mb-3 text-[var(--color-app-text)]">Data Snapshots</h2>
         {snapshots.length === 0 ? (
-          <p className="text-gray-500 text-sm">
+          <p className="text-[var(--color-app-text-secondary)] text-sm">
             No snapshots yet. Import from CLI or save from a completed report.
           </p>
         ) : (
@@ -127,14 +127,14 @@ export function TestSuiteDashboard() {
             {snapshots.map((snap) => (
               <div
                 key={snap.id}
-                className="border rounded-lg p-4 flex items-center justify-between"
+                className="border border-[var(--color-app-border)] rounded-lg p-4 flex items-center justify-between bg-[var(--color-app-surface)]"
               >
                 <div>
                   <div className="flex items-center gap-2">
                     {snap.isGolden && <span title="Golden snapshot">★</span>}
-                    <span className="font-medium">{snap.name}</span>
+                    <span className="font-medium text-[var(--color-app-text)]">{snap.name}</span>
                   </div>
-                  <div className="text-sm text-gray-500 mt-1">
+                  <div className="text-sm text-[var(--color-app-text-secondary)] mt-1">
                     {snap.propertyCount} props | {snap.peerMarketCount} peers
                     {snap.hasXSentiment ? " | X sentiment" : " | No X"}
                     {" | "}
@@ -145,13 +145,13 @@ export function TestSuiteDashboard() {
                   <button
                     onClick={() => handleRunPipeline(snap.id)}
                     disabled={runningSnapshotId === snap.id}
-                    className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+                    className="px-3 py-1.5 text-sm bg-[var(--color-app-accent)] text-white rounded hover:bg-[var(--color-app-accent-hover)] disabled:opacity-50"
                   >
                     {runningSnapshotId === snap.id ? "Running..." : "Run Pipeline"}
                   </button>
                   <button
                     onClick={() => handleToggleGolden(snap.id, snap.isGolden)}
-                    className="px-3 py-1.5 text-sm border rounded hover:bg-gray-50"
+                    className="px-3 py-1.5 text-sm border border-[var(--color-app-border)] rounded hover:bg-[var(--color-app-bg)] text-[var(--color-app-text)]"
                     title={snap.isGolden ? "Remove golden status" : "Mark as golden"}
                   >
                     {snap.isGolden ? "Ungolden" : "★ Golden"}
@@ -159,7 +159,7 @@ export function TestSuiteDashboard() {
                   {!snap.isGolden && (
                     <button
                       onClick={() => handleDeleteSnapshot(snap.id)}
-                      className="px-3 py-1.5 text-sm border border-red-200 text-red-600 rounded hover:bg-red-50"
+                      className="px-3 py-1.5 text-sm border border-[rgba(239,68,68,0.2)] text-[var(--color-error)] rounded hover:bg-[rgba(239,68,68,0.1)]"
                     >
                       Delete
                     </button>
@@ -173,19 +173,19 @@ export function TestSuiteDashboard() {
 
       {/* Recent Runs */}
       <section>
-        <h2 className="text-lg font-semibold mb-3">Recent Test Runs</h2>
+        <h2 className="text-lg font-semibold mb-3 text-[var(--color-app-text)]">Recent Test Runs</h2>
         {runs.length === 0 ? (
-          <p className="text-gray-500 text-sm">No test runs yet.</p>
+          <p className="text-[var(--color-app-text-secondary)] text-sm">No test runs yet.</p>
         ) : (
-          <div className="border rounded-lg overflow-x-auto">
+          <div className="border border-[var(--color-app-border)] rounded-lg overflow-x-auto">
             <table className="w-full text-sm table-fixed">
-              <thead className="bg-gray-50 text-left">
+              <thead className="bg-[var(--color-app-bg)] text-left">
                 <tr>
-                  <th className="px-3 py-2 w-28">Run</th>
-                  <th className="px-3 py-2 w-28">Status</th>
-                  <th className="px-3 py-2 w-20">Duration</th>
-                  <th className="px-3 py-2">Error</th>
-                  <th className="px-3 py-2 w-28">Actions</th>
+                  <th className="px-3 py-2 w-28 text-[var(--color-app-text-secondary)]">Run</th>
+                  <th className="px-3 py-2 w-28 text-[var(--color-app-text-secondary)]">Status</th>
+                  <th className="px-3 py-2 w-20 text-[var(--color-app-text-secondary)]">Duration</th>
+                  <th className="px-3 py-2 text-[var(--color-app-text-secondary)]">Error</th>
+                  <th className="px-3 py-2 w-28 text-[var(--color-app-text-secondary)]">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -194,24 +194,24 @@ export function TestSuiteDashboard() {
                     ? run.layerDurations.layer1Ms + run.layerDurations.layer2Ms + run.layerDurations.layer3Ms
                     : 0;
                   return (
-                    <tr key={run.id} className="border-t">
-                      <td className="px-3 py-2 font-mono text-xs">
+                    <tr key={run.id} className="border-t border-[var(--color-app-border)]">
+                      <td className="px-3 py-2 font-mono text-xs text-[var(--color-app-text)]">
                         {run.id.slice(0, 8)}
                         {run.isDraft && (
-                          <span className="ml-1 text-xs bg-yellow-100 text-yellow-700 px-1 rounded">
+                          <span className="ml-1 text-xs bg-[rgba(234,179,8,0.1)] text-[var(--color-warning)] px-1 rounded">
                             draft
                           </span>
                         )}
                       </td>
                       <td className="px-3 py-2">
-                        {run.status === "completed" && <span className="text-green-600">✓ Complete</span>}
-                        {run.status === "failed" && <span className="text-red-600">✗ Failed</span>}
-                        {run.status === "running" && <span className="text-blue-600">● Running</span>}
+                        {run.status === "completed" && <span className="text-[var(--color-success)]">✓ Complete</span>}
+                        {run.status === "failed" && <span className="text-[var(--color-error)]">✗ Failed</span>}
+                        {run.status === "running" && <span className="text-[var(--color-app-accent)]">● Running</span>}
                       </td>
-                      <td className="px-3 py-2">
+                      <td className="px-3 py-2 text-[var(--color-app-text)]">
                         {totalMs > 0 ? `${(totalMs / 1000).toFixed(1)}s` : "—"}
                       </td>
-                      <td className="px-3 py-2 text-red-600 text-xs truncate" title={run.error?.message}>
+                      <td className="px-3 py-2 text-[var(--color-error)] text-xs truncate" title={run.error?.message}>
                         {run.error ? `L${run.error.layer}: ${run.error.message.slice(0, 60)}` : "—"}
                       </td>
                       <td className="px-3 py-2">
@@ -219,7 +219,7 @@ export function TestSuiteDashboard() {
                           <button
                             onClick={() => handlePreviewPdf(run.id)}
                             disabled={pdfLoading === run.id}
-                            className="text-blue-600 hover:underline text-xs whitespace-nowrap"
+                            className="text-[var(--color-app-accent)] hover:underline text-xs whitespace-nowrap"
                           >
                             {pdfLoading === run.id ? "Generating..." : "Preview PDF"}
                           </button>

@@ -94,7 +94,7 @@ export function MarketCard({ market, lastReportDate }: MarketCardProps) {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(135deg, var(--color-primary) 0%, #1E293B 100%)",
+              "linear-gradient(135deg, var(--color-app-nav-bg) 0%, #2C2825 100%)",
           }}
         />
       )}
@@ -104,16 +104,16 @@ export function MarketCard({ market, lastReportDate }: MarketCardProps) {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, transparent 10%, rgba(15,23,42,0.4) 45%, rgba(15,23,42,0.85) 100%)",
+            "linear-gradient(to bottom, transparent 10%, rgba(26,23,20,0.4) 45%, rgba(26,23,20,0.85) 100%)",
         }}
       />
 
       {/* Hover overlay — fades in on hover */}
       <div
         data-testid="market-card-hover-overlay"
-        className="absolute inset-0 flex items-center justify-center bg-[rgba(15,23,42,0.75)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
+        className="absolute inset-0 flex items-center justify-center bg-[rgba(26,23,20,0.75)] opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10"
       >
-        <span className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text-inverse)] tracking-wide">
+        <span className="font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-text-inverse)] tracking-wide">
           Generate New Report
         </span>
       </div>
@@ -121,18 +121,18 @@ export function MarketCard({ market, lastReportDate }: MarketCardProps) {
       {/* Card content — centered */}
       <div className="absolute inset-0 flex flex-col items-center justify-end pb-[var(--spacing-6)] px-[var(--spacing-4)] z-[5]">
         <h3
-          className="font-[family-name:var(--font-serif)] text-xl font-semibold leading-snug text-center"
+          className="font-[family-name:var(--font-display)] text-xl font-semibold leading-snug text-center"
           style={{ color: "var(--color-text-inverse)" }}
         >
           {market.geography.city}
         </h3>
         <div className="flex items-center gap-[var(--spacing-2)] mt-[var(--spacing-2)]">
-          <span className="inline-block bg-[var(--color-accent-light)] text-[var(--color-accent-hover)] text-xs font-medium px-2 py-0.5 rounded-full">
+          <span className="inline-block bg-[var(--color-app-accent-light)] text-[var(--color-app-accent)] text-xs font-medium px-2 py-0.5 rounded-full">
             {tierLabel}
           </span>
           <span
             className="text-xs"
-            style={{ color: "rgba(248,250,252,0.55)" }}
+            style={{ color: "rgba(253,252,250,0.55)" }}
           >
             {formatPriceFloor(market.priceFloor)} floor
           </span>
@@ -140,7 +140,7 @@ export function MarketCard({ market, lastReportDate }: MarketCardProps) {
         {lastReportDate && (
           <span
             className="text-xs mt-[var(--spacing-1)]"
-            style={{ color: "rgba(248,250,252,0.45)" }}
+            style={{ color: "rgba(253,252,250,0.45)" }}
           >
             Last run: {formatShortDate(lastReportDate)}
           </span>

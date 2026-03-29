@@ -228,23 +228,22 @@ describe("Flow Persistence (#158)", () => {
       expect(screen.getByTestId("step-content-0")).toBeInTheDocument();
     });
 
-    it("shows Quick Start panel when markets exist", () => {
+    it("shows saved markets with Use This buttons when markets exist", () => {
       render(React.createElement(CreationFlowShell, { markets: mockMarkets }));
 
-      // Use the data-testid on the Quick Start panel
-      expect(screen.getByTestId("quick-start")).toBeInTheDocument();
+      // Saved markets are rendered inside StepYourMarket (step-content-0)
       // Check that Use This buttons exist for each market
       const useButtons = screen.getAllByRole("button", { name: /use this/i });
       expect(useButtons.length).toBe(2);
     });
 
-    it("does not show Quick Start when no markets exist", () => {
+    it("does not show Use This buttons when no markets exist", () => {
       render(React.createElement(CreationFlowShell, { markets: [] }));
 
-      expect(screen.queryByTestId("quick-start")).not.toBeInTheDocument();
+      expect(screen.queryByRole("button", { name: /use this/i })).not.toBeInTheDocument();
     });
 
-    it("jumps to step 2 (audience) when Quick Start market is selected", () => {
+    it("jumps to step 2 (audience) when a saved market is selected via Use This", () => {
       render(React.createElement(CreationFlowShell, { markets: mockMarkets }));
 
       const useButtons = screen.getAllByRole("button", { name: /use this/i });
@@ -254,15 +253,13 @@ describe("Flow Persistence (#158)", () => {
       expect(screen.getByTestId("step-content-2")).toBeInTheDocument();
     });
 
-    it("allows starting fresh even with existing markets", () => {
+    it("stays on step 0 after clicking Next from step 0 (still at market entry)", () => {
       render(React.createElement(CreationFlowShell, { markets: mockMarkets }));
 
-      const startFresh = screen.getByRole("button", { name: /start fresh/i });
-      fireEvent.click(startFresh);
-
-      // Quick Start should be dismissed, still on step 0
+      // Step 0 is still visible — form is empty so it stays on step 0 area
       expect(screen.getByTestId("step-content-0")).toBeInTheDocument();
-      expect(screen.queryByTestId("quick-start")).not.toBeInTheDocument();
+      // Saved markets section shows a divider when markets exist
+      expect(screen.getByText(/or define a new market/i)).toBeInTheDocument();
     });
 
     it("preserves data from other steps when navigating back from review", () => {

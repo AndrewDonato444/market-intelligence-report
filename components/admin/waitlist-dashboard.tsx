@@ -95,15 +95,15 @@ export function WaitlistDashboard() {
   const totalPages = data ? Math.ceil(data.total / PAGE_SIZE) : 0;
 
   return (
-    <div style={{ padding: "var(--spacing-6, 24px)" }}>
+    <div className="app-fade-in" style={{ padding: "var(--spacing-6, 24px)" }}>
       {/* Header */}
       <div style={{ marginBottom: "var(--spacing-6, 24px)" }}>
         <h1
           style={{
-            fontFamily: "var(--font-heading, Georgia, serif)",
+            fontFamily: "var(--font-display, Georgia, serif)",
             fontSize: "var(--text-2xl, 24px)",
             fontWeight: 600,
-            color: "var(--color-text, #1a1a1a)",
+            color: "var(--color-app-text, #1a1a1a)",
             margin: 0,
           }}
         >
@@ -112,7 +112,7 @@ export function WaitlistDashboard() {
         <p
           style={{
             fontSize: "var(--text-sm, 14px)",
-            color: "var(--color-text-secondary, #6b7280)",
+            color: "var(--color-app-text-secondary, #6b7280)",
             marginTop: "var(--spacing-1, 4px)",
           }}
         >
@@ -138,12 +138,12 @@ export function WaitlistDashboard() {
           style={{
             flex: "1 1 240px",
             padding: "var(--spacing-2, 8px) var(--spacing-3, 12px)",
-            border: "1px solid var(--color-border, #e5e7eb)",
+            border: "1px solid var(--color-app-border, #e5e7eb)",
             borderRadius: "var(--radius-sm, 6px)",
             fontSize: "var(--text-sm, 14px)",
-            fontFamily: "var(--font-sans, sans-serif)",
-            background: "var(--color-surface, #fff)",
-            color: "var(--color-text, #1a1a1a)",
+            fontFamily: "var(--font-body, sans-serif)",
+            background: "var(--color-app-surface, #fff)",
+            color: "var(--color-app-text, #1a1a1a)",
             outline: "none",
           }}
         />
@@ -155,12 +155,12 @@ export function WaitlistDashboard() {
           }}
           style={{
             padding: "var(--spacing-2, 8px) var(--spacing-3, 12px)",
-            border: "1px solid var(--color-border, #e5e7eb)",
+            border: "1px solid var(--color-app-border, #e5e7eb)",
             borderRadius: "var(--radius-sm, 6px)",
             fontSize: "var(--text-sm, 14px)",
-            fontFamily: "var(--font-sans, sans-serif)",
-            background: "var(--color-surface, #fff)",
-            color: "var(--color-text, #1a1a1a)",
+            fontFamily: "var(--font-body, sans-serif)",
+            background: "var(--color-app-surface, #fff)",
+            color: "var(--color-app-text, #1a1a1a)",
           }}
         >
           <option value="all">All statuses</option>
@@ -189,10 +189,10 @@ export function WaitlistDashboard() {
       {/* Table */}
       <div
         style={{
-          border: "1px solid var(--color-border, #e5e7eb)",
+          border: "1px solid var(--color-app-border, #e5e7eb)",
           borderRadius: "var(--radius-md, 8px)",
           overflow: "auto",
-          background: "var(--color-surface, #fff)",
+          background: "var(--color-app-surface, #fff)",
         }}
       >
         <table
@@ -200,14 +200,14 @@ export function WaitlistDashboard() {
             width: "100%",
             borderCollapse: "collapse",
             fontSize: "var(--text-sm, 14px)",
-            fontFamily: "var(--font-sans, sans-serif)",
+            fontFamily: "var(--font-body, sans-serif)",
           }}
         >
           <thead>
             <tr
               style={{
-                borderBottom: "1px solid var(--color-border, #e5e7eb)",
-                background: "var(--color-background, #f9fafb)",
+                borderBottom: "1px solid var(--color-app-border, #e5e7eb)",
+                background: "var(--color-app-bg, #f9fafb)",
               }}
             >
               {[
@@ -224,7 +224,7 @@ export function WaitlistDashboard() {
                     padding: "var(--spacing-3, 12px)",
                     textAlign: "left",
                     fontWeight: 500,
-                    color: "var(--color-text-secondary, #6b7280)",
+                    color: "var(--color-app-text-secondary, #6b7280)",
                     cursor: "pointer",
                     userSelect: "none",
                     whiteSpace: "nowrap",
@@ -242,7 +242,7 @@ export function WaitlistDashboard() {
                   padding: "var(--spacing-3, 12px)",
                   textAlign: "left",
                   fontWeight: 500,
-                  color: "var(--color-text-secondary, #6b7280)",
+                  color: "var(--color-app-text-secondary, #6b7280)",
                   fontSize: "var(--text-xs, 12px)",
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
@@ -255,7 +255,7 @@ export function WaitlistDashboard() {
                   padding: "var(--spacing-3, 12px)",
                   textAlign: "left",
                   fontWeight: 500,
-                  color: "var(--color-text-secondary, #6b7280)",
+                  color: "var(--color-app-text-secondary, #6b7280)",
                   fontSize: "var(--text-xs, 12px)",
                   textTransform: "uppercase",
                   letterSpacing: "0.05em",
@@ -273,7 +273,7 @@ export function WaitlistDashboard() {
                   style={{
                     padding: "var(--spacing-8, 32px)",
                     textAlign: "center",
-                    color: "var(--color-text-secondary, #6b7280)",
+                    color: "var(--color-app-text-secondary, #6b7280)",
                   }}
                 >
                   Loading...
@@ -286,7 +286,7 @@ export function WaitlistDashboard() {
                   style={{
                     padding: "var(--spacing-8, 32px)",
                     textAlign: "center",
-                    color: "var(--color-text-secondary, #6b7280)",
+                    color: "var(--color-app-text-secondary, #6b7280)",
                   }}
                 >
                   No waitlist entries found
@@ -299,14 +299,14 @@ export function WaitlistDashboard() {
                   <tr
                     key={entry.id}
                     style={{
-                      borderBottom: "1px solid var(--color-border, #e5e7eb)",
+                      borderBottom: "1px solid var(--color-app-border, #e5e7eb)",
                     }}
                   >
                     <td
                       style={{
                         padding: "var(--spacing-3, 12px)",
                         fontWeight: 500,
-                        color: "var(--color-text, #1a1a1a)",
+                        color: "var(--color-app-text, #1a1a1a)",
                         whiteSpace: "nowrap",
                       }}
                     >
@@ -315,7 +315,7 @@ export function WaitlistDashboard() {
                     <td
                       style={{
                         padding: "var(--spacing-3, 12px)",
-                        color: "var(--color-text-secondary, #6b7280)",
+                        color: "var(--color-app-text-secondary, #6b7280)",
                       }}
                     >
                       {entry.email}
@@ -323,7 +323,7 @@ export function WaitlistDashboard() {
                     <td
                       style={{
                         padding: "var(--spacing-3, 12px)",
-                        color: "var(--color-text-secondary, #6b7280)",
+                        color: "var(--color-app-text-secondary, #6b7280)",
                       }}
                     >
                       {entry.market}
@@ -346,7 +346,7 @@ export function WaitlistDashboard() {
                     <td
                       style={{
                         padding: "var(--spacing-3, 12px)",
-                        color: "var(--color-text-secondary, #6b7280)",
+                        color: "var(--color-app-text-secondary, #6b7280)",
                         whiteSpace: "nowrap",
                       }}
                     >
@@ -355,7 +355,7 @@ export function WaitlistDashboard() {
                     <td
                       style={{
                         padding: "var(--spacing-3, 12px)",
-                        color: "var(--color-text-secondary, #6b7280)",
+                        color: "var(--color-app-text-secondary, #6b7280)",
                       }}
                     >
                       {entry.phone || "—"}
@@ -363,7 +363,7 @@ export function WaitlistDashboard() {
                     <td
                       style={{
                         padding: "var(--spacing-3, 12px)",
-                        color: "var(--color-text-secondary, #6b7280)",
+                        color: "var(--color-app-text-secondary, #6b7280)",
                       }}
                     >
                       {entry.website ? (
@@ -371,7 +371,7 @@ export function WaitlistDashboard() {
                           href={entry.website.startsWith("http") ? entry.website : `https://${entry.website}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          style={{ color: "var(--color-primary, #3b82f6)" }}
+                          style={{ color: "var(--color-app-accent, #3b82f6)" }}
                         >
                           {entry.website}
                         </a>
@@ -396,7 +396,7 @@ export function WaitlistDashboard() {
             alignItems: "center",
             marginTop: "var(--spacing-4, 16px)",
             fontSize: "var(--text-sm, 14px)",
-            color: "var(--color-text-secondary, #6b7280)",
+            color: "var(--color-app-text-secondary, #6b7280)",
           }}
         >
           <span>
@@ -408,12 +408,12 @@ export function WaitlistDashboard() {
               disabled={page === 1}
               style={{
                 padding: "var(--spacing-2, 8px) var(--spacing-3, 12px)",
-                border: "1px solid var(--color-border, #e5e7eb)",
+                border: "1px solid var(--color-app-border, #e5e7eb)",
                 borderRadius: "var(--radius-sm, 6px)",
-                background: "var(--color-surface, #fff)",
+                background: "var(--color-app-surface, #fff)",
                 cursor: page === 1 ? "not-allowed" : "pointer",
                 opacity: page === 1 ? 0.5 : 1,
-                fontFamily: "var(--font-sans, sans-serif)",
+                fontFamily: "var(--font-body, sans-serif)",
                 fontSize: "var(--text-sm, 14px)",
               }}
             >
@@ -424,12 +424,12 @@ export function WaitlistDashboard() {
               disabled={page === totalPages}
               style={{
                 padding: "var(--spacing-2, 8px) var(--spacing-3, 12px)",
-                border: "1px solid var(--color-border, #e5e7eb)",
+                border: "1px solid var(--color-app-border, #e5e7eb)",
                 borderRadius: "var(--radius-sm, 6px)",
-                background: "var(--color-surface, #fff)",
+                background: "var(--color-app-surface, #fff)",
                 cursor: page === totalPages ? "not-allowed" : "pointer",
                 opacity: page === totalPages ? 0.5 : 1,
-                fontFamily: "var(--font-sans, sans-serif)",
+                fontFamily: "var(--font-body, sans-serif)",
                 fontSize: "var(--text-sm, 14px)",
               }}
             >

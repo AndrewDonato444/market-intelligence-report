@@ -6,6 +6,7 @@
 import React from "react";
 import { Page, View, Text, Image, Link } from "@react-pdf/renderer";
 import { styles, COLORS } from "../styles";
+import { getCopyrightLine, CONFIDENTIALITY_NOTICE } from "../copyright";
 
 export interface CoverKeyTheme {
   name: string;
@@ -147,6 +148,16 @@ export function CoverPage({
             Trends: {"\u2191"} Improving  {"\u2193"} Declining  {"\u2192"} Stable
           </Text>
         </View>
+
+        {/* Confidentiality notice */}
+        <Text style={{ ...styles.coverConfidentiality, marginTop: 12 }}>
+          {CONFIDENTIALITY_NOTICE}
+        </Text>
+
+        {/* Copyright line */}
+        <Text style={{ ...styles.copyrightText, color: COLORS.surface, opacity: 0.6, marginTop: 8 }}>
+          {getCopyrightLine()}
+        </Text>
       </View>
     </Page>
   );

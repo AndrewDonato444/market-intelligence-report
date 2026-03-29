@@ -80,12 +80,12 @@ export function CreateUserForm() {
   const inputStyle: React.CSSProperties = {
     width: "100%",
     padding: "var(--spacing-2, 8px) var(--spacing-3, 12px)",
-    border: "1px solid var(--color-border, #e5e7eb)",
+    border: "1px solid var(--color-app-border, #e5e7eb)",
     borderRadius: "var(--radius-sm, 6px)",
     fontSize: "var(--text-sm, 14px)",
-    fontFamily: "var(--font-sans, sans-serif)",
-    background: "var(--color-surface, #fff)",
-    color: "var(--color-text, #1a1a1a)",
+    fontFamily: "var(--font-body, sans-serif)",
+    background: "var(--color-app-surface, #fff)",
+    color: "var(--color-app-text, #1a1a1a)",
     outline: "none",
   };
 
@@ -93,13 +93,13 @@ export function CreateUserForm() {
     display: "block",
     fontSize: "var(--text-sm, 14px)",
     fontWeight: 500,
-    color: "var(--color-text, #1a1a1a)",
+    color: "var(--color-app-text, #1a1a1a)",
     marginBottom: "var(--spacing-1, 4px)",
-    fontFamily: "var(--font-sans, sans-serif)",
+    fontFamily: "var(--font-body, sans-serif)",
   };
 
   return (
-    <div style={{ padding: "var(--spacing-6, 24px)" }}>
+    <div style={{ padding: "var(--spacing-6, 24px)" }} className="app-fade-in">
       {/* Back link */}
       <button
         onClick={() => router.push("/admin/users")}
@@ -108,8 +108,8 @@ export function CreateUserForm() {
           border: "none",
           cursor: "pointer",
           fontSize: "var(--text-sm, 14px)",
-          color: "var(--color-text-secondary, #6b7280)",
-          fontFamily: "var(--font-sans, sans-serif)",
+          color: "var(--color-app-text-secondary, #6b7280)",
+          fontFamily: "var(--font-body, sans-serif)",
           padding: 0,
           marginBottom: "var(--spacing-4, 16px)",
           display: "flex",
@@ -128,8 +128,8 @@ export function CreateUserForm() {
       <div
         style={{
           maxWidth: 600,
-          background: "var(--color-surface, #fff)",
-          border: "1px solid var(--color-border, #e5e7eb)",
+          background: "var(--color-app-surface, #fff)",
+          border: "1px solid var(--color-app-border, #e5e7eb)",
           borderRadius: "var(--radius-md, 8px)",
           boxShadow: "var(--shadow-sm, 0 1px 2px rgba(0,0,0,0.05))",
           padding: "var(--spacing-6, 24px)",
@@ -137,10 +137,10 @@ export function CreateUserForm() {
       >
         <h1
           style={{
-            fontFamily: "var(--font-heading, Georgia, serif)",
+            fontFamily: "var(--font-display, Georgia, serif)",
             fontSize: "var(--text-xl, 20px)",
             fontWeight: 600,
-            color: "var(--color-text, #1a1a1a)",
+            color: "var(--color-app-text, #1a1a1a)",
             margin: "0 0 var(--spacing-6, 24px) 0",
           }}
         >
@@ -315,8 +315,8 @@ export function CreateUserForm() {
               htmlFor="sendInvite"
               style={{
                 fontSize: "var(--text-sm, 14px)",
-                color: "var(--color-text-secondary, #6b7280)",
-                fontFamily: "var(--font-sans, sans-serif)",
+                color: "var(--color-app-text-secondary, #6b7280)",
+                fontFamily: "var(--font-body, sans-serif)",
                 cursor: "pointer",
               }}
             >
@@ -332,14 +332,14 @@ export function CreateUserForm() {
               width: "100%",
               padding: "var(--spacing-3, 12px)",
               background: loading
-                ? "var(--color-text-secondary, #6b7280)"
-                : "var(--color-primary, #0F172A)",
+                ? "var(--color-app-text-secondary, #6b7280)"
+                : "var(--color-app-accent, #0F172A)",
               color: "#fff",
               border: "none",
               borderRadius: "var(--radius-sm, 6px)",
               fontSize: "var(--text-sm, 14px)",
               fontWeight: 500,
-              fontFamily: "var(--font-sans, sans-serif)",
+              fontFamily: "var(--font-body, sans-serif)",
               cursor: loading ? "not-allowed" : "pointer",
             }}
           >
