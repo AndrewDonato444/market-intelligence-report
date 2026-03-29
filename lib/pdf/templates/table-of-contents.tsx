@@ -5,6 +5,7 @@
 import React from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles, COLORS } from "../styles";
+import { getCopyrightLine } from "../copyright";
 
 interface SectionEntry {
   sectionType: string;
@@ -82,6 +83,9 @@ export function TableOfContents({ sections }: TableOfContentsProps) {
             `${pageNumber} / ${totalPages}`
           }
         />
+      </View>
+      <View style={{ ...styles.pageFooter, ...styles.copyrightFooterRow, bottom: 20, borderTopWidth: 0 }} fixed>
+        <Text style={styles.copyrightText}>{getCopyrightLine()}</Text>
       </View>
     </Page>
   );

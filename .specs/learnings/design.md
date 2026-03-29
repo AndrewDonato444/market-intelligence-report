@@ -8,6 +8,11 @@ Patterns for UI and design system in this codebase.
 
 <!-- When to use which tokens, overrides -->
 
+### 2026-03-29 — PDF Copyright Notices (#245)
+- **Pattern**: Copyright/confidentiality notices use a two-tier footer approach: the existing `pageFooter` (absolute positioned at `bottom: 32`) holds report title + page number, and a second copyright row (at `bottom: 20`, no border) sits below it with 4pt spacing. Both use `fixed` prop to repeat on every page.
+- **Decision**: Confidentiality notices appear exactly twice — cover page and final section page. This is deliberate per anti-persona guidance: a compliance officer would want it on every page, but that clutters the advisory content. Cover + final page provides legal coverage without visual noise.
+- **Pattern**: `createBrandedColors()` overrides `primary`, `accent`, `textPrimary` etc. but NOT `textTertiary` or `surface`. Copyright text uses `textTertiary` and `surface` — so it's brand-immune by design, no special logic needed.
+
 ### 2026-03-29 — Design Refresh: Admin Pages Token Migration (Phase 8)
 - **Pattern**: Admin components use three different styling approaches — inline `style={{}}` objects with `fontFamily: "var(--font-sans)"`, Tailwind `className` with `font-[family-name:var(--font-sans)]`, and hardcoded Tailwind colors (`bg-blue-600`, `text-gray-500`). Token migration must handle all three patterns. Test-suite-dashboard was the only file using hardcoded Tailwind — required a full rewrite from `bg-blue-600` → `bg-[var(--color-app-accent)]` etc.
 - **Decision**: Panel components (EntitlementOverridesPanel) don't have page-level h1 headings — only h3 section headings. Per the spec, h1 uses `--font-display` (Cormorant Garamond) but h2/h3 section headings use `--font-body` (DM Sans) at `font-semibold`. Test expectations must distinguish dashboards from embedded panels.

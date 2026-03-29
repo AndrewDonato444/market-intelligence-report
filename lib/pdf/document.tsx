@@ -90,12 +90,13 @@ export function ReportDocument({
         metadata={reportData.metadata}
         sections={reportData.sections}
       />
-      {filteredSections.map((section) => (
+      {filteredSections.map((section, index) => (
         <SectionPage
           key={section.sectionType}
           section={section}
           reportTitle={title}
           companyName={branding.company}
+          isLastSection={index === filteredSections.length - 1}
         />
       ))}
     </Document>

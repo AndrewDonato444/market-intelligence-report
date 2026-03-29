@@ -19,6 +19,12 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-29 — PDF Copyright Notices (#245)
+
+- **PDF renderer test content gotcha** (`testing.md`): Section renderers (especially `disclaimer_methodology`, `executive_briefing`, `the_narrative`) crash on minimal test fixtures. Each renderer expects specific nested content shapes. Use `disclaimer_methodology` with `{ narrative, dataSources: [], disclaimer }` for SectionPage tests — it's the simplest renderer.
+- **Two-tier absolute footer pattern** (`design.md`): Existing `pageFooter` at `bottom: 32` plus a copyright row at `bottom: 20` with no top border creates a clean two-row footer that repeats on every page via `fixed` prop.
+- **Brand-immune copyright by token choice** (`design.md`): `createBrandedColors()` overrides brand-facing colors but not `textTertiary` or `surface` — copyright text uses these, so it stays "Modern Signal Advisory" regardless of agent brand colors with zero conditional logic.
+
 ### 2026-03-29 — Design Refresh: Admin Pages Token Migration (Phase 8)
 
 - **Mixed style patterns in admin components** (`design.md`): Admin components use three different styling approaches — inline `style={{}}` objects, Tailwind `className` with `var()`, and hardcoded Tailwind colors (test-suite-dashboard). Token migration must handle all three. Source file grep for cold tokens catches all patterns.

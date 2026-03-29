@@ -132,6 +132,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | reports | [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
 | security | [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md) | `components/ui/turnstile-widget.tsx, lib/security/verify-turnstile.ts, lib/security/index.ts, app/api/auth/signup/route.ts, app/api/auth/signin/route.ts, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/sign-in/[[...sign-in]]/page.tsx` | see spec | see spec | implemented |
 | security | [Anti-Scraper Middleware](.specs/features/security/anti-scraper-middleware.feature.md) | `lib/security/anti-scraper.ts, lib/supabase/middleware.ts, lib/security/index.ts, app/api/honeypot/route.ts` | see spec | see spec | implemented |
+| security | [PDF Copyright Notices](.specs/features/security/pdf-copyright-notices.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
 | security | [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md) | `lib/security/rate-limiter.ts, lib/security/index.ts, lib/supabase/middleware.ts` | see spec | see spec | implemented |
 | security | [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md) | `app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
@@ -181,8 +182,8 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | stub | 0 |
 | specced | 12 |
 | tested | 0 |
-| implemented | 139 |
-| **Total** | **153** |
+| implemented | 140 |
+| **Total** | **154** |
 
 ---
 
@@ -316,6 +317,7 @@ _None_
 - [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md)
 - [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md)
 - [Anti-Scraper Middleware](.specs/features/security/anti-scraper-middleware.feature.md)
+- [PDF Copyright Notices](.specs/features/security/pdf-copyright-notices.feature.md)
 - [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md)
 - [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md)
 - [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md)

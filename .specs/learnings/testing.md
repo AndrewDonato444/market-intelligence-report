@@ -8,6 +8,10 @@ Patterns for testing in this codebase.
 
 <!-- Patterns for mocking dependencies, APIs, etc. -->
 
+### 2026-03-29 — PDF Copyright Notices (#245)
+- **Gotcha**: PDF section renderers crash on minimal test content. `disclaimer_methodology` requires `{ narrative, dataSources: [], disclaimer }` — missing `dataSources` causes `Cannot read properties of undefined (reading 'length')`. `executive_briefing` needs `headline` with `rating`, `medianPrice`, etc. `the_narrative` needs `marketContext.segments`. For SectionPage tests, use `disclaimer_methodology` with complete content shape — it's the simplest renderer that always renders.
+- **Pattern**: For "doesn't appear" tests (e.g., confidentiality block only on last section), use `queryByText` (returns null) instead of `getByText` (throws). Combine with `not.toBeInTheDocument()` for clear negative assertions.
+
 ### 2026-03-13 — Pipeline Test Suite (#PTS)
 - **Pattern**: For fire-and-forget pipeline routes (POST starts run, updates DB on completion), test the synchronous path only — verify the run record is created with `status: "running"` and returned immediately. The async `.then()` / `.catch()` executes after the response; testing it requires flushing promises or integration tests.
 - **Pattern**: When POST API routes require multiple fields (e.g., `compiledData`, `marketName`, `geography`), tests must send ALL required fields — not just the ID. A test that only sends `snapshotId` will get 400 from the snapshot creation route, not 200. Match the API contract exactly in test fixtures.
