@@ -18,10 +18,10 @@ export default async function ContentStudioListingPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+          <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
             Content Studio
           </h2>
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
             Your generated marketing content.
           </p>
         </div>

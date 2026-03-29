@@ -140,7 +140,7 @@ function TileActionButton({
     return (
       <Link
         href={href}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] text-xs font-medium hover:opacity-90 transition-opacity"
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] bg-[var(--color-app-accent)] text-white font-[family-name:var(--font-body)] text-xs font-medium hover:opacity-90 transition-opacity"
       >
         <span
           className="w-2 h-2 rounded-full flex-shrink-0"
@@ -157,11 +157,11 @@ function TileActionButton({
     return (
       <button
         disabled
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] font-[family-name:var(--font-sans)] text-xs text-[var(--color-accent)] opacity-80 animate-pulse"
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-app-border)] font-[family-name:var(--font-body)] text-xs text-[var(--color-app-accent)] opacity-80 animate-pulse"
       >
         <span
           className="w-2 h-2 rounded-full flex-shrink-0 animate-pulse"
-          style={{ backgroundColor: "var(--color-accent)" }}
+          style={{ backgroundColor: "var(--color-app-accent)" }}
         />
         Generating...
       </button>
@@ -174,7 +174,7 @@ function TileActionButton({
       <button
         onClick={handleGenerate}
         disabled={triggering}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-error)] font-[family-name:var(--font-sans)] text-xs text-[var(--color-error)] hover:bg-red-50 disabled:opacity-50 transition-colors"
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-error)] font-[family-name:var(--font-body)] text-xs text-[var(--color-error)] hover:bg-red-50 disabled:opacity-50 transition-colors"
       >
         <span
           className="w-2 h-2 rounded-full flex-shrink-0"
@@ -190,11 +190,11 @@ function TileActionButton({
     <button
       onClick={handleGenerate}
       disabled={triggering}
-      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-border)] font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-accent)] disabled:opacity-50 transition-colors"
+      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-[var(--radius-sm)] border border-[var(--color-app-border)] font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)] hover:border-[var(--color-app-accent)] disabled:opacity-50 transition-colors"
     >
       <span
         className="w-2 h-2 rounded-full border flex-shrink-0"
-        style={{ borderColor: "var(--color-border)" }}
+        style={{ borderColor: "var(--color-app-border)" }}
       />
       {triggering ? "Starting..." : `Generate ${label}`}
     </button>
@@ -213,7 +213,7 @@ function ContentStudioTile({ item }: { item: ContentStudioItem }) {
   return (
     <div
       data-testid={`studio-tile-${item.reportId}`}
-      className="flex flex-col md:flex-row gap-[var(--spacing-4)] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] overflow-hidden hover:shadow-[var(--shadow-md)] transition-shadow"
+      className="flex flex-col md:flex-row gap-[var(--spacing-4)] bg-[var(--color-app-surface)] border border-[var(--color-app-border)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] overflow-hidden hover:shadow-[var(--shadow-md)] transition-shadow"
     >
       {/* Photo tile — left (links to report) */}
       <Link
@@ -235,7 +235,7 @@ function ContentStudioTile({ item }: { item: ContentStudioItem }) {
             className="absolute inset-0"
             style={{
               background:
-                "linear-gradient(135deg, var(--color-primary) 0%, #1E293B 100%)",
+                "linear-gradient(135deg, var(--color-app-nav-bg) 0%, #2C2825 100%)",
             }}
           />
         )}
@@ -245,13 +245,13 @@ function ContentStudioTile({ item }: { item: ContentStudioItem }) {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(to bottom, rgba(15,23,42,0.2) 0%, rgba(15,23,42,0.5) 50%, rgba(15,23,42,0.85) 100%)",
+              "linear-gradient(to bottom, rgba(26,23,20,0.2) 0%, rgba(26,23,20,0.5) 50%, rgba(26,23,20,0.85) 100%)",
           }}
         />
 
         {/* Hover label */}
         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/photo:opacity-100 transition-opacity z-10">
-          <span className="font-[family-name:var(--font-sans)] text-xs font-medium text-white bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-[var(--radius-sm)]">
+          <span className="font-[family-name:var(--font-body)] text-xs font-medium text-white bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-[var(--radius-sm)]">
             View Report &rarr;
           </span>
         </div>
@@ -259,21 +259,21 @@ function ContentStudioTile({ item }: { item: ContentStudioItem }) {
 
       {/* Action panel — right */}
       <div className="flex-1 p-[var(--spacing-4)] flex flex-col justify-center">
-        <h4 className="font-[family-name:var(--font-serif)] text-base font-semibold leading-snug mb-[var(--spacing-1)]">
+        <h4 className="font-[family-name:var(--font-display)] text-base font-semibold leading-snug mb-[var(--spacing-1)]">
           <Link
             href={`/reports/${item.reportId}`}
-            className="text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors"
+            className="text-[var(--color-app-text)] hover:text-[var(--color-app-accent)] transition-colors"
           >
             {item.reportTitle}
           </Link>
         </h4>
         <p
-          className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mb-[var(--spacing-3)]"
+          className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] mb-[var(--spacing-3)]"
         >
           {formatShortDate(item.latestActivityAt)}
         </p>
 
-        <p className="font-[family-name:var(--font-sans)] text-[11px] font-medium uppercase tracking-wider text-[var(--color-text-tertiary)] mb-[var(--spacing-1)]">
+        <p className="font-[family-name:var(--font-body)] text-[11px] font-medium uppercase tracking-wider text-[var(--color-app-text-tertiary)] mb-[var(--spacing-1)]">
           Content Studio
         </p>
         <div className="flex flex-wrap gap-[var(--spacing-2)]">
@@ -334,16 +334,16 @@ export function ContentStudioTileGrid({
 
   if (items.length === 0) {
     return (
-      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8 text-center">
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+      <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8 text-center">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
           No content studios yet.
         </p>
-        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-1">
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] mt-1">
           Generate content from a completed report to see it here.
         </p>
         <Link
           href="/reports"
-          className="inline-block mt-4 px-6 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+          className="inline-block mt-4 px-6 py-2 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
         >
           View Reports
         </Link>
@@ -359,7 +359,7 @@ export function ContentStudioTileGrid({
             key={group.marketId}
             data-testid={`studio-market-group-${group.marketId}`}
           >
-            <h3 className="font-[family-name:var(--font-serif)] text-lg font-semibold text-[var(--color-primary)] mb-[var(--spacing-3)] pb-[var(--spacing-1)] inline-block border-b-2 border-[var(--color-accent)]">
+            <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-[var(--color-app-text)] mb-[var(--spacing-3)] pb-[var(--spacing-1)] inline-block border-b-2 border-[var(--color-app-accent)]">
               {cleanMarketName(group.marketName)}
             </h3>
             <div className="space-y-[var(--spacing-4)]">
