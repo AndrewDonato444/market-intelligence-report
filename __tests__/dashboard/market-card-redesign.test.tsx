@@ -68,10 +68,10 @@ describe("Market Card Redesign (CMP-MC)", () => {
       expect(screen.queryByText("Los Angeles Luxury")).not.toBeInTheDocument();
     });
 
-    it("renders city name in serif font", () => {
+    it("renders city name in display font", () => {
       render(<MarketCard market={makeMarket()} />);
       const title = screen.getByText("Los Angeles");
-      expect(title.className).toMatch(/font-serif|font-\[family-name:var\(--font-serif\)\]/);
+      expect(title.className).toMatch(/font-display|font-\[family-name:var\(--font-display\)\]/);
     });
   });
 

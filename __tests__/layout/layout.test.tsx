@@ -68,8 +68,13 @@ describe("Base App Layout", () => {
   describe("TopNav component", () => {
     it("renders the brand name", () => {
       render(<TopNav />);
+      // Brand name is split across elements: "Modern " + <span>Signal</span> + " Advisory"
       expect(
-        screen.getByText("Modern Signal Advisory")
+        screen.getByText((_, element) => {
+          return element?.textContent === "Modern Signal Advisory" &&
+            element?.tagName === "SPAN" &&
+            element?.querySelector("span") !== null;
+        })
       ).toBeInTheDocument();
     });
 

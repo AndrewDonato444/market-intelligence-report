@@ -21,12 +21,31 @@
 
 | Status | Count |
 |--------|-------|
-| ✅ Completed | 122 |
-| 🔄 In Progress | 0 |
-| ⬜ Pending | 33 |
+| ✅ Completed | 125 |
+| 🔄 In Progress | 1 |
+| ⬜ Pending | 37 |
 | ⏸️ Blocked | 1 |
 
-**Last updated**: 2026-03-17
+**Last updated**: 2026-03-28
+
+---
+
+## Phase 24: Backend Design Refresh
+
+> Migrate all authenticated app pages from the cold SaaS palette to the warm luxury hospitality aesthetic matching the marketing page. Page-by-page, additive token strategy — never destructive to existing tokens or PDFs.
+
+| # | Feature | Source | Complexity | Deps | Status |
+|---|---------|--------|------------|------|--------|
+| 250 | Design Refresh: App Shell (TopNav, Sidebar, PageShell, Footer) | user-request | M | 4 | ✅ |
+| 251 | Design Refresh: Dashboard | user-request | M | 250 | ✅ |
+| 252 | Design Refresh: Reports list page | user-request | M | 250 | ✅ |
+| 253 | Design Refresh: Report creation flow | user-request | S | 250 | 🔄 |
+| 254 | Design Refresh: Markets page | user-request | M | 250 | ⬜ |
+| 255 | Design Refresh: Settings & Account pages | user-request | S | 250 | ⬜ |
+| 256 | Design Refresh: How-To page | user-request | S | 250 | ⬜ |
+| 257 | Design Refresh: Admin pages | user-request | S | 250 | ⬜ |
+
+**Goal**: Every authenticated page uses the warm luxury palette (`--color-app-*` tokens, Cormorant Garamond + DM Sans typography) so sign-in feels like walking deeper into the same space, not switching apps.
 
 ---
 

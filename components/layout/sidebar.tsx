@@ -6,10 +6,10 @@ import { ReportEntitlementBadge } from "@/components/reports/report-entitlement-
 
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: "grid" },
+  { label: "How To", href: "/how-to", icon: "book-open" },
   { label: "Reports", href: "/reports", icon: "file-text" },
   { label: "Markets", href: "/markets", icon: "map-pin" },
   { label: "Settings", href: "/settings", icon: "settings" },
-  { label: "How To", href: "/how-to", icon: "book-open" },
 ];
 
 interface SidebarProps {
@@ -59,27 +59,27 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
   const pathname = usePathname();
 
   return (
-    <aside className="w-60 bg-[var(--color-surface)] border-r border-[var(--color-border)] shrink-0 flex flex-col">
+    <aside className="w-60 bg-[var(--color-app-sidebar-bg)] border-r border-[var(--color-app-border)] shrink-0 flex flex-col">
       <nav className="flex-1 flex flex-col p-[var(--spacing-3)]">
         <div
             className="rounded-[var(--radius-md)] p-[var(--spacing-3)] space-y-[var(--spacing-1)] mb-[var(--spacing-3)]"
             style={{
-              backgroundColor: "var(--color-primary-light)",
-              border: "1px solid var(--color-border)",
+              backgroundColor: "var(--color-app-active-bg)",
+              border: "1px solid var(--color-app-border)",
             }}
           >
             <span
               className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold tracking-wide"
-              style={{ backgroundColor: "var(--color-accent)", color: "#fff" }}
+              style={{ backgroundColor: "var(--color-app-accent)", color: "#fff" }}
             >
               BETA
             </span>
-            <p className="font-[family-name:var(--font-sans)] text-xs leading-snug" style={{ color: "var(--color-text-secondary)" }}>
+            <p className="font-[family-name:var(--font-body)] text-xs leading-snug" style={{ color: "var(--color-app-text-secondary)" }}>
               Some things may break. We&apos;re improving fast.
             </p>
             <a
               href="mailto:support@modernsignaladvisory.com"
-              className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-accent)] hover:underline"
+              className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-accent)] hover:underline"
             >
               Report an issue
             </a>
@@ -91,13 +91,13 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] text-sm transition-colors duration-[var(--duration-default)] ${
+                  className={`flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm transition-colors duration-[var(--duration-default)] ${
                     isActive
-                      ? "bg-[var(--color-primary-light)] text-[var(--color-primary)] font-medium"
-                      : "text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] hover:text-[var(--color-text)]"
+                      ? "bg-[var(--color-app-active-bg)] text-[var(--color-app-accent)] font-medium"
+                      : "text-[var(--color-app-text-secondary)] hover:bg-[var(--color-app-active-bg)] hover:text-[var(--color-app-text)]"
                   }`}
                 >
-                  <span className={isActive ? "text-[var(--color-accent)]" : ""}>
+                  <span className={isActive ? "text-[var(--color-app-accent)]" : ""}>
                     {iconMap[item.icon]}
                   </span>
                   {item.label}
@@ -110,7 +110,7 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
           className="mt-auto pt-[var(--spacing-3)] space-y-[var(--spacing-3)]"
         >
           <div className="px-[var(--spacing-1)]">
-            <p className="font-[family-name:var(--font-sans)] text-xs font-medium text-[var(--color-text-secondary)] mb-[var(--spacing-1)]">
+            <p className="font-[family-name:var(--font-body)] text-xs font-medium text-[var(--color-app-text-secondary)] mb-[var(--spacing-1)]">
               Report Credits
             </p>
             <ReportEntitlementBadge />
@@ -121,15 +121,15 @@ export function Sidebar({ isAdmin = false }: SidebarProps) {
         <div className="px-[var(--spacing-3)] pb-[var(--spacing-2)]">
           <Link
             href="/admin/users"
-            className="flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] text-sm transition-colors duration-[var(--duration-default)] text-[var(--color-accent)] hover:bg-[var(--color-primary-light)] font-medium"
+            className="flex items-center gap-[var(--spacing-3)] px-[var(--spacing-3)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm transition-colors duration-[var(--duration-default)] text-[var(--color-app-accent)] hover:bg-[var(--color-app-active-bg)] font-medium"
           >
             <span>{iconMap.shield}</span>
             Admin
           </Link>
         </div>
       )}
-      <div className="p-[var(--spacing-3)] border-t border-[var(--color-border)]">
-        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+      <div className="p-[var(--spacing-3)] border-t border-[var(--color-app-border)]">
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
           Modern Signal Advisory
         </p>
       </div>
