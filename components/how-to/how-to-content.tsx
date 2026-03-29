@@ -26,21 +26,21 @@ function QuickStartChecklist({
   return (
     <div
       data-testid="quick-start-checklist"
-      className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] p-[var(--spacing-6)]"
+      className="bg-[var(--color-app-surface)] border border-[var(--color-app-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] p-[var(--spacing-6)]"
     >
-      <p className="font-[family-name:var(--font-sans)] text-sm font-semibold uppercase tracking-wider text-[var(--color-text-secondary)] mb-[var(--spacing-4)]">
+      <p className="font-[family-name:var(--font-body)] text-sm font-semibold uppercase tracking-wider text-[var(--color-app-text-secondary)] mb-[var(--spacing-4)]">
         Your Progress
       </p>
       <ul className="space-y-[var(--spacing-3)]">
         {items.map((item) => (
           <li
             key={item.label}
-            className="flex items-center gap-[var(--spacing-3)] font-[family-name:var(--font-sans)] text-base"
+            className="flex items-center gap-[var(--spacing-3)] font-[family-name:var(--font-body)] text-base"
           >
             {item.complete ? (
               <span
                 data-testid="checklist-complete"
-                className="text-[var(--color-accent)] flex-shrink-0"
+                className="text-[var(--color-app-accent)] flex-shrink-0"
               >
                 <svg
                   width="20"
@@ -59,7 +59,7 @@ function QuickStartChecklist({
             ) : (
               <span
                 data-testid="checklist-incomplete"
-                className="text-[var(--color-text-secondary)] opacity-40 flex-shrink-0"
+                className="text-[var(--color-app-text-secondary)] opacity-40 flex-shrink-0"
               >
                 <svg
                   width="20"
@@ -75,7 +75,7 @@ function QuickStartChecklist({
                 </svg>
               </span>
             )}
-            <span className={item.complete ? "text-[var(--color-text)]" : "text-[var(--color-text-secondary)]"}>
+            <span className={item.complete ? "text-[var(--color-app-text)]" : "text-[var(--color-app-text-secondary)]"}>
               {item.label}
             </span>
           </li>
@@ -107,27 +107,27 @@ function StepCard({
   return (
     <div
       data-testid={testId}
-      className="bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] p-[var(--spacing-6)]"
+      className="bg-[var(--color-app-surface)] border border-[var(--color-app-border)] rounded-[var(--radius-lg)] shadow-[var(--shadow-sm)] p-[var(--spacing-6)]"
     >
       <div className="flex items-start gap-[var(--spacing-4)]">
-        <span className="font-[family-name:var(--font-serif)] text-2xl font-semibold text-[var(--color-accent)] flex-shrink-0 leading-none mt-1">
+        <span className="font-[family-name:var(--font-display)] text-2xl font-semibold text-[var(--color-app-accent)] flex-shrink-0 leading-none mt-1">
           {number}
         </span>
         <div className="flex-1 min-w-0">
-          <h2 className="font-[family-name:var(--font-serif)] text-xl font-semibold text-[var(--color-text)] mb-[var(--spacing-2)]">
+          <h2 className="font-[family-name:var(--font-display)] text-xl font-semibold text-[var(--color-app-text)] mb-[var(--spacing-2)]">
             {title}
           </h2>
-          <p className="font-[family-name:var(--font-sans)] text-base text-[var(--color-text-secondary)] leading-relaxed mb-[var(--spacing-4)]">
+          <p className="font-[family-name:var(--font-body)] text-base text-[var(--color-app-text-secondary)] leading-relaxed mb-[var(--spacing-4)]">
             {description}
           </p>
           {disabled ? (
-            <span className="inline-block font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text-secondary)] bg-[var(--color-border)] px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-md)]">
+            <span className="inline-block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text-secondary)] bg-[var(--color-app-border)] px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-md)]">
               {ctaText}
             </span>
           ) : (
             <Link
               href={ctaHref || "#"}
-              className="inline-block font-[family-name:var(--font-sans)] text-sm font-medium text-white bg-[var(--color-accent)] hover:opacity-90 px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-md)] transition-opacity duration-[var(--duration-default)]"
+              className="inline-block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-surface)] bg-[var(--color-app-accent)] hover:opacity-90 px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-md)] transition-opacity duration-[var(--duration-default)]"
             >
               {ctaText}
             </Link>
@@ -173,17 +173,17 @@ function FaqAccordion() {
 
   return (
     <div data-testid="faq-section">
-      <h2 className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-text)] mb-[var(--spacing-4)]">
+      <h2 className="font-[family-name:var(--font-body)] text-lg font-semibold text-[var(--color-app-text)] mb-[var(--spacing-4)]">
         Common Questions
       </h2>
-      <div className="border-t border-[var(--color-border)]">
+      <div className="border-t border-[var(--color-app-border)]">
         {faqItems.map((item, idx) => {
           const isOpen = openIndex === idx;
           return (
-            <div key={idx} className="border-b border-[var(--color-border)]">
+            <div key={idx} className="border-b border-[var(--color-app-border)]">
               <button
                 onClick={() => setOpenIndex(isOpen ? null : idx)}
-                className="w-full flex items-center justify-between py-[var(--spacing-4)] text-left font-[family-name:var(--font-sans)] text-base font-medium text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors duration-[var(--duration-default)]"
+                className="w-full flex items-center justify-between py-[var(--spacing-4)] text-left font-[family-name:var(--font-body)] text-base font-medium text-[var(--color-app-text)] hover:text-[var(--color-app-accent)] transition-colors duration-[var(--duration-default)]"
                 aria-expanded={isOpen}
               >
                 {item.question}
@@ -196,7 +196,7 @@ function FaqAccordion() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className={`flex-shrink-0 ml-[var(--spacing-2)] text-[var(--color-text-secondary)] transition-transform duration-[var(--duration-default)] ${isOpen ? "rotate-180" : ""}`}
+                  className={`flex-shrink-0 ml-[var(--spacing-2)] text-[var(--color-app-text-secondary)] transition-transform duration-[var(--duration-default)] ${isOpen ? "rotate-180" : ""}`}
                 >
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
@@ -207,7 +207,7 @@ function FaqAccordion() {
                 hidden={!isOpen}
                 className="pb-[var(--spacing-4)]"
               >
-                <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] leading-relaxed">
                   {item.answer}
                 </p>
               </div>
@@ -226,10 +226,10 @@ export function HowToContent({ hasMarkets, hasReports }: HowToContentProps) {
     <div className="max-w-2xl mx-auto space-y-[var(--spacing-8)]">
       {/* Header */}
       <div>
-        <h1 className="font-[family-name:var(--font-serif)] text-3xl font-semibold text-[var(--color-text)] mb-[var(--spacing-2)]">
+        <h1 className="font-[family-name:var(--font-display)] text-3xl font-semibold text-[var(--color-app-text)] mb-[var(--spacing-2)]">
           Getting Started
         </h1>
-        <p className="font-[family-name:var(--font-sans)] text-base text-[var(--color-text-secondary)]">
+        <p className="font-[family-name:var(--font-body)] text-base text-[var(--color-app-text-secondary)]">
           Your guide to creating market intelligence that positions you as the
           authority your clients expect.
         </p>

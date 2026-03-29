@@ -220,7 +220,7 @@ describe("Step 2: Your Tier (#153)", () => {
 
     it("CMP-153-20: renders accent divider line", () => {
       render(React.createElement(StepYourTier, { onStepComplete: jest.fn() }));
-      const divider = document.querySelector(".bg-\\[var\\(--color-accent\\)\\]");
+      const divider = document.querySelector(".bg-\\[var\\(--color-app-accent\\)\\]");
       expect(divider).toBeInTheDocument();
     });
   });

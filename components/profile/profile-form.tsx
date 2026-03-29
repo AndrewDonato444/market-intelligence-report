@@ -110,22 +110,22 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
   };
 
   const inputClass =
-    "w-full px-3 py-2 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent transition-shadow duration-[var(--duration-default)]";
+    "w-full px-3 py-2 rounded-[var(--radius-sm)] border border-[var(--color-app-border)] bg-[var(--color-app-surface)] font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-app-accent)] focus:border-transparent transition-shadow duration-[var(--duration-default)]";
 
   const labelClass =
-    "block font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] mb-1";
+    "block font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] mb-1";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {/* Profile Info Card */}
-      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
-        <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+      <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
           Your Profile
         </h2>
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
           How you appear on reports.
         </p>
-        <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-6" />
+        <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-6" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -158,9 +158,9 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
               name="email"
               value={form.email}
               readOnly
-              className={`${inputClass} bg-[var(--color-background)] text-[var(--color-text-secondary)] cursor-not-allowed`}
+              className={`${inputClass} bg-[var(--color-app-bg)] text-[var(--color-app-text-secondary)] cursor-not-allowed`}
             />
-            <p className="mt-1 text-xs text-[var(--color-text-tertiary)]">
+            <p className="mt-1 text-xs text-[var(--color-app-text-tertiary)]">
               Managed by your authentication provider
             </p>
           </div>
@@ -233,14 +233,14 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
       </div>
 
       {/* Report Branding Card */}
-      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
-        <h2 className="font-[family-name:var(--font-serif)] text-xl font-bold text-[var(--color-primary)]">
+      <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
+        <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[var(--color-app-text)]">
           Report Branding
         </h2>
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
           Colors that appear on your generated reports.
         </p>
-        <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-6" />
+        <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-6" />
 
         {fieldErrors.brandColors && (
           <p className="mb-4 text-xs text-[var(--color-error)]">
@@ -252,20 +252,20 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
           <div className="space-y-4">
             {(["primary", "secondary", "accent"] as const).map((key) => (
               <div key={key} className="flex items-center gap-3">
-                <label className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] capitalize w-24">
+                <label className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] capitalize w-24">
                   {key}
                 </label>
                 <input
                   type="color"
                   value={form.brandColors?.[key] || "#000000"}
                   onChange={(e) => handleColorChange(key, e.target.value)}
-                  className="w-10 h-10 rounded-[var(--radius-sm)] border border-[var(--color-border)] cursor-pointer"
+                  className="w-10 h-10 rounded-[var(--radius-sm)] border border-[var(--color-app-border)] cursor-pointer"
                 />
                 <input
                   type="text"
                   value={form.brandColors?.[key] || ""}
                   onChange={(e) => handleColorChange(key, e.target.value)}
-                  className="w-24 px-2 py-1 rounded-[var(--radius-sm)] border border-[var(--color-border)] font-[family-name:var(--font-mono)] text-xs text-[var(--color-text)]"
+                  className="w-24 px-2 py-1 rounded-[var(--radius-sm)] border border-[var(--color-app-border)] font-[family-name:var(--font-mono)] text-xs text-[var(--color-app-text)]"
                   placeholder="#000000"
                 />
               </div>
@@ -281,7 +281,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         <div>
           {message && (
             <p
-              className={`font-[family-name:var(--font-sans)] text-sm ${
+              className={`font-[family-name:var(--font-body)] text-sm ${
                 message.type === "success"
                   ? "text-[var(--color-success)]"
                   : "text-[var(--color-error)]"
@@ -294,7 +294,7 @@ export function ProfileForm({ initialData }: ProfileFormProps) {
         <button
           type="submit"
           disabled={saving}
-          className="px-6 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-surface)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? "Saving..." : "Save Profile"}
         </button>

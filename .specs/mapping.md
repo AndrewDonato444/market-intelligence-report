@@ -32,6 +32,7 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | admin | [Admin User List](.specs/features/admin/admin-user-list.feature.md) | `app/admin/users/page.tsx, components/admin/user-list-dashboard.tsx, app/api/admin/users/route.ts, components/layout/admin-sidebar.tsx` | see spec | see spec | implemented |
 | admin | [Analytics API Endpoints](.specs/features/admin/analytics-api-endpoints.feature.md) | `app/api/admin/analytics/route.ts, app/api/admin/analytics/volume/route.ts, app/api/admin/analytics/users/route.ts, app/api/admin/analytics/errors/route.ts` | see spec | see spec | implemented |
 | admin | [Analytics Data Export](.specs/features/admin/analytics-data-export.feature.md) | `lib/utils/analytics-export.ts, components/admin/export-button.tsx` | see spec | see spec | implemented |
+| admin | [Admin Create User](.specs/features/admin/create-user.feature.md) | `app/admin/users/create/page.tsx` | see spec | see spec | specced |
 | admin | [Delete Account](.specs/features/admin/delete-account.feature.md) | `app/api/admin/users/[id]/delete/route.ts` | see spec | see spec | implemented |
 | admin | [Error Triage View](.specs/features/admin/error-triage-view.feature.md) | `app/admin/error-triage/page.tsx, components/admin/error-triage-dashboard.tsx, app/api/admin/reports/errors/route.ts` | see spec | see spec | implemented |
 | admin | [Eval Regression Tracking](.specs/features/admin/eval-regression-tracking.feature.md) | `app/admin/eval/report/page.tsx, components/eval/report-eval-dashboard.tsx, lib/eval/report-eval/history.ts` | see spec | see spec | implemented |
@@ -57,13 +58,17 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | agent-pipeline | [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md) | `lib/agents/insight-generator.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Pipeline Evaluation Suite](.specs/features/agent-pipeline/pipeline-eval-suite.feature.md) | `app/admin/eval/page.tsx, components/eval/eval-dashboard.tsx, app/api/eval/run/route.ts, app/api/eval/test-cases/route.ts, lib/eval/runner.ts, lib/eval/judge.ts, lib/eval/test-cases.ts, lib/eval/fixtures.ts, lib/eval/types.ts` | see spec | see spec | implemented |
 | agent-pipeline | [Polish Agent](.specs/features/agent-pipeline/polish-agent.feature.md) | `lib/agents/polish-agent.ts` | see spec | see spec | implemented |
+| auth | [Password Management](.specs/features/auth/password-management.feature.md) | `app/(auth)/sign-in/[[...sign-in]]/page.tsx` | see spec | see spec | implemented |
 | buyer-personas | [Buyer Persona Data Model](.specs/features/buyer-personas/buyer-persona-data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | buyer-personas | [Market Calibration Engine](.specs/features/buyer-personas/market-calibration-engine.feature.md) | `lib/services/market-calibration.ts` | see spec | see spec | implemented |
 | buyer-personas | [Multi-Persona Output Strategy](.specs/features/buyer-personas/multi-persona-output-strategy.feature.md) | `lib/agents/report-assembler.ts` | see spec | see spec | implemented |
 | buyer-personas | [Persona Content in PDF Template](.specs/features/buyer-personas/persona-content-pdf-template.feature.md) | `lib/pdf/templates/renderers.tsx` | see spec | see spec | implemented |
 | buyer-personas | [Persona Intelligence Agent](.specs/features/buyer-personas/persona-intelligence-agent.feature.md) | `lib/agents/persona-intelligence.ts` | see spec | see spec | implemented |
 | buyer-personas | [Persona Selection UI](.specs/features/buyer-personas/persona-selection-ui.feature.md) | `components/reports/report-wizard.tsx` | see spec | see spec | implemented |
+| content-studio | [Unified Content Studio](.specs/features/content-studio/unified-content-studio.feature.md) | `app/(protected)/reports/[id]/kit/page.tsx` | see spec | see spec | implemented |
 | dashboard | [How To Guide](.specs/features/dashboard/how-to-guide.feature.md) | `app/(protected)/how-to/page.tsx` | see spec | see spec | implemented |
+| dashboard | [Market Card Photo Tiles](.specs/features/dashboard/market-card-photo-tiles.feature.md) | `components/dashboard/market-card.tsx` | see spec | see spec | specced |
+| dashboard | [Dashboard Welcome Hero](.specs/features/dashboard/welcome-hero.feature.md) | `components/dashboard/dashboard-content.tsx` | see spec | see spec | specced |
 | data-infrastructure | [Agent Output Cache](.specs/features/data-infrastructure/agent-output-cache.feature.md) | `lib/services/agent-cache.ts` | see spec | see spec | implemented |
 | data-infrastructure | [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md) | `app/api/usage/route.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
 | data-infrastructure | [Cache Layer — DB-backed with TTL by Data Type](.specs/features/data-infrastructure/cache-layer.feature.md) | `lib/services/cache.ts, lib/services/api-usage.ts` | see spec | see spec | implemented |
@@ -71,14 +76,27 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | data-infrastructure | [Grok x_search Connector](.specs/features/data-infrastructure/grok-connector.feature.md) | `lib/connectors/grok.ts` | see spec | see spec | implemented |
 | data-infrastructure | [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md) | `lib/connectors/realestateapi.ts` | see spec | see spec | implemented |
 | data-infrastructure | [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md) | `lib/connectors/scrapingdog.ts` | see spec | see spec | implemented |
+| data-infrastructure | [YoY Analysis Period Transparency](.specs/features/data-infrastructure/yoy-analysis-period-transparency.feature.md) | `lib/services/market-analytics.ts` | see spec | see spec | implemented |
+| design-refresh | [Design Refresh — Admin Pages](.specs/features/design-refresh/admin-design-refresh.feature.md) | `components/layout/admin-sidebar.tsx, components/admin/analytics-nav.tsx, components/admin/user-list-dashboard.tsx, components/admin/user-detail-panel.tsx, components/admin/create-user-form.tsx, components/admin/report-list-dashboard.tsx, components/admin/report-detail-panel.tsx, components/admin/error-triage-dashboard.tsx, components/admin/data-sources-dashboard.tsx, components/admin/system-monitoring-dashboard.tsx, components/admin/volume-metrics-dashboard.tsx, components/admin/geographic-analytics-dashboard.tsx, components/admin/user-analytics-dashboard.tsx, components/admin/pipeline-performance-dashboard.tsx, components/admin/kit-analytics-dashboard.tsx, components/admin/tier-management-dashboard.tsx, components/admin/entitlement-overrides-panel.tsx, components/admin/test-suite-dashboard.tsx, components/admin/pipeline-visualizer.tsx, components/admin/waitlist-dashboard.tsx, components/admin/export-button.tsx, app/admin/eval/page.tsx, app/admin/eval/report/page.tsx, app/admin/analytics/layout.tsx` | see spec | see spec | implemented |
+| design-refresh | [Backend Design Refresh](.specs/features/design-refresh/backend-design-refresh.feature.md) | `components/layout/top-nav.tsx, components/layout/sidebar.tsx, components/layout/page-shell.tsx, components/layout/footer.tsx, app/(protected)/layout.tsx, app/globals.css` | see spec | see spec | implemented |
+| design-refresh | [Dashboard Design Refresh (Phase 2)](.specs/features/design-refresh/dashboard-design-refresh.feature.md) | `components/dashboard/dashboard-content.tsx, components/dashboard/dashboard-welcome-hero.tsx, components/dashboard/market-card.tsx, components/dashboard/recent-reports-list.tsx, components/dashboard/dashboard-empty-state.tsx` | see spec | see spec | implemented |
+| design-refresh | [Design Refresh — How-To Page](.specs/features/design-refresh/how-to-design-refresh.feature.md) | `components/how-to/how-to-content.tsx` | see spec | see spec | implemented |
+| design-refresh | [Design Refresh — Markets Page (Phase 5)](.specs/features/design-refresh/markets-design-refresh.feature.md) | `app/(protected)/markets/page.tsx, components/markets/market-creation-shell.tsx, components/markets/delete-market-button.tsx, components/markets/peer-market-form.tsx, app/(protected)/markets/[id]/peers/page.tsx` | see spec | see spec | implemented |
+| design-refresh | [Design Refresh — Report Creation Flow (Phase 4)](.specs/features/design-refresh/report-creation-flow-design-refresh.feature.md) | `components/reports/creation-flow-shell.tsx, components/reports/creation-step-indicator.tsx, components/reports/steps/step-your-market.tsx, components/reports/steps/step-your-tier.tsx, components/reports/steps/step-your-audience.tsx, components/reports/steps/step-your-review.tsx, components/reports/steps/step-generating.tsx, components/reports/steps/market-autocomplete.tsx, components/reports/steps/market-preview-card.tsx, components/reports/persona-card.tsx, components/reports/persona-preview-panel.tsx` | see spec | see spec | implemented |
+| design-refresh | [Reports List Page Design Refresh](.specs/features/design-refresh/reports-list-design-refresh.feature.md) | `app/(protected)/reports/page.tsx, components/reports/report-tile-grid.tsx` | see spec | see spec | implemented |
+| design-refresh | [Design Refresh — Settings & Account Pages](.specs/features/design-refresh/settings-account-design-refresh.feature.md) | `app/(protected)/settings/layout.tsx, components/layout/settings-nav.tsx, components/profile/profile-form.tsx, components/profile/brand-preview.tsx, components/account/account-settings.tsx, components/account/change-password-section.tsx, components/ui/password-input.tsx` | see spec | see spec | implemented |
 | email-campaigns | [Bulk Email Campaign Agent](.specs/features/email-campaigns/bulk-email-campaign-agent.feature.md) | `lib/agents/email-campaign.ts` | see spec | see spec | implemented |
+| email-campaigns | [Email Campaign CSV Export](.specs/features/email-campaigns/email-campaign-csv-export.feature.md) | `components/reports/email-viewer.tsx` | see spec | see spec | specced |
+| email-campaigns | [Email Campaign Viewer UX Polish](.specs/features/email-campaigns/email-campaign-viewer-ux-polish.feature.md) | `components/reports/email-viewer.tsx` | see spec | see spec | specced |
 | email-campaigns | [Bulk Email Campaign Viewer](.specs/features/email-campaigns/email-campaign-viewer.feature.md) | `app/(protected)/reports/[id]/emails/page.tsx` | see spec | see spec | implemented |
 | foundation | [Authentication with Supabase](.specs/features/foundation/authentication.feature.md) | `middleware.ts, app/(auth)/sign-in/[[...sign-in]]/page.tsx, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/layout.tsx, app/auth/callback/route.ts, app/auth/verified/page.tsx` | see spec | see spec | implemented |
 | foundation | [Base App Layout](.specs/features/foundation/base-layout.feature.md) | `components/layout/top-nav.tsx, components/layout/sidebar.tsx, components/layout/page-shell.tsx, app/(protected)/layout.tsx` | see spec | see spec | implemented |
 | foundation | [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md) | `lib/db/schema.ts, lib/db/index.ts, lib/db/migrations/` | see spec | see spec | implemented |
 | foundation | [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md) | `lib/config/env.ts, .env.local.example` | see spec | see spec | implemented |
 | foundation | [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md) | `app/layout.tsx, app/page.tsx, tailwind.config.ts, app/globals.css` | see spec | see spec | implemented |
-| marketing | [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md) | `app/page.tsx` | see spec | see spec | implemented |
+| layout | [Copyright Footer](.specs/features/layout/copyright-footer.feature.md) | `components/layout/footer.tsx` | see spec | see spec | implemented |
+| marketing | [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md) | `app/page.tsx` | see spec | see spec | specced |
+| marketing | [Waitlist Page](.specs/features/marketing/waitlist.feature.md) | `app/waitlist/page.tsx` | see spec | see spec | implemented |
 | pipeline | [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md) | `lib/services/data-source-registry.ts` | see spec | see spec | implemented |
 | pipeline | [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md) | `lib/services/pipeline-executor.ts` | see spec | see spec | implemented |
 | pipeline | [Snapshot from Report](.specs/features/pipeline/snapshot-from-report.feature.md) | `app/api/admin/test-suite/snapshots/from-report/route.ts` | see spec | see spec | implemented |
@@ -110,10 +128,12 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | report-template | [PDF Report Formatting & Flow Rules](.specs/features/report-template/pdf-formatting-flow.feature.md) | `lib/pdf/templates/section-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md) | `lib/pdf/templates/cover-page.tsx` | see spec | see spec | implemented |
 | report-template | [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
+| reports | [Report Page Cleanup](.specs/features/reports/report-page-cleanup.feature.md) | `app/(protected)/reports/page.tsx` | see spec | see spec | implemented |
 | reports | [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md) | `app/(protected)/reports/[id]/page.tsx` | see spec | see spec | implemented |
 | security | [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md) | `components/ui/turnstile-widget.tsx, lib/security/verify-turnstile.ts, lib/security/index.ts, app/api/auth/signup/route.ts, app/api/auth/signin/route.ts, app/(auth)/sign-up/[[...sign-up]]/page.tsx, app/(auth)/sign-in/[[...sign-in]]/page.tsx` | see spec | see spec | implemented |
 | security | [Anti-Scraper Middleware](.specs/features/security/anti-scraper-middleware.feature.md) | `lib/security/anti-scraper.ts, lib/supabase/middleware.ts, lib/security/index.ts, app/api/honeypot/route.ts` | see spec | see spec | implemented |
-| security | [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md) | `lib/security/rate-limiter.ts, lib/security/index.ts, lib/supabase/middleware.ts` | `__tests__/security/rate-limiting.test.ts` | see spec | implemented |
+| security | [PDF Copyright Notices](.specs/features/security/pdf-copyright-notices.feature.md) | `lib/pdf/document.tsx` | see spec | see spec | implemented |
+| security | [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md) | `lib/security/rate-limiter.ts, lib/security/index.ts, lib/supabase/middleware.ts` | see spec | see spec | implemented |
 | security | [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md) | `app/(auth)/sign-up/[[...sign-up]]/page.tsx` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md) | `lib/db/schema.ts` | see spec | see spec | implemented |
 | social-media-kit | [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md) | `app/api/reports/[id]/kit/generate/route.ts` | see spec | see spec | implemented |
@@ -141,10 +161,11 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | user-setup | [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md) | `app/(protected)/markets/[id]/edit/page.tsx, app/api/markets/[id]/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | user-setup | [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md) | `app/(protected)/markets/[id]/peers/page.tsx, app/api/markets/[id]/peers/route.ts, lib/services/market.ts` | see spec | see spec | implemented |
 | user-setup | [Unified Market Creation](.specs/features/user-setup/unified-market-creation.feature.md) | `app/(protected)/markets/new/page.tsx, components/markets/market-creation-shell.tsx` | see spec | see spec | implemented |
+| ux-redesign | [Agent Processing Animation](.specs/features/ux-redesign/agent-processing-animation.feature.md) | `components/reports/steps/step-generating.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md) | `components/ui/tooltip.tsx, lib/animations.ts` | see spec | see spec | implemented |
 | ux-redesign | [Dashboard Redesign](.specs/features/ux-redesign/dashboard-redesign.feature.md) | `app/(protected)/dashboard/page.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Flow Persistence & Returning User Shortcuts](.specs/features/ux-redesign/flow-persistence.feature.md) | `components/reports/creation-flow-shell.tsx` | see spec | see spec | implemented |
-| ux-redesign | [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md) | `components/reports/steps/step-your-market.tsx` | see spec | see spec | implemented |
+| ux-redesign | [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md) | `components/reports/steps/step-your-market.tsx` | see spec | see spec | specced |
 | ux-redesign | [Step 2: Your Tier](.specs/features/ux-redesign/step-2-your-tier.feature.md) | `components/reports/steps/step-your-tier.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 3: Your Focus](.specs/features/ux-redesign/step-3-your-focus.feature.md) | `components/reports/steps/step-your-focus.tsx` | see spec | see spec | implemented |
 | ux-redesign | [Step 4: Your Audience](.specs/features/ux-redesign/step-4-your-audience.feature.md) | `components/reports/steps/step-your-audience.tsx` | see spec | see spec | implemented |
@@ -159,10 +180,10 @@ _Regenerate with: `./scripts/generate-mapping.sh`_
 | Status | Count |
 |--------|-------|
 | stub | 0 |
-| specced | 6 |
+| specced | 12 |
 | tested | 0 |
-| implemented | 125 |
-| **Total** | **133** |
+| implemented | 140 |
+| **Total** | **154** |
 
 ---
 
@@ -177,9 +198,15 @@ _None_
 - [Account Settings Page](.specs/features/account/account-settings.feature.md)
 - [Subscription Management + Stripe Integration](.specs/features/account/subscription-management.feature.md)
 - [Usage Dashboard](.specs/features/account/usage-dashboard.feature.md)
-- [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md)
+- [Admin Create User](.specs/features/admin/create-user.feature.md)
+- [Market Card Photo Tiles](.specs/features/dashboard/market-card-photo-tiles.feature.md)
+- [Dashboard Welcome Hero](.specs/features/dashboard/welcome-hero.feature.md)
+- [Email Campaign CSV Export](.specs/features/email-campaigns/email-campaign-csv-export.feature.md)
+- [Email Campaign Viewer UX Polish](.specs/features/email-campaigns/email-campaign-viewer-ux-polish.feature.md)
+- [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md)
 - [Image Library](.specs/features/social-media-kit/image-library.feature.md)
 - [Social Media Kit Button UX](.specs/features/social-media-kit/kit-button-ux.feature.md)
+- [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md)
 
 ### Tested
 
@@ -222,12 +249,14 @@ _None_
 - [Insight Generator Agent](.specs/features/agent-pipeline/insight-generator-agent.feature.md)
 - [Pipeline Evaluation Suite](.specs/features/agent-pipeline/pipeline-eval-suite.feature.md)
 - [Polish Agent](.specs/features/agent-pipeline/polish-agent.feature.md)
+- [Password Management](.specs/features/auth/password-management.feature.md)
 - [Buyer Persona Data Model](.specs/features/buyer-personas/buyer-persona-data-model.feature.md)
 - [Market Calibration Engine](.specs/features/buyer-personas/market-calibration-engine.feature.md)
 - [Multi-Persona Output Strategy](.specs/features/buyer-personas/multi-persona-output-strategy.feature.md)
 - [Persona Content in PDF Template](.specs/features/buyer-personas/persona-content-pdf-template.feature.md)
 - [Persona Intelligence Agent](.specs/features/buyer-personas/persona-intelligence-agent.feature.md)
 - [Persona Selection UI](.specs/features/buyer-personas/persona-selection-ui.feature.md)
+- [Unified Content Studio](.specs/features/content-studio/unified-content-studio.feature.md)
 - [How To Guide](.specs/features/dashboard/how-to-guide.feature.md)
 - [Agent Output Cache](.specs/features/data-infrastructure/agent-output-cache.feature.md)
 - [API Cost Tracking + Usage Logging](.specs/features/data-infrastructure/api-cost-tracking.feature.md)
@@ -236,6 +265,15 @@ _None_
 - [Grok x_search Connector](.specs/features/data-infrastructure/grok-connector.feature.md)
 - [RealEstateAPI Connector](.specs/features/data-infrastructure/realestateapi-connector.feature.md)
 - [ScrapingDog Connector](.specs/features/data-infrastructure/scrapingdog-connector.feature.md)
+- [YoY Analysis Period Transparency](.specs/features/data-infrastructure/yoy-analysis-period-transparency.feature.md)
+- [Design Refresh — Admin Pages](.specs/features/design-refresh/admin-design-refresh.feature.md)
+- [Backend Design Refresh](.specs/features/design-refresh/backend-design-refresh.feature.md)
+- [Dashboard Design Refresh (Phase 2)](.specs/features/design-refresh/dashboard-design-refresh.feature.md)
+- [Design Refresh — How-To Page](.specs/features/design-refresh/how-to-design-refresh.feature.md)
+- [Design Refresh — Markets Page (Phase 5)](.specs/features/design-refresh/markets-design-refresh.feature.md)
+- [Design Refresh — Report Creation Flow (Phase 4)](.specs/features/design-refresh/report-creation-flow-design-refresh.feature.md)
+- [Reports List Page Design Refresh](.specs/features/design-refresh/reports-list-design-refresh.feature.md)
+- [Design Refresh — Settings & Account Pages](.specs/features/design-refresh/settings-account-design-refresh.feature.md)
 - [Bulk Email Campaign Agent](.specs/features/email-campaigns/bulk-email-campaign-agent.feature.md)
 - [Bulk Email Campaign Viewer](.specs/features/email-campaigns/email-campaign-viewer.feature.md)
 - [Authentication with Supabase](.specs/features/foundation/authentication.feature.md)
@@ -243,7 +281,8 @@ _None_
 - [Database Schema + Supabase Setup](.specs/features/foundation/database-schema.feature.md)
 - [Environment Config + API Key Management](.specs/features/foundation/env-config.feature.md)
 - [Next.js Project Scaffold + Tailwind + Design Tokens](.specs/features/foundation/project-scaffold.feature.md)
-- [Marketing Landing Page](.specs/features/marketing/landing-page.feature.md)
+- [Copyright Footer](.specs/features/layout/copyright-footer.feature.md)
+- [Waitlist Page](.specs/features/marketing/waitlist.feature.md)
 - [Data Source Registry](.specs/features/pipeline/data-source-registry.feature.md)
 - [Pipeline Execution Service](.specs/features/pipeline/pipeline-execution.feature.md)
 - [Snapshot from Report](.specs/features/pipeline/snapshot-from-report.feature.md)
@@ -274,9 +313,12 @@ _None_
 - [PDF Report Formatting & Flow Rules](.specs/features/report-template/pdf-formatting-flow.feature.md)
 - [Report Cover, TOC, and Market Overview + Insights Index](.specs/features/report-template/report-cover-toc-overview.feature.md)
 - [Report Template Engine](.specs/features/report-template/report-template-engine.feature.md)
+- [Report Page Cleanup](.specs/features/reports/report-page-cleanup.feature.md)
 - [View Report Read-Only](.specs/features/reports/view-report-readonly.feature.md)
 - [Anti-Bot Protection](.specs/features/security/anti-bot-protection.feature.md)
 - [Anti-Scraper Middleware](.specs/features/security/anti-scraper-middleware.feature.md)
+- [PDF Copyright Notices](.specs/features/security/pdf-copyright-notices.feature.md)
+- [Rate Limiting on Exposed API Routes](.specs/features/security/rate-limiting.feature.md)
 - [ToS Acceptance on Signup](.specs/features/security/tos-acceptance-signup.feature.md)
 - [Social Media Kit Data Model](.specs/features/social-media-kit/data-model.feature.md)
 - [Social Media Kit Generation Trigger](.specs/features/social-media-kit/generation-trigger.feature.md)
@@ -302,10 +344,10 @@ _None_
 - [Market Configuration Persistence + Edit](.specs/features/user-setup/market-edit.feature.md)
 - [Peer Market Selection](.specs/features/user-setup/peer-markets.feature.md)
 - [Unified Market Creation](.specs/features/user-setup/unified-market-creation.feature.md)
+- [Agent Processing Animation](.specs/features/ux-redesign/agent-processing-animation.feature.md)
 - [Animation & UX Infrastructure](.specs/features/ux-redesign/animation-ux-infrastructure.feature.md)
 - [Dashboard Redesign](.specs/features/ux-redesign/dashboard-redesign.feature.md)
 - [Flow Persistence & Returning User Shortcuts](.specs/features/ux-redesign/flow-persistence.feature.md)
-- [Step 1: Your Market](.specs/features/ux-redesign/step-1-your-market.feature.md)
 - [Step 2: Your Tier](.specs/features/ux-redesign/step-2-your-tier.feature.md)
 - [Step 3: Your Focus](.specs/features/ux-redesign/step-3-your-focus.feature.md)
 - [Step 4: Your Audience](.specs/features/ux-redesign/step-4-your-audience.feature.md)
@@ -324,10 +366,17 @@ See `.specs/design-system/tokens.md` for token reference.
 | Component | Status | Source |
 |-----------|--------|--------|
 | accordion | stub | [doc](.specs/design-system/components/accordion.md) |
+| activity-log | stub | [doc](.specs/design-system/components/activity-log.md) |
+| admin-reset-password-button | stub | [doc](.specs/design-system/components/admin-reset-password-button.md) |
+| agent-card | stub | [doc](.specs/design-system/components/agent-card.md) |
+| agent-processing-timeline | stub | [doc](.specs/design-system/components/agent-processing-timeline.md) |
 | animated-container | documented | [doc](.specs/design-system/components/animated-container.md) |
+| change-password-section | stub | [doc](.specs/design-system/components/change-password-section.md) |
 | closing-statement | stub | [doc](.specs/design-system/components/closing-statement.md) |
+| dashboard-welcome-hero | stub | [doc](.specs/design-system/components/dashboard-welcome-hero.md) |
 | data-callout | stub | [doc](.specs/design-system/components/data-callout.md) |
 | editorial-showcase | stub | [doc](.specs/design-system/components/editorial-showcase.md) |
+| forgot-password-form | stub | [doc](.specs/design-system/components/forgot-password-form.md) |
 | hero-section | stub | [doc](.specs/design-system/components/hero-section.md) |
 | horizontal-bar-chart | stub | [doc](.specs/design-system/components/horizontal-bar-chart.md) |
 | intelligence-pillars | stub | [doc](.specs/design-system/components/intelligence-pillars.md) |
@@ -339,6 +388,7 @@ See `.specs/design-system/tokens.md` for token reference.
 | process-narrative | stub | [doc](.specs/design-system/components/process-narrative.md) |
 | quick-start-checklist | stub | [doc](.specs/design-system/components/quick-start-checklist.md) |
 | report-breakdown | stub | [doc](.specs/design-system/components/report-breakdown.md) |
+| reset-password-form | stub | [doc](.specs/design-system/components/reset-password-form.md) |
 | segment-distribution-bar | stub | [doc](.specs/design-system/components/segment-distribution-bar.md) |
 | step-card | stub | [doc](.specs/design-system/components/step-card.md) |
 | toggle-card | stub | [doc](.specs/design-system/components/toggle-card.md) |

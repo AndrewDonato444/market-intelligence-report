@@ -217,27 +217,27 @@ export function TierManagementDashboard() {
   };
 
   return (
-    <div className="p-[var(--spacing-6)]">
+    <div className="app-fade-in p-[var(--spacing-6)]">
       <div className="flex items-center justify-between mb-[var(--spacing-6)]">
-        <h1 className="font-[family-name:var(--font-sans)] text-2xl font-bold text-[var(--color-text)]">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
           Subscription Tiers
         </h1>
         <button
           onClick={openAddForm}
-          className="px-[var(--spacing-4)] py-[var(--spacing-2)] bg-[var(--color-primary)] text-white rounded-[var(--radius-md)] font-[family-name:var(--font-sans)] text-sm font-medium hover:opacity-90 transition-opacity"
+          className="px-[var(--spacing-4)] py-[var(--spacing-2)] bg-[var(--color-app-accent)] text-white rounded-[var(--radius-md)] font-[family-name:var(--font-body)] text-sm font-medium hover:opacity-90 transition-opacity"
         >
           Add Tier
         </button>
       </div>
 
       {loading && (
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
           Loading tiers...
         </p>
       )}
 
       {error && !loading && (
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-error)]">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-error)]">
           Failed to load tiers: {error}
         </p>
       )}
@@ -247,25 +247,25 @@ export function TierManagementDashboard() {
           {tiers.map((tier, idx) => (
             <div
               key={tier.id}
-              className="border border-[var(--color-border)] rounded-[var(--radius-md)] p-[var(--spacing-4)] bg-[var(--color-surface)]"
+              className="border border-[var(--color-app-border)] rounded-[var(--radius-md)] p-[var(--spacing-4)] bg-[var(--color-app-surface)]"
             >
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-[var(--spacing-3)]">
-                    <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+                    <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
                       #{tier.sortOrder}
                     </span>
-                    <span className="font-[family-name:var(--font-sans)] text-base font-semibold text-[var(--color-text)]">
+                    <span className="font-[family-name:var(--font-body)] text-base font-semibold text-[var(--color-app-text)]">
                       {tier.name}
                     </span>
-                    <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+                    <span className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
                       {tier.displayPrice}
                     </span>
                     <span
-                      className={`font-[family-name:var(--font-sans)] text-xs font-medium px-[var(--spacing-2)] py-0.5 rounded-[var(--radius-sm)] ${
+                      className={`font-[family-name:var(--font-body)] text-xs font-medium px-[var(--spacing-2)] py-0.5 rounded-[var(--radius-sm)] ${
                         tier.isActive
                           ? "text-[var(--color-success)] bg-[rgba(34,197,94,0.1)]"
-                          : "text-[var(--color-text-tertiary)] bg-[rgba(148,163,184,0.1)]"
+                          : "text-[var(--color-app-text-tertiary)] bg-[rgba(148,163,184,0.1)]"
                       }`}
                       onClick={() => handleToggleActive(tier)}
                       role="button"
@@ -274,14 +274,14 @@ export function TierManagementDashboard() {
                       {tier.isActive ? "Active" : "Inactive"}
                     </span>
                   </div>
-                  <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-[var(--spacing-1)]">
+                  <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-[var(--spacing-1)]">
                     {entitlementSummary(tier.entitlements)}
                   </p>
                 </div>
                 <div className="flex items-center gap-[var(--spacing-2)]">
                   <button
                     onClick={() => openEditForm(tier)}
-                    className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-primary)] hover:underline"
+                    className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-accent)] hover:underline"
                   >
                     Edit
                   </button>
@@ -289,7 +289,7 @@ export function TierManagementDashboard() {
                     onClick={() => handleReorder(tier, "up")}
                     disabled={idx === 0}
                     aria-label="Move up"
-                    className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)] disabled:opacity-30"
+                    className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)] disabled:opacity-30"
                   >
                     ▲
                   </button>
@@ -297,13 +297,13 @@ export function TierManagementDashboard() {
                     onClick={() => handleReorder(tier, "down")}
                     disabled={idx === tiers.length - 1}
                     aria-label="Move down"
-                    className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)] disabled:opacity-30"
+                    className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)] disabled:opacity-30"
                   >
                     ▼
                   </button>
                   <button
                     onClick={() => handleDelete(tier)}
-                    className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-error)] hover:underline"
+                    className="font-[family-name:var(--font-body)] text-xs text-[var(--color-error)] hover:underline"
                   >
                     Delete
                   </button>
@@ -316,28 +316,28 @@ export function TierManagementDashboard() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-[var(--color-surface)] rounded-[var(--radius-lg)] p-[var(--spacing-6)] w-full max-w-lg shadow-[var(--shadow-lg)]">
+          <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-lg)] p-[var(--spacing-6)] w-full max-w-lg shadow-[var(--shadow-lg)]">
             <div className="flex items-center justify-between mb-[var(--spacing-4)]">
-              <h2 className="font-[family-name:var(--font-sans)] text-lg font-semibold text-[var(--color-text)]">
+              <h2 className="font-[family-name:var(--font-body)] text-lg font-semibold text-[var(--color-app-text)]">
                 {editingId ? "Edit Tier" : "Add New Tier"}
               </h2>
               <button
                 onClick={closeForm}
-                className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                className="text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)]"
               >
                 ✕
               </button>
             </div>
 
             {formError && (
-              <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-error)] mb-[var(--spacing-3)]">
+              <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-error)] mb-[var(--spacing-3)]">
                 {formError}
               </p>
             )}
 
             <div className="space-y-[var(--spacing-3)]">
               <div>
-                <label htmlFor="tier-name" className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] block mb-1">
+                <label htmlFor="tier-name" className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] block mb-1">
                   Name
                 </label>
                 <input
@@ -352,12 +352,12 @@ export function TierManagementDashboard() {
                       slug: editingId ? f.slug : slugify(name),
                     }));
                   }}
-                  className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-sans)] text-sm"
+                  className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-body)] text-sm"
                 />
               </div>
 
               <div>
-                <label htmlFor="tier-slug" className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] block mb-1">
+                <label htmlFor="tier-slug" className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] block mb-1">
                   Slug
                 </label>
                 <input
@@ -365,12 +365,12 @@ export function TierManagementDashboard() {
                   type="text"
                   value={form.slug}
                   onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))}
-                  className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-sans)] text-sm"
+                  className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-body)] text-sm"
                 />
               </div>
 
               <div>
-                <label htmlFor="tier-description" className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] block mb-1">
+                <label htmlFor="tier-description" className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] block mb-1">
                   Description
                 </label>
                 <textarea
@@ -378,12 +378,12 @@ export function TierManagementDashboard() {
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                   rows={2}
-                  className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-sans)] text-sm"
+                  className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-body)] text-sm"
                 />
               </div>
 
               <div>
-                <label htmlFor="tier-price" className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] block mb-1">
+                <label htmlFor="tier-price" className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] block mb-1">
                   Display Price
                 </label>
                 <input
@@ -392,17 +392,17 @@ export function TierManagementDashboard() {
                   value={form.displayPrice}
                   onChange={(e) => setForm((f) => ({ ...f, displayPrice: e.target.value }))}
                   placeholder="e.g. $199/mo"
-                  className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-sans)] text-sm"
+                  className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-body)] text-sm"
                 />
               </div>
 
-              <fieldset className="border border-[var(--color-border)] rounded-[var(--radius-sm)] p-[var(--spacing-3)]">
-                <legend className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] px-1">
+              <fieldset className="border border-[var(--color-app-border)] rounded-[var(--radius-sm)] p-[var(--spacing-3)]">
+                <legend className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] px-1">
                   Entitlements
                 </legend>
                 <div className="grid grid-cols-2 gap-[var(--spacing-2)]">
                   <div>
-                    <label htmlFor="ent-reports" className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] block">
+                    <label htmlFor="ent-reports" className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] block">
                       Reports/month
                     </label>
                     <input
@@ -415,11 +415,11 @@ export function TierManagementDashboard() {
                           entitlements: { ...f.entitlements, reports_per_month: parseInt(e.target.value, 10) || 0 },
                         }))
                       }
-                      className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-2)] py-1 font-[family-name:var(--font-sans)] text-sm"
+                      className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-2)] py-1 font-[family-name:var(--font-body)] text-sm"
                     />
                   </div>
                   <div>
-                    <label htmlFor="ent-markets" className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] block">
+                    <label htmlFor="ent-markets" className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] block">
                       Markets
                     </label>
                     <input
@@ -432,11 +432,11 @@ export function TierManagementDashboard() {
                           entitlements: { ...f.entitlements, markets_created: parseInt(e.target.value, 10) || 0 },
                         }))
                       }
-                      className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-2)] py-1 font-[family-name:var(--font-sans)] text-sm"
+                      className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-2)] py-1 font-[family-name:var(--font-body)] text-sm"
                     />
                   </div>
                   <div>
-                    <label htmlFor="ent-kits" className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] block">
+                    <label htmlFor="ent-kits" className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] block">
                       Social media kits
                     </label>
                     <input
@@ -449,11 +449,11 @@ export function TierManagementDashboard() {
                           entitlements: { ...f.entitlements, social_media_kits: parseInt(e.target.value, 10) || 0 },
                         }))
                       }
-                      className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-2)] py-1 font-[family-name:var(--font-sans)] text-sm"
+                      className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-2)] py-1 font-[family-name:var(--font-body)] text-sm"
                     />
                   </div>
                   <div>
-                    <label htmlFor="ent-personas" className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] block">
+                    <label htmlFor="ent-personas" className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] block">
                       Personas/report
                     </label>
                     <input
@@ -466,18 +466,18 @@ export function TierManagementDashboard() {
                           entitlements: { ...f.entitlements, personas_per_report: parseInt(e.target.value, 10) || 0 },
                         }))
                       }
-                      className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-2)] py-1 font-[family-name:var(--font-sans)] text-sm"
+                      className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-2)] py-1 font-[family-name:var(--font-body)] text-sm"
                     />
                   </div>
                 </div>
-                <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-[var(--spacing-2)]">
+                <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] mt-[var(--spacing-2)]">
                   Use -1 for unlimited, 0 for not included
                 </p>
               </fieldset>
 
               <div className="flex gap-[var(--spacing-3)]">
                 <div className="flex-1">
-                  <label htmlFor="tier-sort" className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)] block mb-1">
+                  <label htmlFor="tier-sort" className="font-[family-name:var(--font-body)] text-sm font-medium text-[var(--color-app-text)] block mb-1">
                     Sort Order
                   </label>
                   <input
@@ -485,11 +485,11 @@ export function TierManagementDashboard() {
                     type="number"
                     value={form.sortOrder}
                     onChange={(e) => setForm((f) => ({ ...f, sortOrder: e.target.value }))}
-                    className="w-full border border-[var(--color-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-sans)] text-sm"
+                    className="w-full border border-[var(--color-app-border)] rounded-[var(--radius-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)] font-[family-name:var(--font-body)] text-sm"
                   />
                 </div>
                 <div className="flex items-end pb-[var(--spacing-2)]">
-                  <label className="flex items-center gap-[var(--spacing-2)] font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)]">
+                  <label className="flex items-center gap-[var(--spacing-2)] font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)]">
                     <input
                       type="checkbox"
                       checked={form.isActive}
@@ -504,14 +504,14 @@ export function TierManagementDashboard() {
             <div className="flex justify-end gap-[var(--spacing-3)] mt-[var(--spacing-4)]">
               <button
                 onClick={closeForm}
-                className="px-[var(--spacing-4)] py-[var(--spacing-2)] font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                className="px-[var(--spacing-4)] py-[var(--spacing-2)] font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)]"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 disabled={saving}
-                className="px-[var(--spacing-4)] py-[var(--spacing-2)] bg-[var(--color-primary)] text-white rounded-[var(--radius-md)] font-[family-name:var(--font-sans)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="px-[var(--spacing-4)] py-[var(--spacing-2)] bg-[var(--color-app-accent)] text-white rounded-[var(--radius-md)] font-[family-name:var(--font-body)] text-sm font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
               >
                 {saving ? "Saving..." : "Save Tier"}
               </button>

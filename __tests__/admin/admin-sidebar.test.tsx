@@ -27,23 +27,24 @@ describe("AdminSidebar", () => {
     mockPathname.mockReturnValue("/admin/eval");
   });
 
-  // Scenario: All nav items present (updated for Report Registry, Error Triage, Test Suite, Analytics & Subscription Tiers)
-  it("should render all 11 nav items in correct order", () => {
+  // Scenario: All nav items present (updated for Waitlist, Report Registry, Error Triage, Test Suite, Analytics & Subscription Tiers)
+  it("should render all 12 nav items in correct order", () => {
     render(<AdminSidebar />);
 
     const links = screen.getAllByRole("link");
-    expect(links).toHaveLength(11);
+    expect(links).toHaveLength(12);
     expect(links[0]).toHaveTextContent("Back to App");
-    expect(links[1]).toHaveTextContent("User Management");
-    expect(links[2]).toHaveTextContent("Report Registry");
-    expect(links[3]).toHaveTextContent("Error Triage");
-    expect(links[4]).toHaveTextContent("Eval Suite");
-    expect(links[5]).toHaveTextContent("Data Sources");
-    expect(links[6]).toHaveTextContent("Pipeline");
-    expect(links[7]).toHaveTextContent("Test Suite");
-    expect(links[8]).toHaveTextContent("Analytics");
-    expect(links[9]).toHaveTextContent("System Monitor");
-    expect(links[10]).toHaveTextContent("Subscription Tiers");
+    expect(links[1]).toHaveTextContent("Waitlist");
+    expect(links[2]).toHaveTextContent("User Management");
+    expect(links[3]).toHaveTextContent("Report Registry");
+    expect(links[4]).toHaveTextContent("Error Triage");
+    expect(links[5]).toHaveTextContent("Eval Suite");
+    expect(links[6]).toHaveTextContent("Data Sources");
+    expect(links[7]).toHaveTextContent("Pipeline");
+    expect(links[8]).toHaveTextContent("Test Suite");
+    expect(links[9]).toHaveTextContent("Analytics");
+    expect(links[10]).toHaveTextContent("System Monitor");
+    expect(links[11]).toHaveTextContent("Subscription Tiers");
   });
 
   it("should link Back to App to /dashboard", () => {
@@ -66,7 +67,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const usersLink = screen.getByText("User Management").closest("a");
-    expect(usersLink?.className).toContain("color-primary");
+    expect(usersLink?.className).toContain("color-app-text");
   });
 
   // Scenario: Active state on user detail sub-page
@@ -75,7 +76,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const usersLink = screen.getByText("User Management").closest("a");
-    expect(usersLink?.className).toContain("color-primary");
+    expect(usersLink?.className).toContain("color-app-text");
   });
 
   // Scenario: Active state does not bleed to unrelated routes
@@ -84,10 +85,10 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const evalLink = screen.getByText("Eval Suite").closest("a");
-    expect(evalLink?.className).toContain("color-primary");
+    expect(evalLink?.className).toContain("color-app-text");
 
     const usersLink = screen.getByText("User Management").closest("a");
-    expect(usersLink?.className).toContain("color-text-secondary");
+    expect(usersLink?.className).toContain("color-app-text-secondary");
   });
 
   // Scenario: Back to App is never active in admin context
@@ -96,7 +97,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const backLink = screen.getByText("Back to App").closest("a");
-    expect(backLink?.className).toContain("color-text-secondary");
+    expect(backLink?.className).toContain("color-app-text-secondary");
   });
 
   it("should not mark Back to App as active when on /admin/users", () => {
@@ -104,7 +105,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const backLink = screen.getByText("Back to App").closest("a");
-    expect(backLink?.className).toContain("color-text-secondary");
+    expect(backLink?.className).toContain("color-app-text-secondary");
   });
 
   // === Report Registry & Error Triage Nav (Feature #125) ===
@@ -131,7 +132,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Report Registry").closest("a");
-    expect(link?.className).toContain("color-primary");
+    expect(link?.className).toContain("color-app-text");
   });
 
   // Scenario: Report Registry active state on detail sub-page
@@ -140,7 +141,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Report Registry").closest("a");
-    expect(link?.className).toContain("color-primary");
+    expect(link?.className).toContain("color-app-text");
   });
 
   // Scenario: Error Triage active state
@@ -149,11 +150,11 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Error Triage").closest("a");
-    expect(link?.className).toContain("color-primary");
+    expect(link?.className).toContain("color-app-text");
 
     // Other nav items should not be active
     const reportLink = screen.getByText("Report Registry").closest("a");
-    expect(reportLink?.className).toContain("color-text-secondary");
+    expect(reportLink?.className).toContain("color-app-text-secondary");
   });
 
   // Scenario: Error Triage does not match report registry routes
@@ -162,7 +163,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Error Triage").closest("a");
-    expect(link?.className).toContain("color-text-secondary");
+    expect(link?.className).toContain("color-app-text-secondary");
   });
 
   // Scenario: Report Registry does not match error triage route
@@ -171,7 +172,7 @@ describe("AdminSidebar", () => {
     render(<AdminSidebar />);
 
     const link = screen.getByText("Report Registry").closest("a");
-    expect(link?.className).toContain("color-text-secondary");
+    expect(link?.className).toContain("color-app-text-secondary");
   });
 
   // Scenario: Icons are consistent with existing sidebar style
@@ -205,13 +206,13 @@ describe("User Sidebar — Eval removal", () => {
     mockPathname.mockReturnValue("/dashboard");
   });
 
-  it("should show only Dashboard, Reports, Markets, Settings", () => {
+  it("should show only Dashboard, Reports, Markets, Settings, How To (plus BETA issue link)", () => {
     render(<Sidebar />);
 
     const links = screen.getAllByRole("link");
     const labels = links.map((l) => l.textContent);
 
-    expect(labels).toEqual(["Dashboard", "How To", "Reports", "Markets", "Settings"]);
+    expect(labels).toEqual(["Report an issue", "Dashboard", "How To", "Reports", "Markets", "Settings"]);
   });
 
   it("should NOT contain an Eval link", () => {

@@ -273,11 +273,11 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
 
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8">
-        <h1 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+      <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-8">
+        <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
           Create Your Intelligence Report
         </h1>
-        <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-8" />
+        <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-8" />
 
         <CreationStepIndicator steps={STEP_NAMES} currentStep={currentStep} />
 
@@ -299,13 +299,13 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
 
         {/* Navigation — hidden on Generate step */}
         {currentStep !== 4 && (
-          <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-border)]">
+          <div className="flex justify-between mt-6 pt-6 border-t border-[var(--color-app-border)]">
             <div>
               {!isFirstStep && (
                 <button
                   type="button"
                   onClick={handleBack}
-                  className="px-5 py-2.5 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors duration-[var(--duration-default)] rounded-[var(--radius-sm)]"
+                  className="px-5 py-2.5 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)] transition-colors duration-[var(--duration-default)] rounded-[var(--radius-sm)]"
                 >
                   Back
                 </button>
@@ -316,7 +316,7 @@ export function CreationFlowShell({ markets }: CreationFlowShellProps) {
                 <button
                   type="button"
                   onClick={handleNext}
-                  className="px-6 py-2.5 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
+                  className="px-6 py-2.5 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors duration-[var(--duration-default)]"
                 >
                   Next
                 </button>

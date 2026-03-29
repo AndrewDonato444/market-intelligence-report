@@ -419,4 +419,33 @@ export const styles = StyleSheet.create({
     color: COLORS.textTertiary,
     marginBottom: 16,
   },
+  // Copyright & confidentiality
+  copyrightText: {
+    fontFamily: "Inter",
+    fontSize: 7,
+    color: COLORS.textTertiary,
+  },
+  copyrightFooterRow: {
+    paddingTop: 4,
+  },
+  coverConfidentiality: {
+    fontFamily: "Inter",
+    fontSize: 7,
+    color: COLORS.surface, // inverse text on dark cover bg
+    opacity: 0.6,
+    lineHeight: 1.6,
+  },
+  confidentialityBlock: {
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 4,
+    padding: 16,
+    marginTop: 24,
+  },
+  confidentialityBlockText: {
+    fontFamily: "Inter",
+    fontSize: 7,
+    color: COLORS.textTertiary,
+    lineHeight: 1.6,
+  },
 });

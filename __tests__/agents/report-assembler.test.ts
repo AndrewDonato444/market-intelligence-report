@@ -146,28 +146,29 @@ const defaultDurations: AssemblyDurations = {
 
 describe("Report Assembler", () => {
   describe("assembleReport", () => {
-    it("produces exactly 7 sections (no persona agent)", () => {
+    it("produces exactly 6 sections (no persona agent, comparative_positioning disabled)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      expect(result.sections).toHaveLength(7);
+      expect(result.sections).toHaveLength(6);
     });
 
-    it("sections are numbered 1 through 7", () => {
+    it("sections are numbered 1 through 6", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const numbers = result.sections.map((s) => s.sectionNumber);
-      expect(numbers).toEqual([1, 2, 3, 4, 5, 6, 7]);
+      expect(numbers).toEqual([1, 2, 3, 4, 5, 6]);
     });
 
-    it("section types match first 7 of NEW_SECTION_TYPES (no persona agent)", () => {
+    it("section types match first 6 of NEW_SECTION_TYPES (no persona agent, comparative_positioning disabled)", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const types = result.sections.map((s) => s.sectionType);
-      expect(types).toEqual([...NEW_SECTION_TYPES].slice(0, 7));
+      expect(types).toEqual([...NEW_SECTION_TYPES].slice(0, 6));
     });
 
-    it("does NOT include strategic_benchmark or disclaimer_methodology sections", () => {
+    it("does NOT include strategic_benchmark, disclaimer_methodology, or comparative_positioning sections", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
       const types = result.sections.map((s) => s.sectionType);
       expect(types).not.toContain("strategic_benchmark");
       expect(types).not.toContain("disclaimer_methodology");
+      expect(types).not.toContain("comparative_positioning");
     });
 
     it("Section 1 (Executive Briefing) contains headline data and narrative", () => {
@@ -227,15 +228,6 @@ describe("Report Assembler", () => {
       expect(content.guidance).toBeDefined();
     });
 
-    it("Section 7 (Comparative Positioning) contains peer data", () => {
-      const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      const section = result.sections[6];
-      expect(section.sectionType).toBe("comparative_positioning");
-      const content = section.content as any;
-      expect(content.peerComparisons).toHaveLength(1);
-      expect(content.peerRankings).toHaveLength(3);
-    });
-
     it("SVC-RA-01 | Regression: executive_briefing headline includes totalVolume and YoY fields for PDF template", () => {
       const analytics = makeAnalytics({
         market: {
@@ -271,7 +263,7 @@ describe("Report Assembler", () => {
 
     it("handles missing agent results gracefully", () => {
       const result = assembleReport(makeAnalytics(), {}, defaultDurations);
-      expect(result.sections).toHaveLength(7);
+      expect(result.sections).toHaveLength(6);
 
       // Narrative-dependent sections should have null narratives
       const exec = result.sections[0].content as any;
@@ -308,7 +300,7 @@ describe("Report Assembler", () => {
 
     it("includes section count", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResults(), defaultDurations);
-      expect(result.metadata.sectionCount).toBe(7);
+      expect(result.metadata.sectionCount).toBe(6);
     });
 
     it("includes generatedAt timestamp", () => {
@@ -436,22 +428,22 @@ describe("Report Assembler", () => {
       },
     };
 
-    it("produces 8 sections when persona intelligence is present", () => {
+    it("produces 7 sections when persona intelligence is present", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      expect(result.sections).toHaveLength(8);
+      expect(result.sections).toHaveLength(7);
     });
 
-    it("Section 8 has sectionType persona_intelligence", () => {
+    it("Section 7 has sectionType persona_intelligence", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      const section8 = result.sections[7];
-      expect(section8.sectionNumber).toBe(8);
-      expect(section8.sectionType).toBe("persona_intelligence");
-      expect(section8.title).toBe("Persona Intelligence Briefing");
+      const section7 = result.sections[6];
+      expect(section7.sectionNumber).toBe(8);
+      expect(section7.sectionType).toBe("persona_intelligence");
+      expect(section7.title).toBe("Persona Intelligence Briefing");
     });
 
-    it("Section 8 content has hybrid strategy, personas, blended, and meta", () => {
+    it("Persona section content has hybrid strategy, personas, blended, and meta", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      const content = result.sections[7].content as any;
+      const content = result.sections[6].content as any;
       expect(content.strategy).toBe("hybrid");
       expect(content.personas).toHaveLength(2);
       expect(content.personas[0].personaSlug).toBe("business-mogul");
@@ -486,7 +478,7 @@ describe("Report Assembler", () => {
       }
     });
 
-    it("produces 7 sections when persona agent was skipped", () => {
+    it("produces 6 sections when persona agent was skipped", () => {
       const agentResults = {
         ...makeAgentResults(),
         "persona-intelligence": {
@@ -497,7 +489,7 @@ describe("Report Assembler", () => {
         },
       };
       const result = assembleReport(makeAnalytics(), agentResults, defaultDurations);
-      expect(result.sections).toHaveLength(7);
+      expect(result.sections).toHaveLength(6);
     });
 
     it("metadata includes persona agent duration in totalDurationMs", () => {
@@ -509,13 +501,15 @@ describe("Report Assembler", () => {
 
     it("sectionCount reflects actual count with persona section", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
-      expect(result.metadata.sectionCount).toBe(8);
+      expect(result.metadata.sectionCount).toBe(7);
     });
 
-    it("all 8 section types match NEW_SECTION_TYPES when persona present", () => {
+    it("section types with persona present match active sections plus persona_intelligence", () => {
       const result = assembleReport(makeAnalytics(), makeAgentResultsWithPersona(), durationsWithPersona);
       const types = result.sections.map((s) => s.sectionType);
-      expect(types).toEqual([...NEW_SECTION_TYPES]);
+      // comparative_positioning is disabled; persona_intelligence is appended as section 7
+      const expected = [...NEW_SECTION_TYPES].filter((t) => t !== "comparative_positioning");
+      expect(types).toEqual(expected);
     });
   });
 });

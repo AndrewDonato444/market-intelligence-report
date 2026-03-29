@@ -118,20 +118,20 @@ export function PeerMarketForm({ marketId, initialPeers }: PeerMarketFormProps) 
   };
 
   const inputClass =
-    "w-full px-3 py-2 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)] font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-transparent";
+    "w-full px-3 py-2 rounded-[var(--radius-sm)] border border-[var(--color-app-border)] bg-[var(--color-app-surface)] font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] focus:outline-none focus:ring-2 focus:ring-[var(--color-app-accent)] focus:border-transparent";
 
   return (
-    <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
-      <h2 className="font-[family-name:var(--font-serif)] text-xl font-bold text-[var(--color-primary)]">
+    <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6">
+      <h2 className="font-[family-name:var(--font-display)] text-xl font-bold text-[var(--color-app-text)]">
         Peer Markets
       </h2>
-      <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+      <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
         Add comparable luxury markets for competitive analysis.
       </p>
-      <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-6" />
+      <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-6" />
 
       {peers.length === 0 && (
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-tertiary)] mb-4">
+        <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-tertiary)] mb-4">
           No peer markets added yet. Add markets to compare against.
         </p>
       )}
@@ -165,7 +165,7 @@ export function PeerMarketForm({ marketId, initialPeers }: PeerMarketFormProps) 
             <button
               type="button"
               onClick={() => removePeer(i)}
-              className="px-2 py-2 text-[var(--color-text-tertiary)] hover:text-[var(--color-error)] transition-colors"
+              className="px-2 py-2 text-[var(--color-app-text-tertiary)] hover:text-[var(--color-error)] transition-colors"
               aria-label={`Remove peer market ${i + 1}`}
             >
               <svg
@@ -192,14 +192,14 @@ export function PeerMarketForm({ marketId, initialPeers }: PeerMarketFormProps) 
       <button
         type="button"
         onClick={addPeer}
-        className="mt-4 px-4 py-2 border border-dashed border-[var(--color-border)] rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-colors w-full"
+        className="mt-4 px-4 py-2 border border-dashed border-[var(--color-app-border)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] hover:border-[var(--color-app-accent)] hover:text-[var(--color-app-accent)] transition-colors w-full"
       >
         + Add Peer Market
       </button>
 
       {message && (
         <p
-          className={`mt-4 font-[family-name:var(--font-sans)] text-sm ${
+          className={`mt-4 font-[family-name:var(--font-body)] text-sm ${
             message.type === "success"
               ? "text-[var(--color-success)]"
               : "text-[var(--color-error)]"
@@ -214,7 +214,7 @@ export function PeerMarketForm({ marketId, initialPeers }: PeerMarketFormProps) 
           type="button"
           onClick={handleSave}
           disabled={saving}
-          className="px-6 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-2 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-surface)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {saving ? "Saving..." : "Save Peer Markets"}
         </button>

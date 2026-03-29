@@ -11,6 +11,11 @@ import React from "react";
 import { Page, View, Text } from "@react-pdf/renderer";
 import { styles } from "../styles";
 import { getSectionRenderer, PersonaFramingCallout } from "./renderers";
+import {
+  getCopyrightLine,
+  CONFIDENTIALITY_NOTICE,
+  DATA_SOURCES_NOTICE,
+} from "../copyright";
 
 interface SectionContent {
   sectionType: string;
@@ -22,9 +27,10 @@ interface SectionPageProps {
   section: SectionContent;
   reportTitle: string;
   companyName?: string;
+  isLastSection?: boolean;
 }
 
-export function SectionPage({ section, reportTitle, companyName }: SectionPageProps) {
+export function SectionPage({ section, reportTitle, companyName, isLastSection }: SectionPageProps) {
   const Renderer = getSectionRenderer(section.sectionType);
   const footerLeft = companyName
     ? `${reportTitle} — ${companyName}`
@@ -54,6 +60,16 @@ export function SectionPage({ section, reportTitle, companyName }: SectionPagePr
       </View>
       <Renderer section={section} />
       <PersonaFramingCallout personaFraming={personaFraming} />
+      {isLastSection && (
+        <View style={styles.confidentialityBlock}>
+          <Text style={styles.confidentialityBlockText}>
+            {CONFIDENTIALITY_NOTICE}
+          </Text>
+          <Text style={{ ...styles.confidentialityBlockText, marginTop: 8 }}>
+            {DATA_SOURCES_NOTICE}
+          </Text>
+        </View>
+      )}
       <View style={styles.pageFooter} fixed>
         <Text style={styles.pageNumber}>{footerLeft}</Text>
         <Text
@@ -62,6 +78,9 @@ export function SectionPage({ section, reportTitle, companyName }: SectionPagePr
             `${pageNumber} / ${totalPages}`
           }
         />
+      </View>
+      <View style={{ ...styles.pageFooter, ...styles.copyrightFooterRow, bottom: 20, borderTopWidth: 0 }} fixed>
+        <Text style={styles.copyrightText}>{getCopyrightLine()}</Text>
       </View>
     </Page>
   );

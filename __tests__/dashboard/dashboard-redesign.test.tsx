@@ -259,11 +259,11 @@ describe("Dashboard Redesign (#159)", () => {
   });
 
   describe("CMP-159.07: Report status badges", () => {
-    it('shows "Completed" badge in green', () => {
+    it('shows "Download PDF" button for completed reports instead of badge', () => {
       render(<RecentReportsList reports={[makeReport({ status: "completed" })]} />);
-      const badge = screen.getByText("Completed");
-      expect(badge).toBeInTheDocument();
-      expect(badge.className).toMatch(/color-success|success|green/);
+      // Completed reports show a Download PDF button instead of a status badge
+      expect(screen.getByText("Download PDF")).toBeInTheDocument();
+      expect(screen.queryByText("Completed")).not.toBeInTheDocument();
     });
     it('shows "Generating" badge in gold with pulse', () => {
       render(<RecentReportsList reports={[makeReport({ status: "generating" })]} />);

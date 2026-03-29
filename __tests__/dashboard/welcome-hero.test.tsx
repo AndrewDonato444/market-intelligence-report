@@ -54,10 +54,10 @@ describe("Dashboard Welcome Hero (CMP-WH)", () => {
       expect(hero).toHaveTextContent(/Good (morning|afternoon|evening)/);
     });
 
-    it("renders greeting in serif font", () => {
+    it("renders greeting in display font", () => {
       render(<DashboardWelcomeHero firstName="Jordan" hasReports={true} />);
       const greeting = screen.getByTestId("welcome-greeting");
-      expect(greeting.className).toMatch(/font-serif|font-\[family-name:var\(--font-serif\)\]/);
+      expect(greeting.className).toMatch(/font-display|font-\[family-name:var\(--font-display\)\]/);
     });
   });
 

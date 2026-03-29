@@ -13,6 +13,7 @@ import {
   SegmentDistributionBar,
   TrendIndicator,
 } from "../components/data-viz";
+import { getCopyrightLine } from "../copyright";
 import type { ReportMetadata } from "@/lib/agents/schema";
 
 interface SectionEntry {
@@ -265,6 +266,9 @@ export function InsightsIndex({ metadata, sections }: InsightsIndexProps) {
             `${pageNumber} / ${totalPages}`
           }
         />
+      </View>
+      <View style={{ ...styles.pageFooter, ...styles.copyrightFooterRow, bottom: 20, borderTopWidth: 0 }} fixed>
+        <Text style={styles.copyrightText}>{getCopyrightLine()}</Text>
       </View>
     </Page>
   );

@@ -58,12 +58,12 @@ export function PasswordInput(props: PasswordInputProps) {
       <input
         {...props}
         type={showPassword ? "text" : "password"}
-        className={`w-full px-[var(--spacing-3)] py-[var(--spacing-2)] pr-[var(--spacing-10)] border border-[var(--color-border)] rounded-[var(--radius-sm)] font-[family-name:var(--font-inter)] text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-border-strong)] focus:border-transparent transition-shadow duration-[var(--duration-fast)] ${props.className ?? ""}`}
+        className={`w-full px-[var(--spacing-3)] py-[var(--spacing-2)] pr-[var(--spacing-10)] border border-[var(--color-app-border)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] placeholder:text-[var(--color-app-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-app-accent)] focus:border-transparent transition-shadow duration-[var(--duration-fast)] ${props.className ?? ""}`}
       />
       <button
         type="button"
         onClick={() => setShowPassword((prev) => !prev)}
-        className="absolute right-[var(--spacing-3)] top-1/2 -translate-y-1/2 text-[var(--color-text-tertiary)] hover:text-[var(--color-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-border-strong)] rounded-[var(--radius-sm)] transition-colors"
+        className="absolute right-[var(--spacing-3)] top-1/2 -translate-y-1/2 text-[var(--color-app-text-tertiary)] hover:text-[var(--color-app-text-secondary)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-app-accent)] rounded-[var(--radius-sm)] transition-colors"
         aria-label={showPassword ? "Hide password" : "Show password"}
       >
         {showPassword ? <EyeOffIcon /> : <EyeIcon />}

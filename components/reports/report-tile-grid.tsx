@@ -30,8 +30,8 @@ interface MarketGroup {
 }
 
 const STATUS_CONFIG: Record<string, { label: string; colorVar: string }> = {
-  queued: { label: "Queued", colorVar: "var(--color-text-tertiary)" },
-  generating: { label: "Generating", colorVar: "var(--color-accent)" },
+  queued: { label: "Queued", colorVar: "var(--color-app-text-tertiary)" },
+  generating: { label: "Generating", colorVar: "var(--color-app-accent)" },
   completed: { label: "Ready", colorVar: "var(--color-success)" },
 };
 
@@ -76,7 +76,7 @@ function ReportTile({ report }: { report: Report }) {
           className="absolute inset-0"
           style={{
             background:
-              "linear-gradient(135deg, var(--color-primary) 0%, #1E293B 100%)",
+              "linear-gradient(135deg, var(--color-app-nav-bg) 0%, #2C2825 100%)",
           }}
         />
       )}
@@ -86,7 +86,7 @@ function ReportTile({ report }: { report: Report }) {
         className="absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, rgba(15,23,42,0.3) 0%, rgba(15,23,42,0.6) 35%, rgba(15,23,42,0.92) 100%)",
+            "linear-gradient(to bottom, rgba(26,23,20,0.3) 0%, rgba(26,23,20,0.6) 35%, rgba(26,23,20,0.92) 100%)",
         }}
       />
 
@@ -95,7 +95,7 @@ function ReportTile({ report }: { report: Report }) {
         <div className="absolute top-[var(--spacing-2)] right-[var(--spacing-2)] z-[6]">
           <span
             data-testid={`status-pill-${report.id}`}
-            className={`font-[family-name:var(--font-sans)] text-xs font-medium px-2 py-0.5 rounded-[var(--radius-sm)] whitespace-nowrap ${
+            className={`font-[family-name:var(--font-body)] text-xs font-medium px-2 py-0.5 rounded-[var(--radius-sm)] whitespace-nowrap ${
               report.status === "generating" ? "animate-pulse" : ""
             }`}
             style={{
@@ -114,7 +114,7 @@ function ReportTile({ report }: { report: Report }) {
       <div className="absolute inset-0 flex flex-col justify-end p-[var(--spacing-3)] z-[5]">
         <Link
           href={`/reports/${report.id}`}
-          className="font-[family-name:var(--font-sans)] text-sm font-medium leading-snug text-[var(--color-text-inverse)] hover:underline line-clamp-2"
+          className="font-[family-name:var(--font-body)] text-sm font-medium leading-snug text-[var(--color-text-inverse)] hover:underline line-clamp-2"
         >
           {report.title}
         </Link>
@@ -128,7 +128,7 @@ function ReportTile({ report }: { report: Report }) {
               />
               <Link
                 href={`/reports/${report.id}/kit`}
-                className="font-[family-name:var(--font-sans)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-accent)] text-[var(--color-primary)] hover:bg-[var(--color-accent-hover)] transition-colors whitespace-nowrap"
+                className="font-[family-name:var(--font-body)] text-xs font-medium px-3 py-1 rounded-[var(--radius-sm)] bg-[var(--color-app-accent)] text-white hover:bg-[var(--color-app-accent-hover)] transition-colors whitespace-nowrap"
               >
                 Content Studio
               </Link>
@@ -137,7 +137,7 @@ function ReportTile({ report }: { report: Report }) {
         </div>
 
         <p
-          className="font-[family-name:var(--font-sans)] text-xs mt-[var(--spacing-1)]"
+          className="font-[family-name:var(--font-body)] text-xs mt-[var(--spacing-1)]"
           style={{ color: "rgba(248,250,252,0.55)" }}
         >
           {formatShortDate(report.createdAt)}
@@ -184,7 +184,7 @@ export function ReportTileGrid({ reports }: ReportTileGridProps) {
       <div className="space-y-[var(--spacing-8)]">
         {marketGroups.map((group) => (
           <div key={group.marketId} data-testid={`market-group-${group.marketId}`}>
-            <h3 className="font-[family-name:var(--font-serif)] text-lg font-semibold text-[var(--color-primary)] mb-[var(--spacing-3)] pb-[var(--spacing-1)] inline-block border-b-2 border-[var(--color-accent)]">
+            <h3 className="font-[family-name:var(--font-display)] text-lg font-semibold text-[var(--color-app-text)] mb-[var(--spacing-3)] pb-[var(--spacing-1)] inline-block border-b-2 border-[var(--color-app-accent)]">
               {cleanMarketName(group.marketName)}
             </h3>
             <div className="grid gap-[var(--spacing-4)] grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
@@ -199,11 +199,11 @@ export function ReportTileGrid({ reports }: ReportTileGridProps) {
       {/* Failed reports toggle */}
       {failed.length > 0 && (
         <div className="mt-[var(--spacing-6)]">
-          <div className="border-t border-[var(--color-border)] pt-[var(--spacing-4)]">
+          <div className="border-t border-[var(--color-app-border)] pt-[var(--spacing-4)]">
             <button
               data-testid="failed-reports-toggle"
               onClick={() => setShowFailed((prev) => !prev)}
-              className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)] transition-colors"
+              className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] hover:text-[var(--color-app-text)] transition-colors duration-[var(--duration-default)]"
             >
               {showFailed
                 ? "Hide failed reports"
@@ -219,19 +219,19 @@ export function ReportTileGrid({ reports }: ReportTileGridProps) {
               {failed.map((report) => (
                 <div
                   key={report.id}
-                  className="flex items-center justify-between bg-[var(--color-surface)] rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)]"
+                  className="flex items-center justify-between bg-[var(--color-app-surface)] rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] px-[var(--spacing-3)] py-[var(--spacing-2)]"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] truncate">
+                    <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] truncate">
                       {report.title}
                     </p>
-                    <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+                    <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
                       {cleanMarketName(report.marketName)} &middot;{" "}
                       {formatShortDate(report.createdAt)}
                     </p>
                   </div>
                   <span
-                    className="font-[family-name:var(--font-sans)] text-xs font-medium px-2 py-0.5 rounded-[var(--radius-sm)] ml-[var(--spacing-3)] whitespace-nowrap"
+                    className="font-[family-name:var(--font-body)] text-xs font-medium px-2 py-0.5 rounded-[var(--radius-sm)] ml-[var(--spacing-3)] whitespace-nowrap"
                     style={{
                       color: "var(--color-error)",
                       backgroundColor:

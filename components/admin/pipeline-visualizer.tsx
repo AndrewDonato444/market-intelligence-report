@@ -11,13 +11,13 @@ const STATUS_CONFIG: Record<
 > = {
   queued: {
     label: "Queued",
-    color: "var(--color-text-secondary)",
-    bg: "var(--color-surface)",
+    color: "var(--color-app-text-secondary)",
+    bg: "var(--color-app-surface)",
   },
   generating: {
     label: "Generating",
-    color: "var(--color-accent)",
-    bg: "var(--color-accent-light, rgba(59,130,246,0.1))",
+    color: "var(--color-app-accent)",
+    bg: "var(--color-app-accent-light, rgba(59,130,246,0.1))",
   },
   completed: {
     label: "Completed",
@@ -130,21 +130,21 @@ export function PipelineVisualizer() {
   };
 
   return (
-    <div className="space-y-[var(--spacing-6)]">
+    <div className="app-fade-in space-y-[var(--spacing-6)]">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-[family-name:var(--font-sans)] text-2xl font-bold text-[var(--color-text)]">
+          <h1 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
             Pipeline Runs
           </h1>
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-1">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-1">
             Agent execution history, timing, and errors
           </p>
         </div>
         <button
           onClick={() => fetchRuns(filter)}
           disabled={loading}
-          className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-border)] text-[var(--color-text-secondary)] hover:bg-[var(--color-primary-light)] disabled:opacity-50 transition-colors"
+          className="px-[var(--spacing-4)] py-[var(--spacing-2)] rounded-[var(--radius-sm)] text-sm font-medium border border-[var(--color-app-border)] text-[var(--color-app-text-secondary)] hover:bg-[var(--color-app-active-bg)] disabled:opacity-50 transition-colors"
         >
           {loading ? "Loading..." : "Refresh"}
         </button>
@@ -161,8 +161,8 @@ export function PipelineVisualizer() {
               onClick={() => handleFilterChange(f)}
               className={`px-[var(--spacing-3)] py-[var(--spacing-1)] rounded-full text-xs font-medium transition-colors ${
                 filter === f
-                  ? "bg-[var(--color-primary)] text-white"
-                  : "bg-[var(--color-surface)] text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:bg-[var(--color-primary-light)]"
+                  ? "bg-[var(--color-app-accent)] text-white"
+                  : "bg-[var(--color-app-surface)] text-[var(--color-app-text-secondary)] border border-[var(--color-app-border)] hover:bg-[var(--color-app-active-bg)]"
               }`}
             >
               {f === "all" ? "All" : STATUS_CONFIG[f]?.label ?? f}
@@ -181,8 +181,8 @@ export function PipelineVisualizer() {
       {/* Loading state */}
       {loading && (
         <div className="text-center py-[var(--spacing-8)]">
-          <div className="inline-block w-6 h-6 border-2 border-[var(--color-accent)] border-t-transparent rounded-full animate-spin" />
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] mt-2">
+          <div className="inline-block w-6 h-6 border-2 border-[var(--color-app-accent)] border-t-transparent rounded-full animate-spin" />
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)] mt-2">
             Loading pipeline runs...
           </p>
         </div>
@@ -190,11 +190,11 @@ export function PipelineVisualizer() {
 
       {/* Empty state */}
       {!loading && !error && runs.length === 0 && (
-        <div className="text-center py-[var(--spacing-12)] bg-[var(--color-surface)] rounded-[var(--radius-md)] border border-[var(--color-border)]">
-          <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+        <div className="text-center py-[var(--spacing-12)] bg-[var(--color-app-surface)] rounded-[var(--radius-md)] border border-[var(--color-app-border)]">
+          <p className="font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
             No pipeline runs found.
           </p>
-          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] mt-1">
+          <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] mt-1">
             Pipeline runs will appear here once reports are generated.
           </p>
         </div>
@@ -202,26 +202,26 @@ export function PipelineVisualizer() {
 
       {/* Runs table */}
       {!loading && runs.length > 0 && (
-        <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-border)] overflow-hidden">
+        <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] border border-[var(--color-app-border)] overflow-hidden">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[var(--color-border)] bg-[var(--color-neutral-50,#f9fafb)]">
-                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-left text-xs font-semibold text-[var(--color-text-secondary)]">
+              <tr className="border-b border-[var(--color-app-border)] bg-[var(--color-app-active-bg,#f9fafb)]">
+                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-left text-xs font-semibold text-[var(--color-app-text-secondary)]">
                   Report
                 </th>
-                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-left text-xs font-semibold text-[var(--color-text-secondary)]">
+                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-left text-xs font-semibold text-[var(--color-app-text-secondary)]">
                   Market
                 </th>
-                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-left text-xs font-semibold text-[var(--color-text-secondary)]">
+                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-left text-xs font-semibold text-[var(--color-app-text-secondary)]">
                   Status
                 </th>
-                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-left text-xs font-semibold text-[var(--color-text-secondary)]">
+                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-left text-xs font-semibold text-[var(--color-app-text-secondary)]">
                   Started
                 </th>
-                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-right text-xs font-semibold text-[var(--color-text-secondary)]">
+                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-right text-xs font-semibold text-[var(--color-app-text-secondary)]">
                   Duration
                 </th>
-                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-right text-xs font-semibold text-[var(--color-text-secondary)]">
+                <th className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-right text-xs font-semibold text-[var(--color-app-text-secondary)]">
                   Sections
                 </th>
               </tr>
@@ -299,21 +299,21 @@ function PipelineRunRowComponent({
   return (
     <>
       <tr
-        className="border-b border-[var(--color-border)] hover:bg-[var(--color-neutral-50,#f9fafb)] cursor-pointer transition-colors"
+        className="border-b border-[var(--color-app-border)] hover:bg-[var(--color-app-active-bg,#f9fafb)] cursor-pointer transition-colors"
         onClick={onToggle}
         data-testid={`pipeline-run-${run.id}`}
       >
         <td className="px-[var(--spacing-4)] py-[var(--spacing-3)]">
           <div className="flex items-center gap-[var(--spacing-2)]">
-            <span className="text-xs text-[var(--color-text-tertiary)]">
+            <span className="text-xs text-[var(--color-app-text-tertiary)]">
               {isExpanded ? "\u25BC" : "\u25B6"}
             </span>
-            <span className="text-sm font-medium text-[var(--color-text)]">
+            <span className="text-sm font-medium text-[var(--color-app-text)]">
               {run.title}
             </span>
           </div>
         </td>
-        <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-[var(--color-text-secondary)]">
+        <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-[var(--color-app-text-secondary)]">
           {run.marketName}
         </td>
         <td className="px-[var(--spacing-4)] py-[var(--spacing-3)]">
@@ -330,44 +330,44 @@ function PipelineRunRowComponent({
                 onClick={(e) => onRetry(run.id, e)}
                 disabled={retrying}
                 data-testid="pipeline-retry-btn"
-                className="px-2 py-0.5 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--color-primary)] text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+                className="px-2 py-0.5 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--color-app-accent)] text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
               >
                 {retrying ? "Retrying..." : "Retry"}
               </button>
             )}
           </div>
         </td>
-        <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-[var(--color-text-secondary)]">
+        <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-[var(--color-app-text-secondary)]">
           {formatDate(run.generationStartedAt)}
         </td>
-        <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-right font-mono text-[var(--color-text)]">
+        <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-right font-mono text-[var(--color-app-text)]">
           {formatDuration(run.durationMs)}
         </td>
-        <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-right text-[var(--color-text-secondary)]">
+        <td className="px-[var(--spacing-4)] py-[var(--spacing-3)] text-sm text-right text-[var(--color-app-text-secondary)]">
           {run.sectionCount}
         </td>
       </tr>
 
       {isExpanded && (
-        <tr className="border-b border-[var(--color-border)]">
-          <td colSpan={6} className="px-[var(--spacing-6)] py-[var(--spacing-4)] bg-[var(--color-neutral-50,#f9fafb)]">
+        <tr className="border-b border-[var(--color-app-border)]">
+          <td colSpan={6} className="px-[var(--spacing-6)] py-[var(--spacing-4)] bg-[var(--color-app-active-bg,#f9fafb)]">
             <div className="space-y-[var(--spacing-4)]">
               {/* Agent breakdown */}
               {agents.size > 0 && (
                 <div>
-                  <h4 className="text-xs font-semibold text-[var(--color-text-secondary)] mb-[var(--spacing-2)]">
+                  <h4 className="text-xs font-semibold text-[var(--color-app-text-secondary)] mb-[var(--spacing-2)]">
                     Agent Breakdown
                   </h4>
                   <div className="grid grid-cols-3 gap-[var(--spacing-3)]">
                     {[...agents.entries()].map(([agentName, info]) => (
                       <div
                         key={agentName}
-                        className="flex items-center justify-between p-[var(--spacing-2)] rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-surface)]"
+                        className="flex items-center justify-between p-[var(--spacing-2)] rounded-[var(--radius-sm)] border border-[var(--color-app-border)] bg-[var(--color-app-surface)]"
                       >
-                        <span className="text-xs font-medium text-[var(--color-text)]">
+                        <span className="text-xs font-medium text-[var(--color-app-text)]">
                           {agentName}
                         </span>
-                        <span className="text-xs text-[var(--color-text-secondary)]">
+                        <span className="text-xs text-[var(--color-app-text-secondary)]">
                           {info.count} section{info.count !== 1 ? "s" : ""}
                         </span>
                       </div>
@@ -377,10 +377,10 @@ function PipelineRunRowComponent({
               )}
 
               {/* Stats row */}
-              <div className="flex gap-[var(--spacing-6)] text-xs text-[var(--color-text-secondary)]">
-                <span>API calls: <strong className="text-[var(--color-text)]">{run.apiCallCount}</strong></span>
-                <span>Cost: <strong className="text-[var(--color-text)]">{formatCost(run.totalCost)}</strong></span>
-                <span>Sections: <strong className="text-[var(--color-text)]">{run.sectionCount}</strong></span>
+              <div className="flex gap-[var(--spacing-6)] text-xs text-[var(--color-app-text-secondary)]">
+                <span>API calls: <strong className="text-[var(--color-app-text)]">{run.apiCallCount}</strong></span>
+                <span>Cost: <strong className="text-[var(--color-app-text)]">{formatCost(run.totalCost)}</strong></span>
+                <span>Sections: <strong className="text-[var(--color-app-text)]">{run.sectionCount}</strong></span>
               </div>
 
               {/* Error message */}
@@ -398,7 +398,7 @@ function PipelineRunRowComponent({
                         onClick={(e) => onRetry(run.id, e)}
                         disabled={retrying}
                         data-testid="pipeline-retry-btn-expanded"
-                        className="ml-[var(--spacing-3)] shrink-0 px-3 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--color-primary)] text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
+                        className="ml-[var(--spacing-3)] shrink-0 px-3 py-1 rounded-[var(--radius-sm)] text-xs font-medium bg-[var(--color-app-accent)] text-white hover:opacity-90 disabled:opacity-50 transition-opacity"
                       >
                         {retrying ? "Retrying..." : "Re-run Pipeline"}
                       </button>
@@ -416,9 +416,9 @@ function PipelineRunRowComponent({
 
 function StatCard({ label, value }: { label: string; value: string }) {
   return (
-    <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] border border-[var(--color-border)] p-[var(--spacing-4)]">
-      <p className="text-xs text-[var(--color-text-secondary)]">{label}</p>
-      <p className="text-xl font-semibold text-[var(--color-text)] mt-1">{value}</p>
+    <div className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] border border-[var(--color-app-border)] p-[var(--spacing-4)]">
+      <p className="text-xs text-[var(--color-app-text-secondary)]">{label}</p>
+      <p className="text-xl font-semibold text-[var(--color-app-text)] mt-1">{value}</p>
     </div>
   );
 }

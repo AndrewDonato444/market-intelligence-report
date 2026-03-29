@@ -15,7 +15,7 @@ function getTimeOfDayGreeting(): string {
 }
 
 const CTA_CLASSES =
-  "inline-flex items-center justify-center px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] rounded-[var(--radius-sm)] font-[family-name:var(--font-sans)] font-semibold text-sm hover:bg-[var(--color-accent-hover)] transition-colors";
+  "inline-flex items-center justify-center px-4 py-2 bg-[var(--color-app-accent)] text-[var(--color-app-surface)] rounded-[var(--radius-sm)] font-[family-name:var(--font-body)] font-semibold text-sm hover:bg-[var(--color-app-accent-hover)] transition-colors";
 
 export function DashboardWelcomeHero({
   firstName,
@@ -27,20 +27,20 @@ export function DashboardWelcomeHero({
   return (
     <div
       data-testid="welcome-hero"
-      className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-[var(--spacing-6)] md:p-[var(--spacing-8)]"
+      className="bg-[var(--color-app-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-[var(--spacing-6)] md:p-[var(--spacing-8)]"
     >
       {/* Greeting + CTA row */}
       <div className="flex items-start justify-between gap-[var(--spacing-4)]">
         <div>
           <h1
             data-testid="welcome-greeting"
-            className="font-[family-name:var(--font-serif)] text-[1.875rem] font-semibold text-[var(--color-primary)] leading-tight"
+            className="font-[family-name:var(--font-display)] text-[1.875rem] font-semibold text-[var(--color-app-text)] leading-tight"
           >
             {hasName ? `${greeting}, ${firstName}.` : "Welcome back."}
           </h1>
           <p
             data-testid="welcome-tagline"
-            className="font-[family-name:var(--font-sans)] text-base text-[var(--color-text-secondary)] mt-[var(--spacing-2)]"
+            className="font-[family-name:var(--font-body)] text-base text-[var(--color-app-text-secondary)] mt-[var(--spacing-2)]"
           >
             {hasReports
               ? "Your markets are ready."
