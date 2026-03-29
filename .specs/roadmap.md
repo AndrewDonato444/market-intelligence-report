@@ -39,7 +39,7 @@
 | 250 | Design Refresh: App Shell (TopNav, Sidebar, PageShell, Footer) | user-request | M | 4 | ✅ |
 | 251 | Design Refresh: Dashboard | user-request | M | 250 | ✅ |
 | 252 | Design Refresh: Reports list page | user-request | M | 250 | ✅ |
-| 253 | Design Refresh: Report creation flow | user-request | S | 250 | 🔄 |
+| 253 | Design Refresh: Report creation flow | user-request | S | 250 | ✅ |
 | 254 | Design Refresh: Markets page | user-request | M | 250 | ⬜ |
 | 255 | Design Refresh: Settings & Account pages | user-request | S | 250 | ⬜ |
 | 256 | Design Refresh: How-To page | user-request | S | 250 | ⬜ |

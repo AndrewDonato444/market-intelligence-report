@@ -166,7 +166,7 @@ describe("Step 5: Review & Generate (#156)", () => {
 
     it("CMP-156-05: renders accent divider", async () => {
       renderReview();
-      expect(document.querySelector(".bg-\\[var\\(--color-accent\\)\\]")).toBeInTheDocument();
+      expect(document.querySelector(".bg-\\[var\\(--color-app-accent\\)\\]")).toBeInTheDocument();
     });
 
     it("CMP-156-06: shows Your Market section with city, state", async () => {

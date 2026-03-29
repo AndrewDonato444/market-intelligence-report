@@ -244,22 +244,22 @@ function AgentCard({
   index: number;
 }) {
   const borderColor = {
-    pending: "var(--color-border)",
-    running: "var(--color-accent)",
+    pending: "var(--color-app-border)",
+    running: "var(--color-app-accent)",
     completed: "var(--color-success)",
     failed: "var(--color-error)",
   }[status];
 
   const bgClass = {
-    pending: "bg-[var(--color-surface)]",
-    running: "bg-[var(--color-accent-light)]",
-    completed: "bg-[var(--color-surface)]",
-    failed: "bg-[var(--color-surface)]",
+    pending: "bg-[var(--color-app-surface)]",
+    running: "bg-[var(--color-app-accent-light)]",
+    completed: "bg-[var(--color-app-surface)]",
+    failed: "bg-[var(--color-app-surface)]",
   }[status];
 
   const dotClass = {
-    pending: "bg-[var(--color-border)]",
-    running: "bg-[var(--color-accent)] animate-pulse",
+    pending: "bg-[var(--color-app-border)]",
+    running: "bg-[var(--color-app-accent)] animate-pulse",
     completed: "bg-[var(--color-success)]",
     failed: "bg-[var(--color-error)]",
   }[status];
@@ -300,21 +300,21 @@ function AgentCard({
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
-          <span className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
+          <span className="font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-app-text)]">
             {agent.name}
           </span>
           {agent.proFeature && (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--color-accent-light)] text-[var(--color-accent-hover)] font-[family-name:var(--font-sans)] text-[10px] font-semibold uppercase tracking-wider leading-none">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-[var(--radius-sm)] bg-[var(--color-app-accent-light)] text-[var(--color-app-accent-hover)] font-[family-name:var(--font-body)] text-[10px] font-semibold uppercase tracking-wider leading-none">
               Pro
             </span>
           )}
         </div>
-        <p className={`font-[family-name:var(--font-sans)] text-xs mt-1 leading-relaxed ${
+        <p className={`font-[family-name:var(--font-body)] text-xs mt-1 leading-relaxed ${
           status === "running"
-            ? "text-[var(--color-text-secondary)] italic"
+            ? "text-[var(--color-app-text-secondary)] italic"
             : status === "completed"
-              ? "text-[var(--color-text-tertiary)]"
-              : "text-[var(--color-text-secondary)]"
+              ? "text-[var(--color-app-text-tertiary)]"
+              : "text-[var(--color-app-text-secondary)]"
         }`}>
           {status === "completed" ? `${statusIcon} ${description}` : description}
         </p>
@@ -449,11 +449,11 @@ function ActivityLog({
   return (
     <div className="relative mb-4">
       {/* Top fade gradient */}
-      <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-[var(--color-surface)] to-transparent z-10 pointer-events-none rounded-t-[var(--radius-md)]" />
+      <div className="absolute top-0 left-0 right-0 h-6 bg-gradient-to-b from-[var(--color-app-surface)] to-transparent z-10 pointer-events-none rounded-t-[var(--radius-md)]" />
       <div
         ref={logRef}
         data-testid="activity-log"
-        className="h-[120px] overflow-y-auto border border-[var(--color-border)] rounded-[var(--radius-md)] bg-[var(--color-surface)] px-4 py-3"
+        className="h-[120px] overflow-y-auto border border-[var(--color-app-border)] rounded-[var(--radius-md)] bg-[var(--color-app-surface)] px-4 py-3"
       >
         {entries.map((entry) => (
           <div
@@ -461,10 +461,10 @@ function ActivityLog({
             data-testid="log-entry"
             className="flex gap-3 py-1 animate-fade-in"
           >
-            <span className="font-mono text-xs text-[var(--color-text-tertiary)] flex-shrink-0 w-10 tabular-nums">
+            <span className="font-mono text-xs text-[var(--color-app-text-tertiary)] flex-shrink-0 w-10 tabular-nums">
               {entry.timestamp}
             </span>
-            <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
+            <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
               {entry.message}
             </span>
           </div>
@@ -588,14 +588,14 @@ export function StepGenerating({
       {/* Heading */}
       <h2
         aria-live="polite"
-        className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]"
+        className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]"
       >
         {heading}
       </h2>
-      <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+      <p className="mt-2 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
         {subtitle}
       </p>
-      <div className="w-12 h-0.5 bg-[var(--color-accent)] mt-3 mb-6" />
+      <div className="w-12 h-0.5 bg-[var(--color-app-accent)] mt-3 mb-6" />
 
       {/* Progress bar */}
       <div className="mb-4">
@@ -605,7 +605,7 @@ export function StepGenerating({
             aria-valuemin={0}
             aria-valuemax={100}
             aria-label="Report generation progress"
-            className="w-full h-2.5 bg-[var(--color-border)] rounded-full overflow-hidden"
+            className="w-full h-2.5 bg-[var(--color-app-border)] rounded-full overflow-hidden"
           >
           <div
             className="h-full rounded-full transition-all duration-700 relative overflow-hidden"
@@ -613,7 +613,7 @@ export function StepGenerating({
               width: `${isCompleted ? 100 : percentComplete}%`,
               backgroundColor: isFailed
                 ? "var(--color-error)"
-                : "var(--color-accent)",
+                : "var(--color-app-accent)",
             }}
           >
             {/* Shimmer overlay */}
@@ -633,17 +633,17 @@ export function StepGenerating({
           <div className="flex items-center gap-2">
             <span
               data-testid="elapsed-time"
-              className="font-mono text-xs text-[var(--color-text-tertiary)] tabular-nums"
+              className="font-mono text-xs text-[var(--color-app-text-tertiary)] tabular-nums"
             >
               {formatElapsed(elapsed)}
             </span>
-            <span className="text-[var(--color-border)]">&middot;</span>
-            <span className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+            <span className="text-[var(--color-app-border)]">&middot;</span>
+            <span className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
               {isCompleted ? "100" : percentComplete}% complete
             </span>
           </div>
           {!isTerminal && (
-            <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)]">
+            <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)]">
               {estimateTimeRemaining(percentComplete)}
             </p>
           )}
@@ -652,7 +652,7 @@ export function StepGenerating({
 
       {/* Active agent status line */}
       {activeAgent && !isCompleted && !isFailed && (
-        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mb-4">
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] mb-4">
           <span className="font-medium">{activeAgent.name}</span>
           {" \u2014 "}
           {activeAgent.activeDescription.replace(/\.\.\.$/, "")}
@@ -690,7 +690,7 @@ export function StepGenerating({
           <button
             type="button"
             onClick={handleViewReport}
-            className="w-full py-3 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)]"
+            className="w-full py-3 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)]"
           >
             View Report
           </button>
@@ -704,7 +704,7 @@ export function StepGenerating({
             type="button"
             onClick={handleRetry}
             disabled={isRetrying}
-            className="w-full py-3 bg-[var(--color-accent)] hover:bg-[var(--color-accent-hover)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50"
+            className="w-full py-3 bg-[var(--color-app-accent)] hover:bg-[var(--color-app-accent-hover)] text-[var(--color-app-text)] font-[family-name:var(--font-body)] font-semibold text-sm rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)] transition-colors duration-[var(--duration-default)] disabled:opacity-50"
           >
             {isRetrying ? "Retrying..." : "Try Again"}
           </button>
@@ -713,7 +713,7 @@ export function StepGenerating({
 
       {/* Footer */}
       {!isCompleted && !isFailed && (
-        <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-tertiary)] pt-3 border-t border-[var(--color-border)]">
+        <p className="font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-tertiary)] pt-3 border-t border-[var(--color-app-border)]">
           Reports can take up to 10 minutes. You&rsquo;ll be notified when it&rsquo;s ready.
         </p>
       )}

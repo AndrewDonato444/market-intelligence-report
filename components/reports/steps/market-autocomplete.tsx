@@ -270,13 +270,13 @@ export function MarketAutocomplete({
         onBlur={handleBlur}
         onFocus={handleFocus}
         placeholder={placeholder}
-        className="w-full px-3 py-2 rounded-[var(--radius-sm)] border border-[var(--color-border)] bg-[var(--color-background)] font-[family-name:var(--font-sans)] text-sm text-[var(--color-text)] placeholder:text-[var(--color-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] focus:border-[var(--color-accent)] transition-colors duration-[var(--duration-default)]"
+        className="w-full px-3 py-2 rounded-[var(--radius-sm)] border border-[var(--color-app-border)] bg-[var(--color-app-bg)] font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text)] placeholder:text-[var(--color-app-text-tertiary)] focus:outline-none focus:ring-2 focus:ring-[var(--color-app-accent)] focus:border-[var(--color-app-accent)] transition-colors duration-[var(--duration-default)]"
       />
       {showDropdown && (
         <ul
           id={listboxId}
           role="listbox"
-          className="absolute z-50 mt-1 w-full bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-sm)] shadow-[var(--shadow-md)] max-h-60 overflow-auto"
+          className="absolute z-50 mt-1 w-full bg-[var(--color-app-surface)] border border-[var(--color-app-border)] rounded-[var(--radius-sm)] shadow-[var(--shadow-md)] max-h-60 overflow-auto"
         >
           {suggestions.map((entry, idx) => (
             <li
@@ -288,10 +288,10 @@ export function MarketAutocomplete({
                 e.preventDefault();
                 handleSelect(entry);
               }}
-              className={`px-3 py-2 cursor-pointer font-[family-name:var(--font-sans)] text-sm transition-colors duration-[var(--duration-fast)] ${
+              className={`px-3 py-2 cursor-pointer font-[family-name:var(--font-body)] text-sm transition-colors duration-[var(--duration-fast)] ${
                 idx === activeIndex
-                  ? "bg-[var(--color-accent-light)] text-[var(--color-primary)]"
-                  : "text-[var(--color-text)] hover:bg-[var(--color-background)]"
+                  ? "bg-[var(--color-app-accent-light)] text-[var(--color-app-text)]"
+                  : "text-[var(--color-app-text)] hover:bg-[var(--color-app-bg)]"
               }`}
             >
               {entry.city}, {entry.abbr}

@@ -2,7 +2,8 @@
 feature: Design Refresh — Report Creation Flow (Phase 4)
 domain: design-refresh
 source: components/reports/creation-flow-shell.tsx, components/reports/creation-step-indicator.tsx, components/reports/steps/step-your-market.tsx, components/reports/steps/step-your-tier.tsx, components/reports/steps/step-your-audience.tsx, components/reports/steps/step-your-review.tsx, components/reports/steps/step-generating.tsx, components/reports/steps/market-autocomplete.tsx, components/reports/steps/market-preview-card.tsx, components/reports/persona-card.tsx, components/reports/persona-preview-panel.tsx
-tests: []
+tests:
+  - __tests__/reports/report-creation-flow-design-refresh.test.tsx
 components:
   - CreationFlowShell
   - CreationStepIndicator
@@ -22,7 +23,7 @@ design_refs:
 personas:
   - rising-star-agent
   - established-practitioner
-status: specced
+status: implemented
 created: 2026-03-28
 updated: 2026-03-28
 ---

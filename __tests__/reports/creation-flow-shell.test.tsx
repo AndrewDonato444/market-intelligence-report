@@ -168,7 +168,7 @@ describe("Unified Creation Flow Shell (#151)", () => {
       );
 
       const futureStep = screen.getByText("Your Audience");
-      expect(futureStep.className).toContain("text-[var(--color-text-tertiary)]");
+      expect(futureStep.className).toContain("text-[var(--color-app-text-tertiary)]");
     });
   });
 

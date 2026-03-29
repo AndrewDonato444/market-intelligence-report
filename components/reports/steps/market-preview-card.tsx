@@ -16,11 +16,11 @@ export function MarketPreviewCard({ city, state }: MarketPreviewCardProps) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: DURATION_SLOW, ease: EASING_DEFAULT }}
-      className="mt-6 p-4 rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-accent-light)] border border-[var(--color-accent)]/20"
+      className="mt-6 p-4 rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] bg-[var(--color-app-accent-light)] border border-[var(--color-app-accent)]/20"
     >
       <div className="flex items-center gap-2">
         <svg
-          className="w-4 h-4 text-[var(--color-accent)]"
+          className="w-4 h-4 text-[var(--color-app-accent)]"
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -39,7 +39,7 @@ export function MarketPreviewCard({ city, state }: MarketPreviewCardProps) {
             d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
           />
         </svg>
-        <span className="font-[family-name:var(--font-serif)] text-base font-semibold text-[var(--color-primary)]">
+        <span className="font-[family-name:var(--font-display)] text-base font-semibold text-[var(--color-app-text)]">
           {city}, {state}
         </span>
       </div>

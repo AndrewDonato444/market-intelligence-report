@@ -8,6 +8,11 @@ Patterns for UI and design system in this codebase.
 
 <!-- When to use which tokens, overrides -->
 
+### 2026-03-28 — Design Refresh: Report Creation Flow Token Migration
+- **Pattern**: Bulk token migration across many files uses sed with careful ordering — replace longest tokens first (e.g., `--color-primary-light` before `--color-primary`) to prevent substring conflicts. Using `var(--token)` boundaries (the closing `)`) as sed delimiters prevents false matches.
+- **Decision**: Semantic color tokens (`--color-success`, `--color-error`, `--color-warning`) are never migrated — they are context-independent and should remain unchanged across warm/cold palette shifts.
+- **Pattern**: Warm palette migration is additive-only — never rename, delete, or change values of existing CSS custom properties. Old tokens remain defined in globals.css; components simply stop referencing them in favor of `--color-app-*` variants.
+
 ### 2026-03-10
 - **Pattern**: PDF styles need additional color tokens not in the base set — `textTertiary` (#94A3B8) for subtle labels, `primaryLight` (#F0F4FF) for callout backgrounds, `accentLight` (#FFFBEB) for blended sections. Add these to the COLORS constant in `styles.ts` alongside existing tokens.
 - **Decision**: Persona card primary/secondary distinction uses left border (3pt accent for primary, standard border for secondary) rather than background color — more subtle and professional for print PDF.

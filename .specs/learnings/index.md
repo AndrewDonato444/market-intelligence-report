@@ -19,6 +19,13 @@ Cross-cutting patterns learned in this codebase. Updated via `/compound`.
 
 <!-- /compound adds recent learnings here - newest first -->
 
+### 2026-03-28 — Design Refresh: Report Creation Flow Token Migration
+
+- **Bulk sed token migration ordering** (`design.md`): Replace longest tokens first (`--color-primary-light` before `--color-primary`) to prevent substring conflicts. Use `var()` closing paren as boundary delimiter.
+- **Additive-only palette migration** (`design.md`): Never rename/delete/change existing CSS custom property values — just stop referencing cold tokens in components. Semantic tokens (`--color-success`, etc.) are never migrated.
+- **Source file inspection test pattern** (`testing.md`): Use `fs.readFileSync` + string/regex assertions to verify token migration rather than DOM queries. Negative-lookahead regex `(?!app-)` distinguishes cold from warm tokens.
+- **Token migration breaks existing querySelector tests** (`testing.md`): After migrating tokens, grep all test files for old token names — `querySelector` with CSS variable class names fails silently when the class changes.
+
 ### 2026-03-16 — ToS Acceptance on Signup (#Security)
 
 - **Auth metadata as compliance bridge** (`security.md`): Store `tos_accepted_at` in Supabase `user_metadata` during signUp, read it in `ensureUserProfile` when creating the DB row. This bridges the client-side acceptance with server-side persistence without a separate API call.

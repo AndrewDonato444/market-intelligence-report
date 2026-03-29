@@ -73,6 +73,17 @@ Patterns for testing in this codebase.
 
 ---
 
+## Source File Inspection Tests
+
+<!-- Patterns for tests that read source files directly -->
+
+### 2026-03-28 — Design Refresh Token Migration Tests
+- **Pattern**: Use `fs.readFileSync` to read component source files and assert token presence/absence. This is more reliable than DOM-based assertions for CSS custom property migration since class names with `var()` references are hard to query via `querySelector`.
+- **Pattern**: Negative-lookahead regex `var\(--color-(?!app-)` asserts cold tokens are absent while allowing warm `--color-app-*` variants to pass. Wrap in a helper (`assertNoColdColorTokens`) that iterates a cold token list and calls `fail()` with the filename for clear error messages.
+- **Gotcha**: Existing tests using `document.querySelector` with CSS variable class names (e.g., `.bg-\\[var\\(--color-accent\\)\\]`) break silently when tokens are migrated. After any token migration, grep all test files for the old token names and update selectors. Pattern: `grep -r "color-accent\|color-primary\|font-serif\|font-sans" __tests__/`.
+
+---
+
 ## Assertions
 
 <!-- Common assertion patterns, custom matchers -->

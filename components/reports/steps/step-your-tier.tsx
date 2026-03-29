@@ -70,14 +70,14 @@ export function StepYourTier({
   return (
     <div className="py-4">
       {/* Heading */}
-      <h2 className="font-[family-name:var(--font-serif)] text-2xl font-bold text-[var(--color-primary)]">
+      <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[var(--color-app-text)]">
         Which tier defines your clientele?
       </h2>
-      <p className="mt-2 font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
+      <p className="mt-2 font-[family-name:var(--font-body)] text-sm text-[var(--color-app-text-secondary)]">
         This determines which transactions we analyze for your market.
       </p>
 
-      <div className="w-8 h-0.5 bg-[var(--color-accent)] mt-4 mb-6" />
+      <div className="w-8 h-0.5 bg-[var(--color-app-accent)] mt-4 mb-6" />
 
       {/* Tier Cards */}
       <motion.div
@@ -108,25 +108,25 @@ export function StepYourTier({
               variants={scaleVariant}
               className={`cursor-pointer rounded-[var(--radius-sm)] border p-4 transition-all duration-[var(--duration-default)] ${
                 isSelected
-                  ? "border-[var(--color-accent)] bg-[var(--color-accent-light)] shadow-[var(--shadow-sm)]"
-                  : "border-[var(--color-border)] bg-[var(--color-surface)] hover:border-[var(--color-accent)]/50 hover:shadow-[var(--shadow-sm)]"
+                  ? "border-[var(--color-app-accent)] bg-[var(--color-app-accent-light)] shadow-[var(--shadow-sm)]"
+                  : "border-[var(--color-app-border)] bg-[var(--color-app-surface)] hover:border-[var(--color-app-accent)]/50 hover:shadow-[var(--shadow-sm)]"
               }`}
             >
-              <span className="block font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-text)]">
+              <span className="block font-[family-name:var(--font-body)] text-sm font-semibold text-[var(--color-app-text)]">
                 {tier.label}
               </span>
-              <span className="block font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-primary)] mt-1">
+              <span className="block font-[family-name:var(--font-display)] text-lg font-bold text-[var(--color-app-text)] mt-1">
                 {tier.range}
               </span>
-              <span className="block font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] mt-1">
+              <span className="block font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)] mt-1">
                 {tier.tagline}
               </span>
             </motion.div>
           );
         })}
       </motion.div>
-      <p className="mt-6 flex items-start gap-1.5 font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)]">
-        <span className="text-[var(--color-accent)] mt-px">◆</span>
+      <p className="mt-6 flex items-start gap-1.5 font-[family-name:var(--font-body)] text-xs text-[var(--color-app-text-secondary)]">
+        <span className="text-[var(--color-app-accent)] mt-px">◆</span>
         Keeping the ranges tight yields the best data analysis. You can always come back and generate a new report for another tier.
       </p>
     </div>
