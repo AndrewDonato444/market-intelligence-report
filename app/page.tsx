@@ -476,7 +476,7 @@ export default function Home() {
                 platform.
               </p>
               <p className="text-base leading-[1.8] text-[var(--color-mkt-text-secondary)]">
-                The intelligence framework, the buyer persona system, the voice
+                The intelligence framework, the client persona system, the voice
                 architecture, the content methodology &mdash; all of it was
                 tested in a real market, with real clients, producing real
                 results.
@@ -488,7 +488,7 @@ export default function Home() {
                     $117M
                   </div>
                   <div className="text-[13px] text-[var(--color-mkt-border-muted)] mt-1">
-                    Sales volume
+                    2025 Sales Volume
                   </div>
                 </div>
                 <div>

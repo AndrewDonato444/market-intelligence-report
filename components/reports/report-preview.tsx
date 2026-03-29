@@ -339,6 +339,7 @@ export function SectionRenderer({ section }: { section: ReportSection }) {
       body = <ForecastsRenderer content={content as any} />;
       break;
     case "executive_summary":
+    case "executive_briefing":
     case "strategic_summary":
       body = <NarrativeSectionRenderer content={content as any} />;
       break;
@@ -367,8 +368,19 @@ interface ReportPreviewProps {
   sections: ReportSection[];
 }
 
+/** Section types shown in the web preview (everything else is PDF-only). */
+const WEB_PREVIEW_SECTIONS = new Set([
+  "executive_summary",
+  "strategic_summary",
+  "executive_briefing",
+]);
+
 export function ReportPreview({ sections }: ReportPreviewProps) {
-  if (sections.length === 0) {
+  const visibleSections = sections.filter((s) =>
+    WEB_PREVIEW_SECTIONS.has(s.sectionType),
+  );
+
+  if (visibleSections.length === 0) {
     return (
       <div className="bg-[var(--color-surface)] rounded-[var(--radius-md)] shadow-[var(--shadow-sm)] p-6 text-center">
         <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
@@ -380,7 +392,7 @@ export function ReportPreview({ sections }: ReportPreviewProps) {
 
   return (
     <div className="space-y-4">
-      {sections.map((section, idx) => (
+      {visibleSections.map((section, idx) => (
         <SectionRenderer key={`${section.sectionType}-${idx}`} section={section} />
       ))}
     </div>

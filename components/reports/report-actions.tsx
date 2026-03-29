@@ -91,20 +91,13 @@ export function ReportActions({
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-3">
+      <div>
         <button
           onClick={handleDownload}
           disabled={downloading}
-          className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 disabled:opacity-50"
+          className="w-full inline-flex items-center justify-center gap-2 rounded-[var(--radius-sm)] bg-[var(--color-accent)] px-4 py-2 font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-primary)] hover:opacity-90 disabled:opacity-50 transition-opacity"
         >
           {downloading ? "Generating..." : "Download PDF"}
-        </button>
-        <button
-          onClick={handleShare}
-          disabled={sharing}
-          className="inline-flex items-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium hover:bg-muted disabled:opacity-50"
-        >
-          {sharing ? "Creating..." : "Share Report"}
         </button>
       </div>
 

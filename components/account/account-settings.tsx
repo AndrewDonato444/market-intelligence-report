@@ -178,20 +178,9 @@ function SubscriptionSection({ data }: { data: SubscriptionData }) {
             Social Media Kits
           </span>
           <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-            {socialMediaKits.limit === 0 ? (
-              <span className="text-[var(--color-text-tertiary)]">Not included in your plan</span>
-            ) : socialMediaKits.limit === -1 ? (
-              "Unlimited"
-            ) : (
-              `Included (${socialMediaKits.limit} per report)`
-            )}
+            Included
           </span>
         </div>
-        {socialMediaKits.limit === 0 && nextTier && (
-          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] -mt-3 mb-4">
-            Upgrade to {nextTier.name} to generate social media content from your reports
-          </p>
-        )}
 
         {/* Email Campaigns */}
         <div className="flex items-center justify-between mb-4">
@@ -199,25 +188,14 @@ function SubscriptionSection({ data }: { data: SubscriptionData }) {
             Email Campaigns
           </span>
           <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-            {emailCampaigns.limit === 0 ? (
-              <span className="text-[var(--color-text-tertiary)]">Not included in your plan</span>
-            ) : emailCampaigns.limit === -1 ? (
-              "Unlimited"
-            ) : (
-              `Included (${emailCampaigns.limit} per report)`
-            )}
+            Included
           </span>
         </div>
-        {emailCampaigns.limit === 0 && nextTier && (
-          <p className="font-[family-name:var(--font-sans)] text-xs text-[var(--color-text-secondary)] -mt-3 mb-4">
-            Upgrade to {nextTier.name} to generate email campaigns from your reports
-          </p>
-        )}
 
-        {/* Buyer Personas */}
+        {/* Client Personas */}
         <div className="flex items-center justify-between mb-4">
           <span className="font-[family-name:var(--font-sans)] text-sm font-medium text-[var(--color-text)]">
-            Buyer Personas
+            Client Personas
           </span>
           <span className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
             {personasPerReport.limit} per report
@@ -233,58 +211,6 @@ function SubscriptionSection({ data }: { data: SubscriptionData }) {
         </p>
       )}
 
-      {/* Upgrade Prompt */}
-      {nextTier && (
-        <div className="mt-6 p-4 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)]">
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-primary)]">
-              Unlock more with {nextTier.name}
-            </span>
-            <span className="font-[family-name:var(--font-sans)] text-sm font-semibold text-[var(--color-accent)]">
-              {nextTier.displayPrice}
-            </span>
-          </div>
-
-          <div className="space-y-2 mb-4">
-            <div className="flex justify-between font-[family-name:var(--font-sans)] text-sm">
-              <span className="text-[var(--color-text)]">Reports per month</span>
-              <span className="text-[var(--color-text-secondary)]">
-                {nextTier.entitlements.reports_per_month} <span className="text-[var(--color-text-tertiary)]">(you have {reports.limit})</span>
-              </span>
-            </div>
-            <div className="flex justify-between font-[family-name:var(--font-sans)] text-sm">
-              <span className="text-[var(--color-text)]">Markets</span>
-              <span className="text-[var(--color-text-secondary)]">
-                {nextTier.entitlements.markets_created} <span className="text-[var(--color-text-tertiary)]">(you have {markets.limit})</span>
-              </span>
-            </div>
-            <div className="flex justify-between font-[family-name:var(--font-sans)] text-sm">
-              <span className="text-[var(--color-text)]">Social media kits</span>
-              <span className="text-[var(--color-text-secondary)]">
-                {nextTier.entitlements.social_media_kits > 0 ? "Included" : "Not included"}
-                {socialMediaKits.limit === 0 && <span className="text-[var(--color-text-tertiary)]"> (not in your plan)</span>}
-              </span>
-            </div>
-            <div className="flex justify-between font-[family-name:var(--font-sans)] text-sm">
-              <span className="text-[var(--color-text)]">Email campaigns</span>
-              <span className="text-[var(--color-text-secondary)]">
-                {nextTier.entitlements.email_campaigns > 0 ? "Included" : "Not included"}
-                {emailCampaigns.limit === 0 && <span className="text-[var(--color-text-tertiary)]"> (not in your plan)</span>}
-              </span>
-            </div>
-            <div className="flex justify-between font-[family-name:var(--font-sans)] text-sm">
-              <span className="text-[var(--color-text)]">Buyer personas</span>
-              <span className="text-[var(--color-text-secondary)]">
-                {nextTier.entitlements.personas_per_report} <span className="text-[var(--color-text-tertiary)]">(you have {personasPerReport.limit})</span>
-              </span>
-            </div>
-          </div>
-
-          <button className="w-full px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-medium text-sm rounded-[var(--radius-sm)] transition-colors hover:opacity-90">
-            Contact Us to Upgrade
-          </button>
-        </div>
-      )}
     </>
   );
 }

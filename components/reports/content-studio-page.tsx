@@ -21,8 +21,10 @@ interface ContentStudioPageProps {
   emailStatus: string | null;
   emailContent: Record<string, unknown> | null;
   emailGeneratedAt: string | null;
-  kitEntitlement: { allowed: boolean; limit: number };
-  emailEntitlement: { allowed: boolean; limit: number };
+  /** @deprecated Entitlement gating removed — all features included in base plan */
+  kitEntitlement?: { allowed: boolean; limit: number };
+  /** @deprecated Entitlement gating removed — all features included in base plan */
+  emailEntitlement?: { allowed: boolean; limit: number };
 }
 
 type Tab = "social" | "email";
@@ -48,8 +50,6 @@ export function ContentStudioPage({
   emailStatus,
   emailContent,
   emailGeneratedAt,
-  kitEntitlement,
-  emailEntitlement,
 }: ContentStudioPageProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -79,18 +79,6 @@ export function ContentStudioPage({
         &larr; Back to Report
       </Link>
 
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <h1 className="font-[family-name:var(--font-serif)] text-xl font-bold text-[var(--color-text)]">
-          Content Studio
-        </h1>
-        <GeneratedAtLabel
-          kitGeneratedAt={kitGeneratedAt}
-          emailGeneratedAt={emailGeneratedAt}
-          activeTab={activeTab}
-        />
-      </div>
-
       {/* Tab bar */}
       <div role="tablist" className="flex border-b border-[var(--color-border)]">
         {TABS.map((tab) => (
@@ -119,7 +107,6 @@ export function ContentStudioPage({
           status={kitStatus}
           content={kitContent}
           generatedAt={kitGeneratedAt}
-          entitlement={kitEntitlement}
         />
         </div>
       )}
@@ -130,7 +117,6 @@ export function ContentStudioPage({
           status={emailStatus}
           content={emailContent}
           generatedAt={emailGeneratedAt}
-          entitlement={emailEntitlement}
         />
         </div>
       )}
@@ -147,13 +133,11 @@ function SocialMediaTabContent({
   status,
   content,
   generatedAt,
-  entitlement,
 }: {
   reportId: string;
   status: string | null;
   content: Record<string, unknown> | null;
   generatedAt: string | null;
-  entitlement: { allowed: boolean; limit: number };
 }) {
   // Completed — show viewer
   if (status === "completed" && content) {
@@ -164,11 +148,6 @@ function SocialMediaTabContent({
         generatedAt={generatedAt}
       />
     );
-  }
-
-  // Starter tier — upgrade prompt
-  if (entitlement.limit === 0 && !entitlement.allowed) {
-    return <UpgradePrompt type="social" />;
   }
 
   // Generating / queued / failed / none — show generate button
@@ -196,13 +175,11 @@ function EmailTabContent({
   status,
   content,
   generatedAt,
-  entitlement,
 }: {
   reportId: string;
   status: string | null;
   content: Record<string, unknown> | null;
   generatedAt: string | null;
-  entitlement: { allowed: boolean; limit: number };
 }) {
   const [liveContent, setLiveContent] = useState<Record<string, unknown> | null>(content);
   const [liveGeneratedAt, setLiveGeneratedAt] = useState<string | null>(generatedAt);
@@ -229,11 +206,6 @@ function EmailTabContent({
     );
   }
 
-  // Starter tier — upgrade prompt
-  if (entitlement.limit === 0 && !entitlement.allowed) {
-    return <UpgradePrompt type="email" />;
-  }
-
   // Generating / queued / failed / none — show generate button
   return (
     <div className="text-center py-12 space-y-4">
@@ -247,58 +219,6 @@ function EmailTabContent({
         }
         onCompleted={handleCompleted}
       />
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Upgrade prompt
-// ---------------------------------------------------------------------------
-
-function UpgradePrompt({ type }: { type: "social" | "email" }) {
-  const title =
-    type === "social"
-      ? "Social Media Kit — Professional Feature"
-      : "Email Campaigns — Professional Feature";
-
-  const benefits =
-    type === "social"
-      ? [
-          "Platform-optimized posts (LinkedIn, Instagram, X, Facebook)",
-          "Persona-targeted content for your audience",
-          "Poll ideas with data-backed context",
-          "Stat callouts for quick sharing",
-          "Content calendar suggestions",
-        ]
-      : [
-          "Drip sequences for nurturing leads",
-          "Market update newsletters",
-          "Persona-targeted email copy",
-          "Subject lines and CTAs",
-          "Re-engagement templates",
-        ];
-
-  return (
-    <div className="py-12 max-w-md mx-auto">
-      <div className="p-6 rounded-[var(--radius-md)] border border-[var(--color-border)] bg-[var(--color-surface)] space-y-4">
-        <h2 className="font-[family-name:var(--font-serif)] text-lg font-bold text-[var(--color-primary)]">
-          {title}
-        </h2>
-        <p className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)]">
-          Professional Feature
-        </p>
-        <ul className="font-[family-name:var(--font-sans)] text-sm text-[var(--color-text-secondary)] space-y-2 list-disc list-inside">
-          {benefits.map((b) => (
-            <li key={b}>{b}</li>
-          ))}
-        </ul>
-        <Link
-          href="/account"
-          className="block w-full text-center px-4 py-2 bg-[var(--color-accent)] text-[var(--color-primary)] font-[family-name:var(--font-sans)] font-medium text-sm rounded-[var(--radius-sm)] transition-colors hover:opacity-90"
-        >
-          View Plans to Upgrade
-        </Link>
-      </div>
     </div>
   );
 }
